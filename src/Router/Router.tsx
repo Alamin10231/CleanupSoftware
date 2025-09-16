@@ -15,19 +15,21 @@ import Layout from "../../Layout";
 const Router = () => {
   return (
     <Routes>
-      <Route path="/" element={<Layout />} />
-      <Route index element={<Dashboard />} />
-      <Route path="client" element={<Clients />} />
-      <Route path="help" element={<Help />} />
-      <Route path="invoices" element={<Invoices />} />
-      <Route path="map" element={<Map />} />
-      <Route path="notifications" element={<Notifications />} />
-      <Route path="region" element={<Region />} />
-      <Route path="reports" element={<Reports />} />
-      <Route path="services" element={<Services />} />
-      <Route path="settings" element={<Settings />} />
-      <Route path="subscription" element={<Subscriptions />} />
+      <Route path="/" element={<Layout />}> 
+        <Route index element={<Dashboard />} />
+        <Route path="client" element={<Clients />} />
+        <Route path="help" element={<Help />} />
+        <Route path="invoices" element={<Invoices />} />
+        <Route path="map" element={<Map />} />
+        <Route path="notifications" element={<Notifications />} />
+        <Route path="region" element={<Region />} />
+        <Route path="reports" element={<Reports />} />
+        <Route path="services" element={<Services />} />
+        <Route path="settings" element={<Settings />} />
+        <Route path="subscription" element={<Subscriptions />} />
+      </Route>
     </Routes>
+
   )
 }
 
