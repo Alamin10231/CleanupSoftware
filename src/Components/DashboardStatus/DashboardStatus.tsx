@@ -77,7 +77,22 @@ export default function DashboardStats() {
                 {tab.label}
               </button>
             ))}
+            
           </div>
+            <div className="flex space-x-2 items-center">
+    <button className="px-4 py-2 bg-blue-500 text-white text-md font-medium flex items-center gap-2   rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.001 8.001 0 01-15.356-2m15.356 2H15"></path>
+      </svg>
+      Refresh
+    </button>
+   <button className="px-4 py-2 bg-blue-500 text-white text-md font-medium flex items-center gap-2   rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+      </svg>
+      Export
+    </button>
+  </div>
         </div>
       </div>
 
@@ -108,6 +123,7 @@ export default function DashboardStats() {
             </div>
           </div>
         ))}
+        
       </div>
     </div>
   );
