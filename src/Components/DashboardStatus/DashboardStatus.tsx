@@ -3,6 +3,7 @@ import man from "../../../public/Image/Heart.png";
 import vector from "../../../public/Image/Vector.png";
 import vector1 from "../../../public/Image/Vector (1).png";
 import house from "../../../public/Image/solar_card-outline.png";
+import { IoIosArrowUp } from "react-icons/io";
 
 export default function DashboardStats() {
   const [activeTab, setActiveTab] = useState("month");
@@ -110,7 +111,7 @@ export default function DashboardStats() {
               ) : (
                 <span className="text-2xl">{icon}</span>
               )}
-              <span className="text-gray-500 text-sm">{subtitle}</span>
+              <span className="text-[#030229] text-sm">{subtitle}</span>
             </div>
 
             <div>
@@ -118,8 +119,8 @@ export default function DashboardStats() {
               <p className="text-2xl font-bold mt-1">{value}</p>
             </div>
 
-            <div className="text-green-600 bg-green-100 px-2 py-1 rounded text-sm w-fit">
-              ↑ {growth}
+            <div className="bg-[#C4FFC7] text-[#009608] px-4 py-1 rounded-full  text-sm w-fit flex items-center gap-2">
+              <span><IoIosArrowUp  size={24} color="green" /></span> {growth}
             </div>
           </div>
         ))}
