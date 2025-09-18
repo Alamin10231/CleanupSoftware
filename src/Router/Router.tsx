@@ -11,6 +11,7 @@ import Services from "@/Page/Services";
 import Settings from "@/Page/Settings";
 import Subscriptions from "@/Page/Subscriptions";
 import Layout from "../../Layout";
+import Employees from "@/Page/Employees";
 
 const Router = () => {
   return (
@@ -20,6 +21,7 @@ const Router = () => {
         <Route path="client" element={<Clients />} />
         <Route path="help" element={<Help />} />
         <Route path="invoices" element={<Invoices />} />
+        <Route path="employees" element={<Employees />} />
         <Route path="map" element={<Map />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="region" element={<Region />} />
