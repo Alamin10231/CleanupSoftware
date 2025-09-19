@@ -11,6 +11,7 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"), // 👈 alias for /src
     },
   },
+  
   server: {
     port: 6868,
     host: "127.0.0.1",
