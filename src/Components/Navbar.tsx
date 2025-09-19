@@ -43,7 +43,7 @@ const Navbar = () => {
       </div>
 
       {/* Middle SearchBar */}
-      <div className="flex-1 mx-8">
+      <div className="flex mx-8">
         <SearchBar
           value={searchValue}
           onChange={setSearchValue}
@@ -86,30 +86,33 @@ const Navbar = () => {
           {/* Dropdown */}
           {open && (
             <div className="absolute top-full  right-0 mt-2 w-64 bg-white dark:bg-gray-800 shadow-lg rounded-md z-50">
-              <div className="flex items-center gap-2 cursor-pointer  justify-start  w-full text-left px-4 py-4 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <img
-                  src={profilepic}
-                  className="w-10 h-10 rounded"
-                  alt="profile"
-                />
-                <div className="flex flex-col">
-                  <h1 className="font-semibold text-sm">MR. Mosabbir</h1>
-                  <p className="text-[#8E8E8E] text-xs">admin@cleanuppro.com</p>
-                  <p className="bg-[rgba(36,99,234,0.1)] p-2 rounded-full px-4 flex items-center gap-3">
-                    {" "}
-                    <span>
-                      <img src={admininstritor} alt="" />
-                    </span>
-                    Administrator
-                  </p>
-                </div>
-              </div>
+            <div className="flex items-center gap-4 cursor-pointer w-full text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 border-b-1 border-b-[#9A9AA9]">
+  {/* Profile Image */}
+  <img
+    src={profilepic}
+    className="w-12 h-12 rounded object-cover"
+    alt="profile"
+  />
+
+  {/* Profile Text */}
+  <div className="flex flex-col justify-center ">
+    <h1 className="font-semibold text-sm leading-tight">MR. Mosabbir</h1>
+    <p className="text-gray-500 text-xs py-1">admin@cleanuppro.com</p>
+    
+    {/* Role Badge */}
+    <p className="bg-[rgba(36,99,234,0.1)] text-sm text-[#2463EA] inline-flex items-center gap-2 px-3 py-1 rounded-full">
+      <img src={admininstritor} className="w-4 h-4" alt="role icon" />
+      Administrator
+    </p>
+  </div>
+</div>
+
 
               <div className="  justify-start flex items-center gap-3 w-full text-left px-4 py-4 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <img src={manicon} alt="" />
                 <p>Profile</p>
               </div>
-              <div className=" border-b border-[#9A9AA9] justify-start flex items-center gap-3 w-full text-left px-4 pb-4 hover:bg-gray-100 dark:hover:bg-gray-700">
+              <div className=" border-b border-b-[#9A9AA9] justify-start flex items-center gap-3 w-full text-left px-4 pb-4 hover:bg-gray-100 dark:hover:bg-gray-700">
                 <img src={setting} alt="" />
                 <p>Setting</p>
               </div>
