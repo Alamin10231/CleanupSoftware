@@ -19,39 +19,37 @@ const chartData = [
 
 export default function ChartLineDots() {
   return (
-    <div className="w-full max-w-xl rounded-lg border bg-white shadow p-4">
-      {/* Header */}
+    <div className=" rounded-lg border border-[#8E8E8E] bg-white shadow p-4">
       <div className="mb-4">
         <h2 className="text-lg font-semibold">Report</h2>
       </div>
 
-      {/* Chart */}
-      <div className="h-64">
+      <div className="h-72 ">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData} margin={{ left: 12, right: 12 }}>
+          <LineChart data={chartData} margin={{ left: 12, right: 12  }}>
             <CartesianGrid vertical={false} stroke="#e5e7eb" />
-  <defs>
-      <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0%" stopColor="#5BC4FF" />   {/* 0% */}
-    <stop offset="100%" stopColor="#FF5BEF" /> {/* 100% */}
-  </linearGradient>
-  </defs>
-            {/* X Axis */}
-            <XAxis
-              dataKey="time"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
+
+            {/* Gradient definition */}
+            <defs>
+              <linearGradient id="lineGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#5BC4FF" />
+                <stop offset="100%" stopColor="#FF5BEF" />
+              </linearGradient>
+            </defs>
+
+            {/* Line */}
+            <Line
+              type="monotone"
+              dataKey="sales"
+              stroke="url(#lineGradient)"
+              strokeWidth={2}
+              dot={{ fill: "#fff" }}
+              activeDot={{ r: 6 }}
             />
 
-            {/* Y Axis */}
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              ticks={[0, 20, 40, 60, 80, 100]}
-              domain={[0, 100]}
-            />
-
+            {/* X & Y Axis + Tooltip */}
+            <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} />
+            <YAxis tickLine={false} axisLine={false} ticks={[0, 20, 40, 60, 80, 100]} domain={[0, 100]} />
             <Tooltip
               cursor={{ stroke: "#94a3b8", strokeDasharray: "3 3" }}
               contentStyle={{
@@ -60,19 +58,6 @@ export default function ChartLineDots() {
                 borderRadius: "0.375rem",
               }}
             />
-
-            {/* Desktop line */}
-            <Line
-              type="monotone"
-              dataKey="sales"
-             
-               stroke="url(#lineGradient)"
-              strokeWidth={2}
-              dot={{ fill: "#FFFF" }}
-              activeDot={{ r: 6 }}
-            />
-
-            {/* Mobile line */}
           </LineChart>
         </ResponsiveContainer>
       </div>
