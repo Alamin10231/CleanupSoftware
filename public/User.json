@@ -1,0 +1,172 @@
+[
+  {
+    "id": 1,
+    "name": "John Smith",
+    "email": "john.smith@example.com",
+    "phone": "+1-555-123-4567",
+    "location": "New York",
+    "status": ["active", "individual", "premium"],
+    "avatar": "https://dummyimage.com/100x100/cccccc/000000&text=JS",
+    "stats": {
+      "revenue": 500,
+      "services": 5,
+      "rating": 4.5,
+      "building": 2,
+      "last_service": "15/09/2025"
+    },
+    "joined_date": "10/01/2020"
+  },
+  {
+    "id": 2,
+    "name": "Jane Doe",
+    "email": "jane.doe@example.com",
+    "phone": "+44-20-7946-0123",
+    "location": "London",
+    "status": ["active", "business", "pro"],
+    "avatar": "https://dummyimage.com/100x100/cccccc/000000&text=JD",
+    "stats": {
+      "revenue": 1500,
+      "services": 12,
+      "rating": 4.8,
+      "building": 5,
+      "last_service": "18/09/2025"
+    },
+    "joined_date": "25/03/2019"
+  },
+  {
+    "id": 3,
+    "name": "Peter Jones",
+    "email": "peter.jones@example.com",
+    "phone": "+61-2-9012-3456",
+    "location": "Sydney",
+    "status": ["inactive", "individual", "basic"],
+    "avatar": "https://dummyimage.com/100x100/cccccc/000000&text=PJ",
+    "stats": {
+      "revenue": 120,
+      "services": 2,
+      "rating": 3.9,
+      "building": 1,
+      "last_service": "05/08/2025"
+    },
+    "joined_date": "15/05/2021"
+  },
+  {
+    "id": 4,
+    "name": "Emily White",
+    "email": "emily.white@example.com",
+    "phone": "+49-30-1234-5678",
+    "location": "Berlin",
+    "status": ["active", "individual", "premium"],
+    "avatar": "https://dummyimage.com/100x100/cccccc/000000&text=EW",
+    "stats": {
+      "revenue": 750,
+      "services": 7,
+      "rating": 4.2,
+      "building": 3,
+      "last_service": "01/09/2025"
+    },
+    "joined_date": "02/11/2022"
+  },
+  {
+    "id": 5,
+    "name": "David Brown",
+    "email": "david.brown@example.com",
+    "phone": "+33-1-23-45-67-89",
+    "location": "Paris",
+    "status": ["active", "business", "pro"],
+    "avatar": "https://dummyimage.com/100x100/cccccc/000000&text=DB",
+    "stats": {
+      "revenue": 2100,
+      "services": 20,
+      "rating": 4.9,
+      "building": 8,
+      "last_service": "20/09/2025"
+    },
+    "joined_date": "08/07/2018"
+  },
+  {
+    "id": 6,
+    "name": "Linda Green",
+    "email": "linda.green@example.com",
+    "phone": "+81-3-9876-5432",
+    "location": "Tokyo",
+    "status": ["inactive", "individual", "basic"],
+    "avatar": "https://dummyimage.com/100x100/cccccc/000000&text=LG",
+    "stats": {
+      "revenue": 50,
+      "services": 1,
+      "rating": 3.5,
+      "building": 0,
+      "last_service": "12/06/2025"
+    },
+    "joined_date": "19/10/2023"
+  },
+  {
+    "id": 7,
+    "name": "Robert Taylor",
+    "email": "robert.taylor@example.com",
+    "phone": "+86-10-8765-4321",
+    "location": "Beijing",
+    "status": ["active", "business", "pro"],
+    "avatar": "https://dummyimage.com/100x100/cccccc/000000&text=RT",
+    "stats": {
+      "revenue": 3000,
+      "services": 35,
+      "rating": 5.0,
+      "building": 10,
+      "last_service": "19/09/2025"
+    },
+    "joined_date": "04/04/2017"
+  },
+  {
+    "id": 8,
+    "name": "Maria Garcia",
+    "email": "maria.garcia@example.com",
+    "phone": "+34-91-234-5678",
+    "location": "Madrid",
+    "status": ["active", "individual", "premium"],
+    "avatar": "https://dummyimage.com/100x100/cccccc/000000&text=MG",
+    "stats": {
+      "revenue": 950,
+      "services": 9,
+      "rating": 4.7,
+      "building": 4,
+      "last_service": "14/09/2025"
+    },
+    "joined_date": "22/12/2021"
+  },
+  {
+    "id": 9,
+    "name": "Michael Chen",
+    "email": "michael.chen@example.com",
+    "phone": "+1-213-987-6543",
+    "location": "Los Angeles",
+    "status": ["active", "individual", "basic"],
+    "avatar": "https://dummyimage.com/100x100/cccccc/000000&text=MC",
+    "stats": {
+      "revenue": 300,
+      "services": 3,
+      "rating": 4.1,
+      "building": 1,
+      "last_service": "07/09/2025"
+    },
+    "joined_date": "30/08/2024"
+  },
+  {
+    "id": 10,
+    "name": "Sophia Müller",
+    "email": "sophia.muller@example.com",
+    "phone": "+41-22-345-6789",
+    "location": "Zurich",
+    "status": ["inactive", "business", "pro"],
+    "avatar": "https://dummyimage.com/100x100/cccccc/000000&text=SM",
+    "stats": {
+      "revenue": 800,
+      "services": 6,
+      "rating": 4.3,
+      "building": 2,
+      "last_service": "28/05/2025"
+    },
+    "joined_date": "11/02/2020"
+  }
+]
