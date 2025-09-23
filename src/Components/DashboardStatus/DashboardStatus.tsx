@@ -1,8 +1,9 @@
 import { useState } from "react";
-import man from "../../../public/Image/Heart.png";
-import vector from "../../../public/Image/Vector.png";
-import vector1 from "../../../public/Image/Vector (1).png";
-import house from "../../../public/Image/solar_card-outline.png";
+// import man from "../../../public/Image/Heart.png";
+import man from "../../assets/Image/Heart.png";
+import vector from "../../assets/Image/Vector.png";
+import vector1 from "../../assets/Image/Vector (1).png";
+import house from "../../assets/Image/solar_card-outline.png";
 import { IoIosArrowUp } from "react-icons/io";
 
 export default function DashboardStats() {
