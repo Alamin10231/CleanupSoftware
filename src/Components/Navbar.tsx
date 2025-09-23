@@ -1,16 +1,16 @@
 import { IoIosArrowForward } from "react-icons/io";
-import Home from "../../public/Image/Home.png";
+import Home from "../assets/Image/Home.png";
 import SearchBar from "@/Shared/SearchBar";
 import { useState, useRef, useEffect } from "react";
-import darkmode from "../../public/Image/solar_moon-linear.png";
-import china from "../../public/Image/material-symbols_translate.png";
-import moonicon from "../../public/Image/iconamoon_notification.png";
-import MyIcon from "../../public/Image/Logout.svg";
-import profilepic from "../../public/Image/Profilepic/Profile photo.png";
-import manicon from "../../public/Image/manicon.svg";
-import setting from "../../public/Image/setting.svg";
-import logoutsvg from "../../public/Image/ic_round-logout.svg";
-import admininstritor from "../../public/Image/administritor.svg";
+import darkmode from "../assets/Image/solar_moon-linear.png";
+import china from "../assets/Image/material-symbols_translate.png";
+import moonicon from "../assets/Image/iconamoon_notification.png";
+import MyIcon from "../assets/Image/Logout.svg";
+import profilepic from "../assets/Image/Profilepic/Profile photo.png";
+import manicon from "../assets/Image/manicon.svg";
+import setting from "../assets/Image/setting.svg";
+import logoutsvg from "../assets/Image/ic_round-logout.svg";
+import admininstritor from "../assets/Image/administritor.svg";
 
 const Navbar = () => {
   const [searchValue, setSearchValue] = useState("");
