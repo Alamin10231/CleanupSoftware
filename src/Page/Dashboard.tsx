@@ -1,11 +1,12 @@
 import Analytics from "@/Components/DashboardStatus/Analytics";
 import DashboardOverview from "@/Components/DashboardStatus/DashboardOverview";
+// import DashboardOverview from "@/Components/DashboardStatus/DashboardOverview";
 import DashboardStats from "@/Components/DashboardStatus/DashboardStatus";
 import RecentActivities from "@/Components/DashboardStatus/RecentActivities";
 import Report from "@/Components/DashboardStatus/Report";
 import Schedule from "@/Components/DashboardStatus/Schedule";
 import TopPerformers from "@/Components/DashboardStatus/TopPerformers";
-// import { Report } from "@/Components/DashboardStatus/Report"
+
 
 const Dashboard = () => {
   return (
@@ -32,11 +33,11 @@ const Dashboard = () => {
         <div className="col-span-4 ">
           <TopPerformers></TopPerformers>
         </div>
+        
+      </div>
         <div>
           <DashboardOverview></DashboardOverview>
         </div>
-        
-      </div>
       
     </div>
   );
