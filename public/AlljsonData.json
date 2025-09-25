@@ -1,0 +1,40 @@
+{
+  "alljsondata": [
+    {
+      "id": 1,
+      "name": "building Name",
+      "status": "Active",
+      "apartments": 3,
+      "stock": 12,
+      "active": 5,
+      "createdOn": "12/09/2025",
+      "code": "001",
+      "type": "residential",
+      "area": "available"
+    },
+    {
+      "id": 2,
+      "name": "building Name",
+      "status": "Inactive",
+      "apartments": 3,
+      "stock": 8,
+      "active": 2,
+      "createdOn": "12/09/2025",
+      "code": "001",
+      "type": "commercial",
+      "area": "available"
+    },
+    {
+      "id": 3,
+      "name": "building Name",
+      "status": "Maintenance",
+      "apartments": 4,
+      "stock": 5,
+      "active": 1,
+      "createdOn": "15/09/2025",
+      "code": "002",
+      "type": "office",
+      "area": "available"
+    }
+  ]
+}

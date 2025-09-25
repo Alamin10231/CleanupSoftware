@@ -7,6 +7,7 @@ import house from "../../assets/Image/solar_card-outline.png";
 import { IoIosArrowUp } from "react-icons/io";
 
 export default function DashboardStats() {
+
   const [activeTab, setActiveTab] = useState("month");
 
   const tabs = [
