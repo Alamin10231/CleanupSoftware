@@ -1,7 +1,10 @@
+import Regioncomponent from "@/Components/Region/Regioncomponent"
 
 const Region = () => {
   return (
-    <div>Region</div>
+    <div>
+      <Regioncomponent></Regioncomponent>
+    </div>
   )
 }
 
