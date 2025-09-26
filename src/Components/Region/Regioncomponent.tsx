@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
-import { FaCheckCircle } from "react-icons/fa";
+import { FaCheckCircle, FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import { FiHome } from "react-icons/fi";
 import { GoPlus } from "react-icons/go";
 import { IoIosSearch } from "react-icons/io";
+import { IoLocationOutline } from "react-icons/io5";
+import { LuBuilding2 } from "react-icons/lu";
 
 interface Building {
   id: number;
@@ -21,6 +24,7 @@ interface AlljsonResponse {
 }
 
 export default function RegionComponent() {
+  const [openeye,setopeneye] = useState(false)
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -131,19 +135,23 @@ export default function RegionComponent() {
       {/* Top Stats */}
       <div className="grid grid-cols-5 gap-4">
         {[
-          { label: "Active", value: active },
+          { label: "Active", value: active,icon: <FaCheckCircle />  },
           { label: "Maintenance", value: maintenance ,icon: <FaCheckCircle />  },
           { label: "Inactive", value: inactive ,icon:<GoPlus />},
-          { label: "Apartments", value: apartments },
-          { label: "Total", value: total },
+          { label: "Apartments", value: apartments,icon:<FiHome /> },
+          { label: "Total", value: total,icon:<LuBuilding2 /> },
         ].map((stat) => (
           <div
             key={stat.label}
-            className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow text-center"
+            className="bg-white dark:bg-gray-800 rounded-xl p-4 px-6 shadow flex items-center justify-between "
           >
-            <p className="text-sm text-[#8E8E8E]">{stat.label}</p>
+            <div>
+              <p className="text-lg text-[#8E8E8E] py-4">{stat.label}</p>
             <p className="text-2xl font-bold">{stat.value}</p>
-            <p className="text-2xl font-bold">{stat.icon}</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-blue-500 p-4 bg-sky-100 rounded-full">{stat.icon}</p>
+            </div>
           </div>
         ))}
       </div>
@@ -180,40 +188,83 @@ export default function RegionComponent() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {filteredBuildings.map((b) => (
-          <div
-            key={b.id}
-            className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow flex flex-col gap-2"
-          >
-            <div className="flex justify-between items-center">
-             
-              <h2 className="font-semibold">  <span className="px-4 py-3 mr-2 bg-sky-200 rounded-full ">{b.name.split("")[0].slice(0,3)}</span>{b.name}</h2>
-              <span
-                className={`text-sm px-2 py-1 rounded-full ${
-                  b.status === "Active"
-                    ? "bg-green-100 text-green-700"
-                    : b.status === "Inactive"
-                    ? "bg-yellow-100 text-yellow-700"
-                    : "bg-red-100 text-red-700"
-                }`}
-              >
-                {b.status}
-              </span>
-            </div>
-            <div className="text-sm text-gray-600 flex justify-between">
-              
-              <span>Apts: {b.apartments}</span>
-              <span>Stock: {b.stock}</span>
-              <span>Active: {b.active}</span>
-            </div>
-            <div className="text-xs text-gray-400 flex justify-between">
-              <span>{b.createdOn}</span>
-              <span>Code: {b.code}</span>
-            </div>
+     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ">
+  {filteredBuildings.map((b) => (
+    <div
+      key={b.id}
+      className="dark:bg-gray-800 rounded-xl p-4 shadow flex relative items-center justify-between gap-2 border-b-2  border-gray-200 mt-5"
+    >
+      <div className="flex justify-start gap-3 items-center ">
+        <div className="pb-28 pt-4 ">
+          <h2 className="font-semibold">
+            <span className="px-4 py-4 mr-2 bg-sky-100 rounded-full">
+              {b.name.slice(0, 2)}
+            </span>
+          </h2>
+        </div>
+        <div className="py-2">
+          <p>
+            {b.name}
+            <span
+              className={`text-sm px-2 py-1 ml-2 rounded-full ${
+                b.status === "Active"
+                  ? "bg-green-100 text-green-700"
+                  : b.status === "Inactive"
+                  ? "bg-yellow-100 text-yellow-700"
+                  : "bg-red-100 text-red-700"
+              }`}
+            >
+              {b.status}
+            </span>
+          </p>
+
+          <div className="flex items-center gap-3 py-2">
+            <p className="flex items-center gap-2">
+              <IoLocationOutline /> Mohakhali
+            </p>
+            <p className="flex items-center gap-2">
+              <FiHome /> jvai
+            </p>
           </div>
-        ))}
+
+          <div>
+            <p className="flex gap-8 text-md text-gray-500 mt-2">
+  <span className="flex flex-col items-center">
+    <span className="text-lg font-bold text-black">{b.apartments.toString().padStart(2,"0")}</span>
+    Apts
+  </span>
+  <span className="flex flex-col items-center">
+    <span className="text-lg font-bold text-black">0</span>
+    Subs
+  </span>
+  <span className="flex flex-col items-center">
+    <span className="text-lg font-bold text-black">{b.active}</span>
+    Active
+  </span>
+  <span className="flex flex-col items-center">
+    <span className="text-lg font-bold text-black">{b.createdOn}</span>
+    Created
+  </span>
+  <span className="flex flex-col items-center">
+    <span className="text-lg font-bold text-black">{b.code}</span>
+    ID
+  </span>
+</p>
+
+          </div>
+        </div>
       </div>
+
+      <button
+        className="absolute top-4 right-4 text-xl text-gray-600"
+        onClick={() => setopeneye(!openeye)}
+      >
+        {openeye ? <FaRegEyeSlash /> : <FaRegEye />}
+      </button>
+    </div>
+  ))}
+</div>
+
     </div>
   );
 }
