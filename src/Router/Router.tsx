@@ -12,6 +12,8 @@ import Settings from "@/Page/Settings";
 import Subscriptions from "@/Page/Subscriptions";
 import Layout from "../../Layout";
 import Employees from "@/Page/Employees";
+import AdminLogin from "@/Components/Auth/AdminLogin";
+import AdminSignUp from "@/Components/Auth/AdminSignUp";
 
 const Router = () => {
   return (
@@ -30,6 +32,8 @@ const Router = () => {
         <Route path="settings" element={<Settings />} />
         <Route path="subscription" element={<Subscriptions />} />
       </Route>
+        <Route path="adminlogin" element={<AdminLogin />} />
+        <Route path="adminsignup" element={<AdminSignUp />} />
     </Routes>
 
   )
