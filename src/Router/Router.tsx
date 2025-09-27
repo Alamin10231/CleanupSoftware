@@ -13,7 +13,10 @@ import Subscriptions from "@/Page/Subscriptions";
 import Layout from "../../Layout";
 import Employees from "@/Page/Employees";
 import AdminLogin from "@/Components/Auth/AdminLogin";
-import AdminSignUp from "@/Components/Auth/AdminSignUp";
+import UserSignUp from "@/Components/Auth/UserSignUp";
+import ForgetPassword from "@/Components/Auth/ForgetPassword";
+import VerifyCode from "@/Components/Auth/VerifyCode";
+import SetPassword from "@/Components/Auth/SetPassword";
 
 const Router = () => {
   return (
@@ -33,7 +36,10 @@ const Router = () => {
         <Route path="subscription" element={<Subscriptions />} />
       </Route>
         <Route path="adminlogin" element={<AdminLogin />} />
-        <Route path="adminsignup" element={<AdminSignUp />} />
+        <Route path="signup" element={<UserSignUp />} />
+        <Route path="forgetpassword" element={<ForgetPassword />} />
+        <Route path="verifycode" element={<VerifyCode />} />
+        <Route path="setpassword" element={<SetPassword />} />
     </Routes>
 
   )
