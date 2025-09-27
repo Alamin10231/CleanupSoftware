@@ -15,10 +15,12 @@ import Employees from "@/Page/Employees";
 import AdminLogin from "@/Components/Auth/AdminLogin";
 import AdminSignUp from "@/Components/Auth/AdminSignUp";
 import Appertment from "@/Page/Appertment";
+import Home from "@/Page/Home";
 
 const Router = () => {
   return (
     <Routes>
+      <Route path="home" element={<Home />} />
       <Route path="/" element={<Layout />}>
         <Route index element={<Dashboard />} />
         <Route path="client" element={<Clients />} />
