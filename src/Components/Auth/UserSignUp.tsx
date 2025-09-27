@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
-import { FaEye, FaEyeSlash, FaFacebook } from "react-icons/fa";
+import { FaApple, FaEye, FaEyeSlash, FaFacebook } from "react-icons/fa";
 import loginpicture from "../../assets/Image/loginpicture.jpg";
-
-export default function AdminSignUp() {
+import { Link } from "react-router";
+import { assets } from "../../assets/assets";
+export default function UserSignUp() {
   const [email, setEmail] = useState("");
   const [number, setNumber] = useState("");
   const [password, setPassword] = useState("");
@@ -32,13 +33,15 @@ export default function AdminSignUp() {
       {/* Right Panel */}
       <div className="flex flex-col justify-center items-center w-full md:w-1/2 px-6 md:px-16 bg-white">
         {/* Logo */}
-        <div className="flex items-center space-x-2 mb-8">
-          <div className="w-6 h-6 rounded-full bg-blue-500" />
-          <span className="font-bold text-lg">CleanUp Pro</span>
-          <span className="text-sm text-gray-400">PLATFORM</span>
+        <div className="flex self-end items-center space-x-2 mb-8">
+          <div className=" " />
+             <img src={assets.logo} alt="CleanUp Pro Logo" className="w-[140px] mx-auto" />
         </div>
 
-        <h1 className="text-2xl font-semibold mb-6">Admin Sign Up</h1>
+        <h1 className="text-2xl relative  font-semibold mb-6 text-left self-start">
+  Sign Up
+</h1>
+<p className="text-left self-start pb-3">Let's get you all st up so you can access your personal account</p>
 
         <form onSubmit={handleSubmit} className="w-full max-w-full space-y-5">
           {/* First & Last Name */}
@@ -146,27 +149,22 @@ export default function AdminSignUp() {
                 onChange={(e) => setRemember(e.target.checked)}
                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
-              <span>Remember me</span>
+              <p className="font-semibold">I agree to all the <span className="text-[#FF8682]">Teams</span> and <span className="text-[#FF8682]">Privacy Policies</span></p>
             </label>
-            <button
-              type="button"
-              className="text-blue-500 hover:underline"
-              onClick={() => alert("Reset password flow")}
-            >
-              Forgot Password
-            </button>
+           
           </div>
 
           {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+            className="w-full bg-[#2463EA] text-white py-2 rounded-md hover:bg-blue-700 transition"
           >
-            Sign Up
+           Create Account
           </button>
         </form>
 
         {/* Social login */}
+          <p className="py-2">Already have an account? <Link to="/adminlogin"><span className="text-[#FF8682]">login</span></Link></p>
         <div className="flex items-center my-6 w-full max-w-sm">
           <div className="flex-grow border-t border-gray-300" />
           <span className="mx-4 text-gray-500 text-sm">Or sign up with</span>
@@ -188,6 +186,13 @@ export default function AdminSignUp() {
             <FcGoogle className="mr-2" />
             Google
           </button>
+           <button
+    type="button"
+    className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50"
+  >
+    <FaApple className="text-black mr-2" />
+    Apple
+  </button>
         </div>
       </div>
     </div>
