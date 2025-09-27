@@ -13,6 +13,7 @@ import Avg_Popularity from "./Avg_Popularity.svg";
 import AVG_rating from "./Avg_rating.svg";
 import Total_revenue from "./Total_revenue.svg";
 import total_service from "./total_service.svg";
+import Appertment from "./Appertment.svg"
 
 export const assets = {
   logo,
@@ -29,5 +30,6 @@ export const assets = {
   Avg_Popularity,
   AVG_rating,
   Total_revenue,
+  Appertment,
   total_service,
 };
