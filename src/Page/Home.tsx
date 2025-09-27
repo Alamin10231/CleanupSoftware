@@ -3,6 +3,7 @@ import { assets } from "../assets/assets";
 import Button from "@/Components/Button";
 import { Link, NavLink } from "react-router";
 import PricingSection from "@/Components/PricingSection";
+import Discover_More from "@/Components/Discover_More";
 
 const Home = () => {
   const faqs = [
@@ -278,6 +279,7 @@ const Home = () => {
 
       {/* Pricing */}
       <PricingSection />
+      <Discover_More/>
 
     </div>
   );
