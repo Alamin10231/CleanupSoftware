@@ -1,16 +1,22 @@
 import Navbar from "./src/Components/Navbar"
 import Sidebar from "./src/Components/Sidebar"
-import { Outlet } from 'react-router'
+import { Outlet, useLocation } from 'react-router'
 
 const Layout = () => {
+  const location = useLocation()
+  const hidenav = location.pathname === "adminlogin"
   return (
     <div className="flex">
-      <div className="shadow-[0_0_10px_#00000040] bg-white">
+     {
+      !hidenav && (
+         <div className="shadow-[0_0_10px_#00000040] bg-white">
         <Sidebar />
       </div>
 
+      )
+     }
       <main className="flex-1">
-        <Navbar />
+      {!hidenav &&   <Navbar />}
         <Outlet />
       </main>
     </div>
