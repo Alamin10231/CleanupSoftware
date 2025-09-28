@@ -31,6 +31,11 @@ import Client from "./Client-say.jpg"
 import Add_Employee from "./Add_Employee.svg"
 import Bulk from "./Bulk.svg"
 import Refresh from "./Refresh.svg"
+import Active from "./Active.svg"
+import AvgPerformance from "./AvgPerformance.svg"
+import onLeave from "./OnLeave.svg"
+import totalEmployee from "./Total Employee.svg"
+import totalpayroll from "./Total Payroll.svg"
 
 export const assets = {
   logo,
@@ -65,5 +70,10 @@ export const assets = {
   Client,
   Add_Employee,
   Bulk,
-  Refresh
+  Refresh,
+  Active,
+  AvgPerformance,
+  onLeave,
+  totalEmployee,
+  totalpayroll
 };

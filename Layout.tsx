@@ -5,12 +5,15 @@ import { Outlet } from "react-router";
 const Layout = () => {
   return (
     <div className="flex nunito">
-      <div className="shadow-[0_0_10px_#00000040] bg-white">
+      {/* Sidebar */}
+      <div className="fixed top-0 left-0 h-screen shadow-[0_0_10px_#00000040] bg-white">
         <Sidebar />
       </div>
-      <main className="flex-1 rounded-lg px-12">
+
+      {/* Main content */}
+      <main className="flex-1 ml-[250px] px-12">
         <Navbar />
-        <Outlet  />
+        <Outlet />
       </main>
     </div>
   );
