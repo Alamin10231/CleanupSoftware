@@ -32,7 +32,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white">
+    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white z-10">
       {/* Left Section */}
       <div className="flex items-center gap-2">
         <img src={Home} className="w-5" alt="Home" />
