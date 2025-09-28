@@ -9,8 +9,8 @@ interface CardProps {
 
 const Card: React.FC<CardProps> = ({ title, number, iconSrc, iconAlt }) => {
   return (
-    <div className="flex  justify-between items-center p-5 rounded-lg border shadow-sm bg-white mt-3"
-      style={{ borderColor: "#CACACA" }}
+    <div className="flex  justify-between items-center border-gray-300 p-5 rounded-lg border shadow-sm bg-white mt-3"
+      
     >
       <div>
         <p className="text-gray-500 text-xl font-bold">{title}</p>

@@ -19,7 +19,7 @@ const ProgressBar: React.FC = () => {
 
     return (
         <div className="mt-5 ">
-            <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-md">
+            <div className="bg-white rounded-lg border border-gray-200 p-5 shadow-sm">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-4">
                     <div>

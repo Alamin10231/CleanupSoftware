@@ -6,13 +6,10 @@ const ActionButton = () => {
   const [isRotating, setIsRotating] = useState(false);
 
   const handleRefresh = () => {
-    // Trigger rotation animation
     setIsRotating(true);
 
-    // Optionally call your API or reset some data here
     setRefreshKey(prev => prev + 1);
 
-    // Stop rotation after animation completes (e.g., 1s)
     setTimeout(() => setIsRotating(false), 1000);
   };
 

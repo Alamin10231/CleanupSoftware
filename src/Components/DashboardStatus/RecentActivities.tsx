@@ -26,9 +26,9 @@ const RecentActivities = () => {
   const visibleActivities = showAll ? activities : activities.slice(0, 7);
 
   return (
-    <div className="flex space-x-4 ">
+    <div className="flex space-x-4 border-gray-200 rounded-xl border">
       {/* Recent Activities Panel */}
-      <div className="w-full bg-white rounded-lg shadow-md p-4">
+      <div className="w-full rounded-lg p-4">
         <div className="flex justify-between items-center py-4 ">
           <h2 className="text-lg font-semibold flex items-center gap-2">
             <img src={Recentactivities} alt="" className="w-6 h-6" />
