@@ -19,7 +19,7 @@ const chartData = [
 
 export default function ChartLineDots() {
   return (
-    <div className=" rounded-lg border border-[#8E8E8E] bg-white shadow p-4">
+    <div className=" rounded-lg border border-gray-200 bg-white shadow p-4">
       <div className="mb-4">
         <h2 className="text-lg font-semibold">Report</h2>
       </div>

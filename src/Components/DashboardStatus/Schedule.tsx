@@ -8,7 +8,7 @@ export default function Schedule() {
     status?: string;
   }
 
-  
+
   const scheduledServices: schedule[] = [
     {
       id: 1,
@@ -47,7 +47,7 @@ export default function Schedule() {
   return (
     <div>
       {/* Upcoming Services Panel */}
-      <div className="w-full bg-white rounded-lg shadow-md p-4">
+      <div className="w-full rounded-xl border border-gray-200  p-4">
         <div className="flex justify-between items-center py-2 mt-4">
           <h2 className="text-lg font-semibold">Upcoming Services</h2>
           <button

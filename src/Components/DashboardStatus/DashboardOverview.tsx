@@ -42,7 +42,7 @@ export default function DashboardOverview() {
   }
 
   return (
-    <div className="rounded-xl border bg-white p-6 shadow-sm">
+    <div className="rounded-xl border border-gray-200 p-6 shadow-sm">
       <h3 className="mb-4 text-lg font-semibold text-gray-800">
         CleanUp Pro Dashboard Overview
       </h3>

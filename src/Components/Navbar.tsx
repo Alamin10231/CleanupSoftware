@@ -61,7 +61,7 @@ const Navbar = () => {
         </div>
 
         {/* Profile + Dropdown */}
-        <div className="relative flex items-center gap-3">
+        <div className="relative flex items-center gap-3 cursor-pointer rounded-md">
           <div
             className="flex items-center gap-2 cursor-pointer"
             onClick={() => setOpen(!open)}
@@ -85,8 +85,8 @@ const Navbar = () => {
 
           {/* Dropdown */}
           {open && (
-            <div className="absolute top-full  right-0 mt-2 w-64 bg-white dark:bg-gray-800 shadow-lg rounded-md z-50">
-              <div className="flex items-center gap-4 cursor-pointer w-full text-left px-4 py-3 hover:bg-gray-100 dark:hover:bg-gray-700 border-b-1 border-b-[#9A9AA9]">
+            <div className="absolute top-full  right-0 mt-2 w-64 shadow-lg z-50 bg-white border border-gray-300 rounded-xl">
+              <div className="flex items-center gap-4 cursor-pointer w-full text-left px-4 py-3 hover:bg-gray-100 border-b-1 border-b-[#9A9AA9]">
                 {/* Profile Image */}
                 <img
                   src={profilepic}
@@ -108,15 +108,15 @@ const Navbar = () => {
               </div>
 
 
-              <div className="  justify-start flex items-center gap-3 w-full text-left px-4 py-4 hover:bg-gray-100 dark:hover:bg-gray-700">
+              <div className="  justify-start flex items-center gap-3 w-full text-left px-4 py-4 hover:bg-gray-100">
                 <img src={manicon} alt="" />
                 <p>Profile</p>
               </div>
-              <div className=" border-b border-b-[#9A9AA9] justify-start flex items-center gap-3 w-full text-left px-4 pb-4 hover:bg-gray-100 dark:hover:bg-gray-700">
+              <div className=" border-b border-b-[#9A9AA9] justify-start flex items-center gap-3 w-full text-left px-4 pb-4 hover:bg-gray-100">
                 <img src={setting} alt="" />
                 <p>Setting</p>
               </div>
-              <div className="  justify-start flex items-center gap-3 w-full text-left  px-4 py-4 hover:bg-gray-100 dark:hover:bg-gray-700">
+              <div className="  justify-start flex items-center gap-3 w-full text-left  px-4 py-4 hover:bg-gray-100">
                 <img src={logoutsvg} alt="" />
                 <p className="text-[D32F2F]">Logout</p>
               </div>
