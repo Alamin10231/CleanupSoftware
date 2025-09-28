@@ -31,7 +31,7 @@ const Home = () => {
   };
 
   return (
-    <div>
+    <div className="nunito">
 
       <div
         className="w-full h-[100vh] bg-cover bg-center"
