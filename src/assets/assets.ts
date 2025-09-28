@@ -28,6 +28,9 @@ import Landscaping from "./Home_Image/Landscaping.png"
 import DeepCleaning from "./Home_Image/Deep_Cleaning.png"
 import Help from "./Home_Image/Help.png"
 import Client from "./Client-say.jpg"
+import Add_Employee from "./Add_Employee.svg"
+import Bulk from "./Bulk.svg"
+import Refresh from "./Refresh.svg"
 
 export const assets = {
   logo,
@@ -59,5 +62,8 @@ export const assets = {
   Landscaping,
   DeepCleaning,
   Help,
-  Client
+  Client,
+  Add_Employee,
+  Bulk,
+  Refresh
 };
