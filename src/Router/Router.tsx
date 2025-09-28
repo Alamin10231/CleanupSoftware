@@ -17,6 +17,8 @@ import UserSignUp from "@/Components/Auth/UserSignUp";
 import ForgetPassword from "@/Components/Auth/ForgetPassword";
 import VerifyCode from "@/Components/Auth/VerifyCode";
 import SetPassword from "@/Components/Auth/SetPassword";
+import Home from "@/Page/Home";
+import Appertment from "@/Page/Appertment";
 
 const Router = () => {
   return (
