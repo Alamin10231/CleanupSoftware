@@ -4,13 +4,13 @@ import { Outlet } from "react-router";
 
 const Layout = () => {
   return (
-    <div className="flex">
+    <div className="flex nunito">
       <div className="shadow-[0_0_10px_#00000040] bg-white">
         <Sidebar />
       </div>
-      <main className="flex-1">
+      <main className="flex-1 rounded-lg px-12">
         <Navbar />
-        <Outlet />
+        <Outlet  />
       </main>
     </div>
   );

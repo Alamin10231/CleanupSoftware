@@ -52,7 +52,7 @@ export default function DashboardStats() {
   ];
 
   return (
-    <div className="p-6">
+    <div>
       {/* Header + Tabs */}
       <div className="flex py-10 items-center justify-between">
         <div>
@@ -125,7 +125,7 @@ export default function DashboardStats() {
         {statsData.map(({ id, icon, title, subtitle, value, growth }) => (
           <div
             key={id}
-            className="bg-white shadow rounded-xl p-4 flex flex-col gap-3 
+            className="bg-white shadow rounded-xl p-4 flex flex-col gap-3
                        hover:shadow-xl hover:scale-105 transition transform duration-300 ease-in-out"
           >
             <div className="flex items-center justify-between">
