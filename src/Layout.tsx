@@ -1,5 +1,5 @@
-import Navbar from "./src/Components/Navbar";
-import Sidebar from "./src/Components/Sidebar";
+import Navbar from "./Components/Navbar";
+import Sidebar from "./Components/Sidebar";
 import { Outlet } from "react-router";
 
 const Layout = () => {
@@ -10,8 +10,8 @@ const Layout = () => {
             </div>
             <main className="flex-1 rounded-lg px-8 ml-[250px]">
                 <Navbar />
-                <div  className="mt-24 mb-10">
-                  <Outlet />
+                <div className="mt-24 mb-10">
+                    <Outlet />
                 </div>
             </main>
         </div>
