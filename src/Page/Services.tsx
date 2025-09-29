@@ -33,43 +33,7 @@ const Services = () => {
         </div>
       }
 
-      {/* Search */}
-      <div className="flex items-center justify-between gap-4 mt-8 p-6 bg-white border border-gray-300 rounded-xl shadow-sm">
-        <div className="flex items-center gap-4">
-          <input
-            type="text"
-            placeholder="Search employees..."
-            className="border border-gray-300 rounded-md px-4 py-2 w-64 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-          />
-          <select
-            className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer">
-            <option>All Category</option>
-            <option>Regular Cleaning</option>
-            <option>Deep Cleaning</option>
-            <option>Maintenance</option>
-            <option>Landscaping</option>
-            <option>Pest Control</option>
-            <option>Security</option>
-          </select>
-          <select
-            className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer">
-            <option>All Status</option>
-            <option>Active</option>
-            <option>On Leave</option>
-            <option>Inactive</option>
-          </select>
-          <select className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer">
-            <option>All Shifts</option>
-            <option>Morning</option>
-            <option>Evening</option>
-            <option>Night</option>
-          </select>
-        </div>
-        <select className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer">
-          <option>Sort By Popularity</option>
-          <option>Sort By Name</option>
-        </select>
-      </div>
+      
 
       {/* Service Card */}
       <div className="mt-6">
