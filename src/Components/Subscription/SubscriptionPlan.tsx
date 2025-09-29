@@ -124,7 +124,7 @@ export default function SubscriptionPlan() {
 
           <td className="px-4 py-3 space-x-3 text-base">
             <button className="text-blue-600 hover:underline">Edit</button>
-            <button className="text-indigo-600 hover:underline">Duplicate</button>
+           
             <button className="text-red-600 hover:underline">Delete</button>
           </td>
         </tr>

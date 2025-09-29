@@ -127,8 +127,11 @@ export default function SubscriptionsDashboard() {
             <option>Inactive</option>
           </select>
 
-         <Link to="/subscriptionplan"> <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+         <Link to=""> <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
             + Add New Plan
+          </button></Link>
+         <Link to="/subscriptionplan"> <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+            View Plan
           </button></Link>
         </div>
       </div>
