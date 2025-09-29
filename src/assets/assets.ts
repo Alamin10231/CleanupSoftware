@@ -80,9 +80,9 @@ export const assets = {
 
 
 export const ServiceTopCard = [
-    { title: "Total Service", number: 4, iconKey: "tot", iconAlt: "total employee" },
-    { title: "Active", number: 51, iconKey: "Active", iconAlt: "active" },
-    { title: "Avg Performance", number: 12, iconKey: "AvgPerformance", iconAlt: "Avg Performance" },
-    { title: "Total Payroll", number: 12, iconKey: "totalpayroll", iconAlt: "Total Payroll" },
-    { title: "On Leave", number: 12, iconKey: "onLeave", iconAlt: "On leave" },
+    { title: "Total Service", number: 4, iconKey: "total_service", iconAlt: "total employee" },
+    { title: "Active", number: 63, iconKey: "Active", iconAlt: "active" },
+    { title: "Avg Rating", number: 4.8, iconKey: "AVG_rating", iconAlt: "Avg Performance" },
+    { title: "Total Revenue", number: 250000, iconKey: "Total_revenue", iconAlt: "Total_revenue" },
+    { title: "Avg Popularity", number: "85%", iconKey: "Avg_Popularity", iconAlt: "On leave" },
   ];
