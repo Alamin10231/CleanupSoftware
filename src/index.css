@@ -1,2 +1,27 @@
+<<<<<<< HEAD
 @import "tailwindcss";
 
+=======
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
+@import "tailwindcss";
+
+.nunito {
+  font-family: "Nunito", sans-serif;
+  font-optical-sizing: auto;
+}
+
+/* body {
+  font-family: 'Nunito', sans-serif;
+   font-weight: 500;
+    font-style: normal;
+} */
+
+/* Hide scrollbar but keep scroll functionality */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+>>>>>>> 06ae4735d8e699e36d042e259e13968dbeeee8b7
