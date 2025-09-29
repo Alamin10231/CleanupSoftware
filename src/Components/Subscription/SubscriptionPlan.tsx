@@ -59,7 +59,7 @@ export default function SubscriptionPlan() {
   return (
     <div>
       <div className="flex items-center justify-between py-10">
-        <div><h1 className="text-3xl font-bold">Add New Plan</h1></div>
+        <div></div>
 
         <div className="flex items-center gap-2 ">
           <select

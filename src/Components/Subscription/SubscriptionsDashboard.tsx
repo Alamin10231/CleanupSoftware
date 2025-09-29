@@ -75,7 +75,9 @@ function Card({
   return (
     <div className="bg-white shadow rounded-lg px-5 py-10 my-5 flex items-center justify-between gap-2">
       <div className="flex flex-col items-start">
-        <span className="text-gray-500 text-2xl font-semibold py-5">{title}</span>
+        <span className="text-gray-500 text-2xl font-semibold py-5">
+          {title}
+        </span>
         <span className="text-3xl font-bold text-black">{value}</span>
       </div>
       <div className={`${bg} p-4 rounded-2xl`}>
@@ -103,13 +105,19 @@ export default function SubscriptionsDashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card title="Active Subscriptions" value="247" icon={correcticon} />
         <Card title="Pending Renewals" value="18" icon={time} />
-        <Card title="Expired" value="12" icon={cross} color="text-red-500" bg="bg-red-100" />
+        <Card
+          title="Expired"
+          value="12"
+          icon={cross}
+          color="text-red-500"
+          bg="bg-red-100"
+        />
         <Card title="Revenue This Month" value="$45,680" icon={doller} />
       </div>
 
       {/* Filter */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl">All Subscription</h1>
+        <h1 className="text-2xl">All Subscribers</h1>
         <div className="flex items-center gap-2">
           <select
             value={statusFilter}
@@ -127,16 +135,21 @@ export default function SubscriptionsDashboard() {
             <option>Inactive</option>
           </select>
 
-         <Link to=""> <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-            + Add New Plan
-          </button></Link>
-         <Link to="/subscriptionplan"> <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-            View Plan
-          </button></Link>
+          <Link to="">
+            {" "}
+            <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+              + Add New Plan
+            </button>
+          </Link>
+          <Link to="/subscriptionplan">
+            {" "}
+            <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+              View Plan
+            </button>
+          </Link>
         </div>
       </div>
 
- 
       <SubscriptionsTable
         rows={filtered}
         page={page}
