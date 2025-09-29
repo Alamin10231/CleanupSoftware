@@ -10,7 +10,7 @@ type Performer = {
 };
 
 export default function TopPerformers() {
- 
+
   const [performers, setPereformers] = useState<Performer[]>([]);
   useEffect(() => {
     fetch("/performers.json")
@@ -25,7 +25,7 @@ export default function TopPerformers() {
   return (
     <div className="w-full h-[440px] rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between border-b pb-3">
+      <div className="flex items-center justify-between border-gray-200 border-b pb-3">
         <div className="flex items-center gap-2">
           <svg
             className="h-5 w-5 text-blue-600"
@@ -46,7 +46,7 @@ export default function TopPerformers() {
           {
             showAll?"viewless ":"ViewAll"
           }
-         
+
         </button>
       </div>
 

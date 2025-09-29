@@ -44,7 +44,7 @@ const Clients = () => {
     );
 
     return (
-        <div className="flex flex-col h-screen px-4 mt-6">
+        <div className="flex flex-col h-screen mt-6">
             {/* Fixed Top Section */}
             <div className="flex-shrink-0">
                 {/* Title */}
@@ -101,7 +101,7 @@ const Clients = () => {
             </div>
 
             {/* Scrollable User List */}
-            <div className="flex-1 overflow-y-auto p-6 scrollbar-hide">
+            <div className="flex-1 overflow-y-auto scrollbar-hide">
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
                     {filteredUsers.length > 0 ? (
                         filteredUsers.map((user) => (
@@ -118,4 +118,3 @@ const Clients = () => {
 }
 
 export default Clients;
-

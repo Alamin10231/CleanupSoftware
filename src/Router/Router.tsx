@@ -1,6 +1,6 @@
 import Dashboard from "@/Page/Dashboard";
 import { Routes, Route } from "react-router";
-import Clients from "@/Page/Clients"
+import Clients from "@/Page/Clients";
 import Help from "@/Page/Help";
 import Invoices from "@/Page/Invoices";
 import Map from "@/Page/Map";
@@ -10,7 +10,7 @@ import Reports from "@/Page/Reports";
 import Services from "@/Page/Services";
 import Settings from "@/Page/Settings";
 import Subscriptions from "@/Page/Subscriptions";
-import Layout from "../../Layout";
+import Layout from "../Layout";
 import Employees from "@/Page/Employees";
 import AdminLogin from "@/Components/Auth/AdminLogin";
 import UserSignUp from "@/Components/Auth/UserSignUp";
@@ -49,7 +49,4 @@ const Router = () => {
         <Route path="setpassword" element={<SetPassword />} />
     </Routes>
 
-  )
-}
-
-export default Router
+export default Router;

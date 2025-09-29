@@ -53,7 +53,7 @@ export default function DashboardStats() {
     return (
         <div>
             {/* Header + Tabs */}
-            <div className="flex py-10 items-center justify-between">
+            <div className="flex pb-10 items-center justify-between">
                 <div>
                     <h1 className="font-bold text-2xl">Dashboard</h1>
                     <p className="text-[#8E8E8E] font-bold">

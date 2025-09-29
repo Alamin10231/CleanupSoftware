@@ -32,13 +32,13 @@ const Navbar = () => {
   }, []);
 
   return (
-    <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white z-10">
+    <div className="flex items-center justify-between px-6 ml-[250px] py-4 border-b border-gray-200 bg-white fixed top-0 left-0 right-0 z-40">
       {/* Left Section */}
       <div className="flex items-center gap-2">
         <img src={Home} className="w-5" alt="Home" />
         <IoIosArrowForward className="text-[#8E8E8E] text-xl" />
         <p className="text-[#8E8E8E] font-semibold text-xl">
-          dynamic Dashboard
+          Dashboard
         </p>
       </div>
 
