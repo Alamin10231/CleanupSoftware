@@ -10,7 +10,9 @@ const Layout = () => {
             </div>
             <main className="flex-1 rounded-lg px-8 ml-[250px]">
                 <Navbar />
-                <Outlet />
+                <div  className="mt-24 mb-10">
+                  <Outlet />
+                </div>
             </main>
         </div>
     );
