@@ -5,7 +5,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  
+
 } from "recharts";
 
 const data02 = [
@@ -20,7 +20,7 @@ const COLORS = ["#009608", "#FF9800", "#D32F2F","#0288D1"];
 
 export default function Analytics() {
   return (
-    <div className="w-full h-12/12 rounded-xl border bg-white shadow border-[#8E8E8E] p-4">
+    <div className="w-full h-12/12 rounded-xl border bg-white shadow border-gray-200 p-4">
       <h2 className="text-lg font-semibold mb-4">Analytics Report</h2>
 
       <ResponsiveContainer width="100%" height="100%">
@@ -43,7 +43,7 @@ export default function Analytics() {
             innerRadius={60}
             outerRadius={90}
             paddingAngle={2}
-            
+
             label={(props) => {
   const { name, percent } = props as { name?: string; percent?: number };
   const p = typeof percent === 'number' ? percent * 100 : 0;
@@ -59,7 +59,7 @@ export default function Analytics() {
         </PieChart>
       </ResponsiveContainer>
 
-      
+
     </div>
   );
 }

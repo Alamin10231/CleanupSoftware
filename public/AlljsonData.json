@@ -2,7 +2,7 @@
   "alljsondata": [
     {
       "id": 1,
-      "name": "building Name",
+      "name": "Building A",
       "status": "Active",
       "apartments": 3,
       "stock": 12,
@@ -10,11 +10,12 @@
       "createdOn": "12/09/2025",
       "code": "001",
       "type": "residential",
-      "area": "available"
+      "area": "available",
+      "category": "Premium"
     },
     {
       "id": 2,
-      "name": "building Name",
+      "name": "Building B",
       "status": "Inactive",
       "apartments": 3,
       "stock": 8,
@@ -22,11 +23,12 @@
       "createdOn": "12/09/2025",
       "code": "001",
       "type": "commercial",
-      "area": "available"
+      "area": "available",
+      "category": "Basic"
     },
     {
       "id": 3,
-      "name": "building Name",
+      "name": "Building C",
       "status": "Maintenance",
       "apartments": 4,
       "stock": 5,
@@ -34,7 +36,29 @@
       "createdOn": "15/09/2025",
       "code": "002",
       "type": "office",
-      "area": "available"
+      "area": "available",
+      "category": "Enterprise"
+    }
+  ],
+
+  "subscription": [
+    {
+      "id": 101,
+      "client": "John Martinez",
+      "email": "john.martinez@email.com",
+      "package": "Premium Package $299/month",
+      "status": "Active",
+      "startDate": "Jan 15, 2024",
+      "nextPayment": "Feb 15, 2024"
+    },
+    {
+      "id": 102,
+      "client": "Emma Wilson",
+      "email": "emma.wilson@email.com",
+      "package": "Basic Package $149/month",
+      "status": "Pending",
+      "startDate": "Dec 20, 2023",
+      "nextPayment": "Jan 20, 2024"
     }
   ]
 }
