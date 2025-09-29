@@ -77,3 +77,12 @@ export const assets = {
   totalEmployee,
   totalpayroll
 };
+
+
+export const ServiceTopCard = [
+    { title: "Total Service", number: 4, iconKey: "tot", iconAlt: "total employee" },
+    { title: "Active", number: 51, iconKey: "Active", iconAlt: "active" },
+    { title: "Avg Performance", number: 12, iconKey: "AvgPerformance", iconAlt: "Avg Performance" },
+    { title: "Total Payroll", number: 12, iconKey: "totalpayroll", iconAlt: "Total Payroll" },
+    { title: "On Leave", number: 12, iconKey: "onLeave", iconAlt: "On leave" },
+  ];
