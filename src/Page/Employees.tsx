@@ -1,13 +1,3 @@
-<<<<<<< HEAD
-
-const Employees = () => {
-  return (
-    <div>Employees</div>
-  )
-}
-
-export default Employees
-=======
 import { useEffect, useState } from "react";
 import { assets } from "@/assets/assets";
 import ActionButton from "@/Components/ActionButton";
@@ -43,10 +33,25 @@ const Employees = () => {
 
   // Cards dummy data
   const cardData = [
-    { title: "Total Employee", number: 10, iconKey: "totalEmployee", iconAlt: "total employee" },
+    {
+      title: "Total Employee",
+      number: 10,
+      iconKey: "totalEmployee",
+      iconAlt: "total employee",
+    },
     { title: "Active", number: 51, iconKey: "Active", iconAlt: "active" },
-    { title: "Avg Performance", number: 12, iconKey: "AvgPerformance", iconAlt: "Avg Performance" },
-    { title: "Total Payroll", number: 12, iconKey: "totalpayroll", iconAlt: "Total Payroll" },
+    {
+      title: "Avg Performance",
+      number: 12,
+      iconKey: "AvgPerformance",
+      iconAlt: "Avg Performance",
+    },
+    {
+      title: "Total Payroll",
+      number: 12,
+      iconKey: "totalpayroll",
+      iconAlt: "Total Payroll",
+    },
     { title: "On Leave", number: 12, iconKey: "onLeave", iconAlt: "On leave" },
   ];
 
@@ -68,7 +73,8 @@ const Employees = () => {
       emp.email.toLowerCase().includes(search);
 
     const matchesDepartment =
-      departmentFilter === "All Departments" || emp.department === departmentFilter;
+      departmentFilter === "All Departments" ||
+      emp.department === departmentFilter;
 
     const matchesStatus =
       statusFilter === "All Status" || emp.status === statusFilter;
@@ -102,7 +108,7 @@ const Employees = () => {
               key={index}
               title={card.title}
               number={card.number}
-              iconSrc={assets[card.iconKey]}
+              iconSrc={assets[card.iconKey as keyof typeof assets]}
               iconAlt={card.iconAlt}
             />
           ))}
@@ -180,4 +186,3 @@ const Employees = () => {
 };
 
 export default Employees;
->>>>>>> 06ae4735d8e699e36d042e259e13968dbeeee8b7

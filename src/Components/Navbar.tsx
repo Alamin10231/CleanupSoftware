@@ -1,18 +1,4 @@
 import { IoIosArrowForward } from "react-icons/io";
-<<<<<<< HEAD
-import Home from "../../public/Image/Home.png";
-import SearchBar from "@/Shared/SearchBar";
-import { useState, useRef, useEffect } from "react";
-import darkmode from "../../public/Image/solar_moon-linear.png";
-import china from "../../public/Image/material-symbols_translate.png";
-import moonicon from "../../public/Image/iconamoon_notification.png";
-import MyIcon from "../../public/Image/Logout.svg";
-import profilepic from "../../public/Image/Profilepic/Profile photo.png";
-import manicon from "../../public/Image/manicon.svg";
-import setting from "../../public/Image/setting.svg";
-import logoutsvg from "../../public/Image/ic_round-logout.svg";
-import admininstritor from "../../public/Image/administritor.svg";
-=======
 import Home from "../assets/Image/Home.png";
 import SearchBar from "@/Shared/SearchBar";
 import { useState, useRef, useEffect } from "react";
@@ -25,7 +11,6 @@ import manicon from "../assets/Image/manicon.svg";
 import setting from "../assets/Image/setting.svg";
 import logoutsvg from "../assets/Image/ic_round-logout.svg";
 import admininstritor from "../assets/Image/administritor.svg";
->>>>>>> 06ae4735d8e699e36d042e259e13968dbeeee8b7
 
 const Navbar = () => {
   const [searchValue, setSearchValue] = useState("");
@@ -47,11 +32,7 @@ const Navbar = () => {
   }, []);
 
   return (
-<<<<<<< HEAD
-    <div className="pt-10 px-4 flex items-center justify-between">
-=======
     <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-white z-10">
->>>>>>> 06ae4735d8e699e36d042e259e13968dbeeee8b7
       {/* Left Section */}
       <div className="flex items-center gap-2">
         <img src={Home} className="w-5" alt="Home" />
@@ -62,11 +43,7 @@ const Navbar = () => {
       </div>
 
       {/* Middle SearchBar */}
-<<<<<<< HEAD
-      <div className="flex-1 mx-8">
-=======
       <div className="flex mx-8">
->>>>>>> 06ae4735d8e699e36d042e259e13968dbeeee8b7
         <SearchBar
           value={searchValue}
           onChange={setSearchValue}
@@ -84,11 +61,7 @@ const Navbar = () => {
         </div>
 
         {/* Profile + Dropdown */}
-<<<<<<< HEAD
-        <div className="relative flex items-center gap-3">
-=======
         <div className="relative flex items-center gap-3 cursor-pointer rounded-md">
->>>>>>> 06ae4735d8e699e36d042e259e13968dbeeee8b7
           <div
             className="flex items-center gap-2 cursor-pointer"
             onClick={() => setOpen(!open)}
@@ -106,33 +79,12 @@ const Navbar = () => {
           </div>
 
           {/* Logout button */}
-<<<<<<< HEAD
-          <button className="flex items-center gap-2 px-4 py-2  text-white rounded-md ">
-=======
           <button className="flex items-center gap-2  py-2   text-white rounded-md ">
->>>>>>> 06ae4735d8e699e36d042e259e13968dbeeee8b7
             <img src={MyIcon} alt="logout icon" className="w-5 h-5" />
           </button>
 
           {/* Dropdown */}
           {open && (
-<<<<<<< HEAD
-            <div className="absolute top-full  right-0 mt-2 w-64 bg-white dark:bg-gray-800 shadow-lg rounded-md z-50">
-              <div className="flex items-center gap-2 cursor-pointer  justify-start  w-full text-left px-4 py-4 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <img
-                  src={profilepic}
-                  className="w-10 h-10 rounded"
-                  alt="profile"
-                />
-                <div className="flex flex-col">
-                  <h1 className="font-semibold text-sm">MR. Mosabbir</h1>
-                  <p className="text-[#8E8E8E] text-xs">admin@cleanuppro.com</p>
-                  <p className="bg-[rgba(36,99,234,0.1)] p-2 rounded-full px-4 flex items-center gap-3">
-                    {" "}
-                    <span>
-                      <img src={admininstritor} alt="" />
-                    </span>
-=======
             <div className="absolute top-full  right-0 mt-2 w-64 shadow-lg z-50 bg-white border border-gray-300 rounded-xl">
               <div className="flex items-center gap-4 cursor-pointer w-full text-left px-4 py-3 hover:bg-gray-100 border-b-1 border-b-[#9A9AA9]">
                 {/* Profile Image */}
@@ -150,23 +102,11 @@ const Navbar = () => {
                   {/* Role Badge */}
                   <p className="bg-[rgba(36,99,234,0.1)] text-sm text-[#2463EA] inline-flex items-center gap-2 px-3 py-1 rounded-full">
                     <img src={admininstritor} className="w-4 h-4" alt="role icon" />
->>>>>>> 06ae4735d8e699e36d042e259e13968dbeeee8b7
                     Administrator
                   </p>
                 </div>
               </div>
 
-<<<<<<< HEAD
-              <div className="  justify-start flex items-center gap-3 w-full text-left px-4 py-4 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <img src={manicon} alt="" />
-                <p>Profile</p>
-              </div>
-              <div className=" border-b border-[#9A9AA9] justify-start flex items-center gap-3 w-full text-left px-4 pb-4 hover:bg-gray-100 dark:hover:bg-gray-700">
-                <img src={setting} alt="" />
-                <p>Setting</p>
-              </div>
-              <div className="  justify-start flex items-center gap-3 w-full text-left px-4 py-4 hover:bg-gray-100 dark:hover:bg-gray-700">
-=======
 
               <div className="  justify-start flex items-center gap-3 w-full text-left px-4 py-4 hover:bg-gray-100">
                 <img src={manicon} alt="" />
@@ -177,7 +117,6 @@ const Navbar = () => {
                 <p>Setting</p>
               </div>
               <div className="  justify-start flex items-center gap-3 w-full text-left  px-4 py-4 hover:bg-gray-100">
->>>>>>> 06ae4735d8e699e36d042e259e13968dbeeee8b7
                 <img src={logoutsvg} alt="" />
                 <p className="text-[D32F2F]">Logout</p>
               </div>

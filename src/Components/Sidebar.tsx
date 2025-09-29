@@ -10,13 +10,13 @@ const Sidebar: React.FC = () => {
         { icon: assets.Dashboard_icon, label: "Dashboard", path: "/" },
         { icon: assets.Clients_icon, label: "Clients", path: "/client" },
         { icon: assets.region, label: "Region", path: "/region" },
-<<<<<<< HEAD
+
         { icon: assets.Employess_icon, label: "Employees", path: "/employees" },
-=======
+
         { icon: assets.Appertment, label: "Appertment", path: "/appertment" },
         { icon: assets.Employess_icon, label: "Employees", path: "/employees" },
 
->>>>>>> 06ae4735d8e699e36d042e259e13968dbeeee8b7
+
       ],
     },
     {
@@ -98,8 +98,6 @@ const Sidebar: React.FC = () => {
   );
 };
 
-<<<<<<< HEAD
+
 export default Sidebar;
-=======
-export default Sidebar;
->>>>>>> 06ae4735d8e699e36d042e259e13968dbeeee8b7
+

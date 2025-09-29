@@ -1,4 +1,3 @@
-import { ChevronDownIcon } from "lucide-react";
 import { useState } from "react";
 import correcticon from "../../assets/Image/correcticon.svg";
 import time from "../../assets/Image/time.svg";
@@ -74,13 +73,11 @@ function Card({
   return (
     <div className="bg-white shadow rounded-lg px-5 py-10 my-5 flex items-center justify-between gap-2">
       <div className="flex flex-col items-start">
-        <span className="text-gray-500 text-2xl font-semibold py-5">
-          {title}
-        </span>
+        <span className="text-gray-500 text-2xl font-semibold py-5">{title}</span>
         <span className="text-3xl font-bold text-black">{value}</span>
       </div>
-      <div className={`${bg} p-4 rounded-full`}>
-        <img src={icon} alt="icon" className={`w-5 h-5 ${color} `} />
+      <div className={`${bg} p-4 rounded-2xl`}>
+        <img src={icon} alt="icon" className={`w-7 h-7 ${color}`} />
       </div>
     </div>
   );
@@ -91,11 +88,12 @@ export default function SubscriptionsDashboard() {
   const [page, setPage] = useState(1);
   const pageSize = 5;
 
+  // সহজ ফিল্টার লজিক
   const filtered = data.filter((s) => {
     if (statusFilter === "All status") return true;
-    if (statusFilter === "Active") return true;
     if (statusFilter === "Inactive") {
-     return s.status !== "Active";
+      // “Inactive” মানে Active ছাড়া সব
+      return s.status !== "Active";
     }
     return s.status === statusFilter;
   });
@@ -104,58 +102,41 @@ export default function SubscriptionsDashboard() {
 
   return (
     <div className="p-6 space-y-8">
-     
+      {/* Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card
-          title="Active Subscriptions"
-          value="247"
-          icon={correcticon}
-          color="text-blue-500"
-          bg="bg-blue-100"
-        />
-        <Card
-          title="Pending Renewals"
-          value="18"
-          icon={time}
-          color="text-blue-500"
-          bg="bg-blue-100"
-        />
-        <Card
-          title="Expired"
-          value="12"
-          icon={cross}
-          color="text-red-500"
-          bg="bg-red-100"
-        />
-        <Card
-          title="Revenue This Month"
-          value="$45,680"
-          icon={doller}
-          color="text-blue-500"
-          bg="bg-blue-100"
-        />
+        <Card title="Active Subscriptions" value="247" icon={correcticon} />
+        <Card title="Pending Renewals" value="18" icon={time} />
+        <Card title="Expired" value="12" icon={cross} color="text-red-500" bg="bg-red-100" />
+        <Card title="Revenue This Month" value="$45,680" icon={doller} />
       </div>
-      {/* Filter + Button */}
+
+      {/* Filter + Add New */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl">All Subscription</h1>
-        </div>
-        <div className="relative flex items-center gap-2">
-          <button
-            className="flex items-center gap-1 border rounded-md px-3 py-2"
-            onClick={() =>
-              setStatusFilter(
-                statusFilter === "All status" ? "Active" : "All status"
-              )
-            }
+        <h1 className="text-2xl">All Subscription</h1>
+        <div className="flex items-center gap-2">
+          {/* 🔽 Select Filter */}
+          <select
+            value={statusFilter}
+            onChange={(e) => {
+              setPage(1); 
+              setStatusFilter(e.target.value);
+            }}
+            className="border rounded-md px-3 py-2"
           >
-            {statusFilter} <ChevronDownIcon className="w-4 h-4" />
-          </button>
+            <option>All status</option>
+            <option>Active</option>
+            <option>Pending</option>
+            <option>Auto-Renew</option>
+            <option>Expired</option>
+            <option>Inactive</option>
+          </select>
+
           <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
             + Add New Plan
           </button>
         </div>
       </div>
+
       {/* Table */}
       <div className="overflow-x-auto rounded-lg shadow-lg">
         <table className="min-w-full divide-y divide-gray-300 text-sm font-sans">
@@ -180,9 +161,7 @@ export default function SubscriptionsDashboard() {
               >
                 <td className="px-6 py-4">
                   <div className="flex flex-col">
-                    <span className="font-semibold text-gray-900">
-                      {sub.name}
-                    </span>
+                    <span className="font-semibold text-gray-900">{sub.name}</span>
                     <span className="text-xs text-gray-500">{sub.email}</span>
                     <span
                       className={`mt-1 px-3 py-1 rounded-full text-xs font-medium ${
@@ -224,7 +203,8 @@ export default function SubscriptionsDashboard() {
       {/* Pagination */}
       <div className="flex justify-between items-center text-sm">
         <span>
-          Showing 1 to {paged.length} of {filtered.length} results
+          Showing {paged.length ? (page - 1) * pageSize + 1 : 0} to{" "}
+          {(page - 1) * pageSize + paged.length} of {filtered.length} results
         </span>
         <div className="space-x-2">
           <button

@@ -12,16 +12,14 @@ import Settings from "@/Page/Settings";
 import Subscriptions from "@/Page/Subscriptions";
 import Layout from "../../Layout";
 import Employees from "@/Page/Employees";
-<<<<<<< HEAD
-=======
 import AdminLogin from "@/Components/Auth/AdminLogin";
 import UserSignUp from "@/Components/Auth/UserSignUp";
 import ForgetPassword from "@/Components/Auth/ForgetPassword";
 import VerifyCode from "@/Components/Auth/VerifyCode";
-import SetPassword from "@/Components/Auth/SetPassword";
-import Home from "@/Page/Home";
 import Appertment from "@/Page/Appertment";
->>>>>>> 06ae4735d8e699e36d042e259e13968dbeeee8b7
+import Home from "@/Page/Home";
+import SetPassword from '@/Components/Auth/SetPassword';
+
 
 const Router = () => {
   return (
