@@ -10,7 +10,7 @@ import Reports from "@/Page/Reports";
 import Services from "@/Page/Services";
 import Settings from "@/Page/Settings";
 import Subscriptions from "@/Page/Subscriptions";
-import Layout from "../Layout";
+// import Layout from "../Layout";
 import Employees from "@/Page/Employees";
 import AdminLogin from "@/Components/Auth/AdminLogin";
 import UserSignUp from "@/Components/Auth/UserSignUp";
@@ -19,6 +19,8 @@ import VerifyCode from "@/Components/Auth/VerifyCode";
 import Appertment from "@/Page/Appertment";
 import Home from "@/Page/Home";
 import SetPassword from '@/Components/Auth/SetPassword';
+// import SubscriptionPlan from "@/Components/Subscription/SubscriptionPlan";
+import Layout from "@/Layout";
 import SubscriptionPlan from "@/Components/Subscription/SubscriptionPlan";
 
 
@@ -40,7 +42,9 @@ const Router = () => {
         <Route path="services" element={<Services />} />
         <Route path="settings" element={<Settings />} />
         <Route path="subscription" element={<Subscriptions />} />
-        <Route path="subscriptionplan" element={<SubscriptionPlan />} />
+        <Route path="subscriptionplan" element={<SubscriptionPlan
+  
+    />} />
       </Route>
         <Route path="adminlogin" element={<AdminLogin />} />
         <Route path="signup" element={<UserSignUp />} />
@@ -48,5 +52,6 @@ const Router = () => {
         <Route path="verifycode" element={<VerifyCode />} />
         <Route path="setpassword" element={<SetPassword />} />
     </Routes>
-
+  )
+}
 export default Router;
