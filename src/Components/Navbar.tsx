@@ -38,7 +38,7 @@ const Navbar = () => {
         <img src={Home} className="w-5" alt="Home" />
         <IoIosArrowForward className="text-[#8E8E8E] text-xl" />
         <p className="text-[#8E8E8E] font-semibold text-xl">
-          dynamic Dashboard
+          Dashboard
         </p>
       </div>
 
