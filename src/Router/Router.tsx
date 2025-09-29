@@ -19,6 +19,7 @@ import VerifyCode from "@/Components/Auth/VerifyCode";
 import Appertment from "@/Page/Appertment";
 import Home from "@/Page/Home";
 import SetPassword from '@/Components/Auth/SetPassword';
+import SubscriptionPlan from "@/Components/Subscription/SubscriptionPlan";
 
 
 const Router = () => {
@@ -39,6 +40,7 @@ const Router = () => {
         <Route path="services" element={<Services />} />
         <Route path="settings" element={<Settings />} />
         <Route path="subscription" element={<Subscriptions />} />
+        <Route path="subscriptionplan" element={<SubscriptionPlan />} />
       </Route>
         <Route path="adminlogin" element={<AdminLogin />} />
         <Route path="signup" element={<UserSignUp />} />

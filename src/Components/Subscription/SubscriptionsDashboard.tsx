@@ -3,6 +3,8 @@ import correcticon from "../../assets/Image/correcticon.svg";
 import time from "../../assets/Image/time.svg";
 import cross from "../../assets/Image/cross.svg";
 import doller from "../../assets/Image/doller.svg";
+import SubscriptionsTable from "./SubscriptionsTable";
+import { Link } from "react-router";
 
 const data = [
   {
@@ -88,17 +90,12 @@ export default function SubscriptionsDashboard() {
   const [page, setPage] = useState(1);
   const pageSize = 5;
 
-  // সহজ ফিল্টার লজিক
+  // ফিল্টার লজিক
   const filtered = data.filter((s) => {
     if (statusFilter === "All status") return true;
-    if (statusFilter === "Inactive") {
-      // “Inactive” মানে Active ছাড়া সব
-      return s.status !== "Active";
-    }
+    if (statusFilter === "Inactive") return s.status !== "Active";
     return s.status === statusFilter;
   });
-
-  const paged = filtered.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <div className="p-6 space-y-8">
@@ -110,18 +107,17 @@ export default function SubscriptionsDashboard() {
         <Card title="Revenue This Month" value="$45,680" icon={doller} />
       </div>
 
-      {/* Filter + Add New */}
+      {/* Filter */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl">All Subscription</h1>
         <div className="flex items-center gap-2">
-          {/* 🔽 Select Filter */}
           <select
             value={statusFilter}
             onChange={(e) => {
-              setPage(1); 
+              setPage(1);
               setStatusFilter(e.target.value);
             }}
-            className="border rounded-md px-3 py-2"
+            className="border border-gray-300  rounded-md px-3 py-2"
           >
             <option>All status</option>
             <option>Active</option>
@@ -131,98 +127,19 @@ export default function SubscriptionsDashboard() {
             <option>Inactive</option>
           </select>
 
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+         <Link to="/subscriptionplan"> <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
             + Add New Plan
-          </button>
+          </button></Link>
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto rounded-lg shadow-lg">
-        <table className="min-w-full divide-y divide-gray-300 text-sm font-sans">
-          <thead className="bg-gray-200 uppercase text-gray-700 tracking-wider">
-            <tr>
-              <th className="px-6 py-3 text-left">Client</th>
-              <th className="px-6 py-3 text-left">Location</th>
-              <th className="px-6 py-3 text-left">Package</th>
-              <th className="px-6 py-3 text-left">Start Date</th>
-              <th className="px-6 py-3 text-left">Countdown</th>
-              <th className="px-6 py-3 text-left">Next Payment</th>
-              <th className="px-6 py-3 text-left">Invoice</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 bg-white">
-            {paged.map((sub, idx) => (
-              <tr
-                key={sub.id}
-                className={`transition-colors duration-300 cursor-pointer ${
-                  idx % 2 === 0 ? "bg-gray-50" : "bg-white"
-                } hover:bg-blue-50`}
-              >
-                <td className="px-6 py-4">
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-gray-900">{sub.name}</span>
-                    <span className="text-xs text-gray-500">{sub.email}</span>
-                    <span
-                      className={`mt-1 px-3 py-1 rounded-full text-xs font-medium ${
-                        sub.status === "Active"
-                          ? "bg-gradient-to-r from-green-300 to-green-500 text-white"
-                          : sub.status === "Pending"
-                          ? "bg-gradient-to-r from-yellow-300 to-yellow-500 text-white"
-                          : sub.status === "Auto-Renew"
-                          ? "bg-gradient-to-r from-blue-300 to-blue-500 text-white"
-                          : "bg-gradient-to-r from-red-300 to-red-500 text-white"
-                      }`}
-                    >
-                      {sub.status}
-                    </span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-gray-700">{sub.location}</td>
-                <td className="px-6 py-4 text-gray-700">{sub.package}</td>
-                <td className="px-6 py-4 text-gray-700">{sub.startDate}</td>
-                <td className="px-6 py-4 text-gray-700">{sub.countdown}</td>
-                <td className="px-6 py-4 text-gray-700">{sub.nextPayment}</td>
-                <td className="px-6 py-4">
-                  {sub.invoice ? (
-                    <span className="px-3 py-1 text-blue-700 border border-blue-700 rounded-full text-xs font-semibold">
-                      Linked
-                    </span>
-                  ) : (
-                    <span className="px-3 py-1 text-gray-400 border border-gray-300 rounded-full text-xs font-semibold">
-                      No
-                    </span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination */}
-      <div className="flex justify-between items-center text-sm">
-        <span>
-          Showing {paged.length ? (page - 1) * pageSize + 1 : 0} to{" "}
-          {(page - 1) * pageSize + paged.length} of {filtered.length} results
-        </span>
-        <div className="space-x-2">
-          <button
-            className="px-3 py-1 border rounded"
-            disabled={page === 1}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            Prev
-          </button>
-          <button
-            className="px-3 py-1 border rounded"
-            disabled={page * pageSize >= filtered.length}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </button>
-        </div>
-      </div>
+ 
+      <SubscriptionsTable
+        rows={filtered}
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+      />
     </div>
   );
 }
