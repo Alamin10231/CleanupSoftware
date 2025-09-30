@@ -46,6 +46,9 @@ import print from "./Print.svg"
 import location from "./Location.svg"
 import Calendar from "./Calender.svg"
 import Clock from "./Clock.svg"
+import thik from "./thik.svg"
+import blueDot from "./blueDot.svg"
+import grayDot from "./grayDot.svg"
 
 export const assets = {
   logo,
@@ -95,7 +98,10 @@ export const assets = {
   print,
   location,
   Calendar,
-  Clock
+  Clock,
+  thik,
+  grayDot,
+  blueDot
 };
 
 

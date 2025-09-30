@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "title": "New Task Assigned",
+    "message": "Clean Apartment 5B today at 10 AM",
+    "status": "new"
+  },
+  {
+    "id": 2,
+    "title": "Payment Reminder",
+    "message": "Your invoice #234 is due tomorrow.",
+    "status": "new"
+  },
+  {
+    "id": 3,
+    "title": "Shift Change",
+    "message": "Your evening shift has been moved to 4 PM.",
+    "status": "new"
+  },
+  {
+    "id": 4,
+    "title": "Meeting Scheduled",
+    "message": "Team meeting scheduled for tomorrow at 9 AM.",
+    "status": "read"
+  },
+  {
+    "id": 5,
+    "title": "New Message",
+    "message": "You have received a message from the manager.",
+    "status": "new"
+  },
+  {
+    "id": 6,
+    "title": "Task Completed",
+    "message": "Cleaning for Apartment 4C marked as complete.",
+    "status": "read"
+  },
+  {
+    "id": 7,
+    "title": "Maintenance Alert",
+    "message": "Elevator in Block B will be under maintenance at 2 PM.",
+    "status": "new"
+  },
+  {
+    "id": 8,
+    "title": "Salary Processed",
+    "message": "Your monthly salary has been credited.",
+    "status": "read"
+  },
+  {
+    "id": 9,
+    "title": "Client Feedback",
+    "message": "You received a 5-star rating from a client.",
+    "status": "new"
+  },
+  {
+    "id": 10,
+    "title": "App Update",
+    "message": "A new version of the app is available. Please update.",
+    "status": "read"
+  }
+]
