@@ -16,7 +16,7 @@ const Notifications = () => {
   useEffect(() => {
     fetch("/notifications.json")
       .then((res) => res.json())
-      .then(setNotifications) // directly set the data
+      .then(setNotifications)
       .catch(console.error);
   }, []);
 
@@ -51,15 +51,16 @@ const Notifications = () => {
           <div
             key={n.id}
             onClick={() => markOneAsRead(n.id)}
-            className={`flex justify-between rounded-xl p-6 cursor-pointer ${
-              n.status === "new" ? "bg-blue-200" : "bg-transparent"
+            className={`flex justify-between rounded-xl p-6 cursor-pointer border border-gray-300 shadow-sm ${
+              n.status === "new" ? "bg-blue-200" : "bg-gray-100"
             }`}
           >
             <div>
               <h2 className="font-semibold text-[20px]">{n.title}</h2>
               <p className="mt-2">{n.message}</p>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center gap-4">
+              <p className="text-gray-500">{n.time}</p>
               <img
                 src={n.status === "new" ? assets.blueDot : assets.grayDot}
                 alt={n.status}
