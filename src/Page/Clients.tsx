@@ -211,7 +211,7 @@ const Clients = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <div className="flex gap-4">
+                    <div className="flex gap-20">
                         <div className="flex gap-2">
                             <p className="text-base text-gray-500 py-2">
                                 Status
