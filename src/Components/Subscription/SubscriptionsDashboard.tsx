@@ -6,6 +6,7 @@ import doller from "../../assets/Image/doller.svg";
 import SubscriptionsTable from "./SubscriptionsTable";
 import { Link } from "react-router";
 import { Button } from "../ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 const data = [
   {
@@ -119,21 +120,25 @@ export default function SubscriptionsDashboard() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl">All Subscribers</h1>
         <div className="flex items-center gap-2">
-          <select
-            value={statusFilter}
-            onChange={(e) => {
-              setPage(1);
-              setStatusFilter(e.target.value);
+         <Select
+             value={statusFilter}
+             onValueChange={(value) => {
+               setPage(1);
+              setStatusFilter(value);
             }}
-            className="border border-gray-300  rounded-md px-3 py-2"
-          >
-            <option>All status</option>
-            <option>Active</option>
-            <option>Pending</option>
-            <option>Auto-Renew</option>
-            <option>Expired</option>
-            <option>Inactive</option>
-          </select>
+         >
+            <SelectTrigger id="category">
+              <SelectValue placeholder="Select category..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All status">All status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="auto-Renew">Auto-Renew</SelectItem>
+              <SelectItem value="expired">Expired</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
 
           <Link to="/add-new-plan">
             <Button>
