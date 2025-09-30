@@ -9,12 +9,6 @@
   font-optical-sizing: auto;
 }
 
- /* body {
-  font-family: 'Nunito', sans-serif;
-   font-weight: 500;
-    font-style: normal;
-}  */
-
 /* Hide scrollbar but keep scroll functionality */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
@@ -24,8 +18,6 @@
   scrollbar-width: none;     /* Firefox */
 }
 
-<<<<<<< HEAD
-=======
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -141,4 +133,3 @@
     @apply bg-background text-foreground;
   }
 }
->>>>>>> 11206b6b40123738839c0f8112fe9fcd54f974e9
