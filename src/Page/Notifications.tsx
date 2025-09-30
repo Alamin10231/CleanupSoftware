@@ -7,6 +7,7 @@ interface Notification {
   title: string;
   message: string;
   status: string; // "new" or "read"
+  time?: string;  // optional time field
 }
 
 const Notifications = () => {
@@ -60,11 +61,13 @@ const Notifications = () => {
               <p className="mt-2">{n.message}</p>
             </div>
             <div className="flex items-center gap-4">
-              <p className="text-gray-500">{n.time}</p>
-              <img
-                src={n.status === "new" ? assets.blueDot : assets.grayDot}
-                alt={n.status}
-              />
+              {/* Show time */}
+              {n.time && <p className="text-gray-500">{n.time}</p>}
+
+              {/* Show blue dot only if new */}
+              {n.status === "new" && (
+                <img src={assets.blueDot} alt="new" />
+              )}
             </div>
           </div>
         ))}
