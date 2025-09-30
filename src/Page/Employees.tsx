@@ -33,25 +33,10 @@ const Employees = () => {
 
   // Cards dummy data
   const cardData = [
-    {
-      title: "Total Employee",
-      number: 10,
-      iconKey: "totalEmployee",
-      iconAlt: "total employee",
-    },
+    { title: "Total Employee", number: 10, iconKey: "totalEmployee", iconAlt: "total employee" },
     { title: "Active", number: 51, iconKey: "Active", iconAlt: "active" },
-    {
-      title: "Avg Performance",
-      number: 12,
-      iconKey: "AvgPerformance",
-      iconAlt: "Avg Performance",
-    },
-    {
-      title: "Total Payroll",
-      number: 12,
-      iconKey: "totalpayroll",
-      iconAlt: "Total Payroll",
-    },
+    { title: "Avg Performance", number: 12, iconKey: "AvgPerformance", iconAlt: "Avg Performance" },
+    { title: "Total Payroll", number: 12, iconKey: "totalpayroll", iconAlt: "Total Payroll" },
     { title: "On Leave", number: 12, iconKey: "onLeave", iconAlt: "On leave" },
   ];
 
@@ -73,8 +58,7 @@ const Employees = () => {
       emp.email.toLowerCase().includes(search);
 
     const matchesDepartment =
-      departmentFilter === "All Departments" ||
-      emp.department === departmentFilter;
+      departmentFilter === "All Departments" || emp.department === departmentFilter;
 
     const matchesStatus =
       statusFilter === "All Status" || emp.status === statusFilter;
@@ -108,7 +92,7 @@ const Employees = () => {
               key={index}
               title={card.title}
               number={card.number}
-              iconSrc={assets[card.iconKey as keyof typeof assets]}
+              iconSrc={assets[card.iconKey]}
               iconAlt={card.iconAlt}
             />
           ))}

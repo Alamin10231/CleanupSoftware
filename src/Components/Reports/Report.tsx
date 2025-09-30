@@ -1,5 +1,3 @@
-
-
 import Button from "../Button";
 import { FiRefreshCw } from "react-icons/fi";
 import { BiExport } from "react-icons/bi";
@@ -23,49 +21,66 @@ export default function Report() {
 
       {/* Filter Section */}
       <div className="bg-white border  border-gray-300 rounded-xl p-4 flex flex-wrap justify-between gap-4 items-center">
-        
-
-    <div>
+        <div>
           <select className="border border-gray-300 rounded-lg px-4 py-2">
-          <option>All Regions</option>
-        </select>
+            <option>All Regions</option>
+          </select>
 
-        <input
-          type="text"
-          placeholder="Enter apartment code"
-          className="border rounded-lg px-4 py-2 border-gray-300"
-        />
-    </div>
+          <input
+            type="text"
+            placeholder="Enter apartment code"
+            className="border rounded-lg px-4 py-2 border-gray-300"
+          />
+        </div>
 
         {/* Status checkboxes */}
         <div className="flex flex-wrap items-center gap-3">
-         <div>
-           <label className="flex items-center gap-1">
-            <input type="checkbox" defaultChecked /> Active
-          </label>
-          <label className="flex items-center gap-1">
-            <input type="checkbox" defaultChecked /> Expired
-          </label>
-         </div>
-       <div>
-           <label className="flex items-center gap-1">
-            <input type="checkbox" defaultChecked /> Stopped
-          </label>
-          <label className="flex items-center gap-1">
-            <input type="checkbox" defaultChecked /> Pending
-          </label>
-       </div>
+          <div>
+            <label className="flex items-center gap-1">
+              <input type="checkbox" defaultChecked /> Active
+            </label>
+            <label className="flex items-center gap-1">
+              <input type="checkbox" defaultChecked /> Expired
+            </label>
+          </div>
+          <div>
+            <label className="flex items-center gap-1">
+              <input type="checkbox" defaultChecked /> Stopped
+            </label>
+            <label className="flex items-center gap-1">
+              <input type="checkbox" defaultChecked /> Pending
+            </label>
+          </div>
         </div>
-
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          { title: "Total Revenue", value: "SAR 4,350", change: "+12.5%", color: "text-green-500" },
-          { title: "Total Expenses", value: "SAR 230", change: "+8.2%", color: "text-red-500" },
-          { title: "Active Subscriptions", value: "47", change: "+5.1%", color: "text-green-500" },
-          { title: "Pending Payments", value: "SAR 156", change: "-2.3%", color: "text-yellow-500" },
+          {
+            title: "Total Revenue",
+            value: "SAR 4,350",
+            change: "+12.5%",
+            color: "text-green-500",
+          },
+          {
+            title: "Total Expenses",
+            value: "SAR 230",
+            change: "+8.2%",
+            color: "text-red-500",
+          },
+          {
+            title: "Active Subscriptions",
+            value: "47",
+            change: "+5.1%",
+            color: "text-green-500",
+          },
+          {
+            title: "Pending Payments",
+            value: "SAR 156",
+            change: "-2.3%",
+            color: "text-yellow-500",
+          },
         ].map((item) => (
           <div
             key={item.title}
@@ -73,7 +88,9 @@ export default function Report() {
           >
             <p className="text-gray-500 font-semibold">{item.title}</p>
             <p className="text-2xl font-bold">{item.value}</p>
-            <p className={`font-medium ${item.color}`}>{item.change} vs last month</p>
+            <p className={`font-medium ${item.color}`}>
+              {item.change} vs last month
+            </p>
           </div>
         ))}
       </div>

@@ -1,5 +1,3 @@
-
-
 import logo from "./Clean_Up_logo.png";
 import Clients_icon from "./Clients.svg";
 import Dashboard_icon from "./Dashboard_icon.svg";
@@ -38,6 +36,9 @@ import AvgPerformance from "./AvgPerformance.svg"
 import onLeave from "./OnLeave.svg"
 import totalEmployee from "./Total Employee.svg"
 import totalpayroll from "./Total Payroll.svg"
+import blueInvoice from "./Blue_Invoice.svg"
+import overDue from "./Overdue.svg"
+import Paid_Amount from "./Paid_Amount.svg"
 
 export const assets = {
   logo,
@@ -77,6 +78,25 @@ export const assets = {
   AvgPerformance,
   onLeave,
   totalEmployee,
-  totalpayroll
+  totalpayroll,
+  blueInvoice,
+  overDue,
+  Paid_Amount
 };
 
+
+export const ServiceTopCard = [
+    { title: "Total Service", number: 4, iconKey: "total_service", iconAlt: "total employee" },
+    { title: "Active", number: 63, iconKey: "Active", iconAlt: "active" },
+    { title: "Avg Rating", number: 4.8, iconKey: "AVG_rating", iconAlt: "Avg Performance" },
+    { title: "Total Revenue", number: 250000, iconKey: "Total_revenue", iconAlt: "Total_revenue" },
+    { title: "Avg Popularity", number: "85%", iconKey: "Avg_Popularity", iconAlt: "On leave" },
+  ];
+
+  export const InvoiceTopCard = [
+    { title: "Total Invoice", number: 4, iconKey: "blueInvoice", iconAlt: "total employee" },
+    { title: "Paid", number: 1, iconKey: "Active", iconAlt: "active" },
+    { title: "Overdue", number: 2, iconKey: "overDue", iconAlt: "Avg Performance" },
+    { title: "Total Amount", number: 200, iconKey: "Total_revenue", iconAlt: "Total_revenue" },
+    { title: "Paid Amount", number: 5, iconKey: "Paid_Amount", iconAlt: "On leave" },
+  ];
