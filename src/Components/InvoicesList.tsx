@@ -21,7 +21,6 @@ const InvoicesList: React.FC = () => {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("All Status");
   const [paymentMethod, setPaymentMethod] = useState("All Payment Method");
-  const [time, setTime] = useState("All Time");
   const [sort, setSort] = useState("Default");
 
   useEffect(() => {
