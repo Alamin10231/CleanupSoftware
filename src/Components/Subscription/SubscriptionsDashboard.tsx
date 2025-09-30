@@ -5,6 +5,7 @@ import cross from "../../assets/Image/cross.svg";
 import doller from "../../assets/Image/doller.svg";
 import SubscriptionsTable from "./SubscriptionsTable";
 import { Link } from "react-router";
+import { Button } from "../ui/button";
 
 const data = [
   {
@@ -92,7 +93,6 @@ export default function SubscriptionsDashboard() {
   const [page, setPage] = useState(1);
   const pageSize = 5;
 
-  // ফিল্টার লজিক
   const filtered = data.filter((s) => {
     if (statusFilter === "All status") return true;
     if (statusFilter === "Inactive") return s.status !== "Active";
@@ -135,17 +135,15 @@ export default function SubscriptionsDashboard() {
             <option>Inactive</option>
           </select>
 
-          <Link to="">
-            {" "}
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+          <Link to="/add-new-plan">
+            <Button>
               + Add New Plan
-            </button>
+            </Button>
           </Link>
           <Link to="/subscriptionplan">
-            {" "}
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+            <Button>
               View Plan
-            </button>
+            </Button>
           </Link>
         </div>
       </div>

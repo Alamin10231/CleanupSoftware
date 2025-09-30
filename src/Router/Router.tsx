@@ -22,6 +22,7 @@ import SetPassword from "@/Components/Auth/SetPassword";
 // import SubscriptionPlan from "@/Components/Subscription/SubscriptionPlan";
 import Layout from "@/Layout";
 import SubscriptionPlan from "@/Components/Subscription/SubscriptionPlan";
+import AddNewPlanForm from "@/Page/add-new-plan";
 
 const Router = () => {
   return (
@@ -42,6 +43,8 @@ const Router = () => {
         <Route path="settings" element={<Settings />} />
         <Route path="subscription" element={<Subscriptions />} />
         <Route path="subscriptionplan" element={<SubscriptionPlan />} />
+        <Route path="add-new-plan" element={<AddNewPlanForm />} />
+
         {/* <Route path="reports" element={<Reports />} /> */}
       </Route>
       <Route path="adminlogin" element={<AdminLogin />} />
