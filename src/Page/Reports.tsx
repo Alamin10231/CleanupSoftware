@@ -1,7 +1,8 @@
+import Report from "@/Components/Reports/Report"
 
 const Reports = () => {
   return (
-    <div>Reports</div>
+    <div><Report></Report></div>
   )
 }
 
