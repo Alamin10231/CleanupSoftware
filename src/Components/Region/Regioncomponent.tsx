@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FaCheckCircle, FaRegEye, FaRegEyeSlash } from "react-icons/fa";
+import { FaCheckCircle } from "react-icons/fa";
 import { FiHome } from "react-icons/fi";
 import { GoPlus } from "react-icons/go";
 import { IoIosSearch } from "react-icons/io";
@@ -8,29 +8,34 @@ import { LuBuilding2 } from "react-icons/lu";
 import Buildings from "@/assets/building.svg";
 import {
     Dialog,
+    DialogClose,
     DialogContent,
     DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
 } from "@/Components/ui/dialog";
+import { Eye, EyeOff, MapPin, Target } from "lucide-react";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
 
-interface Building {
-    id: number;
-    name: string;
-    status: "Active" | "Inactive" | "Maintenance";
-    apartments: number;
-    stock: number;
-    active: number;
-    createdOn: string;
-    code: string;
-    type: string;
-    area: string;
-}
-
-interface AlljsonResponse {
-    alljsondata: Building[];
-}
+const buildingData = {
+    name: "Mosabbir",
+    status: "active",
+    type: "Residential",
+    address: "JVAI, Mohakhali",
+    area: "Mohakhali",
+    apartments: 4,
+    region: "03",
+    activeUnits: 0,
+    createdDate: "17/08/2025",
+    apartmentList: [
+        { name: "A-1", floor: 1, isOutdoor: false },
+        { name: "54661", floor: 2, isOutdoor: true },
+        { name: "51", floor: 21, isOutdoor: false },
+        { name: "FDBGFN", floor: 6, isOutdoor: false },
+    ],
+};
 
 export default function RegionComponent() {
 <<<<<<< HEAD
@@ -582,16 +587,139 @@ export default function RegionComponent() {
 
                         {/* building details */}
                         <Dialog>
-                            <DialogTrigger>
-                                <button
-                                    className="absolute top-4 right-4 text-xl text-gray-600"
-                                    onClick={() => setopeneye(!openeye)}
-                                >
-                                    {openeye ? <FaRegEyeSlash /> : <FaRegEye />}
-                                </button>
+                            <DialogTrigger asChild>
+                                <Eye
+                                    size={20}
+                                    className="cursor-pointer absolute top-4 right-4"
+                                />
                             </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>{`Building Name`}</DialogHeader>
+
+                            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                                <DialogHeader>
+                                    <DialogTitle className="text-3xl font-semibold pb-4 border-b border-gray-200">
+                                        {buildingData.name}
+                                    </DialogTitle>
+                                </DialogHeader>
+
+                                <div className="space-y-6">
+                                    {/* Status Badges */}
+                                    <div className="flex gap-2">
+                                        <Badge
+                                            variant="outline"
+                                            className="bg-green-100 text-green-700 border-green-200"
+                                        >
+                                            {buildingData.status}
+                                        </Badge>
+                                        <Badge
+                                            variant="outline"
+                                            className="bg-blue-100 text-blue-700 border-blue-200"
+                                        >
+                                            {buildingData.type}
+                                        </Badge>
+                                    </div>
+
+                                    {/* Address Information */}
+                                    <div className="space-y-2">
+                                        <div className="flex items-start gap-2 text-gray-700">
+                                            <MapPin
+                                                size={16}
+                                                className="text-gray-500 mt-0.5"
+                                            />
+                                            <span className="text-sm">
+                                                {buildingData.address}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-start gap-2 text-gray-700">
+                                            <Target
+                                                size={16}
+                                                className="text-gray-500 mt-0.5"
+                                            />
+                                            <span className="text-sm">
+                                                {buildingData.area}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {/* Stats Grid */}
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="text-center p-4">
+                                            <div className="text-3xl font-bold text-gray-800">
+                                                {buildingData.apartments}
+                                            </div>
+                                            <div className="text-sm text-gray-600 mt-1">
+                                                Apts
+                                            </div>
+                                        </div>
+                                        <div className="text-center p-4">
+                                            <div className="text-3xl font-bold text-gray-800">
+                                                {buildingData.region}
+                                            </div>
+                                            <div className="text-sm text-gray-600 mt-1">
+                                                Region
+                                            </div>
+                                        </div>
+                                        <div className="text-center p-4">
+                                            <div className="text-3xl font-bold text-gray-800">
+                                                {buildingData.activeUnits}
+                                            </div>
+                                            <div className="text-sm text-gray-600 mt-1">
+                                                Active
+                                            </div>
+                                        </div>
+                                        <div className="text-center p-4">
+                                            <div className="text-xl font-bold text-gray-800">
+                                                {buildingData.createdDate}
+                                            </div>
+                                            <div className="text-sm text-gray-600 mt-1">
+                                                Created
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Apartments List */}
+                                    <div className="border-t border-b border-gray-200 py-6">
+                                        <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                                            Apartments (
+                                            {buildingData.apartments})
+                                        </h3>
+                                        <div className="space-y-2">
+                                            {buildingData.apartmentList.map(
+                                                (apt, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
+                                                    >
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="font-medium text-gray-800">
+                                                                {apt.name}
+                                                            </span>
+                                                            {apt.isOutdoor && (
+                                                                <Badge
+                                                                    variant="outline"
+                                                                    className="bg-green-100 text-green-700 border-green-200 text-xs"
+                                                                >
+                                                                    Outdoor
+                                                                </Badge>
+                                                            )}
+                                                        </div>
+                                                        <span className="text-sm text-gray-600">
+                                                            Floor: {apt.floor}
+                                                        </span>
+                                                    </div>
+                                                )
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    {/* Footer Button */}
+                                    <DialogClose asChild>
+                                       <div className="flex justify-end">
+                                        <Button>
+                                            Close
+                                        </Button>
+                                       </div>
+                                    </DialogClose>
+                                </div>
                             </DialogContent>
                         </Dialog>
                     </div>
