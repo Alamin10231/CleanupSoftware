@@ -39,6 +39,13 @@ import totalpayroll from "./Total Payroll.svg"
 import blueInvoice from "./Blue_Invoice.svg"
 import overDue from "./Overdue.svg"
 import Paid_Amount from "./Paid_Amount.svg"
+import Delete from "./Delete.svg"
+import  Edit  from "./Edit.svg";
+import eye from "./Eye.svg"
+import print from "./Print.svg"
+import location from "./Location.svg"
+import Calendar from "./Calender.svg"
+import Clock from "./Clock.svg"
 
 export const assets = {
   logo,
@@ -81,7 +88,14 @@ export const assets = {
   totalpayroll,
   blueInvoice,
   overDue,
-  Paid_Amount
+  Paid_Amount,
+  Delete,
+  Edit,
+  eye,
+  print,
+  location,
+  Calendar,
+  Clock
 };
 
 

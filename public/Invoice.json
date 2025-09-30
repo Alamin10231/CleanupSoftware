@@ -1,0 +1,124 @@
+{
+  "invoices": [
+    {
+      "id": "INV-2024-004",
+      "title": "Kingdom Tower Office",
+      "status": "Paid",
+      "paymentMethod": "Bank Transfer",
+      "issuedDate": "12/20/2024",
+      "dueDate": "01/05/2025",
+      "location": "Luxemburg",
+      "actions": ["view", "edit", "print", "delete"],
+      "summary": { "subtotal": 1699, "tax": 254.85, "total": 1903.85 },
+      "services": { "count": 2, "discount": "-50%" }
+    },
+    {
+      "id": "INV-2024-005",
+      "title": "Central Plaza Mall",
+      "status": "Unpaid",
+      "paymentMethod": "Cash",
+      "issuedDate": "12/25/2024",
+      "dueDate": "01/10/2025",
+      "location": "Dubai",
+      "actions": ["view", "edit", "print", "delete"],
+      "summary": { "subtotal": 2200, "tax": 330, "total": 2530 },
+      "services": { "count": 3, "discount": "0%" }
+    },
+    {
+      "id": "INV-2024-006",
+      "title": "Tech Hub Office",
+      "status": "Paid",
+      "paymentMethod": "Online Payment",
+      "issuedDate": "01/01/2025",
+      "dueDate": "01/15/2025",
+      "location": "Berlin",
+      "actions": ["view", "edit", "print", "delete"],
+      "summary": { "subtotal": 3100, "tax": 465, "total": 3565 },
+      "services": { "count": 5, "discount": "-10%" }
+    },
+    {
+      "id": "INV-2024-007",
+      "title": "Skyline Apartments",
+      "status": "Unpaid",
+      "paymentMethod": "Bank Transfer",
+      "issuedDate": "01/02/2025",
+      "dueDate": "01/20/2025",
+      "location": "Paris",
+      "actions": ["view", "edit", "print", "delete"],
+      "summary": { "subtotal": 1450, "tax": 217.5, "total": 1667.5 },
+      "services": { "count": 1, "discount": "0%" }
+    },
+    {
+      "id": "INV-2024-008",
+      "title": "Metro Business Center",
+      "status": "Paid",
+      "paymentMethod": "Cash",
+      "issuedDate": "01/05/2025",
+      "dueDate": "01/25/2025",
+      "location": "Riyadh",
+      "actions": ["view", "edit", "print", "delete"],
+      "summary": { "subtotal": 4000, "tax": 600, "total": 4600 },
+      "services": { "count": 6, "discount": "-20%" }
+    },
+    {
+      "id": "INV-2024-009",
+      "title": "Global IT Solutions",
+      "status": "Paid",
+      "paymentMethod": "Online Payment",
+      "issuedDate": "01/10/2025",
+      "dueDate": "01/30/2025",
+      "location": "New York",
+      "actions": ["view", "edit", "print", "delete"],
+      "summary": { "subtotal": 1850, "tax": 277.5, "total": 2127.5 },
+      "services": { "count": 2, "discount": "-5%" }
+    },
+    {
+      "id": "INV-2024-010",
+      "title": "Ocean View Resort",
+      "status": "Unpaid",
+      "paymentMethod": "Bank Transfer",
+      "issuedDate": "01/12/2025",
+      "dueDate": "02/01/2025",
+      "location": "Maldives",
+      "actions": ["view", "edit", "print", "delete"],
+      "summary": { "subtotal": 5200, "tax": 780, "total": 5980 },
+      "services": { "count": 8, "discount": "-15%" }
+    },
+    {
+      "id": "INV-2024-011",
+      "title": "Sunset Villas",
+      "status": "Paid",
+      "paymentMethod": "Cash",
+      "issuedDate": "01/15/2025",
+      "dueDate": "02/05/2025",
+      "location": "Bangkok",
+      "actions": ["view", "edit", "print", "delete"],
+      "summary": { "subtotal": 2700, "tax": 405, "total": 3105 },
+      "services": { "count": 3, "discount": "0%" }
+    },
+    {
+      "id": "INV-2024-012",
+      "title": "Downtown Corporate",
+      "status": "Unpaid",
+      "paymentMethod": "Online Payment",
+      "issuedDate": "01/18/2025",
+      "dueDate": "02/10/2025",
+      "location": "London",
+      "actions": ["view", "edit", "print", "delete"],
+      "summary": { "subtotal": 1950, "tax": 292.5, "total": 2242.5 },
+      "services": { "count": 2, "discount": "-25%" }
+    },
+    {
+      "id": "INV-2024-013",
+      "title": "Harbor View Offices",
+      "status": "Paid",
+      "paymentMethod": "Bank Transfer",
+      "issuedDate": "01/20/2025",
+      "dueDate": "02/12/2025",
+      "location": "Singapore",
+      "actions": ["view", "edit", "print", "delete"],
+      "summary": { "subtotal": 3600, "tax": 540, "total": 4140 },
+      "services": { "count": 4, "discount": "-30%" }
+    }
+  ]
+}
