@@ -100,3 +100,11 @@ export const ServiceTopCard = [
     { title: "Total Amount", number: 200, iconKey: "Total_revenue", iconAlt: "Total_revenue" },
     { title: "Paid Amount", number: 5, iconKey: "Paid_Amount", iconAlt: "On leave" },
   ];
+
+  export const Alamin = [
+     { title: "Total Invoice", number: 4, iconKey: "blueInvoice", iconAlt: "total employee" },
+    { title: "Paid", number: 1, iconKey: "Active", iconAlt: "active" },
+    { title: "Overdue", number: 2, iconKey: "overDue", iconAlt: "Avg Performance" },
+    { title: "Total Amount", number: 200, iconKey: "Total_revenue", iconAlt: "Total_revenue" },
+    { title: "Paid Amount", number: 5, iconKey: "total_service", iconAlt: "On leave" },
+  ]

@@ -1,43 +1,50 @@
-
 import { BarChart, Bar, Rectangle, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const data = [
-  { name: 'Jan', uv: 4000, pv: 2400, amt: 2400 },
-  { name: 'Feb', uv: 3000, pv: 1398, amt: 2210 },
-  { name: 'Mar', uv: 2000, pv: 9800, amt: 2290 },
-  { name: 'Apr', uv: 2780, pv: 3908, amt: 2000 },
-  { name: 'May', uv: 1890, pv: 4800, amt: 2181 },
-  { name: 'Jun', uv: 2390, pv: 3800, amt: 2500 },
-  { name: 'Jul', uv: 3490, pv: 4300, amt: 2100 },
-  { name: 'Aug', uv: 3200, pv: 4100, amt: 2200 },
-  { name: 'Sep', uv: 3600, pv: 4500, amt: 2400 },
-  { name: 'Oct', uv: 4000, pv: 4700, amt: 2600 },
-  { name: 'Nov', uv: 4200, pv: 4800, amt: 2800 },
-  { name: 'Dec', uv: 4100, pv: 5000, amt: 3000 },
+  { name: 'Jan', uv: 8000, pv: 5000, amt: 7000 },
+  { name: 'Feb', uv: 12000, pv: 10000, amt: 11000 },
+  { name: 'Mar', uv: 6000, pv: 9000, amt: 8000 },
+  { name: 'Apr', uv: 15000, pv: 12000, amt: 14000 },
+  { name: 'May', uv: 10000, pv: 7000, amt: 9000 },
+  { name: 'Jun', uv: 18000, pv: 15000, amt: 17000 },
+  { name: 'Jul', uv: 14000, pv: 13000, amt: 16000 },
+  { name: 'Aug', uv: 20000, pv: 17000, amt: 19000 },
+  { name: 'Sep', uv: 22000, pv: 21000, amt: 20000 },
+  { name: 'Oct', uv: 25000, pv: 23000, amt: 24000 },
+  { name: 'Nov', uv: 28000, pv: 26000, amt: 27000 },
+  { name: 'Dec', uv: 30000, pv: 28000, amt: 29000 },
 ];
-
 
 const ReportDashboard = () => {
   return (
-    <ResponsiveContainer width="100%" height="100%">
+    <ResponsiveContainer width="100%" height={400}>
       <BarChart
-        width={500}
-        height={300}
         data={data}
-        margin={{
-          top: 5,
-          right: 20,
-          left: 20,
-          bottom: 5,
-        }}
+        margin={{ top: 20, right: 20, left: 20, bottom: 5 }}
+        barCategoryGap="20%" // spacing between groups of bars
       >
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="name" />
-        <YAxis />
+        <YAxis
+          ticks={[0, 10000, 20000, 30000]}
+          tickFormatter={(value) => (value === 0 ? '0' : `${value / 1000}k`)}
+        />
         <Tooltip />
         <Legend />
-        <Bar dataKey="pv" fill="#8884d8" activeBar={<Rectangle fill="pink" stroke="blue" />} />
-        <Bar dataKey="uv" fill="#82ca9d" activeBar={<Rectangle fill="gold" stroke="purple" />} />
+        <Bar
+          dataKey="pv"
+          fill="#8884d8"
+          radius={[10, 10, 0, 0]} // rounded top corners
+          barSize={20} // width of each bar
+          activeBar={<Rectangle fill="pink" stroke="blue" radius={[10, 10, 0, 0]} />}
+        />
+        <Bar
+          dataKey="uv"
+          fill="#82ca9d"
+          radius={[10, 10, 0, 0]}
+          barSize={20}
+          activeBar={<Rectangle fill="gold" stroke="purple" radius={[10, 10, 0, 0]} />}
+        />
       </BarChart>
     </ResponsiveContainer>
   );
