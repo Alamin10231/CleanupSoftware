@@ -2,6 +2,7 @@ import { assets, ServiceTopCard } from "@/assets/assets"
 import Card from "@/Components/Card"
 import ServiceCard from "@/Components/ServiceCard"
 import { Button } from "@/Components/ui/button"
+import { Link } from "react-router"
 
 
 const Services = () => {
@@ -15,7 +16,9 @@ const Services = () => {
         </div>
         <div className="flex gap-4">
           <Button size={'lg'}>+ Export</Button>
-          <Button size={'lg'}>Add Services</Button>
+          <Link to="/add-services">
+            <Button size={'lg'}>Add Services</Button>
+          </Link>
         </div>
       </div>
 
