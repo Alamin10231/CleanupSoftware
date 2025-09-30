@@ -1,5 +1,5 @@
-// src/pages/Report.tsx
-import React from "react";
+
+
 import Button from "../Button";
 import { FiRefreshCw } from "react-icons/fi";
 import { BiExport } from "react-icons/bi";
@@ -22,7 +22,7 @@ export default function Report() {
       </div>
 
       {/* Filter Section */}
-      <div className="bg-white border  border-gray-300 rounded-xl p-4 flex flex-wrap gap-4 items-center">
+      <div className="bg-white border  border-gray-300 rounded-xl p-4 flex flex-wrap justify-between gap-4 items-center">
         
 
     <div>
@@ -39,18 +39,22 @@ export default function Report() {
 
         {/* Status checkboxes */}
         <div className="flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-1">
+         <div>
+           <label className="flex items-center gap-1">
             <input type="checkbox" defaultChecked /> Active
           </label>
           <label className="flex items-center gap-1">
             <input type="checkbox" defaultChecked /> Expired
           </label>
-          <label className="flex items-center gap-1">
+         </div>
+       <div>
+           <label className="flex items-center gap-1">
             <input type="checkbox" defaultChecked /> Stopped
           </label>
           <label className="flex items-center gap-1">
             <input type="checkbox" defaultChecked /> Pending
           </label>
+       </div>
         </div>
 
       </div>
