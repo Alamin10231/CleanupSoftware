@@ -139,3 +139,6 @@
     @apply bg-background text-foreground;
   }
 }
+.bg-primary {
+   background-color: rgba(36, 99, 234, 1);
+}
