@@ -13,6 +13,39 @@ import Avg_Popularity from "./Avg_Popularity.svg";
 import AVG_rating from "./Avg_rating.svg";
 import Total_revenue from "./Total_revenue.svg";
 import total_service from "./total_service.svg";
+<<<<<<< HEAD
+import Appertment from "./Appertment.svg";
+import image1 from "./Home_Image/image-1.png";
+import image2 from "./Home_Image/image-2.png";
+import image3 from "./Home_Image/image-3.png";
+import image4 from "./Home_Image/image-4.png";
+import Background_Image from "./Home_Image/Background_Image.png";
+import Color_Background_Image from "./Home_Image/Color_Background.png";
+import Regular_Cleaning from "./Home_Image/Regular_Cleaning.png";
+import Security from "./Home_Image/Security.png";
+import pest_control from "./Home_Image/Pest_Control.png";
+import Maintence from "./Home_Image/Maintence.png";
+import Landscaping from "./Home_Image/Landscaping.png";
+import DeepCleaning from "./Home_Image/Deep_Cleaning.png";
+import Help from "./Home_Image/Help.png";
+import Client from "./Client-say.jpg";
+import Add_Employee from "./Add_Employee.svg";
+import Bulk from "./Bulk.svg";
+import Refresh from "./Refresh.svg";
+import Active from "./Active.svg";
+import AvgPerformance from "./AvgPerformance.svg";
+import onLeave from "./OnLeave.svg";
+import totalEmployee from "./Total Employee.svg";
+import totalpayroll from "./Total Payroll.svg";
+import blueInvoice from "./Blue_Invoice.svg";
+import overDue from "./Overdue.svg";
+import Paid_Amount from "./Paid_Amount.svg";
+// import correcticon from "./assets/Image/correcticon.svg";
+import correcticon from "../assets/Image/correcticon.svg";
+import time from "../assets/Image/time.svg";
+import cross from "../assets/Image/cross.svg";
+import doller from "../assets/Image/doller.svg";
+=======
 import Appertment from "./Appertment.svg"
 import image1 from "./Home_Image/image-1.png"
 import image2 from "./Home_Image/image-2.png"
@@ -50,6 +83,7 @@ import thik from "./thik.svg"
 import blueDot from "./blueDot.svg"
 import grayDot from "./grayDot.svg"
 
+>>>>>>> 61b49c68852826b4d6e00a723e210414166e3aa5
 export const assets = {
   logo,
   Clients_icon,
@@ -92,6 +126,12 @@ export const assets = {
   blueInvoice,
   overDue,
   Paid_Amount,
+<<<<<<< HEAD
+  correcticon,
+  time,
+  cross,
+  doller
+=======
   Delete,
   Edit,
   eye,
@@ -102,21 +142,145 @@ export const assets = {
   thik,
   grayDot,
   blueDot
+>>>>>>> 61b49c68852826b4d6e00a723e210414166e3aa5
 };
 
-
 export const ServiceTopCard = [
-    { title: "Total Service", number: 4, iconKey: "total_service", iconAlt: "total employee" },
-    { title: "Active", number: 63, iconKey: "Active", iconAlt: "active" },
-    { title: "Avg Rating", number: 4.8, iconKey: "AVG_rating", iconAlt: "Avg Performance" },
-    { title: "Total Revenue", number: 250000, iconKey: "Total_revenue", iconAlt: "Total_revenue" },
-    { title: "Avg Popularity", number: "85%", iconKey: "Avg_Popularity", iconAlt: "On leave" },
-  ];
+  {
+    title: "Total Service",
+    number: 4,
+    iconKey: "total_service",
+    iconAlt: "total employee",
+  },
+  { title: "Active", number: 63, iconKey: "Active", iconAlt: "active" },
+  {
+    title: "Avg Rating",
+    number: 4.8,
+    iconKey: "AVG_rating",
+    iconAlt: "Avg Performance",
+  },
+  {
+    title: "Total Revenue",
+    number: 250000,
+    iconKey: "Total_revenue",
+    iconAlt: "Total_revenue",
+  },
+  {
+    title: "Avg Popularity",
+    number: "85%",
+    iconKey: "Avg_Popularity",
+    iconAlt: "On leave",
+  },
+];
 
-  export const InvoiceTopCard = [
-    { title: "Total Invoice", number: 4, iconKey: "blueInvoice", iconAlt: "total employee" },
-    { title: "Paid", number: 1, iconKey: "Active", iconAlt: "active" },
-    { title: "Overdue", number: 2, iconKey: "overDue", iconAlt: "Avg Performance" },
-    { title: "Total Amount", number: 200, iconKey: "Total_revenue", iconAlt: "Total_revenue" },
-    { title: "Paid Amount", number: 5, iconKey: "Paid_Amount", iconAlt: "On leave" },
-  ];
+export const InvoiceTopCard = [
+  {
+    title: "Total Invoice",
+    number: 4,
+    iconKey: "blueInvoice",
+    iconAlt: "total employee",
+  },
+  { title: "Paid", number: 1, iconKey: "Active", iconAlt: "active" },
+  {
+    title: "Overdue",
+    number: 2,
+    iconKey: "overDue",
+    iconAlt: "Avg Performance",
+  },
+  {
+    title: "Total Amount",
+    number: 200,
+    iconKey: "Total_revenue",
+    iconAlt: "Total_revenue",
+  },
+  {
+    title: "Paid Amount",
+    number: 5,
+    iconKey: "Paid_Amount",
+    iconAlt: "On leave",
+  },
+];
+
+export const Subscription = [
+  {
+    title: "Total Invoice",
+    number: 4,
+    iconKey: "time",
+    iconAlt: "total employee",
+  },
+  {
+    title: "Overdue",
+    number: 150,
+    iconKey: "overDue",
+    iconAlt: "correcticon",
+  },
+  {
+    title: "Total Amount",
+    number: 200,
+    iconKey: "Total_revenue",
+    iconAlt: "cross",
+  },
+  {
+    title: "Paid Amount",
+    number: 5,
+    iconKey: "doller",
+    iconAlt: "On leave",
+  },
+];
+export type AssetKey = keyof typeof assets;
+export interface CardItem {
+  title: string;
+  number: number | string;
+  iconKey: AssetKey; 
+  iconAlt: string;
+}
+ export const data= [
+  {
+    id: 1,
+    name: "John Martinez",
+    email: "john.martinez@email.com",
+    status: "Active",
+    location: "Apt 4B, Building A North Region",
+    package: "Premium Package $299/month",
+    startDate: "Jan 15, 2024",
+    countdown: "17 hour Left",
+    nextPayment: "Feb 15, 2024",
+    invoice: true,
+  },
+  {
+    id: 2,
+    name: "Emma Wilson",
+    email: "emma.wilson@email.com",
+    status: "Pending",
+    location: "Apt 2A, Building C South Region",
+    package: "Basic Package $149/month",
+    startDate: "Dec 20, 2023",
+    countdown: "",
+    nextPayment: "Jan 20, 2024",
+    invoice: false,
+  },
+  {
+    id: 3,
+    name: "Michael Chen",
+    email: "m.chen@email.com",
+    status: "Auto-Renew",
+    location: "Apt 1C, Building B East Region",
+    package: "Enterprise Package $499/month",
+    startDate: "Nov 10, 2023",
+    countdown: "17 Days Left",
+    nextPayment: "Feb 10, 2024",
+    invoice: true,
+  },
+  {
+    id: 4,
+    name: "Lisa Anderson",
+    email: "lisa.anderson@email.com",
+    status: "Expired",
+    location: "Apt 3D, Building D West Region",
+    package: "Premium Package $299/month",
+    startDate: "Oct 5, 2023",
+    countdown: "",
+    nextPayment: "-",
+    invoice: false,
+  },
+];

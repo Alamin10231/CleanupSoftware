@@ -1,8 +1,4 @@
 import { useState } from "react";
-import correcticon from "../../assets/Image/correcticon.svg";
-import time from "../../assets/Image/time.svg";
-import cross from "../../assets/Image/cross.svg";
-import doller from "../../assets/Image/doller.svg";
 import SubscriptionsTable from "./SubscriptionsTable";
 import { Link } from "react-router";
 import { Button } from "../ui/button";
@@ -104,16 +100,28 @@ export default function SubscriptionsDashboard() {
     <div className="p-6 space-y-8">
       {/* Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card title="Active Subscriptions" value="247" icon={correcticon} />
-        <Card title="Pending Renewals" value="18" icon={time} />
-        <Card
-          title="Expired"
-          value="12"
-          icon={cross}
-          color="text-red-500"
-          bg="bg-red-100"
-        />
-        <Card title="Revenue This Month" value="$45,680" icon={doller} />
+        {Subscription.map((a, index) => {
+
+          return (
+            <div
+              key={index}
+              className="bg-white shadow rounded-lg p-5 py-10 flex items-center justify-between"
+            >
+              {/* Left column: title and number */}
+              <div className="flex flex-col gap-1">
+                <p className="text-gray-500 font-semibold">{a.title}</p>
+                <p className="text-black font-bold text-xl">{a.number}</p>
+              </div>
+
+              {/* Right: icon */}
+              {a.iconKey && (
+                <div className="p-3 bg-blue-100 rounded-xl w-12 h-12 flex items-center justify-center">
+                  <img src={a.iconKey} alt={a.iconAlt} className="w-8 h-8" />
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Filter */}
