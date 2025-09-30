@@ -13,6 +13,7 @@ import Avg_Popularity from "./Avg_Popularity.svg";
 import AVG_rating from "./Avg_rating.svg";
 import Total_revenue from "./Total_revenue.svg";
 import total_service from "./total_service.svg";
+<<<<<<< HEAD
 import Appertment from "./Appertment.svg";
 import image1 from "./Home_Image/image-1.png";
 import image2 from "./Home_Image/image-2.png";
@@ -44,6 +45,45 @@ import correcticon from "../assets/Image/correcticon.svg";
 import time from "../assets/Image/time.svg";
 import cross from "../assets/Image/cross.svg";
 import doller from "../assets/Image/doller.svg";
+=======
+import Appertment from "./Appertment.svg"
+import image1 from "./Home_Image/image-1.png"
+import image2 from "./Home_Image/image-2.png"
+import image3 from "./Home_Image/image-3.png"
+import image4 from "./Home_Image/image-4.png"
+import Background_Image from "./Home_Image/Background_Image.png"
+import Color_Background_Image from "./Home_Image/Color_Background.png"
+import Regular_Cleaning from "./Home_Image/Regular_Cleaning.png"
+import Security from "./Home_Image/Security.png"
+import pest_control from "./Home_Image/Pest_Control.png"
+import Maintence from "./Home_Image/Maintence.png"
+import Landscaping from "./Home_Image/Landscaping.png"
+import DeepCleaning from "./Home_Image/Deep_Cleaning.png"
+import Help from "./Home_Image/Help.png"
+import Client from "./Client-say.jpg"
+import Add_Employee from "./Add_Employee.svg"
+import Bulk from "./Bulk.svg"
+import Refresh from "./Refresh.svg"
+import Active from "./Active.svg"
+import AvgPerformance from "./AvgPerformance.svg"
+import onLeave from "./OnLeave.svg"
+import totalEmployee from "./Total Employee.svg"
+import totalpayroll from "./Total Payroll.svg"
+import blueInvoice from "./Blue_Invoice.svg"
+import overDue from "./Overdue.svg"
+import Paid_Amount from "./Paid_Amount.svg"
+import Delete from "./Delete.svg"
+import  Edit  from "./Edit.svg";
+import eye from "./Eye.svg"
+import print from "./Print.svg"
+import location from "./Location.svg"
+import Calendar from "./Calender.svg"
+import Clock from "./Clock.svg"
+import thik from "./thik.svg"
+import blueDot from "./blueDot.svg"
+import grayDot from "./grayDot.svg"
+
+>>>>>>> 61b49c68852826b4d6e00a723e210414166e3aa5
 export const assets = {
   logo,
   Clients_icon,
@@ -86,10 +126,23 @@ export const assets = {
   blueInvoice,
   overDue,
   Paid_Amount,
+<<<<<<< HEAD
   correcticon,
   time,
   cross,
   doller
+=======
+  Delete,
+  Edit,
+  eye,
+  print,
+  location,
+  Calendar,
+  Clock,
+  thik,
+  grayDot,
+  blueDot
+>>>>>>> 61b49c68852826b4d6e00a723e210414166e3aa5
 };
 
 export const ServiceTopCard = [

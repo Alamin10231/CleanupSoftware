@@ -1,5 +1,17 @@
 import { useState } from "react";
-
+import { Button } from "../ui/button";
+import { Link } from "react-router";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 type Plan = {
   id: number;
   name: string;
@@ -123,9 +135,40 @@ export default function SubscriptionPlan() {
           </td>
 
           <td className="px-4 py-3 space-x-3 text-base">
-            <button className="text-blue-600 hover:underline">Edit</button>
-           
-            <button className="text-red-600 hover:underline">Delete</button>
+            <Link to={"/add-new-plan"}>
+               <Button variant={"outline"}>Edit</Button>
+            </Link>
+
+            {/* <dialog>
+               <DialogTrigger>
+                  <Button variant={"destructive"}>Delete</Button>
+               </DialogTrigger>
+               <DialogHeader>
+                  <DialogTitle>Are  you sure?</DialogTitle>
+               </DialogHeader>
+               <DialogContent>
+                     jami chura
+               </DialogContent>
+            </dialog> */}
+            <AlertDialog>
+               <AlertDialogTrigger>
+                  <Button variant={"destructive"}>Delete</Button>
+               </AlertDialogTrigger>
+               <AlertDialogContent>
+                  <AlertDialogHeader>
+                     <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                     <AlertDialogDescription>
+                     This action cannot be undone. This will permanently delete your plan
+                     </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                     <AlertDialogCancel>Cancel</AlertDialogCancel>
+                     <AlertDialogAction>
+                        <Button variant={"destructive"}>Delete</Button>
+                     </AlertDialogAction>
+                  </AlertDialogFooter>
+               </AlertDialogContent>
+               </AlertDialog>
           </td>
         </tr>
       ))}
