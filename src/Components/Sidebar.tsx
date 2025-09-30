@@ -10,13 +10,7 @@ const Sidebar: React.FC = () => {
         { icon: assets.Dashboard_icon, label: "Dashboard", path: "/" },
         { icon: assets.Clients_icon, label: "Clients", path: "/client" },
         { icon: assets.region, label: "Region", path: "/region" },
-
         { icon: assets.Employess_icon, label: "Employees", path: "/employees" },
-
-        { icon: assets.Appertment, label: "Appertment", path: "/appertment" },
-        { icon: assets.Employess_icon, label: "Employees", path: "/employees" },
-
-
       ],
     },
     {
@@ -100,4 +94,3 @@ const Sidebar: React.FC = () => {
 
 
 export default Sidebar;
-

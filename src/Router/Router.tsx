@@ -16,13 +16,13 @@ import AdminLogin from "@/Components/Auth/AdminLogin";
 import UserSignUp from "@/Components/Auth/UserSignUp";
 import ForgetPassword from "@/Components/Auth/ForgetPassword";
 import VerifyCode from "@/Components/Auth/VerifyCode";
-import Appertment from "@/Page/Appertment";
 import Home from "@/Page/Home";
 import SetPassword from "@/Components/Auth/SetPassword";
 // import SubscriptionPlan from "@/Components/Subscription/SubscriptionPlan";
 import Layout from "@/Layout";
 import SubscriptionPlan from "@/Components/Subscription/SubscriptionPlan";
 import AddNewPlanForm from "@/Page/add-new-plan";
+import AddNewServiceForm from "@/Page/add-services";
 
 const Router = () => {
   return (
@@ -37,13 +37,13 @@ const Router = () => {
         <Route path="map" element={<Map />} />
         <Route path="notifications" element={<Notifications />} />
         <Route path="region" element={<Region />} />
-        <Route path="appertment" element={<Appertment />} />
         <Route path="reports" element={<Reports />} />
         <Route path="services" element={<Services />} />
         <Route path="settings" element={<Settings />} />
         <Route path="subscription" element={<Subscriptions />} />
         <Route path="subscriptionplan" element={<SubscriptionPlan />} />
         <Route path="add-new-plan" element={<AddNewPlanForm />} />
+        <Route path="add-services" element={<AddNewServiceForm />} />
 
         {/* <Route path="reports" element={<Reports />} /> */}
       </Route>
