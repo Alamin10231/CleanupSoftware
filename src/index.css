@@ -9,11 +9,11 @@
   font-optical-sizing: auto;
 }
 
-/* body {
+ /* body {
   font-family: 'Nunito', sans-serif;
    font-weight: 500;
     font-style: normal;
-} */
+}  */
 
 /* Hide scrollbar but keep scroll functionality */
 .scrollbar-hide::-webkit-scrollbar {
@@ -139,6 +139,8 @@
     @apply bg-background text-foreground;
   }
 }
+
 .bg-primary {
    background-color: rgba(36, 99, 234, 1);
 }
+

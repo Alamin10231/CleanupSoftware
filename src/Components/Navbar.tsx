@@ -2,7 +2,6 @@ import { IoIosArrowForward } from "react-icons/io";
 import Home from "../assets/Image/Home.png";
 import SearchBar from "@/Shared/SearchBar";
 import { useState, useRef, useEffect } from "react";
-import darkmode from "../assets/Image/solar_moon-linear.png";
 import china from "../assets/Image/material-symbols_translate.png";
 import moonicon from "../assets/Image/iconamoon_notification.png";
 import MyIcon from "../assets/Image/Logout.svg";
@@ -37,9 +36,7 @@ const Navbar = () => {
       <div className="flex items-center gap-2">
         <img src={Home} className="w-5" alt="Home" />
         <IoIosArrowForward className="text-[#8E8E8E] text-xl" />
-        <p className="text-[#8E8E8E] font-semibold text-xl">
-          Dashboard
-        </p>
+        <p className="text-[#8E8E8E] font-semibold text-xl">Dashboard</p>
       </div>
 
       {/* Middle SearchBar */}
@@ -55,7 +52,6 @@ const Navbar = () => {
       <div className="flex items-center gap-4">
         {/* Icons */}
         <div className="flex items-center gap-3 border-r border-[#8E8E8E] pr-3">
-          <img className="w-6 h-6" src={darkmode} alt="darkmode icon" />
           <img className="w-6 h-6" src={china} alt="china language" />
           <img className="w-6 h-6" src={moonicon} alt="moon icon" />
         </div>
@@ -67,11 +63,7 @@ const Navbar = () => {
             onClick={() => setOpen(!open)}
             ref={profileRef}
           >
-            <img
-              src={profilepic}
-              className="w-10 h-10 rounded"
-              alt="profile"
-            />
+            <img src={profilepic} className="w-10 h-10 rounded" alt="profile" />
             <div className="flex flex-col">
               <h1 className="font-semibold text-sm">MR. Mosabbir</h1>
               <p className="text-[#8E8E8E] text-xs">Free Account</p>
@@ -96,17 +88,24 @@ const Navbar = () => {
 
                 {/* Profile Text */}
                 <div className="flex flex-col justify-center ">
-                  <h1 className="font-semibold text-sm leading-tight">MR. Mosabbir</h1>
-                  <p className="text-gray-500 text-xs py-1">admin@cleanuppro.com</p>
+                  <h1 className="font-semibold text-sm leading-tight">
+                    MR. Mosabbir
+                  </h1>
+                  <p className="text-gray-500 text-xs py-1">
+                    admin@cleanuppro.com
+                  </p>
 
                   {/* Role Badge */}
                   <p className="bg-[rgba(36,99,234,0.1)] text-sm text-[#2463EA] inline-flex items-center gap-2 px-3 py-1 rounded-full">
-                    <img src={admininstritor} className="w-4 h-4" alt="role icon" />
+                    <img
+                      src={admininstritor}
+                      className="w-4 h-4"
+                      alt="role icon"
+                    />
                     Administrator
                   </p>
                 </div>
               </div>
-
 
               <div className="  justify-start flex items-center gap-3 w-full text-left px-4 py-4 hover:bg-gray-100">
                 <img src={manicon} alt="" />
