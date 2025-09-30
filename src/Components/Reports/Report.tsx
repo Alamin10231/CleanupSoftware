@@ -2,7 +2,9 @@ import Button from "../Button";
 import { FiRefreshCw } from "react-icons/fi";
 import { BiExport } from "react-icons/bi";
 
+
 export default function Report() {
+
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
@@ -12,6 +14,8 @@ export default function Report() {
           <p className="text-gray-500 text-lg">
             Track performance, revenue, and client engagement in real time
           </p>
+      
+
         </div>
         <div className="flex gap-3">
           <Button icon={<BiExport />} text="Export" />
@@ -20,18 +24,20 @@ export default function Report() {
       </div>
 
       {/* Filter Section */}
-      <div className="bg-white border  border-gray-300 rounded-xl p-4 flex flex-wrap justify-between gap-4 items-center">
-        <div>
-          <select className="border border-gray-300 rounded-lg px-4 py-2">
-            <option>All Regions</option>
-          </select>
+      <div className="bg-white  border  border-gray-300 rounded-xl p-4 flex flex-wrap justify-between gap-4 items-center">
+   <div className="grid grid-cols-2 gap-2">
+  <select className="border border-gray-300 rounded-lg px-4 py-2">
+    <option>All Regions </option>
+  </select>
 
-          <input
-            type="text"
-            placeholder="Enter apartment code"
-            className="border rounded-lg px-4 py-2 border-gray-300"
-          />
-        </div>
+  <input
+    type="text"
+    placeholder="Enter apartment code"
+    className="border rounded-lg px-4 py-2 border-gray-300"
+  />
+</div>
+
+
 
         {/* Status checkboxes */}
         <div className="flex flex-wrap items-center gap-3">
