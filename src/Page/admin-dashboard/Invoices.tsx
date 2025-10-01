@@ -15,8 +15,8 @@ const Invoices = () => {
           <p className="text-[#808080] text-base mt-1">Manage clients and subscription</p>
         </div>
         <div className="flex gap-2">
-          <Button icon={<FiDownload />} text="Create Invoice" />
-          <Button icon={<FaPlus />} text="Export" />
+          <Button icon={<FiDownload />} text="Export" />
+          <Button icon={<FaPlus />} text="Create Invoice" />
         </div>
       </div>
 
@@ -33,13 +33,13 @@ const Invoices = () => {
       </div>
 
       {/* Search Functionality */}
-      
+
 
 
       {/*  Invoice Card */}
-      
+
       <InvoicesList  />
-      
+
     </div>
   );
 };

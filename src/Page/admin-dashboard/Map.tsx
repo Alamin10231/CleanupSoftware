@@ -162,13 +162,11 @@ const MapRegionOverview = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-6">
-        {/* Left Sidebar - Regions & Buildings */}
-        <div className="col-span-3 space-y-4">
+      <div>
           <h2 className="text-base font-semibold mb-3">Regions & Buildings</h2>
 
           {/* Region Cards */}
-          <div className="space-y-3">
+          <div className="flex gap-8 mb-6">
             {regions.map((region) => (
               <div key={region.id} className="bg-white rounded-lg border p-3 hover:shadow-md transition">
 
@@ -215,7 +213,11 @@ const MapRegionOverview = () => {
               </div>
             ))}
           </div>
+      </div>
 
+      <div className="grid grid-cols-12 gap-6">
+        {/* Left Sidebar - Regions & Buildings */}
+        <div className="col-span-3 space-y-4">
           {/* Featured Properties */}
           <div className="mt-6">
             <div className="space-y-3">
