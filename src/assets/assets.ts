@@ -53,13 +53,20 @@ import  Delete  from "./Delete.svg";
 import eye from "./Eye.svg"
 import print from "./Print.svg"
 import Edit from "./Edit.svg"
-
+import subscriptionss from "./subscriptionss.svg"
+import Froms from "./Froms.svg"
+import Communication from "./Communication.svg"
+import help from "./Help.svg"
 export const assets = {
   logo,
   calender,
+  Froms,
+  subscriptionss,
   eye,
+  Communication,
   print,
   Edit,
+  help,
   Clock,
   Delete,
   location,
