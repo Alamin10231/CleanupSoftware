@@ -46,7 +46,7 @@ export default function RegionDashboard() {
   </p>
 
   {/* Breadcrumb */}
-  <p className="text-sm text-blue-600 font-medium">
+  <p className="text-sm text-gray-500 font-medium">
     Regions / Asia Region
   </p>
 </div>
