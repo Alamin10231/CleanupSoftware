@@ -31,6 +31,7 @@ import EmployeeRegion from "@/Page/employee-dashboard/EmployeeRegion";
 import EmployeeReports from "@/Page/employee-dashboard/EmployeeReports";
 import EmployeeInvoicees from "@/Page/employee-dashboard/EmployeeInvoicees";
 import EmployeeSubscription from "@/Page/employee-dashboard/EmployeeSubscription";
+import CreateInvoiceForm from "@/Page/admin-dashboard/create-invoice";
 
 const Router = () => {
     return (
@@ -44,6 +45,7 @@ const Router = () => {
                 <Route path="client" element={<Clients />} />
                 <Route path="help" element={<Help />} />
                 <Route path="invoices" element={<Invoices />} />
+                <Route path="create-invoice" element={<CreateInvoiceForm />} />
                 <Route path="employees" element={<Employees />} />
                 <Route path="map" element={<Map />} />
                 <Route path="notifications" element={<Notifications />} />
