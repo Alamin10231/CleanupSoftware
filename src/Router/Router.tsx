@@ -21,10 +21,6 @@ import Layout from "@/Layout";
 import SubscriptionPlan from "@/Components/Subscription/SubscriptionPlan";
 import AddNewPlanForm from "@/Page/admin-dashboard/add-new-plan";
 import AddNewServiceForm from "@/Page/admin-dashboard/add-services";
-<<<<<<< HEAD
-import Buildingregions from "@/Page/employee-dashboard/region-info";
-import RegionDashboard from "@/Page/employee-dashboard/building-tasks";
-=======
 import EmployeeDashboard from "@/Page/employee-dashboard/EmployeeDashboard";
 import EmployeeBuilding from "@/Page/employee-dashboard/EmployeeBuilding";
 import EmployeeCommunication from "@/Page/employee-dashboard/EmployeeCommunication";
@@ -35,7 +31,6 @@ import EmployeeRegion from "@/Page/employee-dashboard/EmployeeRegion";
 import EmployeeReports from "@/Page/employee-dashboard/EmployeeReports";
 import EmployeeInvoicees from "@/Page/employee-dashboard/EmployeeInvoicees";
 import EmployeeSubscription from "@/Page/employee-dashboard/EmployeeSubscription";
->>>>>>> 2df4b61b608d9e82411dd0b05e260d81d78dce23
 
 const Router = () => {
     return (
@@ -60,14 +55,6 @@ const Router = () => {
                 <Route path="subscriptionplan" element={<SubscriptionPlan />} />
                 <Route path="add-new-plan" element={<AddNewPlanForm />} />
                 <Route path="add-services" element={<AddNewServiceForm />} />
-<<<<<<< HEAD
-
-
-                <Route path="buildingregions" element={<Buildingregions />} />
-                <Route path="regiondashboard" element={<RegionDashboard />} />
-
-                {/* <Route path="reports" element={<Reports />} /> */}
-=======
                 <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
                 <Route path="/employee-building" element={<EmployeeBuilding />} />
                 <Route path="/employee-communication" element={<EmployeeCommunication />} />
@@ -78,7 +65,6 @@ const Router = () => {
                 <Route path="/employee-report" element={<EmployeeReports />} />
                 <Route path="/employee-invoice" element={<EmployeeInvoicees />} />
                 <Route path="/employee-subscriptions" element={<EmployeeSubscription/>}/>
->>>>>>> 2df4b61b608d9e82411dd0b05e260d81d78dce23
             </Route>
 
             {/* Employee routes */}
