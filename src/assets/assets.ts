@@ -44,8 +44,24 @@ import correcticon from "../assets/Image/correcticon.svg";
 import time from "../assets/Image/time.svg";
 import cross from "../assets/Image/cross.svg";
 import doller from "../assets/Image/i.svg";
+import blueDot from "./blueDot.svg"
+import calender from "./Calender.svg"
+import Clock from "./Clock.svg"
+import location from "./Location.svg"
+import  Delete  from "./Delete.svg";
+import eye from "./Eye.svg"
+import print from "./Print.svg"
+import Edit from "./Edit.svg"
+
 export const assets = {
   logo,
+  calender,
+  eye,
+  print,
+  Edit,
+  Clock,
+  Delete,
+  location,
   Clients_icon,
   Dashboard_icon,
   Employess_icon,
@@ -89,7 +105,8 @@ export const assets = {
   correcticon,
   time,
   cross,
-  doller
+  doller,
+  blueDot
 };
 
 export const ServiceTopCard = [
