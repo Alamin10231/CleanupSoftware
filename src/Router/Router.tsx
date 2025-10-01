@@ -31,6 +31,8 @@ import EmployeeRegion from "@/Page/employee-dashboard/EmployeeRegion";
 import EmployeeReports from "@/Page/employee-dashboard/EmployeeReports";
 import EmployeeInvoicees from "@/Page/employee-dashboard/EmployeeInvoicees";
 import EmployeeSubscription from "@/Page/employee-dashboard/EmployeeSubscription";
+import Buildingregions from "@/Page/employee-dashboard/building-regions";
+import RegionDashboard from "@/Page/employee-dashboard/detailed-building";
 
 const Router = () => {
     return (
@@ -65,6 +67,9 @@ const Router = () => {
                 <Route path="/employee-report" element={<EmployeeReports />} />
                 <Route path="/employee-invoice" element={<EmployeeInvoicees />} />
                 <Route path="/employee-subscriptions" element={<EmployeeSubscription/>}/>
+                <Route path="/buildingregions" element={<Buildingregions/>}/>
+                <Route path="/regiondashboard" element={<RegionDashboard/>}/>
+               
             </Route>
 
             {/* Employee routes */}
