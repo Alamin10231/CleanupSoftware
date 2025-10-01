@@ -14,6 +14,7 @@ import AVG_rating from "./Avg_rating.svg";
 import Total_revenue from "./Total_revenue.svg";
 import total_service from "./total_service.svg";
 import Appertment from "./Appertment.svg";
+// import Appertment from "./Appertment.svg";
 import image1 from "./Home_Image/image-1.png";
 import image2 from "./Home_Image/image-2.png";
 import image3 from "./Home_Image/image-3.png";
