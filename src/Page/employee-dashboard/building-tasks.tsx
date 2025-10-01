@@ -25,31 +25,7 @@ export default function RegionDashboard() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Analytics Summary Card */}
-  <div className="bg-white shadow rounded-lg p-6 space-y-3">
-  {/* Main Title */}
-  <h2 className="text-3xl font-extrabold text-gray-900">
-    Building & Region Tasks
-  </h2>
-
-  {/* Sub Title */}
-  <h3 className="text-xl font-semibold text-gray-700">
-    Analytics Summary
-  </h3>
-
-  {/* Region Name */}
-  <p className="text-2xl font-bold ">Asia Region</p>
-
-  {/* Address */}
-  <p className="text-base text-gray-500">
-    123 Main Street, Anytown, UAE
-  </p>
-
-  {/* Breadcrumb */}
-  <p className="text-sm text-gray-500 font-medium">
-    Regions / Asia Region
-  </p>
-</div>
+   
 
 
       {/* Region Details as Cards */}

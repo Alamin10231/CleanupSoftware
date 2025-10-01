@@ -52,7 +52,7 @@ const InvoiceCard: React.FC<Props> = ({ invoice }) => {
           {/* Dates + Location */}
           <div className="flex items-center text-sm text-gray-500 mt-2 gap-6">
             <div className="flex items-center">
-              <img src={assets.Calendar} alt="Issued Date" className="w-4 h-4 mr-2" />
+              <img src={assets.calender} alt="Issued Date" className="w-4 h-4 mr-2" />
               <p>Issued: {invoice.issuedDate}</p>
             </div>
             <div className="flex items-center">

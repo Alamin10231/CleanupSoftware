@@ -14,6 +14,7 @@ import AVG_rating from "./Avg_rating.svg";
 import Total_revenue from "./Total_revenue.svg";
 import total_service from "./total_service.svg";
 import Appertment from "./Appertment.svg";
+// import Appertment from "./Appertment.svg";
 import image1 from "./Home_Image/image-1.png";
 import image2 from "./Home_Image/image-2.png";
 import image3 from "./Home_Image/image-3.png";
@@ -44,8 +45,31 @@ import correcticon from "../assets/Image/correcticon.svg";
 import time from "../assets/Image/time.svg";
 import cross from "../assets/Image/cross.svg";
 import doller from "../assets/Image/i.svg";
+import blueDot from "./blueDot.svg"
+import calender from "./Calender.svg"
+import Clock from "./Clock.svg"
+import location from "./Location.svg"
+import  Delete  from "./Delete.svg";
+import eye from "./Eye.svg"
+import print from "./Print.svg"
+import Edit from "./Edit.svg"
+import subscriptionss from "./subscriptionss.svg"
+import Froms from "./Froms.svg"
+import Communication from "./Communication.svg"
+import help from "./Help.svg"
 export const assets = {
   logo,
+  calender,
+  Froms,
+  subscriptionss,
+  eye,
+  Communication,
+  print,
+  Edit,
+  help,
+  Clock,
+  Delete,
+  location,
   Clients_icon,
   Dashboard_icon,
   Employess_icon,
@@ -89,7 +113,8 @@ export const assets = {
   correcticon,
   time,
   cross,
-  doller
+  doller,
+  blueDot
 };
 
 export const ServiceTopCard = [
@@ -127,21 +152,20 @@ export const InvoiceTopCard = [
     iconKey: "blueInvoice",
     iconAlt: "total employee",
   },
-  { title: "Paid", number: 1, iconKey: "Active", iconAlt: "active" },
   {
-    title: "Overdue",
+    title: "Sales",
     number: 2,
     iconKey: "overDue",
     iconAlt: "Avg Performance",
   },
   {
-    title: "Total Amount",
+    title: "Expense",
     number: 200,
     iconKey: "Total_revenue",
     iconAlt: "Total_revenue",
   },
   {
-    title: "Paid Amount",
+    title: "Total Amount",
     number: 5,
     iconKey: "Paid_Amount",
     iconAlt: "On leave",
