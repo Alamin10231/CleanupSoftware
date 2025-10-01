@@ -39,7 +39,8 @@
     "title": "Task Completed",
     "message": "Cleaning for Apartment 4C marked as complete.",
     "status": "read",
-    "time": " 05:00 PM"
+    "time": " 05:00 PM",
+    "date": "5 jan 2025"
   },
   {
     "id": 7,
