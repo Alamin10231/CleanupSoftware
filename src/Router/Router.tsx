@@ -10,7 +10,6 @@ import Reports from "@/Page/admin-dashboard/Reports";
 import Services from "@/Page/admin-dashboard/Services";
 import Settings from "@/Page/admin-dashboard/Settings";
 import Subscriptions from "@/Page/admin-dashboard/Subscriptions";
-// import Layout from "../Layout";
 import Employees from "@/Page/admin-dashboard/Employees";
 import AdminLogin from "@/Components/Auth/AdminLogin";
 import UserSignUp from "@/Components/Auth/UserSignUp";
@@ -18,16 +17,28 @@ import ForgetPassword from "@/Components/Auth/ForgetPassword";
 import VerifyCode from "@/Components/Auth/VerifyCode";
 import Home from "@/Page/admin-dashboard/Home";
 import SetPassword from "@/Components/Auth/SetPassword";
-// import SubscriptionPlan from "@/Components/Subscription/SubscriptionPlan";
 import Layout from "@/Layout";
 import SubscriptionPlan from "@/Components/Subscription/SubscriptionPlan";
 import AddNewPlanForm from "@/Page/admin-dashboard/add-new-plan";
 import AddNewServiceForm from "@/Page/admin-dashboard/add-services";
+import EmployeeDashboard from "@/Page/employee-dashboard/EmployeeDashboard";
+import EmployeeBuilding from "@/Page/employee-dashboard/EmployeeBuilding";
+import EmployeeCommunication from "@/Page/employee-dashboard/EmployeeCommunication";
+import EmployeeSetting from "@/Page/employee-dashboard/EmployeeSetting";
+import EmployeeForms from "@/Page/employee-dashboard/EmployeeForms";
+import EmployeeHelp from "@/Page/employee-dashboard/EmployeeHelp";
+import EmployeeRegion from "@/Page/employee-dashboard/EmployeeRegion";
+import EmployeeReports from "@/Page/employee-dashboard/EmployeeReports";
+import EmployeeInvoicees from "@/Page/employee-dashboard/EmployeeInvoicees";
+import EmployeeSubscription from "@/Page/employee-dashboard/EmployeeSubscription";
 
 const Router = () => {
     return (
         <Routes>
+            {/* Public Home */}
             <Route path="home" element={<Home />} />
+
+            {/* Admin routes */}
             <Route path="/" element={<Layout />}>
                 <Route index element={<Dashboard />} />
                 <Route path="client" element={<Clients />} />
@@ -44,9 +55,22 @@ const Router = () => {
                 <Route path="subscriptionplan" element={<SubscriptionPlan />} />
                 <Route path="add-new-plan" element={<AddNewPlanForm />} />
                 <Route path="add-services" element={<AddNewServiceForm />} />
-
-                {/* <Route path="reports" element={<Reports />} /> */}
+                <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
+                <Route path="/employee-building" element={<EmployeeBuilding />} />
+                <Route path="/employee-communication" element={<EmployeeCommunication />} />
+                <Route path="/employee-setting" element={<EmployeeSetting />} />
+                <Route path="/employee-forms" element={<EmployeeForms />} />
+                <Route path="/employee-help" element={<EmployeeHelp />} />
+                <Route path="/employee-region" element={<EmployeeRegion />} />
+                <Route path="/employee-report" element={<EmployeeReports />} />
+                <Route path="/employee-invoice" element={<EmployeeInvoicees />} />
+                <Route path="/employee-subscriptions" element={<EmployeeSubscription/>}/>
             </Route>
+
+            {/* Employee routes */}
+
+
+            {/* Auth routes */}
             <Route path="adminlogin" element={<AdminLogin />} />
             <Route path="signup" element={<UserSignUp />} />
             <Route path="forgetpassword" element={<ForgetPassword />} />
@@ -55,4 +79,5 @@ const Router = () => {
         </Routes>
     );
 };
+
 export default Router;

@@ -52,12 +52,12 @@ const InvoicesList: React.FC = () => {
     }
 
     // Payment filter
-    if (paymentMethod !== "All Payment Method") {
+    if (paymentMethod !== "All") {
       result = result.filter((inv) => inv.paymentMethod === paymentMethod);
     }
 
-    
-   
+
+
 
     // Sorting
     if (sort === "Oldest to New") {
@@ -73,7 +73,7 @@ const InvoicesList: React.FC = () => {
     }
 
     setFilteredInvoices(result);
-  }, [search, status, paymentMethod,  sort, invoices]);
+  }, [search, status, paymentMethod, sort, invoices]);
 
   return (
     <>
@@ -101,18 +101,19 @@ const InvoicesList: React.FC = () => {
           </select>
 
           {/* Payment Method */}
+          {/* Payment Method */}
           <select
             value={paymentMethod}
             onChange={(e) => setPaymentMethod(e.target.value)}
             className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer"
           >
-            <option>All Payment Method</option>
-            <option>Bank</option>
-            <option>Online Payment</option>
-            <option>Cash</option>
+            <option>All</option>
+            <option>Incomming</option>
+            <option>Outgoing</option>
           </select>
 
-          
+
+
         </div>
 
         {/* Sort */}
