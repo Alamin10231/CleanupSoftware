@@ -6,14 +6,13 @@ interface Invoice {
   Client: string;
   Apartment: string;
   Region: string;
-   Status: "Submitted" | "Draft"; 
+  Status: "Submitted" | "Draft";
   LastUpdated: string;
 }
 
 const EmployeeForms = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [tab, setTab] = useState("all");
-const [active,setactive] = useState(null)
 
   useEffect(() => {
     fetch("/FormData.json")
@@ -25,19 +24,19 @@ const [active,setactive] = useState(null)
     const matchTab =
       tab == "all"
         ? true
-        : tab === "Submitted" 
+        : tab === "Submitted"
         ? fo.Status === "Submitted"
         : tab === "Draft"
-        ? fo.Status=== "Draft"
+        ? fo.Status === "Draft"
         : true;
 
     return matchTab;
   });
 
   const statuscolor = {
-    Submitted : "text-green-500 bg-[#E2F5EC] px-4 py-2 rounded-md",
-    Draft : "text-[#F5A926] bg-[#F7F1E4] px-9 py-2 rounded-md",
-  }
+    Submitted: "text-green-500 bg-[#E2F5EC] px-4 py-2 rounded-md",
+    Draft: "text-[#F5A926] bg-[#F7F1E4] px-9 py-2 rounded-md",
+  };
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
@@ -48,17 +47,11 @@ const [active,setactive] = useState(null)
       {/* Tabs */}
       <Tabs defaultValue="all" value={tab} onValueChange={setTab}>
         <TabsList>
-        
-          
-          {
-            ["all","Submitted","Draft"].map((t)=>(
-              <TabsTrigger  key={t} value={t}>{t === "all"? "All":t}</TabsTrigger>
-            ))
-          }
-          
-          
-         
-          
+          {["all", "Submitted", "Draft"].map((t) => (
+            <TabsTrigger key={t} value={t}>
+              {t === "all" ? "All" : t}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         {/* Table */}
@@ -82,8 +75,14 @@ const [active,setactive] = useState(null)
                     <td className="px-4 py-4 ">{invoice.Client}</td>
                     <td className="px-4 py-4 ">{invoice.Apartment}</td>
                     <td className="px-4 py-4 ">{invoice.Region}</td>
-                    <td className={`px-4 py-4 
-                      `}><span className={` ${statuscolor[invoice.Status] || ""}`}>{invoice.Status}</span></td>
+                    <td
+                      className={`px-4 py-4 
+                      `}
+                    >
+                      <span className={` ${statuscolor[invoice.Status] || ""}`}>
+                        {invoice.Status}
+                      </span>
+                    </td>
                     <td className="px-4 py-4 ">{invoice.LastUpdated}</td>
                     <td className="px-4 py-4  text-blue-600 cursor-pointer hover:underline"></td>
                   </tr>
