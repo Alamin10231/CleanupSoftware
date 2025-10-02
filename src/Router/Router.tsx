@@ -35,10 +35,10 @@ import CreateInvoiceForm from "@/Page/admin-dashboard/create-invoice";
 import NotFound from "@/Page/NotFound";
 
 const Router = () => {
-    return (
-        <Routes>
-            {/* Public Home */}
-            <Route path="home" element={<Home />} />
+  return (
+    <Routes>
+      {/* Public Home */}
+      <Route path="home" element={<Home />} />
 
             <Route path="/" element={<Layout />}>
                 {/* admin */}
