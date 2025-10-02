@@ -57,10 +57,23 @@ import subscriptionss from "./subscriptionss.svg"
 import Froms from "./Froms.svg"
 import Communication from "./Communication.svg"
 import help from "./Help.svg"
+import share from "./Share.svg"
+import totalTask from "./Total_Task.svg"
+import complete from "./Complete.svg"
+import in_Progress from "./Inprogress.svg"
+import pending from "./Pending.svg"
+import Dollar from "./Dollar.svg"
+
+
 export const assets = {
   logo,
   calender,
   Froms,
+  complete,
+  share,
+  pending,
+  Dollar,
+  in_Progress,
   subscriptionss,
   eye,
   Communication,
@@ -114,7 +127,9 @@ export const assets = {
   time,
   cross,
   doller,
-  blueDot
+  blueDot,
+  totalTask,
+
 };
 
 export const ServiceTopCard = [
