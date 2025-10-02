@@ -1,6 +1,8 @@
 import { useState } from "react"
 import { Search } from "lucide-react"
-import { Checkbox } from '@/components/ui/checkbox';
+import { Checkbox } from '@/Components/ui/checkbox';
+import { Switch } from "@/Components/ui/switch";
+
 
 type Subscription = {
   id: number
@@ -145,12 +147,12 @@ const [selected,setselected] = useState<number[]>([])
         <table className="w-full border-collapse rounded-lg overflow-hidden text-sm">
           <thead className="bg-gray-100 text-left">
             
-            <tr>
+            <tr className="">
        {/* Select All Checkbox */}
 <th>
   <Checkbox
-    checked={selected.length === filtered.length && filtered.length > 0}
-    onCheckedChange={(checked) => handleselectall(checked as boolean)}
+  checked={selected.length ===filtered.length && filtered.length > 0 }
+  onCheckedChange={(val)=>handleselectall(val as boolean)}
   />
 </th>
 
@@ -165,8 +167,10 @@ const [selected,setselected] = useState<number[]>([])
             {filtered.map((sub) => (
               <tr key={sub.id} className="border-b">
                 {/* Property */}
-                <td><Checkbox  checked={selected.includes(sub.id)}
-                    onCheckedChange={(val) => selectsingle(sub.id, val as boolean)} className=""  /></td>
+                <td><Checkbox  
+               checked={selected.includes(sub.id)}
+              onCheckedChange={(val)=>selectsingle(sub.id, val as boolean)}
+                  className=""  /></td>
                 <td className="p-3">
                   <div className="font-medium">{sub.property}</div>
                   <div className="text-xs text-gray-500">{sub.owner}</div>
@@ -232,11 +236,12 @@ const [selected,setselected] = useState<number[]>([])
                 <td className="p-3">
                   {sub.autoRenew === true && (
                     <span className="px-2 py-1 bg-green-100 text-green-600 rounded text-xs">
-                      Enabled
+                      <Switch />  Enabled
                     </span>
                   )}
                   {sub.autoRenew === false && (
                     <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
+                    <Switch />
                       Disabled
                     </span>
                   )}
