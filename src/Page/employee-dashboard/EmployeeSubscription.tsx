@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Search } from "lucide-react"
+import { Checkbox } from '@/components/ui/checkbox';
 
 type Subscription = {
   id: number
@@ -62,10 +63,28 @@ const data: Subscription[] = [
 
 export default function EmployeeSubscription() {
   const [search, setSearch] = useState("")
-
+const [selected,setselected] = useState<number[]>([])
+  
   const filtered = data.filter((s) =>
     s.property.toLowerCase().includes(search.toLowerCase())
   )
+ const handleselectall =( check:boolean)=>{
+  if(check){
+   setselected(filtered.map((s)=>s.id))
+  }else{
+    setselected([])
+  }
+ }
+
+ const selectsingle = (id:number,check:boolean)=>{
+  if(check){
+    setselected((prev)=>[...prev,id])
+  }
+  else{
+    setselected((prev)=>prev.filter((x)=> x !==id))
+  }
+ }
+  
 
   return (
     <div className="p-6 space-y-6">
@@ -125,8 +144,17 @@ export default function EmployeeSubscription() {
       <div className="overflow-x-auto">
         <table className="w-full border-collapse rounded-lg overflow-hidden text-sm">
           <thead className="bg-gray-100 text-left">
+            
             <tr>
-              <th className="p-3">Property & Owner</th>
+       {/* Select All Checkbox */}
+<th>
+  <Checkbox
+    checked={selected.length === filtered.length && filtered.length > 0}
+    onCheckedChange={(checked) => handleselectall(checked as boolean)}
+  />
+</th>
+
+              <th  className="p-3"> Property & Owner</th>
               <th className="p-3">Status</th>
               <th className="p-3">Timeline</th>
               <th className="p-3">Auto-renew</th>
@@ -137,6 +165,8 @@ export default function EmployeeSubscription() {
             {filtered.map((sub) => (
               <tr key={sub.id} className="border-b">
                 {/* Property */}
+                <td><Checkbox  checked={selected.includes(sub.id)}
+                    onCheckedChange={(val) => selectsingle(sub.id, val as boolean)} className=""  /></td>
                 <td className="p-3">
                   <div className="font-medium">{sub.property}</div>
                   <div className="text-xs text-gray-500">{sub.owner}</div>
