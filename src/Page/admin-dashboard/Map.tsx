@@ -3,6 +3,7 @@ import { Download, Plus, ChevronDown, MapPin, Building2, Users, Star, Bed, Home 
 import { Button } from '@/Components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/Components/ui/accordion';
+import InteractiveGoogleMap from './inreactable-map';
 
 const MapRegionOverview = () => {
   const [selectedRegion, setSelectedRegion] = useState('all');
@@ -276,55 +277,10 @@ const MapRegionOverview = () => {
               </div>
             </div>
 
-            {/* Map Container */}
-            <div className="w-full h-full bg-gray-100 rounded-lg relative overflow-hidden">
-              {/* Simulated Map Background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300">
-                {/* Grid pattern */}
-                <div className="absolute inset-0" style={{
-                  backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-                  backgroundSize: '40px 40px'
-                }}></div>
-              </div>
-
-              {/* Map Pins */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-yellow-500 rounded-full shadow-lg flex items-center justify-center animate-pulse">
-                <MapPin size={20} className="text-white" />
-              </div>
-
-              <div className="absolute top-1/3 left-1/3 w-8 h-8 bg-green-500 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:scale-110 transition">
-                <Building2 size={20} className="text-white" />
-              </div>
-
-              <div className="absolute top-2/3 left-2/5 w-8 h-8 bg-red-500 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:scale-110 transition">
-                <Building2 size={20} className="text-white" />
-              </div>
-
-              <div className="absolute bottom-1/3 right-1/3 w-8 h-8 bg-green-500 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:scale-110 transition">
-                <Building2 size={20} className="text-white" />
-              </div>
-
-              <div className="absolute top-1/2 right-1/4 w-10 h-10 bg-blue-600 rounded-full shadow-lg flex items-center justify-center cursor-pointer hover:scale-110 transition">
-                <span className="text-white text-xs font-bold">LA</span>
-              </div>
-
-              {/* Region Boundary */}
-              <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                <ellipse
-                  cx="50%"
-                  cy="50%"
-                  rx="35%"
-                  ry="30%"
-                  fill="none"
-                  stroke="#3b82f6"
-                  strokeWidth="3"
-                  strokeDasharray="10,5"
-                  opacity="0.5"
-                />
-              </svg>
+              <InteractiveGoogleMap />
 
               {/* Map Controls */}
-              <div className="absolute bottom-6 right-6 flex flex-col gap-2">
+              {/* <div className="absolute bottom-6 right-6 flex flex-col gap-2">
                 <button className="w-10 h-10 bg-white rounded-lg shadow-lg flex items-center justify-center hover:bg-gray-50 transition">
                   <Plus size={20} />
                 </button>
@@ -334,7 +290,7 @@ const MapRegionOverview = () => {
                 <button className="w-10 h-10 bg-white rounded-lg shadow-lg flex items-center justify-center hover:bg-gray-50 transition">
                   <MapPin size={20} />
                 </button>
-              </div>
+              </div> */}
 
               {/* Location Label */}
               <div className="absolute bottom-6 left-6 bg-white rounded-lg shadow-lg px-3 py-2">
@@ -345,7 +301,6 @@ const MapRegionOverview = () => {
           </div>
         </div>
       </div>
-    </div>
   );
 };
 
