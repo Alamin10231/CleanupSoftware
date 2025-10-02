@@ -60,7 +60,7 @@ const Sidebar: React.FC = () => {
       items: [
         { icon: assets.setting, label: "Settings", path: "/employee-setting" },
         { icon: assets.help, label: "Help", path: "/employee-help" },
-        
+
       ],
     },
 

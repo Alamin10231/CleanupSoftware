@@ -3,6 +3,7 @@ import Button from "@/Components/Button";
 import Card from "@/Components/Card";
 import InvoicesList from "@/Components/InvoicesList";
 import { FaPlus } from "react-icons/fa";
+import { Link } from "react-router";
 
 
 const Invoices = () => {
@@ -14,8 +15,10 @@ const Invoices = () => {
           <p className="text-[#808080] text-base mt-1">Manage clients and subscription</p>
         </div>
         <div className="flex gap-2">
-          <Button icon={<FaPlus />} text="Create Invoice" />
-          
+          <Link to="/create-invoice">
+               <Button icon={<FaPlus />} text="Create Invoice" />
+          </Link>
+
         </div>
       </div>
 
@@ -32,13 +35,13 @@ const Invoices = () => {
       </div>
 
       {/* Search Functionality */}
-      
+
 
 
       {/*  Invoice Card */}
-      
+
       <InvoicesList  />
-      
+
     </div>
   );
 };

@@ -31,6 +31,8 @@ import EmployeeRegion from "@/Page/employee-dashboard/EmployeeRegion";
 import EmployeeReports from "@/Page/employee-dashboard/EmployeeReports";
 import EmployeeInvoicees from "@/Page/employee-dashboard/EmployeeInvoicees";
 import EmployeeSubscription from "@/Page/employee-dashboard/EmployeeSubscription";
+import CreateInvoiceForm from "@/Page/admin-dashboard/create-invoice";
+import NotFound from "@/Page/NotFound";
 import Buildingregions from "@/Page/employee-dashboard/building-regions";
 import RegionDashboard from "@/Page/employee-dashboard/building-tasks";
 
@@ -39,54 +41,62 @@ const Router = () => {
     <Routes>
       {/* Public Home */}
       <Route path="home" element={<Home />} />
+            <Route path="/" element={<Layout />}>
+                {/* admin */}
+                <Route index element={<Dashboard />} />
+                <Route path="client" element={<Clients />} />
+                <Route path="help" element={<Help />} />
+                <Route path="invoices" element={<Invoices />} />
+                <Route path="create-invoice" element={<CreateInvoiceForm />} />
+                <Route path="employees" element={<Employees />} />
+                <Route path="map" element={<Map />} />
+                <Route path="notifications" element={<Notifications />} />
+                <Route path="region" element={<Region />} />
+                <Route path="reports" element={<Reports />} />
+                <Route path="services" element={<Services />} />
+                <Route path="settings" element={<Settings />} />
+                <Route path="subscription" element={<Subscriptions />} />
+                <Route path="subscriptionplan" element={<SubscriptionPlan />} />
+                <Route path="add-new-plan" element={<AddNewPlanForm />} />
+                <Route path="add-services" element={<AddNewServiceForm />} />
 
-      {/* Admin routes */}
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="client" element={<Clients />} />
-        <Route path="help" element={<Help />} />
-        <Route path="invoices" element={<Invoices />} />
-        <Route path="employees" element={<Employees />} />
-        <Route path="map" element={<Map />} />
-        <Route path="notifications" element={<Notifications />} />
-        <Route path="region" element={<Region />} />
-        <Route path="reports" element={<Reports />} />
-        <Route path="services" element={<Services />} />
-        <Route path="settings" element={<Settings />} />
-        <Route path="subscription" element={<Subscriptions />} />
-        <Route path="subscriptionplan" element={<SubscriptionPlan />} />
-        <Route path="add-new-plan" element={<AddNewPlanForm />} />
-        <Route path="add-services" element={<AddNewServiceForm />} />
-        <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
-        <Route path="/employee-building" element={<EmployeeBuilding />} />
-        <Route
-          path="/employee-communication"
-          element={<EmployeeCommunication />}
-        />
-        <Route path="/employee-setting" element={<EmployeeSetting />} />
-        <Route path="/employee-forms" element={<EmployeeForms />} />
-        <Route path="/employee-help" element={<EmployeeHelp />} />
-        <Route path="/employee-region" element={<EmployeeRegion />} />
-        <Route path="/employee-report" element={<EmployeeReports />} />
-        <Route path="/employee-invoice" element={<EmployeeInvoicees />} />
-        <Route
-          path="/employee-subscriptions"
-          element={<EmployeeSubscription />}
-        />
-        <Route path="/buildingregions" element={<Buildingregions />} />
-        <Route path="/regiondashboard" element={<RegionDashboard />} />
-      </Route>
+                {/* Employee */}
+                <Route
+                    path="/employee-dashboard"
+                    element={<EmployeeDashboard />}
+                />
+                <Route
+                    path="/employee-building"
+                    element={<EmployeeBuilding />}
+                />
+                <Route
+                    path="/employee-communication"
+                    element={<EmployeeCommunication />}
+                />
+                <Route path="/employee-setting" element={<EmployeeSetting />} />
+                <Route path="/employee-forms" element={<EmployeeForms />} />
+                <Route path="/employee-help" element={<EmployeeHelp />} />
+                <Route path="/employee-region" element={<EmployeeRegion />} />
+                <Route path="/employee-report" element={<EmployeeReports />} />
+                <Route
+                    path="/employee-invoice"
+                    element={<EmployeeInvoicees />}
+                />
+                <Route
+                    path="/employee-subscriptions"
+                    element={<EmployeeSubscription />}
+                />
+            </Route>
 
-      {/* Employee routes */}
-
-      {/* Auth routes */}
-      <Route path="adminlogin" element={<AdminLogin />} />
-      <Route path="signup" element={<UserSignUp />} />
-      <Route path="forgetpassword" element={<ForgetPassword />} />
-      <Route path="verifycode" element={<VerifyCode />} />
-      <Route path="setpassword" element={<SetPassword />} />
-    </Routes>
-  );
+            {/* Auth routes */}
+            <Route path="adminlogin" element={<AdminLogin />} />
+            <Route path="signup" element={<UserSignUp />} />
+            <Route path="forgetpassword" element={<ForgetPassword />} />
+            <Route path="verifycode" element={<VerifyCode />} />
+            <Route path="setpassword" element={<SetPassword />} />
+            <Route path="*" element={<NotFound />} />
+        </Routes>
+    );
 };
 
 export default Router;
