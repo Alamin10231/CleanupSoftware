@@ -4,6 +4,7 @@ import { Button } from '@/Components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/Components/ui/accordion';
 import InteractiveGoogleMap from './inreactable-map';
+import Intro from '@/Components/map/react-map';
 
 const MapRegionOverview = () => {
   const [selectedRegion, setSelectedRegion] = useState('all');
@@ -259,7 +260,7 @@ const MapRegionOverview = () => {
         <div className="col-span-9">
           <div className="bg-white rounded-lg border p-4 h-[800px] relative">
             {/* Status Legend */}
-            <div className="absolute top-6 left-6 bg-white rounded-lg shadow-lg p-3 z-10 border">
+            {/* <div className="absolute top-6 left-6 bg-white rounded-lg shadow-lg p-3 z-10 border">
               <div className="font-semibold text-sm mb-2">Status Legend</div>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
@@ -275,9 +276,10 @@ const MapRegionOverview = () => {
                   <span className="text-xs">Issues</span>
                 </div>
               </div>
-            </div>
+            </div> */}
 
-              <InteractiveGoogleMap />
+              {/* <InteractiveGoogleMap /> */}
+              <Intro />
 
               {/* Map Controls */}
               {/* <div className="absolute bottom-6 right-6 flex flex-col gap-2">

@@ -32,6 +32,7 @@ import EmployeeReports from "@/Page/employee-dashboard/EmployeeReports";
 import EmployeeInvoicees from "@/Page/employee-dashboard/EmployeeInvoicees";
 import EmployeeSubscription from "@/Page/employee-dashboard/EmployeeSubscription";
 import CreateInvoiceForm from "@/Page/admin-dashboard/create-invoice";
+import NotFound from "@/Page/NotFound";
 
 const Router = () => {
     return (
@@ -40,8 +41,7 @@ const Router = () => {
             <Route path="home" element={<Home />} />
 
             <Route path="/" element={<Layout />}>
-
-            {/* admin */}
+                {/* admin */}
                 <Route index element={<Dashboard />} />
                 <Route path="client" element={<Clients />} />
                 <Route path="help" element={<Help />} />
@@ -59,7 +59,7 @@ const Router = () => {
                 <Route path="add-new-plan" element={<AddNewPlanForm />} />
                 <Route path="add-services" element={<AddNewServiceForm />} />
 
-            {/* Employee */}
+                {/* Employee */}
                 <Route
                     path="/employee-dashboard"
                     element={<EmployeeDashboard />}
@@ -93,6 +93,7 @@ const Router = () => {
             <Route path="forgetpassword" element={<ForgetPassword />} />
             <Route path="verifycode" element={<VerifyCode />} />
             <Route path="setpassword" element={<SetPassword />} />
+            <Route path="*" element={<NotFound />} />
         </Routes>
     );
 };
