@@ -1,23 +1,40 @@
-import { Polygon } from "@react-google-maps/api";
+import { Polyline, Polygon } from "@react-google-maps/api";
 
-const paths = [
-    { lat: 24.89, lng: 91.87 },
-    { lat: 24.9, lng: 91.88 },
-    { lat: 24.89, lng: 91.89 },
-    { lat: 24.88, lng: 91.88 },
-];
+const lineSymbol = {
+  path: "M 0,-1 0,1",
+  strokeOpacity: 1,
+  scale: 2,
+};
 
-const RegionPolygon = () => (
+const RegionPolygon = ({ paths }) => {
+   console.log(paths)
+  return <>
     <Polygon
-        paths={paths}
-        options={{
-            strokeColor: "#0000FF",
-            strokeOpacity: 0.8,
-            strokeWeight: 2,
-            fillColor: "#0000FF",
-            fillOpacity: 0.35,
-        }}
+      paths={paths}
+      options={{
+        strokeColor: "#5E81F4",
+        strokeOpacity: 0.6,
+        strokeWeight: 2,
+        fillColor: "#5E81F4",
+        fillOpacity: 0.18,
+      }}
     />
-);
+    <Polyline
+      path={paths}  // ✅ correct
+      options={{
+        strokeColor: "#5E81F4",
+        strokeOpacity: 1,
+        strokeWeight: 2,
+        icons: [
+          {
+            icon: lineSymbol,
+            offset: "0",
+            repeat: "10px",
+          },
+        ],
+      }}
+    />
+  </>
+}
 
 export default RegionPolygon;

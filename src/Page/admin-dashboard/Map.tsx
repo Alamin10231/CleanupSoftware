@@ -1,15 +1,28 @@
-import React, { useState } from 'react';
-import { Download, Plus, ChevronDown, MapPin, Building2, Users, Star, Bed, Home } from 'lucide-react';
+import { useState } from 'react';
+import { Download, Plus, MapPin, Star, Bed, Home } from 'lucide-react';
 import { Button } from '@/Components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/Components/ui/accordion';
-import InteractiveGoogleMap from './inreactable-map';
 import Intro from '@/Components/map/react-map';
+import { Input } from '@/Components/ui/input';
 
 const MapRegionOverview = () => {
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedWorkers, setSelectedWorkers] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [paths, setPaths] = useState([]);
+
+  const handleSearch = async () => {
+    try {
+      const response = await fetch(`http://10.10.13.61:8015/api/v1/map/${searchQuery}/`);
+      const data = await response.json();
+      console.log(data)
+      setPaths(data);
+    } catch (error) {
+      console.error('Error fetching map data:', error);
+    }
+  };
 
   const regions = [
     {
@@ -259,40 +272,16 @@ const MapRegionOverview = () => {
         {/* Main Map Area */}
         <div className="col-span-9">
           <div className="bg-white rounded-lg border p-4 h-[800px] relative">
-            {/* Status Legend */}
-            {/* <div className="absolute top-6 left-6 bg-white rounded-lg shadow-lg p-3 z-10 border">
-              <div className="font-semibold text-sm mb-2">Status Legend</div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  <span className="text-xs">Active</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                  <span className="text-xs">Pending</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                  <span className="text-xs">Issues</span>
-                </div>
-              </div>
-            </div> */}
-
-              {/* <InteractiveGoogleMap /> */}
-              <Intro />
-
-              {/* Map Controls */}
-              {/* <div className="absolute bottom-6 right-6 flex flex-col gap-2">
-                <button className="w-10 h-10 bg-white rounded-lg shadow-lg flex items-center justify-center hover:bg-gray-50 transition">
-                  <Plus size={20} />
-                </button>
-                <button className="w-10 h-10 bg-white rounded-lg shadow-lg flex items-center justify-center hover:bg-gray-50 transition">
-                  <span className="text-xl font-light">−</span>
-                </button>
-                <button className="w-10 h-10 bg-white rounded-lg shadow-lg flex items-center justify-center hover:bg-gray-50 transition">
-                  <MapPin size={20} />
-                </button>
-              </div> */}
+             <div className="flex gap-2 mb-4">
+              <Input
+                type="text"
+                placeholder="Search for a place"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <Button onClick={handleSearch}>Search</Button>
+            </div>
+              <Intro paths={paths} search={searchQuery} />
 
               {/* Location Label */}
               <div className="absolute bottom-6 left-6 bg-white rounded-lg shadow-lg px-3 py-2">

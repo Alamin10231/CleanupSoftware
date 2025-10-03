@@ -1,52 +1,75 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-    GoogleMap,
-    Marker,
-    InfoWindow,
-    useJsApiLoader,
+  GoogleMap,
+  Marker,
+  InfoWindow,
+  useJsApiLoader,
 } from "@react-google-maps/api";
 import RegionPolygon from "./RegionPolygon";
 
 const containerStyle = {
-    width: "100%",
-    height: "100%",
+  width: "100%",
+  height: "100%",
 };
 
-const center = { lat: 24.89, lng: 91.88 };
+export default function Intro({ paths, search }) {
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+  const [open, setOpen] = useState(false);
+  const [center, setCenter] = useState(null);
 
-export default function Intro() {
-    const [open, setOpen] = useState(false);
-    const { isLoaded } = useJsApiLoader({
-        googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-        mapIds: [import.meta.env.VITE_GOOGLE_MAPS_ID],
-    });
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: apiKey,
+    mapIds: [import.meta.env.VITE_GOOGLE_MAPS_ID],
+  });
 
-    if (!isLoaded) return <div>Loading...</div>;
+  // Fetch coordinates whenever `search` changes
+  useEffect(() => {
+    async function fetchAreaCoordinates() {
+      if (!search) return;
 
-    return (
-        <div className="h-full" style={{ height: "100%" }}>
-            <GoogleMap
-                mapContainerStyle={containerStyle}
-                center={center}
-                zoom={12}
-                options={{
-                    gestureHandling: "greedy",
-                    disableDefaultUI: true,
-                    mapId: import.meta.env.VITE_GOOGLE_MAPS_ID,
-                }}
-                onClick={() => setOpen(!open)}
-            >
-                <Marker position={center} />
-                {open && (
-                    <InfoWindow
-                        position={center}
-                        onCloseClick={() => setOpen(false)}
-                    >
-                        <p>you are here</p>
-                    </InfoWindow>
-                )}
-                <RegionPolygon />
-            </GoogleMap>
-        </div>
-    );
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+        search
+      )}&key=${apiKey}`;
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data.status !== "OK" || !data.results.length) {
+          throw new Error("No results found");
+        }
+
+        const location = data.results[0].geometry.location;
+        setCenter(location);
+        console.log("Place:", data.results[0].formatted_address);
+      } catch (err) {
+        console.error("Error fetching coordinates:", err);
+      }
+    }
+
+    fetchAreaCoordinates();
+  }, [search, apiKey]);
+
+  if (!isLoaded || !center) return <div>Loading...</div>;
+  console.log(center)
+
+  return (
+    <div className="h-full">
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={center}
+        zoom={12}
+        options={{
+          gestureHandling: "greedy",
+          disableDefaultUI: true,
+          mapId: import.meta.env.VITE_GOOGLE_MAPS_ID,
+        }}
+        onClick={() => setOpen(!open)}
+      >
+        <Marker position={center} />
+        {open && <InfoWindow position={center}><p>You are here</p></InfoWindow>}
+        {paths?.length > 0 && <RegionPolygon paths={paths} />}
+      </GoogleMap>
+    </div>
+  );
 }
