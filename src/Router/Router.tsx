@@ -37,10 +37,10 @@ import Buildingregions from "@/Page/employee-dashboard/building-regions";
 import RegionDashboard from "@/Page/employee-dashboard/building-tasks";
 
 const Router = () => {
-  return (
-    <Routes>
-      {/* Public Home */}
-      <Route path="home" element={<Home />} />
+    return (
+        <Routes>
+            {/* Public Home */}
+            <Route path="home" element={<Home />} />
             <Route path="/" element={<Layout />}>
                 {/* admin */}
                 <Route index element={<Dashboard />} />

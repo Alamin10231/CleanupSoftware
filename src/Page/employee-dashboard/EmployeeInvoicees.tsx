@@ -76,7 +76,7 @@ const EmployeeInvoicees = () => {
             onClick={() => setActiveTab(tab)}
             className={`pb-2 font-medium ${activeTab === tab
                 ? "border-b-2 border-blue-600 text-blue-600"
-                : "text-gray-500"
+                : "text-gray-600"
               }`}
           >
             {tab} Invoices
@@ -137,7 +137,7 @@ const EmployeeInvoicees = () => {
               <tr>
                 <td
                   colSpan={7}
-                  className="text-center text-gray-500 py-4"
+                  className="text-center text-gray-600 py-4"
                 >
                   No invoices found
                 </td>
