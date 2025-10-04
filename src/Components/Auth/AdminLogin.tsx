@@ -2,25 +2,59 @@ import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { FaEye, FaEyeSlash, FaFacebook } from "react-icons/fa";
 import loginpicture from "../../assets/Image/loginpicture.jpg";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { assets } from "../../assets/assets";
+
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ email, password});
-    // এখানে API কল বা auth logic দিন
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        "https://lisa-nondisposable-judgingly.ngrok-free.app/api/v1/users/login/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed");
+      }
+
+      // Save token to local storage (optional)
+      localStorage.setItem("token", data.token);
+
+      alert("Login successful!");
+      navigate("/"); 
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex">
       {/* Left Panel */}
       <div className="flex flex-col justify-center items-center w-full md:w-1/2 px-6 md:px-16 bg-white">
-        {/* Logo */}
         <div className="flex items-center self-end space-x-2 mb-8">
           <div className="p-6">
             <img
@@ -57,8 +91,6 @@ export default function AdminLogin() {
             <label className="block text-sm font-medium text-gray-600 mb-1">
               Password
             </label>
-
-            {/* Input */}
             <input
               type={show ? "text" : "password"}
               className="w-full border border-gray-300 rounded-md px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -67,8 +99,6 @@ export default function AdminLogin() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-
-            {/* Eye Icon */}
             <button
               type="button"
               onClick={() => setShow(!show)}
@@ -78,36 +108,43 @@ export default function AdminLogin() {
             </button>
           </div>
 
+          {/* Error Message */}
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+
           {/* Remember + Forgot */}
           <div className="flex items-center justify-between text-sm">
             <label className="flex items-center space-x-2">
               <input
                 type="checkbox"
-        
                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span>Remember me</span>
             </label>
-            <button type="button" className="text-blue-500 hover:underline">
-              <Link to="/forgetpassword">Forgot Password</Link>
-            </button>
+            <Link to="/forgetpassword" className="text-blue-500 hover:underline">
+              Forgot Password
+            </Link>
           </div>
 
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+            disabled={loading}
+            className={`w-full py-2 rounded-md transition ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
         {/* Sign up link */}
         <p className="text-sm text-gray-600 mt-6">
-          Don’t have an account? {/* < href="#" > */}
+          Don’t have an account?
           <span className="text-[#FF8682] hover:underline">
             {" "}
-            <Link to="/signup"> Sign up</Link>
+            <Link to="/signup">Sign up</Link>
           </span>
         </p>
 
@@ -133,13 +170,6 @@ export default function AdminLogin() {
             <FcGoogle className="mr-2" />
             Google
           </button>
-          {/* <button
-    type="button"
-    className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50"
-  >
-    <FaApple className="text-black mr-2" />
-    Apple
-  </button> */}
         </div>
       </div>
 
@@ -148,7 +178,7 @@ export default function AdminLogin() {
         <img
           src={loginpicture}
           alt="Cleaning"
-          className="w-full max-h-screen  object-cover"
+          className="w-full max-h-screen object-cover"
         />
       </div>
     </div>
