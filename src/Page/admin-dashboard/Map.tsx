@@ -4,25 +4,12 @@ import { Button } from '@/Components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/Components/ui/accordion';
 import Intro from '@/Components/map/react-map';
-import { Input } from '@/Components/ui/input';
 
 const MapRegionOverview = () => {
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedWorkers, setSelectedWorkers] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [paths, setPaths] = useState([]);
-
-  const handleSearch = async () => {
-    try {
-      const response = await fetch(`http://10.10.13.61:8015/api/v1/map/${searchQuery}/`);
-      const data = await response.json();
-      console.log(data)
-      setPaths(data);
-    } catch (error) {
-      console.error('Error fetching map data:', error);
-    }
-  };
+  const [selectedApartment, setSelectedApartment] = useState(null);
 
   const regions = [
     {
@@ -32,9 +19,9 @@ const MapRegionOverview = () => {
       apartments: 150,
       color: 'blue',
       properties: [
-        { name: 'Sunset Plaza', status: 'active', building: '30 Building', manager: 'John Smith' },
-        { name: 'Ocean View Tower', status: 'pending', building: '45 Building', manager: 'Sarah Johnson' },
-        { name: 'Metro Heights', status: 'issues', building: '25 Building', manager: 'Mike Davis' }
+        { name: 'Sunset Plaza', status: 'active', building: '30 Building', manager: 'John Smith', location: { lat: 24.89, lng: 91.87 } },
+        { name: 'Ocean View Tower', status: 'pending', building: '45 Building', manager: 'Sarah Johnson', location: { lat: 24.90, lng: 91.88 } },
+        { name: 'Metro Heights', status: 'issues', building: '25 Building', manager: 'Mike Davis', location: { lat: 24.89, lng: 91.89 } }
       ]
     },
     {
@@ -44,9 +31,9 @@ const MapRegionOverview = () => {
       apartments: 90,
       color: 'blue',
       properties: [
-        { name: 'Sunset Plaza', status: 'active', building: '30 Building', manager: 'John Smith' },
-        { name: 'Ocean View Tower', status: 'pending', building: '45 Building', manager: 'Sarah Johnson' },
-        { name: 'Metro Heights', status: 'issues', building: '25 Building', manager: 'Mike Davis' }
+        { name: 'Sunset Plaza', status: 'active', building: '30 Building', manager: 'John Smith', location: { lat: 24.88, lng: 91.87 } },
+        { name: 'Ocean View Tower', status: 'pending', building: '45 Building', manager: 'Sarah Johnson', location: { lat: 24.87, lng: 91.88 } },
+        { name: 'Metro Heights', status: 'issues', building: '25 Building', manager: 'Mike Davis', location: { lat: 24.88, lng: 91.89 } }
       ]
     },
     {
@@ -56,9 +43,9 @@ const MapRegionOverview = () => {
       apartments: 120,
       color: 'blue',
       properties: [
-        { name: 'Sunset Plaza', status: 'active', building: '30 Building', manager: 'John Smith' },
-        { name: 'Ocean View Tower', status: 'pending', building: '45 Building', manager: 'Sarah Johnson' },
-        { name: 'Metro Heights', status: 'issues', building: '25 Building', manager: 'Mike Davis' }
+        { name: 'Sunset Plaza', status: 'active', building: '30 Building', manager: 'John Smith', location: { lat: 24.91, lng: 91.87 } },
+        { name: 'Ocean View Tower', status: 'pending', building: '45 Building', manager: 'Sarah Johnson', location: { lat: 24.92, lng: 91.88 } },
+        { name: 'Metro Heights', status: 'issues', building: '25 Building', manager: 'Mike Davis', location: { lat: 24.91, lng: 91.89 } }
       ]
     },
     {
@@ -68,9 +55,9 @@ const MapRegionOverview = () => {
       apartments: 120,
       color: 'blue',
       properties: [
-        { name: 'Sunset Plaza', status: 'active', building: '30 Building', manager: 'John Smith' },
-        { name: 'Ocean View Tower', status: 'pending', building: '45 Building', manager: 'Sarah Johnson' },
-        { name: 'Metro Heights', status: 'issues', building: '25 Building', manager: 'Mike Davis' }
+        { name: 'Sunset Plaza', status: 'active', building: '30 Building', manager: 'John Smith', location: { lat: 24.93, lng: 91.87 } },
+        { name: 'Ocean View Tower', status: 'pending', building: '45 Building', manager: 'Sarah Johnson', location: { lat: 24.94, lng: 91.88 } },
+        { name: 'Metro Heights', status: 'issues', building: '25 Building', manager: 'Mike Davis', location: { lat: 24.93, lng: 91.89 } }
       ]
     }
   ];
@@ -207,7 +194,7 @@ const MapRegionOverview = () => {
                 {region.id === 1 && region.properties && (
                   <div className="mt-3 space-y-2 border-t pt-2">
                     {region.properties.map((property, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+                      <div key={idx} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded" onClick={() => setSelectedApartment(property)}>
                         <div className="flex items-center gap-2">
                           <div className={`w-2 h-2 rounded-full ${getStatusColor(property.status)}`}></div>
                           <div>
@@ -272,16 +259,7 @@ const MapRegionOverview = () => {
         {/* Main Map Area */}
         <div className="col-span-9">
           <div className="bg-white rounded-lg border p-4 h-[800px] relative">
-             <div className="flex gap-2 mb-4">
-              <Input
-                type="text"
-                placeholder="Search for a place"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Button onClick={handleSearch}>Search</Button>
-            </div>
-              <Intro paths={paths} search={searchQuery} />
+              <Intro selectedApartment={selectedApartment} />
 
               {/* Location Label */}
               <div className="absolute bottom-6 left-6 bg-white rounded-lg shadow-lg px-3 py-2">
