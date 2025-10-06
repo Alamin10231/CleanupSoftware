@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { IoMdArrowForward } from "react-icons/io";
+import { Button } from "../ui/button";
 
 type OverviewData = {
   totalClients: number;
@@ -67,10 +68,10 @@ export default function DashboardOverview() {
           <p className="text-md text-[#8E8E8E]">Buildings</p>
         </div>
       <div className="mt-6 text-center">
-        <button className=" flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
+        <Button className=" flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
           Explore Premium Features
           <span className="text-xl"><IoMdArrowForward /></span>
-        </button>
+        </Button>
       </div>
       </div>
 

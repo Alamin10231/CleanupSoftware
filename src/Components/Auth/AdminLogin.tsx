@@ -37,6 +37,8 @@ export default function AdminLogin() {
 
       if (!response.ok) {
         throw new Error(data.message || "Login failed");
+      }else{
+        console.log(data,"login success fully")
       }
 
       // Save token to local storage (optional)

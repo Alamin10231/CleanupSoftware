@@ -2,21 +2,40 @@ import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple, FaEye, FaEyeSlash, FaFacebook } from "react-icons/fa";
 import loginpicture from "../../assets/Image/loginpicture.jpg";
-import { Link, useNavigate } from "react-router-dom";   
+import { Link, useNavigate } from "react-router-dom";
 import { assets } from "../../assets/assets";
 import { IoIosArrowBack } from "react-icons/io";
 
+
 export default function ForgetPassword() {
-  const [email, setEmail] = useState<string>(""); 
+  const [email, setEmail] = useState<string>("");
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log({ email });
-    // এখানে API কল বা auth logic দিন
+    try {
+      const verifycode = await fetch(
+        "https://lisa-nondisposable-judgingly.ngrok-free.app/api/v1/users/forget-password/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(email),
+        }
+      );
+      const data = await verifycode.json();
+      console.log("Response:", data);
+       if (!verifycode.ok) {
+        throw new Error(data.message ||  JSON.stringify(data) || "verification failed");
+      }
+      alert("Account created successfully!");
+    } catch (err: any) {
+      console.log(err);
+    }
 
-    // সাবমিটের পর পরবর্তী পেইজে নেভিগেট করুন
     navigate("/verifycode");
   };
 
@@ -39,7 +58,10 @@ export default function ForgetPassword() {
         <div className="self-start flex items-center justify-center gap-2">
           <IoIosArrowBack />
           <span>
-            Back to <Link to="/adminlogin" className="text-blue-600 underline">login</Link>
+            Back to{" "}
+            <Link to="/adminlogin" className="text-blue-600 underline">
+              login
+            </Link>
           </span>
         </div>
 
@@ -54,16 +76,16 @@ export default function ForgetPassword() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="w-full max-w-full space-y-5">
           <div className="relative w-full">
-             <fieldset className="border border-gray-400 rounded px-3 pt-1">
-                <legend className="text-sm px-1 text-[#1C1B1F]">Email</legend>
-                <input
-                  type="email"
-                  placeholder="****"
-                  className="w-full outline-none border-none pb-2 focus:ring-0 text-[#1C1B1F]"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </fieldset>
+            <fieldset className="border border-gray-400 rounded px-3 pt-1">
+              <legend className="text-sm px-1 text-[#1C1B1F]">Email</legend>
+              <input
+                type="email"
+                placeholder="****"
+                className="w-full outline-none border-none pb-2 focus:ring-0 text-[#1C1B1F]"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </fieldset>
 
             {/* Eye Icon */}
             <button
