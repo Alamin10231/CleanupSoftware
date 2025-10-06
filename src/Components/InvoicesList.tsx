@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import InvoiceCard from "./InvoiceCard";
+import { useGetInvoicesQuery } from "@/redux/api/apiSlice";
 
 interface Invoice {
   id: string;
@@ -13,67 +14,64 @@ interface Invoice {
   services: { count: number; discount: string };
 }
 
-const InvoicesList: React.FC = () => {
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
+const InvoicesList = () => {
+   const { data: invoices, isLoading, isError } = useGetInvoicesQuery(undefined)
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
-
+   // console.log(invoices.results)
   // Filters state
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("All Status");
   const [paymentMethod, setPaymentMethod] = useState("All Payment Method");
   const [sort, setSort] = useState("Default");
 
-  useEffect(() => {
-    fetch("/Invoice.json")
-      .then((res) => res.json())
-      .then((data) => {
-        setInvoices(data.invoices);
-        setFilteredInvoices(data.invoices);
-      })
-      .catch((err) => console.error("Error loading invoices:", err));
-  }, []);
-
   // Apply filters
   useEffect(() => {
-    let result = [...invoices];
+    if (invoices) {
+      let result = [...invoices.results];
 
-    // Search filter
-    if (search.trim() !== "") {
-      result = result.filter(
-        (inv) =>
-          inv.title.toLowerCase().includes(search.toLowerCase()) ||
-          inv.location.toLowerCase().includes(search.toLowerCase())
-      );
+      // Search filter
+      if (search.trim() !== "") {
+        result = result.filter(
+          (inv) =>
+            inv.building_name.toLowerCase().includes(search.toLowerCase()) ||
+            inv.region_name.toLowerCase().includes(search.toLowerCase())
+        );
+      }
+
+      // Status filter
+      if (status !== "All Status") {
+        result = result.filter((inv) => inv.status === status);
+      }
+
+      // Payment filter
+      if (paymentMethod !== "All") {
+        result = result.filter((inv) => inv.type === paymentMethod);
+      }
+
+      // Sorting
+      if (sort === "Oldest to New") {
+        result.sort(
+          (a, b) =>
+            new Date(a.date_issued).getTime() - new Date(b.date_issued).getTime()
+        );
+      } else if (sort === "New to Oldest") {
+        result.sort(
+          (a, b) =>
+            new Date(b.date_issued).getTime() - new Date(a.date_issued).getTime()
+        );
+      }
+
+      setFilteredInvoices(result);
     }
-
-    // Status filter
-    if (status !== "All Status") {
-      result = result.filter((inv) => inv.status === status);
-    }
-
-    // Payment filter
-    if (paymentMethod !== "All") {
-      result = result.filter((inv) => inv.paymentMethod === paymentMethod);
-    }
-
-
-
-
-    // Sorting
-    if (sort === "Oldest to New") {
-      result.sort(
-        (a, b) =>
-          new Date(a.issuedDate).getTime() - new Date(b.issuedDate).getTime()
-      );
-    } else if (sort === "New to Oldest") {
-      result.sort(
-        (a, b) =>
-          new Date(b.issuedDate).getTime() - new Date(a.issuedDate).getTime()
-      );
-    }
-
-    setFilteredInvoices(result);
   }, [search, status, paymentMethod, sort, invoices]);
+
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
+
+  if (isError) {
+    return <p>Error fetching invoices.</p>;
+  }
 
   return (
     <>
@@ -108,8 +106,8 @@ const InvoicesList: React.FC = () => {
             className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer"
           >
             <option>All</option>
-            <option>Incomming</option>
-            <option>Outgoing</option>
+            <option>incoming</option>
+            <option>outgoing</option>
           </select>
 
 
@@ -132,9 +130,9 @@ const InvoicesList: React.FC = () => {
 
       {/* List */}
       <div>
-        {filteredInvoices.length > 0 ? (
-          filteredInvoices.map((invoice) => (
-            <InvoiceCard key={invoice.id} invoice={invoice} />
+        {invoices.results.length > 0 ? (
+          invoices.results.map((invoice) => (
+            <InvoiceCard key={invoice.invoice_id} invoice={invoice} />
           ))
         ) : (
           <p className="text-center text-gray-500 mt-6">No invoices found</p>

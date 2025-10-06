@@ -90,7 +90,7 @@ const Router = () => {
             </Route>
 
             {/* Auth routes */}
-            <Route path="adminlogin" element={<AdminLogin />} />
+            <Route path="login" element={<AdminLogin />} />
             <Route path="signup" element={<UserSignUp />} />
             <Route path="verifyotp" element={<Verifyotp />} />
             <Route path="forgetpassword" element={<ForgetPassword />} />

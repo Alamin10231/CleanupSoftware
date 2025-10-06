@@ -33,7 +33,6 @@ const AddNewServiceForm = () => {
 
   const [formData, setFormData] = useState(initialFormState);
   const [selectedServices, setSelectedServices] = useState(initialServicesState);
-  const [autoFillPrice, setAutoFillPrice] = useState('');
   const [customAutoFill, setCustomAutoFill] = useState('');
 
   const handleInputChange = (field, value) => {
@@ -54,7 +53,6 @@ const AddNewServiceForm = () => {
   const handleCancel = () => {
     setFormData(initialFormState);
     setSelectedServices(initialServicesState);
-    setAutoFillPrice('');
     setCustomAutoFill('');
   };
 
