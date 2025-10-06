@@ -5,6 +5,7 @@ import {
 } from "@vis.gl/react-google-maps";
 import { useState, useEffect } from "react";
 import CustomMarker from "./CustomMarker";
+import { mapStyles } from "./mapStyles";
 
 export default function Intro({ selectedApartment }) {
     const [position, setPosition] = useState({ lat: 24.89, lng: 91.88 });
@@ -20,10 +21,11 @@ export default function Intro({ selectedApartment }) {
             <div className="h-full">
                 <Map
                     defaultZoom={12}
-                    center={position}
-                    mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
+                    defaultCenter={position}
+                  //   mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
                     gestureHandling={'greedy'}
                     disableDefaultUI
+                    styles={mapStyles}
                 >
                     {selectedApartment && (
                         <AdvancedMarker

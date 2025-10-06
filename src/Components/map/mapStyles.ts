@@ -1,25 +1,32 @@
 export const mapStyles = [
-          {
-            featureType: "poi",
-            elementType: "labels",
-            stylers: [{ visibility: "off" }],
-          },
-          {
-            featureType: "poi.business",
-            stylers: [{ visibility: "off" }],
-          },
-          {
-            featureType: "road",
-            elementType: "labels",
-            stylers: [{ visibility: "off" }],
-          },
-          {
-            featureType: "transit",
-            stylers: [{ visibility: "off" }],
-          },
-          {
-            featureType: "administrative.neighborhood",
-            elementType: "labels",
-            stylers: [{ visibility: "off" }],
-          },
-        ]
+   {
+     "featureType": "landscape",
+     "elementType": "geometry",
+     "stylers": [
+       { "color": "#ffffff" },
+       { "visibility": "on" },
+       { "saturation": 0 }
+     ]
+   },
+   {
+     "featureType": "poi",
+     "elementType": "labels.icon",
+     "stylers": [
+       { "visibility": "off" }
+     ]
+   },
+   {
+     "featureType": "all",
+     "elementType": "labels.text",
+     "stylers": [
+       { "visibility": "on" }
+     ]
+   },
+   {
+     "featureType": "all",
+     "elementType": "labels.text.stroke",
+     "stylers": [
+       { "visibility": "on" }
+     ]
+   }
+ ]
