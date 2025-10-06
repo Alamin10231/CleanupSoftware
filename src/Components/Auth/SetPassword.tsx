@@ -1,27 +1,23 @@
 import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
-import {
-  FaApple,
-  FaEye,
-  FaEyeSlash,
-  FaFacebook,
-} from "react-icons/fa";
+import { FaApple, FaEye, FaEyeSlash, FaFacebook } from "react-icons/fa";
 import loginpicture from "../../assets/Image/loginpicture.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { assets } from "../../assets/assets";
 import { IoIosArrowBack } from "react-icons/io";
 
 export default function VerifyCode() {
-  const [password, setPassword] = useState<string>("");
-  const [cpassword, setCPassword] = useState<string>("");
-
-  // আলাদা স্টেট দুই ইনপুটের জন্য
+  const [password, setPassword] = useState("");
+  const [cpassword, setCPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+  const email = localStorage.getItem("resetEmail"); // from previous step
+  const token = localStorage.getItem("resetToken"); // if your backend uses token
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (password !== cpassword) {
@@ -29,11 +25,37 @@ export default function VerifyCode() {
       return;
     }
 
-    console.log({ password, cpassword });
-    // এখানে API কল বা auth logic দিন
+    setLoading(true);
+    try {
+      const response = await fetch(
+        "https://lisa-nondisposable-judgingly.ngrok-free.app/api/v1/users/reset-password/",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            
+            password,
+            confirm_password: cpassword,
+          }),
+        }
+      );
 
-    // সফল হলে পরবর্তী পেইজে নেভিগেট করুন
-    navigate("/success");
+      const data = await response.json();
+      console.log("Response:", data);
+
+      if (!response.ok) {
+        throw new Error(data.message || "Password reset failed");
+      }
+
+      alert("Password reset successful! You can now log in.");
+      navigate("/adminlogin");
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Something went wrong, please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -63,11 +85,11 @@ export default function VerifyCode() {
         </div>
 
         <h1 className="text-2xl font-semibold mb-3 self-start">
-          Set a password
+          Set a new password
         </h1>
         <p className="self-start pb-3 text-lg max-w-md text-[#313131]">
-          Your previous password has been reset. Please set a new password for
-          your account.
+          Your previous password has been reset. Please set a new one for your
+          account.
         </p>
 
         {/* Form */}
@@ -123,9 +145,12 @@ export default function VerifyCode() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+            disabled={loading}
+            className={`w-full bg-blue-600 text-white py-2 rounded-md transition ${
+              loading ? "opacity-70 cursor-not-allowed" : "hover:bg-blue-700"
+            }`}
           >
-            Submit
+            {loading ? "Submitting..." : "Submit"}
           </button>
         </form>
 
@@ -137,26 +162,14 @@ export default function VerifyCode() {
         </div>
 
         <div className="flex gap-4">
-          <button
-            type="button"
-            className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50"
-          >
-            <FaFacebook className="text-blue-600 mr-2" />
-            Facebook
+          <button className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50">
+            <FaFacebook className="text-blue-600 mr-2" /> Facebook
           </button>
-          <button
-            type="button"
-            className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50"
-          >
-            <FcGoogle className="mr-2" />
-            Google
+          <button className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50">
+            <FcGoogle className="mr-2" /> Google
           </button>
-          <button
-            type="button"
-            className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50"
-          >
-            <FaApple className="text-black mr-2" />
-            Apple
+          <button className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50">
+            <FaApple className="text-black mr-2" /> Apple
           </button>
         </div>
       </div>
