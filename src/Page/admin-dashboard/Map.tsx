@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import { Download, Plus, ChevronDown, MapPin, Building2, Users, Star, Bed, Home } from 'lucide-react';
+import { useState } from 'react';
+import { Download, Plus, MapPin, Star, Bed, Home } from 'lucide-react';
 import { Button } from '@/Components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/Components/ui/accordion';
-import InteractiveGoogleMap from './inreactable-map';
 import Intro from '@/Components/map/react-map';
 
 const MapRegionOverview = () => {
   const [selectedRegion, setSelectedRegion] = useState('all');
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedWorkers, setSelectedWorkers] = useState('all');
+  const [selectedApartment, setSelectedApartment] = useState(null);
 
   const regions = [
     {
@@ -19,9 +19,9 @@ const MapRegionOverview = () => {
       apartments: 150,
       color: 'blue',
       properties: [
-        { name: 'Sunset Plaza', status: 'active', building: '30 Building', manager: 'John Smith' },
-        { name: 'Ocean View Tower', status: 'pending', building: '45 Building', manager: 'Sarah Johnson' },
-        { name: 'Metro Heights', status: 'issues', building: '25 Building', manager: 'Mike Davis' }
+        { name: 'Sunset Plaza', status: 'active', building: '30 Building', manager: 'John Smith', location: { lat: 24.89, lng: 91.87 } },
+        { name: 'Ocean View Tower', status: 'pending', building: '45 Building', manager: 'Sarah Johnson', location: { lat: 24.90, lng: 91.88 } },
+        { name: 'Metro Heights', status: 'issues', building: '25 Building', manager: 'Mike Davis', location: { lat: 24.89, lng: 91.89 } }
       ]
     },
     {
@@ -31,9 +31,9 @@ const MapRegionOverview = () => {
       apartments: 90,
       color: 'blue',
       properties: [
-        { name: 'Sunset Plaza', status: 'active', building: '30 Building', manager: 'John Smith' },
-        { name: 'Ocean View Tower', status: 'pending', building: '45 Building', manager: 'Sarah Johnson' },
-        { name: 'Metro Heights', status: 'issues', building: '25 Building', manager: 'Mike Davis' }
+        { name: 'Sunset Plaza', status: 'active', building: '30 Building', manager: 'John Smith', location: { lat: 24.88, lng: 91.87 } },
+        { name: 'Ocean View Tower', status: 'pending', building: '45 Building', manager: 'Sarah Johnson', location: { lat: 24.87, lng: 91.88 } },
+        { name: 'Metro Heights', status: 'issues', building: '25 Building', manager: 'Mike Davis', location: { lat: 24.88, lng: 91.89 } }
       ]
     },
     {
@@ -43,9 +43,9 @@ const MapRegionOverview = () => {
       apartments: 120,
       color: 'blue',
       properties: [
-        { name: 'Sunset Plaza', status: 'active', building: '30 Building', manager: 'John Smith' },
-        { name: 'Ocean View Tower', status: 'pending', building: '45 Building', manager: 'Sarah Johnson' },
-        { name: 'Metro Heights', status: 'issues', building: '25 Building', manager: 'Mike Davis' }
+        { name: 'Sunset Plaza', status: 'active', building: '30 Building', manager: 'John Smith', location: { lat: 24.91, lng: 91.87 } },
+        { name: 'Ocean View Tower', status: 'pending', building: '45 Building', manager: 'Sarah Johnson', location: { lat: 24.92, lng: 91.88 } },
+        { name: 'Metro Heights', status: 'issues', building: '25 Building', manager: 'Mike Davis', location: { lat: 24.91, lng: 91.89 } }
       ]
     },
     {
@@ -55,9 +55,9 @@ const MapRegionOverview = () => {
       apartments: 120,
       color: 'blue',
       properties: [
-        { name: 'Sunset Plaza', status: 'active', building: '30 Building', manager: 'John Smith' },
-        { name: 'Ocean View Tower', status: 'pending', building: '45 Building', manager: 'Sarah Johnson' },
-        { name: 'Metro Heights', status: 'issues', building: '25 Building', manager: 'Mike Davis' }
+        { name: 'Sunset Plaza', status: 'active', building: '30 Building', manager: 'John Smith', location: { lat: 24.93, lng: 91.87 } },
+        { name: 'Ocean View Tower', status: 'pending', building: '45 Building', manager: 'Sarah Johnson', location: { lat: 24.94, lng: 91.88 } },
+        { name: 'Metro Heights', status: 'issues', building: '25 Building', manager: 'Mike Davis', location: { lat: 24.93, lng: 91.89 } }
       ]
     }
   ];
@@ -194,7 +194,7 @@ const MapRegionOverview = () => {
                 {region.id === 1 && region.properties && (
                   <div className="mt-3 space-y-2 border-t pt-2">
                     {region.properties.map((property, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+                      <div key={idx} className="flex items-center justify-between p-2 hover:bg-gray-50 rounded" onClick={() => setSelectedApartment(property)}>
                         <div className="flex items-center gap-2">
                           <div className={`w-2 h-2 rounded-full ${getStatusColor(property.status)}`}></div>
                           <div>
@@ -259,40 +259,7 @@ const MapRegionOverview = () => {
         {/* Main Map Area */}
         <div className="col-span-9">
           <div className="bg-white rounded-lg border p-4 h-[800px] relative">
-            {/* Status Legend */}
-            {/* <div className="absolute top-6 left-6 bg-white rounded-lg shadow-lg p-3 z-10 border">
-              <div className="font-semibold text-sm mb-2">Status Legend</div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  <span className="text-xs">Active</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                  <span className="text-xs">Pending</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                  <span className="text-xs">Issues</span>
-                </div>
-              </div>
-            </div> */}
-
-              {/* <InteractiveGoogleMap /> */}
-              <Intro />
-
-              {/* Map Controls */}
-              {/* <div className="absolute bottom-6 right-6 flex flex-col gap-2">
-                <button className="w-10 h-10 bg-white rounded-lg shadow-lg flex items-center justify-center hover:bg-gray-50 transition">
-                  <Plus size={20} />
-                </button>
-                <button className="w-10 h-10 bg-white rounded-lg shadow-lg flex items-center justify-center hover:bg-gray-50 transition">
-                  <span className="text-xl font-light">−</span>
-                </button>
-                <button className="w-10 h-10 bg-white rounded-lg shadow-lg flex items-center justify-center hover:bg-gray-50 transition">
-                  <MapPin size={20} />
-                </button>
-              </div> */}
+              <Intro selectedApartment={selectedApartment} />
 
               {/* Location Label */}
               <div className="absolute bottom-6 left-6 bg-white rounded-lg shadow-lg px-3 py-2">
