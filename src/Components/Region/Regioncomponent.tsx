@@ -5,7 +5,6 @@ import { GoPlus } from "react-icons/go";
 import { IoIosSearch } from "react-icons/io";
 import { IoLocationOutline } from "react-icons/io5";
 import { LuBuilding2 } from "react-icons/lu";
-import Buildings from "@/assets/building.svg";
 import {
   Dialog,
   DialogClose,
@@ -15,7 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/Components/ui/dialog";
-import { Eye, EyeOff, MapPin, Target } from "lucide-react";
+import { Eye, MapPin, Target } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 
@@ -38,7 +37,6 @@ const buildingData = {
 };
 
 export default function RegionComponent() {
-  const [openeye, setopeneye] = useState(false);
   const [buildings, setBuildings] = useState<Building[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 

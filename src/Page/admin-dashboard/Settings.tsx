@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Camera, Mail, Bell, MessageSquare, Laptop, Smartphone, Shield } from 'lucide-react';
+import { Camera, Mail, MessageSquare, Laptop, Smartphone, Shield } from 'lucide-react';
 import { Button } from '@/Components/ui/button';
 import { Label } from '@/Components/ui/label';
 import { Input } from '@/Components/ui/input';
