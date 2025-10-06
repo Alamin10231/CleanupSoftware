@@ -7,65 +7,30 @@ import { assets } from "../../assets/assets";
 import { useDispatch } from "react-redux";
 import { useLoginMutation } from "@/redux/features/auth/authApi";
 import { setCredentials } from "@/redux/features/auth/authSlice";
+import { toast } from "sonner";
+import { Button } from "../ui/button";
 
 export default function AdminLogin() {
-    const dispatch = useDispatch()
-    const [login, { isLoading, isError }] = useLoginMutation()
+    const dispatch = useDispatch();
+    const [login, { isLoading, isError }] = useLoginMutation();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [show, setShow] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState("");
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError("");
-        setLoading(true);
-
- try {
-      const res = await login({ email, password }).unwrap();
-      dispatch(setCredentials(res)); // includes user, access, refresh
-      alert("Login successful!");
-      console.log("User info:", res.user);
-    } catch (err) {
-      console.error("Login failed:", err);
-    }
-
-      //   try {
-      //       const response = await fetch(
-      //           "https://lisa-nondisposable-judgingly.ngrok-free.app/api/v1/users/login/",
-      //           {
-      //               method: "POST",
-      //               headers: {
-      //                   "Content-Type": "application/json",
-      //               },
-      //               body: JSON.stringify({
-      //                   email,
-      //                   password,
-      //               }),
-      //           }
-      //       );
-      //       console.log();
-
-      //       const data = await response.json();
-
-      //       if (!response.ok) {
-      //           throw new Error(data.message || "Login failed");
-      //       }
-
-      //       // Save token to local storage (optional)
-      //       localStorage.setItem("token", JSON.stringify(data));
-      //       console.log("Token:", data.refresh);
-
-      //       alert("Login successful!");
-      //       navigate("/");
-      //   } catch (err: any) {
-      //       setError(err.message);
-      //   } finally {
-      //       setLoading(false);
-      //   }
+        toast.success("Logging in...");
+        try {
+            const res = await login({ email, password }).unwrap();
+            dispatch(setCredentials(res)); // includes user, access, refresh
+            toast("Login successful!");
+            navigate("/");
+            console.log("User info:", res.user);
+        } catch (err) {
+            console.error("Login failed:", err);
+        }
     };
 
     return (
@@ -131,7 +96,7 @@ export default function AdminLogin() {
                     </div>
 
                     {/* Error Message */}
-                    {error && <p className="text-red-500 text-sm">{error}</p>}
+                    {isError && <p className="text-red-500 text-sm">{isError}</p>}
 
                     {/* Remember + Forgot */}
                     <div className="flex items-center justify-between text-sm">
@@ -151,17 +116,17 @@ export default function AdminLogin() {
                     </div>
 
                     {/* Login Button */}
-                    <button
+                    <Button
                         type="submit"
-                        disabled={loading}
+                        disabled={isLoading}
                         className={`w-full py-2 rounded-md transition ${
-                            loading
+                            isLoading
                                 ? "bg-gray-400 cursor-not-allowed"
                                 : "bg-blue-600 text-white hover:bg-blue-700"
                         }`}
                     >
-                        {loading ? "Logging in..." : "Login"}
-                    </button>
+                        {isLoading ? "Logging in..." : "Login"}
+                    </Button>
                 </form>
 
                 {/* Sign up link */}

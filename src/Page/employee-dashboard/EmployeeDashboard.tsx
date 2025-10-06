@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import { Users, ClipboardCheck, Pause, AlertCircle, DollarSign, Share2, FileText, Building2, MessageSquare, ChevronDown } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import React from 'react';
+import { Users, ClipboardCheck, Pause, AlertCircle, DollarSign, Share2, FileText, Building2, MessageSquare } from 'lucide-react';
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
 
 const EmployeeDashboard = () => {
-  const [selectedYear, setSelectedYear] = useState('Year');
 
   const stats = [
     { label: 'Total Task', value: '120', icon: Users, bgColor: 'bg-green-100', iconColor: 'text-green-600' },
@@ -130,7 +129,7 @@ const EmployeeDashboard = () => {
             </div>
           </div>
 
-          <Select onValueChange={(value) => setSelectedYear(value)} >
+          <Select >
             <SelectTrigger className="px-4 w-[96px0px] py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
                <SelectValue placeholder="Year" />
             </SelectTrigger>
