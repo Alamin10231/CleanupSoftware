@@ -7,7 +7,7 @@ interface Invoice {
   title: string;
   status: string;
   paymentMethod: string;
-  issuedDate: string; // format: YYYY-MM-DD
+  issuedDate: string;
   dueDate: string;
   location: string;
   summary: { subtotal: number; tax: number; total: number };
@@ -21,7 +21,7 @@ const InvoicesList = () => {
   // Filters state
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("All Status");
-  const [paymentMethod, setPaymentMethod] = useState("All Payment Method");
+  const [paymentMethod, setPaymentMethod] = useState("All");
   const [sort, setSort] = useState("Default");
 
   // Apply filters
@@ -99,19 +99,15 @@ const InvoicesList = () => {
           </select>
 
           {/* Payment Method */}
-          {/* Payment Method */}
           <select
             value={paymentMethod}
             onChange={(e) => setPaymentMethod(e.target.value)}
             className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer"
           >
-            <option>All</option>
-            <option>incoming</option>
-            <option>outgoing</option>
+            <option value="All">All</option>
+            <option value="Incomming">Incomming</option>
+            <option value="Outgoing">Outgoing</option>
           </select>
-
-
-
         </div>
 
         {/* Sort */}
