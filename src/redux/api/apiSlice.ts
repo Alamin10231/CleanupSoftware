@@ -18,6 +18,10 @@ export const apiSlice = createApi({
       query: () => '/plan/invoice/list/',
       providesTags: ["Invoice"],
     }),
+    getCalculationInvoice: builder.query<any, void>({
+      query: () => '/plan/calculations/',
+      providesTags: ["Invoice"]
+    }),
     addInvoice: builder.mutation({
       query: (invoice) => ({
         url: "/plan/invoice/list/",
@@ -29,4 +33,4 @@ export const apiSlice = createApi({
   }),
 });
 
-export const { useGetInvoicesQuery, useAddInvoiceMutation } = apiSlice;
+export const { useGetInvoicesQuery, useAddInvoiceMutation, useGetCalculationInvoiceQuery } = apiSlice;
