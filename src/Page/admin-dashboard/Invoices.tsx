@@ -11,7 +11,7 @@ const Invoices = () => {
   const { data, isLoading, isError } = useGetCalculationInvoiceQuery()
 
   if(isLoading) return <div>loading...</div>
-  console.log(data)
+  // console.log(data)
   return (
     <div>
       <div className="flex justify-between items-center">
