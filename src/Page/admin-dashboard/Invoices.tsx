@@ -1,9 +1,8 @@
-import { assets, InvoiceTopCard } from "@/assets/assets";
 import Button from "@/Components/Button";
-import Card from "@/Components/Card";
 import InvoicesList from "@/Components/InvoicesList";
+import { useGetInvoicesQuery } from "@/redux/api/apiSlice";
 import { FaPlus } from "react-icons/fa";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 
 
 const Invoices = () => {
@@ -21,22 +20,6 @@ const Invoices = () => {
 
         </div>
       </div>
-
-      <div className="grid grid-cols-4 gap-4 mt-6">
-        {InvoiceTopCard.map((card, index) => (
-          <Card
-            key={index}
-            title={card.title}
-            number={card.number}
-            iconSrc={assets[card.iconKey]}
-            iconAlt={card.iconAlt}
-          />
-        ))}
-      </div>
-
-      {/* Search Functionality */}
-
-
 
       {/*  Invoice Card */}
 

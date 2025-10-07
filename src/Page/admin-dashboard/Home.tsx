@@ -48,10 +48,10 @@ const Home = () => {
                         <a href="#price">Price</a>
                     </div>
                     <div className="flex gap-6">
-                        <button className="text-[#8241ED] border border-[#8241ED] px-4 py-2 cursor-pointer rounded-full hover:bg-[#8241ED] hover:text-white">
+                        <Link to="/adminlogin"><button className="text-[#8241ED] border border-[#8241ED] px-4 py-2 cursor-pointer rounded-full hover:bg-[#8241ED] hover:text-white">
                             Log In
-                        </button>
-                        <Button text="Sign Up" />
+                        </button></Link>
+                       <Link to="/signup"> <Button text="Sign Up" /></Link>
                     </div>
                 </div>
 
@@ -100,8 +100,8 @@ const Home = () => {
             </div>
 
             {/* Services Section */}
-            <div id="section">
-                <p className="text-center text-sm text-blue-500">Service</p>
+            <div>
+                <p className="text-center text-2xl py-5 text-blue-500">Service</p>
                 <h2 className="text-center text-5xl font-bold">
                     Choose the Service You Need
                 </h2>

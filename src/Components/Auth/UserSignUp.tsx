@@ -2,23 +2,81 @@ import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple, FaEye, FaEyeSlash, FaFacebook } from "react-icons/fa";
 import loginpicture from "../../assets/Image/loginpicture.jpg";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import { assets } from "../../assets/assets";
+
 export default function UserSignUp() {
+  // ✅ State variables
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [number, setNumber] = useState("");
   const [password, setPassword] = useState("");
-  const [cpassword, setcPassword] = useState("");
+  const [cpassword, setCPassword] = useState("");
   const [remember, setRemember] = useState(false);
-  const [show, setShow] = useState(false);      // Password show/hide
-  const [cshow, setCShow] = useState(false);    // Confirm Password show/hide
+  const [show, setShow] = useState(false);
+  const [cshow, setCShow] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const navigate = useNavigate();
+
+  // ✅ Handle form submit
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ email, number, password, cpassword, remember });
-    // এখানে API কল বা auth logic দিন
+    setError("");
+     const payload = {
+    name: firstName,
+    email: email,
+    phone: number,
+    password: password,
+    // role: "client", // add role here
   };
 
+    // Simple validation
+    if (password !== cpassword) {
+      setError("Passwords do not match!");
+      return;
+    }
+
+    if (!remember) {
+      setError("You must agree to the Terms and Privacy Policies.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await fetch(
+        "https://lisa-nondisposable-judgingly.ngrok-free.app/api/v1/users/register/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload
+           ),
+        }
+      );
+
+      const data = await response.json();
+      console.log("Response:", data);
+
+      if (!response.ok) {
+        throw new Error(data.message ||  JSON.stringify(data) || "Registration failed");
+      }
+
+      alert("Account created successfully!");
+      navigate("/verifyotp")
+    } catch (err: any) {
+      console.error("Error:", err);
+      setError(err.message || "Something went wrong, please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ UI
   return (
     <div className="min-h-screen flex">
       {/* Left Panel */}
@@ -34,137 +92,161 @@ export default function UserSignUp() {
       <div className="flex flex-col justify-center items-center w-full md:w-1/2 px-6 md:px-16 bg-white">
         {/* Logo */}
         <div className="flex self-end items-center space-x-2 mb-8">
-          <div className=" " />
-             <img src={assets.logo} alt="CleanUp Pro Logo" className="w-[140px] mx-auto" />
+          <img
+            src={assets.logo}
+            alt="CleanUp Pro Logo"
+            className="w-[140px] mx-auto"
+          />
         </div>
 
-        <h1 className="text-2xl relative  font-semibold mb-6 text-left self-start">
-  Sign Up
-</h1>
-<p className="text-left self-start pb-3">Let's get you all st up so you can access your personal account</p>
+        <h1 className="text-2xl font-semibold mb-6 self-start">Sign Up</h1>
+        <p className="text-left self-start pb-3">
+          Let’s get you all set up so you can access your personal account
+        </p>
 
+        {/* ✅ Signup Form */}
         <form onSubmit={handleSubmit} className="w-full max-w-full space-y-5">
           {/* First & Last Name */}
           <div className="flex items-center gap-3">
-            <div className="flex-1">
-              <fieldset className="border border-gray-400 rounded px-3 pt-1">
-                <legend className="text-sm px-1 text-[#1C1B1F]">First Name</legend>
-                <input
-                  type="text"
-                  defaultValue="John"
-                  className="w-full outline-none border-none pb-2 focus:ring-0 text-[#1C1B1F]"
-                />
-              </fieldset>
-            </div>
-            <div className="flex-1">
-              <fieldset className="border border-gray-400 rounded px-3 pt-1">
-                <legend className="text-sm px-1 text-[#1C1B1F]">Last Name</legend>
-                <input
-                  type="text"
-                  defaultValue="Doe"
-                  className="w-full outline-none border-none pb-2 focus:ring-0 text-[#1C1B1F]"
-                />
-              </fieldset>
-            </div>
+            <fieldset className="flex-1 border border-gray-400 rounded px-3 pt-1">
+              <legend className="text-sm px-1 text-[#1C1B1F]">
+                First Name
+              </legend>
+              <input
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="John"
+                className="w-full outline-none border-none pb-2 focus:ring-0 text-[#1C1B1F]"
+                required
+              />
+            </fieldset>
+            <fieldset className="flex-1 border border-gray-400 rounded px-3 pt-1">
+              <legend className="text-sm px-1 text-[#1C1B1F]">Last Name</legend>
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Doe"
+                className="w-full outline-none border-none pb-2 focus:ring-0 text-[#1C1B1F]"
+                required
+              />
+            </fieldset>
           </div>
 
           {/* Email & Phone */}
           <div className="flex items-center gap-3">
-            <div className="flex-1">
-              <fieldset className="border border-gray-400 rounded px-3 pt-1">
-                <legend className="text-sm px-1 text-[#1C1B1F]">Email</legend>
-                <input
-                  type="email"
-                  placeholder="john.doe@gmail.com"
-                  className="w-full outline-none border-none pb-2 focus:ring-0 text-[#1C1B1F]"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </fieldset>
-            </div>
-            <div className="flex-1">
-              <fieldset className="border border-gray-400 rounded px-3 pt-1">
-                <legend className="text-sm px-1 text-[#1C1B1F]">Phone Number</legend>
-                <input
-                  type="number"
-                  placeholder="********"
-                  className="w-full outline-none border-none pb-2 focus:ring-0 text-[#1C1B1F]"
-                  value={number}
-                  onChange={(e) => setNumber(e.target.value)}
-                />
-              </fieldset>
-            </div>
+            <fieldset className="flex-1 border border-gray-400 rounded px-3 pt-1">
+              <legend className="text-sm px-1 text-[#1C1B1F]">Email</legend>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="john.doe@gmail.com"
+                className="w-full outline-none border-none pb-2 focus:ring-0 text-[#1C1B1F]"
+                required
+              />
+            </fieldset>
+            <fieldset className="flex-1 border border-gray-400 rounded px-3 pt-1">
+              <legend className="text-sm px-1 text-[#1C1B1F]">Phone</legend>
+              <input
+                type="number"
+                value={number}
+                onChange={(e) => setNumber(e.target.value)}
+                placeholder="0123456789"
+                className="w-full outline-none border-none pb-2 focus:ring-0 text-[#1C1B1F]"
+                required
+              />
+            </fieldset>
           </div>
 
           {/* Password */}
-          <div className="relative w-full">
+          <div className="relative">
             <label className="block text-sm font-medium text-gray-600 mb-1">
               Password
             </label>
             <input
               type={show ? "text" : "password"}
-              className="w-full border border-gray-300 rounded-md px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="••••••••"
               required
             />
             <button
               type="button"
               onClick={() => setShow(!show)}
-              className="absolute right-3 top-9 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              className="absolute right-3 top-11 -translate-y-1/2 text-gray-500 hover:text-gray-700"
             >
               {show ? <FaEyeSlash /> : <FaEye />}
             </button>
           </div>
 
           {/* Confirm Password */}
-          <div className="relative w-full">
+          <div className="relative">
             <label className="block text-sm font-medium text-gray-600 mb-1">
               Confirm Password
             </label>
             <input
               type={cshow ? "text" : "password"}
+              value={cpassword}
+              onChange={(e) => setCPassword(e.target.value)}
               className="w-full border border-gray-300 rounded-md px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-400"
               placeholder="••••••••"
-              value={cpassword}
-              onChange={(e) => setcPassword(e.target.value)}
               required
             />
             <button
               type="button"
               onClick={() => setCShow(!cshow)}
-              className="absolute right-3 top-9 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              className="absolute right-3 top-11 -translate-y-1/2 text-gray-500 hover:text-gray-700"
             >
               {cshow ? <FaEyeSlash /> : <FaEye />}
             </button>
           </div>
 
-          {/* Remember + Forgot */}
-          <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
-              <p className="font-semibold">I agree to all the <span className="text-[#FF8682]">Teams</span> and <span className="text-[#FF8682]">Privacy Policies</span></p>
-            </label>
-           
-          </div>
+          {/* Terms */}
+          <label className="flex items-center space-x-2 text-sm">
+            <input
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span>
+              I agree to all the <span className="text-[#FF8682]">Terms</span>{" "}
+              and <span className="text-[#FF8682]">Privacy Policies</span>
+            </span>
+          </label>
 
-          {/* Submit */}
+          {/* Error Message */}
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+
+          {/* Submit Button */}
+         {/* <Link to="/verifyotp"> */}
+         
           <button
             type="submit"
-            className="w-full bg-[#2463EA] text-white py-2 rounded-md hover:bg-blue-700 transition"
+            disabled={loading}
+            className={`w-full py-2 rounded-md transition ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-[#2463EA] text-white hover:bg-blue-700"
+            }`}
           >
-           Create Account
+            {loading ? "Creating..." : "Create Account"}
           </button>
+         {/* </Link> */}
         </form>
 
+        {/* Already have an account */}
+        <p className="py-2">
+          Already have an account?{" "}
+          <Link to="/adminlogin">
+            <span className="text-[#FF8682]">Login</span>
+          </Link>
+        </p>
+
         {/* Social login */}
-          <p className="py-2">Already have an account? <Link to="/adminlogin"><span className="text-[#FF8682]">login</span></Link></p>
         <div className="flex items-center my-6 w-full max-w-sm">
           <div className="flex-grow border-t border-gray-300" />
           <span className="mx-4 text-gray-500 text-sm">Or sign up with</span>
@@ -172,27 +254,18 @@ export default function UserSignUp() {
         </div>
 
         <div className="flex gap-4">
-          <button
-            type="button"
-            className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50"
-          >
+          <button className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50">
             <FaFacebook className="text-blue-600 mr-2" />
             Facebook
           </button>
-          <button
-            type="button"
-            className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50"
-          >
+          <button className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50">
             <FcGoogle className="mr-2" />
             Google
           </button>
-           <button
-    type="button"
-    className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50"
-  >
-    <FaApple className="text-black mr-2" />
-    Apple
-  </button>
+          <button className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50">
+            <FaApple className="text-black mr-2" />
+            Apple
+          </button>
         </div>
       </div>
     </div>

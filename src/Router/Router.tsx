@@ -33,8 +33,9 @@ import EmployeeInvoicees from "@/Page/employee-dashboard/EmployeeInvoicees";
 import EmployeeSubscription from "@/Page/employee-dashboard/EmployeeSubscription";
 import CreateInvoiceForm from "@/Page/admin-dashboard/create-invoice";
 import NotFound from "@/Page/NotFound";
-import Buildingregions from "@/Page/employee-dashboard/building-regions";
-import RegionDashboard from "@/Page/employee-dashboard/building-tasks";
+// import Buildingregions from "@/Page/employee-dashboard/building-regions";
+// import RegionDashboard from "@/Page/employee-dashboard/building-tasks";
+import Verifyotp from "@/Components/Auth/Verifyotp";
 
 const Router = () => {
     return (
@@ -89,8 +90,9 @@ const Router = () => {
             </Route>
 
             {/* Auth routes */}
-            <Route path="adminlogin" element={<AdminLogin />} />
+            <Route path="login" element={<AdminLogin />} />
             <Route path="signup" element={<UserSignUp />} />
+            <Route path="verifyotp" element={<Verifyotp />} />
             <Route path="forgetpassword" element={<ForgetPassword />} />
             <Route path="verifycode" element={<VerifyCode />} />
             <Route path="setpassword" element={<SetPassword />} />
