@@ -12,15 +12,15 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ["User", "Invoice"],
+  tagTypes: ["User", "Invoice", "AddEmployee"],
   endpoints: (builder) => ({
     getInvoices: builder.query<any, void>({
-      query: () => '/plan/invoice/list/',
+      query: () => "/plan/invoice/list/",
       providesTags: ["Invoice"],
     }),
     getCalculationInvoice: builder.query<any, void>({
-      query: () => '/plan/calculations/',
-      providesTags: ["Invoice"]
+      query: () => "/plan/calculations/",
+      providesTags: ["Invoice"],
     }),
     addInvoice: builder.mutation({
       query: (invoice) => ({
@@ -29,8 +29,26 @@ export const apiSlice = createApi({
         body: invoice,
       }),
       invalidatesTags: ["Invoice"],
-    })
+    }),
+    getAllClient: builder.query<any, void>({
+      query: () => "users/?search=client&",
+      providesTags: ["User"],
+    }),
+    addEmployee: builder.mutation({
+      query: (add_employee) => ({
+        url: "employees/",
+        method: "POST",
+        body: add_employee,
+      }),
+      invalidatesTags: ["AddEmployee"],
+    }),
   }),
 });
 
-export const { useGetInvoicesQuery, useAddInvoiceMutation, useGetCalculationInvoiceQuery } = apiSlice;
+export const {
+  useGetInvoicesQuery,
+  useAddInvoiceMutation,
+  useAddEmployeeMutation,
+  useGetCalculationInvoiceQuery,
+  useGetAllClientQuery,
+} = apiSlice;
