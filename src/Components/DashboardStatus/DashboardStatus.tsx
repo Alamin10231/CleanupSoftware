@@ -5,6 +5,9 @@ import vector from "../../assets/Image/Vector.png";
 import vector1 from "../../assets/Image/Vector (1).png";
 import house from "../../assets/Image/solar_card-outline.png";
 import { IoIosArrowUp } from "react-icons/io";
+import { Button } from "../ui/button";
+// import Button from "../Button";
+// import { Button } from '@/components/ui/button';
 
 export default function DashboardStats() {
     const [activeTab, setActiveTab] = useState("month");
@@ -80,7 +83,7 @@ export default function DashboardStats() {
                     </div>
 
                     <div className="flex space-x-2 items-center">
-                        <button className="px-4 py-2 bg-blue-500 text-white text-md font-medium flex items-center gap-2 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <Button className="px-4 py-2 bg-blue-500 text-white text-md font-medium flex items-center gap-2 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <svg
                                 className="w-4 h-4"
                                 fill="none"
@@ -95,10 +98,10 @@ export default function DashboardStats() {
                                     d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.001 8.001 0 01-15.356-2m15.356 2H15"
                                 ></path>
                             </svg>
-                            Refresh
-                        </button>
+                            Refresh 
+                        </Button>
 
-                        <button className="px-4 py-2 bg-blue-500 text-white text-md font-medium flex items-center gap-2 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <Button className="px-4 py-2 bg-blue-500 text-white text-md font-medium flex items-center gap-2 rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
                             <svg
                                 className="w-4 h-4"
                                 fill="none"
@@ -114,7 +117,7 @@ export default function DashboardStats() {
                                 ></path>
                             </svg>
                             Export
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>

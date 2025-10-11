@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { Subscription } from "../../assets/assets";
 
 export const apiSlice = createApi({
   reducerPath: "api",
@@ -12,12 +13,13 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ["User", "Invoice"],
+  tagTypes: ["User", "Invoice", "subscription"],
   endpoints: (builder) => ({
     getInvoices: builder.query<any, void>({
-      query: () => '/plan/invoice/list/',
+      query: () => "/plan/invoice/list/",
       providesTags: ["Invoice"],
     }),
+
     addInvoice: builder.mutation({
       query: (invoice) => ({
         url: "/plan/invoice/list/",
@@ -25,7 +27,21 @@ export const apiSlice = createApi({
         body: invoice,
       }),
       invalidatesTags: ["Invoice"],
-    })
+    }),
+
+    getSubscription: builder.query<any, void>({
+      query: () => "/plan/subscription/list/",
+      providesTags: ["subscription"],
+    }),
+
+    addSubscription: builder.mutation({
+      query: (subscription) => ({
+        url: "/plan/invoice/list/",
+        method: "POST",
+        body: subscription,
+      }),
+      invalidatesTags: ["subscription"],
+    }),
   }),
 });
 
