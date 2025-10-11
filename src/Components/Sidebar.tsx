@@ -48,32 +48,29 @@ const Sidebar: React.FC = () => {
     {
       heading: null,
       items: [
-        {
-          icon: assets.Dashboard_icon,
-          label: "Dashboard",
-          path: "/dashboard",
-        },
-        {
-          icon: assets.subscriptionss,
-          label: "Subscriptions",
-          path: "/subscriptions",
-        },
-        { icon: assets.region, label: "Region & Building", path: "/region" },
-        { icon: assets.invoice, label: "Invoices", path: "/invoice" },
-        { icon: assets.report, label: "Reports", path: "/report" },
-        { icon: assets.Froms, label: "Forms", path: "/forms" },
-        { icon: assets.Communication, label: "Communication", path: "/communication" },
-        { icon: assets.setting, label: "Settings", path: "/setting" },
+        { icon: assets.Dashboard_icon, label: "Dashboard", path: "/employee-dashboard" },
+        { icon: assets.subscriptionss, label: "Subscriptions", path: "/employee-subscriptions" },
+        // { icon: assets.region, label: "Region", path: "/employee-region" },
+        { icon: assets.region, label: "Building & Region", path: "/employee-building" },
+        { icon: assets.invoice, label: "Invoices", path: "/employee-invoice" },
+        { icon: assets.report, label: "Reports", path: "/employee-report" },
+        { icon: assets.Froms, label: "Froms", path: "/employee-forms" },
+        { icon: assets.Communication, label: "Communication", path: "/employee-communication" },
+
       ],
     },
+    {
+      heading: "ANALYTICS",
+      items: [
+        { icon: assets.setting, label: "Settings", path: "/employee-setting" },
+        // { icon: assets.help, label: "Help", path: "/employee-help" },
+
+      ],
+    },
+
   ];
 
-  if (role === "supervisor") {
-    employee[0].items.push({ icon: assets.report, label: "Add Report", path: "/add-report" });
-  }
 
-  // Select correct menu based on role
-  const menuData = role === "admin" ? admin : employee;
 
   return (
     <div className="w-60 h-screen bg-white border-r border-gray-200 flex flex-col">

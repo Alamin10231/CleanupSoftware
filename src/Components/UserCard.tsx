@@ -1,3 +1,4 @@
+import { useGetAllClientQuery } from "@/redux/api/apiSlice";
 import React from "react";
 import { FaEnvelope, FaPhoneAlt, FaMapMarkerAlt, FaEdit, FaTrash, FaEye } from "react-icons/fa";
 
@@ -26,6 +27,8 @@ interface UserCardProps {
 }
 
 const UserCard: React.FC<UserCardProps> = ({ user }) => {
+
+  
   return (
     <div className="border border-gray-300 rounded-lg p-4 shadow-lg bg-white w-full">
       {/* Top Section */}

@@ -13,10 +13,14 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ["User", "Invoice", "subscription"],
+  tagTypes: ["User", "Invoice", "AddEmployee"],
   endpoints: (builder) => ({
     getInvoices: builder.query<any, void>({
       query: () => "/plan/invoice/list/",
+      providesTags: ["Invoice"],
+    }),
+    getCalculationInvoice: builder.query<any, void>({
+      query: () => "/plan/calculations/",
       providesTags: ["Invoice"],
     }),
 
@@ -28,21 +32,25 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ["Invoice"],
     }),
-
-    getSubscription: builder.query<any, void>({
-      query: () => "/plan/subscription/list/",
-      providesTags: ["subscription"],
+    getAllClient: builder.query<any, void>({
+      query: () => "users/?search=client&",
+      providesTags: ["User"],
     }),
-
-    addSubscription: builder.mutation({
-      query: (subscription) => ({
-        url: "/plan/invoice/list/",
+    addEmployee: builder.mutation({
+      query: (add_employee) => ({
+        url: "employees/",
         method: "POST",
-        body: subscription,
+        body: add_employee,
       }),
-      invalidatesTags: ["subscription"],
+      invalidatesTags: ["AddEmployee"],
     }),
   }),
 });
 
-export const { useGetInvoicesQuery, useAddInvoiceMutation } = apiSlice;
+export const {
+  useGetInvoicesQuery,
+  useAddInvoiceMutation,
+  useAddEmployeeMutation,
+  useGetCalculationInvoiceQuery,
+  useGetAllClientQuery,
+} = apiSlice;
