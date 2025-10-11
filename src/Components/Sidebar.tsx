@@ -46,8 +46,8 @@ const Sidebar: React.FC = () => {
       items: [
         { icon: assets.Dashboard_icon, label: "Dashboard", path: "/employee-dashboard" },
         { icon: assets.subscriptionss, label: "Subscriptions", path: "/employee-subscriptions" },
-        { icon: assets.region, label: "Region", path: "/employee-region" },
-        { icon: assets.region, label: "Building", path: "/employee-building" },
+        // { icon: assets.region, label: "Region", path: "/employee-region" },
+        { icon: assets.region, label: "Building & Region", path: "/employee-building" },
         { icon: assets.invoice, label: "Invoices", path: "/employee-invoice" },
         { icon: assets.report, label: "Reports", path: "/employee-report" },
         { icon: assets.Froms, label: "Froms", path: "/employee-forms" },
@@ -59,7 +59,7 @@ const Sidebar: React.FC = () => {
       heading: "ANALYTICS",
       items: [
         { icon: assets.setting, label: "Settings", path: "/employee-setting" },
-        { icon: assets.help, label: "Help", path: "/employee-help" },
+        // { icon: assets.help, label: "Help", path: "/employee-help" },
 
       ],
     },
