@@ -1,0 +1,66 @@
+[
+  {
+    "date": "07/15/2024",
+    "vendor": "Office Depot",
+    "category": "Supplies",
+    "amount": 125.0,
+    "status": "Submitted",
+    "type": "Expense"
+  },
+  {
+    "date": "07/14/2024",
+    "vendor": "Tech Solutions",
+    "category": "Software",
+    "amount": 350.0,
+    "status": "Approved",
+    "type": "Expense"
+  },
+  {
+    "date": "07/13/2024",
+    "vendor": "Travel Agency",
+    "category": "Travel",
+    "amount": 500.0,
+    "status": "Pending",
+    "type": "Expense"
+  },
+  {
+    "date": "07/12/2024",
+    "vendor": "Catering Co",
+    "category": "Meals",
+    "amount": 75.0,
+    "status": "Submitted",
+    "type": "Expense"
+  },
+  {
+    "date": "07/11/2024",
+    "vendor": "Consulting Group",
+    "category": "Consulting",
+    "amount": 1000.0,
+    "status": "Approved",
+    "type": "Sales"
+  },
+  {
+    "date": "07/10/2024",
+    "vendor": "Marketing Hub",
+    "category": "Marketing",
+    "amount": 600.0,
+    "status": "Approved",
+    "type": "Sales"
+  },
+  {
+    "date": "07/09/2024",
+    "vendor": "Office Supplies Ltd",
+    "category": "Stationery",
+    "amount": 200.0,
+    "status": "Submitted",
+    "type": "Expense"
+  },
+  {
+    "date": "07/08/2024",
+    "vendor": "Tech World",
+    "category": "Hardware",
+    "amount": 1200.0,
+    "status": "Pending",
+    "type": "Sales"
+  }
+]

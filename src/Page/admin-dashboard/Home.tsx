@@ -4,6 +4,7 @@ import Button from "@/Components/Button";
 import { Link, NavLink } from "react-router";
 import PricingSection from "@/Components/PricingSection";
 import Discover_More from "@/Components/Discover_More";
+import Footer from "@/Components/Footer";
 
 const Home = () => {
     const faqs = [
@@ -42,8 +43,9 @@ const Home = () => {
                     </Link>
                     <div className="flex gap-10 items-center">
                         <NavLink to="/home">Home</NavLink>
-                        <NavLink to="#">About Us</NavLink>
-                        <NavLink to="#">Contact Us</NavLink>
+                        <a href="#section">Service</a>
+                        {/* <NavLink to="#">Contact Us</NavLink> */}
+                        <a href="#price">Price</a>
                     </div>
                     <div className="flex gap-6">
                         <Link to="/adminlogin"><button className="text-[#8241ED] border border-[#8241ED] px-4 py-2 cursor-pointer rounded-full hover:bg-[#8241ED] hover:text-white">
@@ -307,8 +309,13 @@ const Home = () => {
             </div>
 
             {/* Pricing */}
-            <PricingSection />
+            <div id="price">
+                <PricingSection />
+            </div>
+
             <Discover_More />
+
+            <Footer/>
         </div>
     );
 };

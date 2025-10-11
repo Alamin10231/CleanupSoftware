@@ -38,10 +38,10 @@ import NotFound from "@/Page/NotFound";
 import Verifyotp from "@/Components/Auth/Verifyotp";
 
 const Router = () => {
-  return (
-    <Routes>
-      {/* Public Home */}
-      <Route path="home" element={<Home />} />
+    return (
+        <Routes>
+            {/* Public Home */}
+            <Route path="home" element={<Home />} />
             <Route path="/" element={<Layout />}>
                 {/* admin */}
                 <Route index element={<Dashboard />} />

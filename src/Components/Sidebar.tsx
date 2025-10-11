@@ -126,7 +126,7 @@ const Sidebar: React.FC = () => {
               <div key={index} className="mb-6">
                 {/* Heading */}
                 {section.heading && (
-                  <h2 className="px-6 mb-2 text-base font-bold text-gray-900 uppercase tracking-wide">
+                  <h2 className="px-6 mb-2 text- font-bold text-gray-900 uppercase tracking-wide">
                     {section.heading}
                   </h2>
                 )}
@@ -138,7 +138,7 @@ const Sidebar: React.FC = () => {
                         to={item.path}
                         end
                         className={({ isActive }) =>
-                          `group flex items-center gap-3 px-6 py-2 rounded-lg text-base font-medium cursor-pointer transition-all duration-300
+                          `group flex items-center gap-3 px-6 py-2 rounded-lg text-sm font-medium cursor-pointer transition-all duration-300
                       ${isActive
                             ? "text-white bg-gradient-to-r from-transparent via-[#2463EA] to-[#7A90F7] shadow-lg shadow-[#7A90F7]/50"
                             : "text-gray-500 hover:bg-blue-50 hover:text-blue-600"
