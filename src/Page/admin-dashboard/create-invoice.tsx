@@ -6,7 +6,6 @@ import { Input } from '@/Components/ui/input';
 import { Button } from '@/Components/ui/button';
 import { Textarea } from '@/Components/ui/textarea';
 import { Checkbox } from '@/Components/ui/checkbox';
-import { useAddInvoiceMutation } from '@/redux/api/apiSlice';
 
 const CreateInvoiceForm = () => {
   const { register, control, handleSubmit, watch } = useForm({
@@ -42,7 +41,7 @@ const CreateInvoiceForm = () => {
       ],
     },
   });
-  const [addInvoice, { isLoading, isError }] = useAddInvoiceMutation()
+//   const [addInvoice, { isLoading, isError }] = useAdd
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'line_items',
@@ -50,7 +49,7 @@ const CreateInvoiceForm = () => {
 
   const onSubmit = (data) => {
     console.log(data);
-    addInvoice(data)
+   //  addInvoice(data)
   };
 
   return (

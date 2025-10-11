@@ -36,6 +36,7 @@ import NotFound from "@/Page/NotFound";
 // import Buildingregions from "@/Page/employee-dashboard/building-regions";
 // import RegionDashboard from "@/Page/employee-dashboard/building-tasks";
 import Verifyotp from "@/Components/Auth/Verifyotp";
+import AddReportForm from "@/Page/supervisor-dashboard/AddReport";
 
 const Router = () => {
     return (
@@ -61,32 +62,33 @@ const Router = () => {
                 <Route path="add-new-plan" element={<AddNewPlanForm />} />
                 <Route path="add-services" element={<AddNewServiceForm />} />
 
-                {/* Employee */}
+                {/* Employee & Supervisor */}
                 <Route
-                    path="/employee-dashboard"
+                    path="/dashboard"
                     element={<EmployeeDashboard />}
                 />
                 <Route
-                    path="/employee-building"
+                    path="/building"
                     element={<EmployeeBuilding />}
                 />
                 <Route
-                    path="/employee-communication"
+                    path="/communication"
                     element={<EmployeeCommunication />}
                 />
-                <Route path="/employee-setting" element={<EmployeeSetting />} />
-                <Route path="/employee-forms" element={<EmployeeForms />} />
-                <Route path="/employee-help" element={<EmployeeHelp />} />
-                <Route path="/employee-region" element={<EmployeeRegion />} />
-                <Route path="/employee-report" element={<EmployeeReports />} />
+                <Route path="/setting" element={<EmployeeSetting />} />
+                <Route path="/forms" element={<EmployeeForms />} />
+                <Route path="/help" element={<EmployeeHelp />} />
+                <Route path="/region" element={<EmployeeRegion />} />
+                <Route path="/report" element={<EmployeeReports />} />
                 <Route
-                    path="/employee-invoice"
+                    path="/invoice"
                     element={<EmployeeInvoicees />}
                 />
                 <Route
-                    path="/employee-subscriptions"
+                    path="/subscriptions"
                     element={<EmployeeSubscription />}
                 />
+                <Route path="/add-report" element={<AddReportForm />} />
             </Route>
 
             {/* Auth routes */}
