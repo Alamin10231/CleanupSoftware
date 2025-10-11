@@ -41,7 +41,7 @@ const Navbar = () => {
         try {
             dispatch(logout());
             console.log("User logged out");
-            navigator("/adminlogin");
+            navigator("/login");
         } catch (error) {
             console.log(error);
         }
