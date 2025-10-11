@@ -22,12 +22,9 @@ import SubscriptionPlan from "@/Components/Subscription/SubscriptionPlan";
 import AddNewPlanForm from "@/Page/admin-dashboard/add-new-plan";
 import AddNewServiceForm from "@/Page/admin-dashboard/add-services";
 import EmployeeDashboard from "@/Page/employee-dashboard/EmployeeDashboard";
-import EmployeeBuilding from "@/Page/employee-dashboard/EmployeeBuilding";
 import EmployeeCommunication from "@/Page/employee-dashboard/EmployeeCommunication";
 import EmployeeSetting from "@/Page/employee-dashboard/EmployeeSetting";
 import EmployeeForms from "@/Page/employee-dashboard/EmployeeForms";
-import EmployeeHelp from "@/Page/employee-dashboard/EmployeeHelp";
-import EmployeeRegion from "@/Page/employee-dashboard/EmployeeRegion";
 import EmployeeReports from "@/Page/employee-dashboard/EmployeeReports";
 import EmployeeInvoicees from "@/Page/employee-dashboard/EmployeeInvoicees";
 import EmployeeSubscription from "@/Page/employee-dashboard/EmployeeSubscription";
@@ -36,6 +33,8 @@ import NotFound from "@/Page/NotFound";
 // import Buildingregions from "@/Page/employee-dashboard/building-regions";
 // import RegionDashboard from "@/Page/employee-dashboard/building-tasks";
 import Verifyotp from "@/Components/Auth/Verifyotp";
+import Buildingregions from "@/Page/employee-dashboard/Buildingregions";
+import RegionDashboard from "@/Page/employee-dashboard/RegionDashboard";
 
 const Router = () => {
     return (
@@ -68,7 +67,7 @@ const Router = () => {
                 />
                 <Route
                     path="/employee-building"
-                    element={<EmployeeBuilding />}
+                    element={<RegionDashboard />}
                 />
                 <Route
                     path="/employee-communication"
@@ -76,8 +75,7 @@ const Router = () => {
                 />
                 <Route path="/employee-setting" element={<EmployeeSetting />} />
                 <Route path="/employee-forms" element={<EmployeeForms />} />
-                <Route path="/employee-help" element={<EmployeeHelp />} />
-                <Route path="/employee-region" element={<EmployeeRegion />} />
+                <Route path="/employee-region" element={<Buildingregions />} />
                 <Route path="/employee-report" element={<EmployeeReports />} />
                 <Route
                     path="/employee-invoice"

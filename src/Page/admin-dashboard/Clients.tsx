@@ -39,11 +39,6 @@ const Clients = () => {
   const [users, setUsers] = useState<UserData[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
 
-  // const { data, isLoading, isError } = useGetAllClientQuery()
-  // console.log(data.results);
-  //  const allClietData = data.results
-  //  console.log("client data", allClietData)
-
   useEffect(() => {
     fetch("/User.json")
       .then((res) => res.json())
@@ -60,7 +55,6 @@ const Clients = () => {
 
   return (
     <div className="flex flex-col h-screen mt-6">
-      {/* <div> All client data: {allClietData.length}</div> */}
       {/* Fixed Top Section */}
       <div className="flex-shrink-0">
         {/* Title */}
@@ -157,17 +151,12 @@ const Clients = () => {
         {/* Top Card */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mt-6">
           <Card
-            title="Total Service"
+            title="Total Client"
             number="04"
             iconSrc={assets.total_service}
             iconAlt="An icon of a shopping cart"
           />
-          <Card
-            title="Avg Rating"
-            number="4.6"
-            iconSrc={assets.AVG_rating}
-            iconAlt="An icon of a shopping cart"
-          />
+        
           <Card
             title="Total Revenue"
             number={2540000}
