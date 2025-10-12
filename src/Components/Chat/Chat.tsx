@@ -1,6 +1,6 @@
 // Chat.tsx
-import { error } from "console";
-import  { useEffect, useMemo, useRef, useState } from "react";
+
+import { useEffect, useMemo, useRef, useState } from "react";
 
 /**
  * ---- Expected backend protocol (Django Channels) ----
@@ -27,7 +27,12 @@ type OutgoingPayload =
   | { action: "message"; name: string; text: string }
   | { action: "typing"; name: string; isTyping: boolean };
 
-type ChatMessage = { name: string; text: string; ts: number; kind: "user" | "system" };
+type ChatMessage = {
+  name: string;
+  text: string;
+  ts: number;
+  kind: "user" | "system";
+};
 
 type Props = {
   /** WebSocket URL from Django Channels, e.g. ws://localhost:8000/ws/chat/room1/ */
@@ -46,7 +51,10 @@ export default function Chat({ wsUrl }: Props) {
 
   // Auto-scroll on new message
   useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
+    listRef.current?.scrollTo({
+      top: listRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [messages]);
 
   // Connect WebSocket once when stage becomes "chat"
@@ -66,11 +74,19 @@ export default function Chat({ wsUrl }: Props) {
         if (data.event === "message") {
           setMessages((prev) => [
             ...prev,
-            { name: data.name, text: data.text, ts: data.ts ?? Date.now(), kind: "user" },
+            {
+              name: data.name,
+              text: data.text,
+              ts: data.ts ?? Date.now(),
+              kind: "user",
+            },
           ]);
         } else if (data.event === "typing") {
           // Track who is typing (expire after 3s)
-          setTypers((prev) => ({ ...prev, [data.name]: data.isTyping ? Date.now() : 0 }));
+          setTypers((prev) => ({
+            ...prev,
+            [data.name]: data.isTyping ? Date.now() : 0,
+          }));
         } else if (data.event === "system") {
           pushSystem(data.text);
         }
@@ -86,8 +102,8 @@ export default function Chat({ wsUrl }: Props) {
     return () => {
       try {
         ws.close();
-      } catch {
-        console.log(error)
+      } catch(err) {
+        console.log(err)
       }
       wsRef.current = null;
     };
@@ -124,7 +140,10 @@ export default function Chat({ wsUrl }: Props) {
   }
 
   function pushSystem(text: string) {
-    setMessages((prev) => [...prev, { name: "system", text, ts: Date.now(), kind: "system" }]);
+    setMessages((prev) => [
+      ...prev,
+      { name: "system", text, ts: Date.now(), kind: "system" },
+    ]);
   }
 
   function handleStart() {
@@ -137,7 +156,10 @@ export default function Chat({ wsUrl }: Props) {
     if (!t) return;
     safeSend({ action: "message", name, text: t });
     // Optimistic add
-    setMessages((prev) => [...prev, { name, text: t, ts: Date.now(), kind: "user" }]);
+    setMessages((prev) => [
+      ...prev,
+      { name, text: t, ts: Date.now(), kind: "user" },
+    ]);
     setText("");
     // Stop typing state
     sendTyping(false);
@@ -156,12 +178,17 @@ export default function Chat({ wsUrl }: Props) {
     <div className="flex flex-col h-[720px] bg-white border rounded-2xl overflow-hidden">
       {stage === "name" ? (
         <div className="max-w-md w-full mx-auto mt-6 rounded-2xl border border-slate-200 bg-white shadow p-5">
-          <h1 className="text-lg font-semibold text-slate-800">Enter your name</h1>
+          <h1 className="text-lg font-semibold text-slate-800">
+            Enter your name
+          </h1>
           <p className="mt-1 text-sm text-slate-500">
             This name will be visible to everyone in the room.
           </p>
 
-          <label htmlFor="displayName" className="mt-4 block text-sm font-medium text-slate-700">
+          <label
+            htmlFor="displayName"
+            className="mt-4 block text-sm font-medium text-slate-700"
+          >
             Display name
           </label>
           <input
@@ -192,22 +219,33 @@ export default function Chat({ wsUrl }: Props) {
               <div className="h-8 w-8 rounded-full bg-emerald-600 text-white grid place-items-center text-sm font-semibold">
                 {name[0]?.toUpperCase() || "?"}
               </div>
-              <div className="font-medium text-slate-800">Realtime group chat</div>
+              <div className="font-medium text-slate-800">
+                Realtime group chat
+              </div>
             </div>
             <div className="text-sm text-slate-500">
-              Signed in as <span className="font-medium text-slate-700">{name}</span>
+              Signed in as{" "}
+              <span className="font-medium text-slate-700">{name}</span>
             </div>
           </div>
 
           {/* Messages */}
-          <div ref={listRef} className="flex-1 bg-white overflow-y-auto px-3 py-4 space-y-3">
+          <div
+            ref={listRef}
+            className="flex-1 bg-white overflow-y-auto px-3 py-4 space-y-3"
+          >
             {messages.length === 0 ? (
               <div className="h-full grid place-items-center">
                 <p className="text-slate-400 text-sm">No messages yet</p>
               </div>
             ) : (
               messages.map((m, i) => (
-                <div key={i} className={`flex ${m.name === name ? "justify-end" : "justify-start"}`}>
+                <div
+                  key={i}
+                  className={`flex ${
+                    m.name === name ? "justify-end" : "justify-start"
+                  }`}
+                >
                   <div
                     className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm shadow ${
                       m.kind === "system"
@@ -218,7 +256,9 @@ export default function Chat({ wsUrl }: Props) {
                     }`}
                   >
                     {m.kind !== "system" && m.name !== name && (
-                      <div className="text-[11px] opacity-70 mb-0.5">{m.name}</div>
+                      <div className="text-[11px] opacity-70 mb-0.5">
+                        {m.name}
+                      </div>
                     )}
                     <div>{m.text}</div>
                   </div>
@@ -229,7 +269,9 @@ export default function Chat({ wsUrl }: Props) {
 
           {/* Typing indicator */}
           {someoneTyping && (
-            <div className="px-4 py-1 text-xs text-slate-500 border-t border-slate-100">{someoneTyping}</div>
+            <div className="px-4 py-1 text-xs text-slate-500 border-t border-slate-100">
+              {someoneTyping}
+            </div>
           )}
 
           {/* Composer */}
