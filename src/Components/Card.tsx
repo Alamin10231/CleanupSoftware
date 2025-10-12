@@ -2,9 +2,9 @@ import React from "react";
 
 interface CardProps {
   title: string;
-  number: string | number;
+  number?: string | number;
   iconSrc: string; 
-  iconAlt: string; 
+  iconAlt?: string; 
 }
 
 const Card: React.FC<CardProps> = ({ title, number, iconSrc, iconAlt }) => {

@@ -1,5 +1,8 @@
-import  { useState } from "react";
-
+import { assets } from "@/assets/assets";
+import Card from "@/Components/Card";
+import { useState } from "react";
+import { LuEye } from "react-icons/lu";
+import { useNavigate } from "react-router-dom";
 type Building = {
   name: string;
   address: string;
@@ -13,38 +16,36 @@ const buildings: Building[] = [
   { name: "Building C", address: "101 Maple Drive, Anytown, UAE", status: "Active", employees: 30 },
   { name: "Building D", address: "222 Cedar Lane, Anytown, UAE", status: "Active", employees: 80 },
   { name: "Building E", address: "533 Birch Road, Anytown, UAE", status: "Inactive", employees: 40 },
+  { name: "Building F", address: "533 Birch Road, Anytown, UAE", status: "Active", employees: 40 },
+  { name: "Building G", address: "533 Birch Road, Anytown, UAE", status: "Inactive", employees: 40 },
+  { name: "Building H", address: "533 Birch Road, Anytown, UAE", status: "Active", employees: 40 },
+  { name: "Building I", address: "533 Birch Road, Anytown, UAE", status: "Inactive", employees: 40 },
+  { name: "Building J", address: "533 Birch Road, Anytown, UAE", status: "Active", employees: 40 },
 ];
 
 export default function RegionDashboard() {
   const [page, setPage] = useState(1);
-  const pageSize = 2;
-
+  const pageSize = 5;
   const totalPages = Math.ceil(buildings.length / pageSize);
   const startIndex = (page - 1) * pageSize;
   const paginatedBuildings = buildings.slice(startIndex, startIndex + pageSize);
+  const navigate = useNavigate();
+  // const handleView = (buildingName: string) => { `navigate(/employee-building/${encodeURIComponent(buildingName)}`);
+  const handleView = (buildingName: string) => {
+  navigate(`/employee-building/${encodeURIComponent(buildingName)}`);
+};
+
 
   return (
-    <div className="p-6 space-y-6">
-   
-
-
-      {/* Region Details as Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white shadow rounded-lg p-4 text-center">
-          <p className="text-gray-500 text-sm">Status</p>
-          <p className="text-lg font-semibold text-green-600">Active</p>
-        </div>
-        <div className="bg-white shadow rounded-lg p-4 text-center">
-          <p className="text-gray-500 text-sm">Total Employees</p>
-          <p className="text-lg font-semibold">250</p>
-        </div>
-        <div className="bg-white shadow rounded-lg p-4 text-center">
-          <p className="text-gray-500 text-sm">Total Buildings</p>
-          <p className="text-lg font-semibold">5</p>
-        </div>
+    <div>
+      {/* Region Summary Cards */}
+      <div className="grid grid-cols-3 gap-4 mb-5">
+        <Card title="Status" number="Active" iconSrc={assets.Active} />
+        <Card title="Total Employees" number={250} iconSrc={assets.totalEmployee} />
+        <Card title="Total Buildings" number={5} iconSrc={assets.region} />
       </div>
 
-      {/* Buildings Table with Pagination */}
+      {/* Buildings Table */}
       <div className="bg-white shadow rounded-lg overflow-hidden">
         <div className="p-3 bg-gray-100">
           <input
@@ -60,31 +61,41 @@ export default function RegionDashboard() {
               <th className="text-left p-3">Address</th>
               <th className="text-left p-3">Status</th>
               <th className="text-left p-3">Employees</th>
+              <th className="text-left p-3">Details</th>
             </tr>
           </thead>
           <tbody>
             {paginatedBuildings.map((b, i) => (
-              <tr key={i} className="border-t">
+              <tr key={i} className="border-t hover:bg-gray-50 transition">
                 <td className="p-3">{b.name}</td>
                 <td className="p-3">{b.address}</td>
                 <td className="p-3">
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      b.status === "Active"
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${b.status === "Active"
                         ? "bg-green-100 text-green-700"
                         : "bg-red-100 text-red-600"
-                    }`}
+                      }`}
                   >
                     {b.status}
                   </span>
                 </td>
                 <td className="p-3">{b.employees}</td>
+                <td className="p-3">
+                  <button
+                    onClick={() => handleView(b.name)}
+                    className="text-blue-600 hover:text-blue-800 transition"
+                    title="View Details"
+                  >
+                    <LuEye size={20} />
+                  </button>
+
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        {/* Pagination Controls */}
+        {/* Pagination */}
         <div className="flex justify-between items-center p-3 bg-gray-50">
           <button
             onClick={() => setPage((p) => Math.max(p - 1, 1))}
@@ -107,7 +118,7 @@ export default function RegionDashboard() {
       </div>
 
       {/* Region Map */}
-      <div className="bg-white shadow rounded-lg p-4">
+      <div className="bg-white shadow rounded-lg p-4 mt-5">
         <h3 className="text-lg font-semibold mb-2">Region Map</h3>
         <img
           src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Map_of_Northwest_region.png/640px-Map_of_Northwest_region.png"
