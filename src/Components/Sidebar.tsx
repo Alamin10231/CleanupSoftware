@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import { assets } from "../assets/assets";
 
 const Sidebar: React.FC = () => {
-  const role = "employee";
+  const role = "admin";
   const admin = [
     {
       heading: null,
@@ -34,6 +34,7 @@ const Sidebar: React.FC = () => {
       heading: "SETTINGS",
       items: [
         { icon: assets.setting, label: "Settings", path: "/settings" },
+        { icon: assets.setting, label: "chat", path: "/chat" },
       ],
     },
   ];

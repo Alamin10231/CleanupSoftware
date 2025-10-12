@@ -35,6 +35,7 @@ import NotFound from "@/Page/NotFound";
 import Verifyotp from "@/Components/Auth/Verifyotp";
 import Buildingregions from "@/Page/employee-dashboard/Buildingregions";
 import RegionDashboard from "@/Page/employee-dashboard/RegionDashboard";
+import ChatPage from "@/Page/employee-dashboard/ChatPage";
 
 const Router = () => {
     return (
@@ -59,6 +60,7 @@ const Router = () => {
                 <Route path="subscriptionplan" element={<SubscriptionPlan />} />
                 <Route path="add-new-plan" element={<AddNewPlanForm />} />
                 <Route path="add-services" element={<AddNewServiceForm />} />
+                <Route path="chat" element={<ChatPage />} />
 
                 {/* Employee */}
                 <Route
