@@ -6,8 +6,8 @@ import { assets } from "../assets/assets";
 const Sidebar: React.FC = () => {
   // const { user } = useSelector((state) => state.auth);
   // const role = user?.user_type;
-	const role = "supervisor"; // hardcoded for now, will be dynamic later
 
+  const role = "admin";
   const admin = [
     {
       heading: null,
@@ -43,6 +43,8 @@ const Sidebar: React.FC = () => {
       items: [{ icon: assets.setting, label: "Settings", path: "/settings" }],
     },
   ];
+
+
 
   const employee = [
     {
