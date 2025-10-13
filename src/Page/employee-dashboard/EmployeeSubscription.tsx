@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { Checkbox } from "@/Components/ui/checkbox";
-import { Switch } from "@/Components/ui/switch";
-import { GoDownload } from "react-icons/go";
 import { IoEyeOutline } from "react-icons/io5";
 
 type Subscription = {
@@ -67,25 +65,19 @@ const data: Subscription[] = [
 export default function EmployeeSubscription() {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<number[]>([]);
-  const [statusFilter, setStatusFilter] = useState<
-    "All" | "active" | "due" | "paused" | "stopped"
-  >("All");
-  const [regionFilter, setRegionFilter] = useState<
-    "All" | "North" | "South" | "East"
-  >("All");
-  const [buildingFilter, setBuildingFilter] = useState<
-    "All" | "Sunset Tower" | "Ocean View" | "Metro Plaza"
-  >("All");
+  const [statusFilter, setStatusFilter] = useState<"All" | "active" | "due" | "paused" | "stopped">("All");
+  const [regionFilter, setRegionFilter] = useState<"All" | "North" | "South" | "East">("All");
+  const [buildingFilter, setBuildingFilter] = useState<"All" | "Sunset Tower" | "Ocean View" | "Metro Plaza">("All");
+  const [OwnersFilter, setOwnersFilter] = useState<"All" | "John Smith" | "Sarah Johnson" | "Mike Davis" | "Emma Wilson">("All");
 
   const filtered = data.filter((s) => {
-    const matchesSearch = s.property
-      .toLowerCase()
-      .includes(search.toLowerCase());
+    const matchesSearch = s.property.toLowerCase().includes(search.toLowerCase());
     const matchesStatus = statusFilter === "All" || s.status === statusFilter;
     const matchesRegion = regionFilter === "All" || s.region === regionFilter;
-    const matchesBuilding =
-      buildingFilter === "All" || s.building === buildingFilter;
-    return matchesSearch && matchesStatus && matchesRegion && matchesBuilding;
+    const matchesOwners = OwnersFilter === "All" || s.owner.split(" • ")[0] === OwnersFilter;
+    const matchesBuilding = buildingFilter === "All" || s.building === buildingFilter;
+
+    return matchesSearch && matchesStatus && matchesRegion && matchesBuilding && matchesOwners;
   });
 
   const handleSelectAll = (check: boolean) => {
@@ -109,9 +101,7 @@ export default function EmployeeSubscription() {
           </button>
         </div>
       </div>
-      <p className="text-gray-500">
-        Manage all property subscriptions and billing cycles
-      </p>
+      <p className="text-gray-500">Manage all property subscriptions and billing cycles</p>
 
       {/* Search + Filters */}
       <div className="flex flex-wrap gap-3 items-center">
@@ -128,11 +118,7 @@ export default function EmployeeSubscription() {
         </div>
 
         {/* Status Filter */}
-        <select
-          className="border rounded-md px-3 py-2 text-sm"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as any)}
-        >
+        <select className="border rounded-md px-3 py-2 text-sm" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as any)}>
           <option value="All">All Status</option>
           <option value="active">Active</option>
           <option value="due">Due</option>
@@ -141,11 +127,7 @@ export default function EmployeeSubscription() {
         </select>
 
         {/* Region Filter */}
-        <select
-          className="border rounded-md px-3 py-2 text-sm"
-          value={regionFilter}
-          onChange={(e) => setRegionFilter(e.target.value as any)}
-        >
+        <select className="border rounded-md px-3 py-2 text-sm" value={regionFilter} onChange={(e) => setRegionFilter(e.target.value as any)}>
           <option value="All">All Regions</option>
           <option value="North">North</option>
           <option value="South">South</option>
@@ -153,15 +135,19 @@ export default function EmployeeSubscription() {
         </select>
 
         {/* Building Filter */}
-        <select
-          className="border rounded-md px-3 py-2 text-sm"
-          value={buildingFilter}
-          onChange={(e) => setBuildingFilter(e.target.value as any)}
-        >
+        <select className="border rounded-md px-3 py-2 text-sm" value={buildingFilter} onChange={(e) => setBuildingFilter(e.target.value as any)}>
           <option value="All">All Buildings</option>
           <option value="Sunset Tower">Sunset Tower</option>
           <option value="Ocean View">Ocean View</option>
           <option value="Metro Plaza">Metro Plaza</option>
+        </select>
+
+        <select className="border rounded-md px-3 py-2 text-sm" value={OwnersFilter} onChange={(e) => setOwnersFilter(e.target.value as any)}>
+          <option value="All">All Owners</option>
+          <option value="John Smith">John Smith</option>
+          <option value="Sarah Johnson">Sarah Johnson</option>
+          <option value="Mike Davis">Mike Davis</option>
+          <option value="Emma Wilson">Emma Wilson</option>
         </select>
       </div>
 
@@ -171,101 +157,62 @@ export default function EmployeeSubscription() {
           <thead className="bg-gray-100 text-left">
             <tr>
               <th>
-                <Checkbox
-                  checked={
-                    selected.length === filtered.length && filtered.length > 0
-                  }
-                  onCheckedChange={(val) => handleSelectAll(val as boolean)}
-                />
+                <Checkbox checked={selected.length === filtered.length && filtered.length > 0} onCheckedChange={(val) => handleSelectAll(val as boolean)} />
               </th>
               <th className="p-3">Property & Owner</th>
-              <th className="p-3">Status</th>
               <th className="p-3">Timeline</th>
-              <th className="p-3">Auto-renew</th>
               <th className="p-3">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map((sub) => (
-              <tr key={sub.id} className="border-b">
-                <td>
-                  <Checkbox
-                    checked={selected.includes(sub.id)}
-                    onCheckedChange={(val) =>
-                      selectSingle(sub.id, val as boolean)
-                    }
-                  />
-                </td>
-                <td className="p-3">
-                  <div className="font-medium">{sub.property}</div>
-                  <div className="text-xs text-gray-500">{sub.owner}</div>
-                </td>
-                <td className="p-3">
-                  {sub.status === "active" && (
-                    <span className="text-green-600">● Active & Paid</span>
-                  )}
-                  {sub.status === "due" && (
-                    <span className="text-orange-600">● Payment Due</span>
-                  )}
-                  {sub.status === "paused" && (
-                    <span className="text-blue-600">● Paused</span>
-                  )}
-                  {sub.status === "stopped" && (
-                    <span className="text-red-600">● Stopped</span>
-                  )}
-                </td>
-                <td className="p-3">
-                  {sub.daysRemaining > 0 ? (
-                    <span className="text-xs text-gray-600">
-                      {sub.daysRemaining} days remaining
-                    </span>
-                  ) : sub.daysRemaining < 0 ? (
-                    <span className="text-xs text-red-600">
-                      {Math.abs(sub.daysRemaining)} days overdue
-                    </span>
-                  ) : (
-                    <span className="text-xs text-red-600">
-                      Subscription ended
-                    </span>
-                  )}
-                </td>
-                <td className="p-3">
-                  {sub.autoRenew === true && (
-                    <p className="flex gap-2 items-center">
-                      <Switch />
-                      <span className="bg-green-100 text-green-600 px-2 py-0.5 rounded text-xs">
-                        Enable
-                      </span>
-                    </p>
-                  )}
-                  {sub.autoRenew === false && (
-                    <p className="flex gap-2 items-center">
-                      <Switch />
-                      <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs">
-                        Disable
-                      </span>
-                    </p>
-                  )}
-                  {sub.autoRenew === null && (
-                    <p className="flex gap-2 items-center">
-                      <Switch />
-                      <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs">
-                        Disable
-                      </span>
-                    </p>
-                  )}
-                </td>
+            {filtered.map((sub) => {
+              const progress = ((sub.totalDays - sub.daysRemaining) / sub.totalDays) * 100;
 
-                <td className="p-3 flex gap-3">
-                  <button>
-                    <IoEyeOutline />
-                  </button>
-                  <button>
-                    <GoDownload />
-                  </button>
-                </td>
-              </tr>
-            ))}
+         let progressColor = "text-blue-600"
+         if(sub.status === "active"){
+          progressColor = "bg-green-500"
+         } else if(sub.status === "due"){
+          progressColor ="bg-orange-600"      
+         } else if (sub.status === "paused"){
+          progressColor = "bg-blue-600"
+         } else if (sub.status === "stopped"){
+          progressColor = "bg-red-600"
+         }
+              return (
+                <tr key={sub.id} className="border-b">
+                  <td>
+                    <Checkbox checked={selected.includes(sub.id)} onCheckedChange={(val) => selectSingle(sub.id, val as boolean)} />
+                  </td>
+                  <td className="p-3">
+                    <div className="font-medium">{sub.property}</div>
+                    <div className="text-xs text-gray-500">{sub.owner}</div>
+                  </td>
+                  <td className="p-3">
+                    <div className="w-full bg-gray-200 rounded-full">
+                      <div
+                        className={`${progressColor} text-xs text-white text-center p-0 leading-none rounded-full`}
+                        style={{ width: `${progress}%` }}
+                      >
+                        {progress.toFixed(0)}%
+                      </div>
+                    </div>
+                    {sub.daysRemaining > 0 ? (
+                      <span className="text-xs text-blue-600">{sub.daysRemaining} days remaining</span>
+                    ) : sub.daysRemaining < 0 ? (
+                      <span className="text-xs text-orange-500">{Math.abs(sub.daysRemaining)} days overdue</span>
+                    ) : (
+                      <span className="text-xs text-red-600">Subscription ended</span>
+                    )}
+                  </td>
+
+                  <td className="p-3 flex gap-3">
+                    <button>
+                      <IoEyeOutline />
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

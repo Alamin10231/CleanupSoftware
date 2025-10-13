@@ -98,6 +98,7 @@ export default function Chat({ wsUrl }: Props) {
     ws.onclose = () => {
       pushSystem("Disconnected.");
     };
+    
 
     return () => {
       try {
