@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState, useMemo } from "react";
 import { assets } from "@/assets/assets";
 import ActionButton from "@/Components/ActionButton";
 import Card from "@/Components/Card";
 import ProgressBar from "@/Components/ProgressBar";
 import EmployeeCard from "@/Components/EmployeeCard";
-import { useEmployeeOverviewQuery } from "@/redux/api/apiSlice";
+import { useEmployeeOverviewQuery, useGetAllemployeeAdminQuery } from "@/redux/api/apiSlice";
 
 interface Employee {
   id: number;
@@ -26,55 +26,54 @@ interface Employee {
 }
 
 const Employees = () => {
-  const [employees, setEmployees] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("All Departments");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [shiftFilter, setShiftFilter] = useState("All Shifts");
 
-  // Fetch overview data from API
-  const { data, error, isLoading } = useEmployeeOverviewQuery();
+  // Fetch overview data
+  const { data: overviewData, error: overviewError, isLoading: overviewLoading } =
+    useEmployeeOverviewQuery();
 
-  useEffect(() => {
-    fetch("/employee.json")
-      .then((res) => res.json())
-      .then((data) => setEmployees(data))
-      .catch((err) => console.error("Error fetching employees.json:", err));
-  }, []);
+  // Fetch all employees
+  const { data: employeeResponse, isLoading: employeesLoading, error: employeesError } =
+    useGetAllemployeeAdminQuery();
+
+
 
   
-  const cardData = [
-    {
-      title: "Total Employee",
-      number: data?.total_employee ?? 1,
-      iconKey: "totalEmployee",
-      iconAlt: "total employee",
-    },
-    {
-      title: "Active",
-      number: data?.active ?? 0,
-      iconKey: "Active",
-      iconAlt: "active",
-    },
-    {
-      title: "Avg Performance",
-      number: data?.average_performance ?? 0,
-      iconKey: "AvgPerformance",
-      iconAlt: "Avg Performance",
-    },
-    {
-      title: "Total Payroll",
-      number: data?.total_payroll ?? 0,
-      iconKey: "totalpayroll",
-      iconAlt: "Total Payroll",
-    },
-    {
-      title: "On Leave",
-      number: data?.leave ?? 0,
-      iconKey: "onLeave",
-      iconAlt: "On leave",
-    },
-  ];
+ // Map API data into our Employee interface
+const employees: Employee[] = useMemo(() => {
+  if (!employeeResponse?.results) return [];
+
+  return employeeResponse.results.map((emp: any) => {
+    const profile = emp.employee_profile || {};
+
+    return {
+      id: emp.id,
+      name: emp.name,
+      role: profile.role || "N/A",
+      department: profile.department || "N/A",
+      status: profile.is_on_leave
+        ? "On Leave"
+        : emp.is_active
+        ? "Active"
+        : "Inactive",
+      tags: [profile.department || "General"],
+      shifts: [profile.shift || "N/A"],
+      email: emp.email,
+      phone: emp.prime_phone || profile.contact_number || "N/A",
+      location: profile.location || "Unknown",
+      taskCompletion: emp.tasks_completed || 0,
+      salary: profile.base_salary ? `${profile.base_salary} BDT` : "0 BDT",
+      performance: emp.tasks_completed || 0, // Example: placeholder for performance metric
+      clientRating: 0, // Placeholder until backend provides rating
+      punctuality: profile.is_on_leave ? "Low" : "High",
+      payments: parseFloat(profile.base_salary || 0),
+    };
+  });
+}, [employeeResponse]);
+
 
   // Filter employees
   const filteredEmployees = employees.filter((emp) => {
@@ -85,8 +84,7 @@ const Employees = () => {
       emp.email.toLowerCase().includes(search);
 
     const matchesDepartment =
-      departmentFilter === "All Departments" ||
-      emp.department === departmentFilter;
+      departmentFilter === "All Departments" || emp.department === departmentFilter;
 
     const matchesStatus =
       statusFilter === "All Status" || emp.status === statusFilter;
@@ -94,10 +92,41 @@ const Employees = () => {
     const matchesShift =
       shiftFilter === "All Shifts" || emp.shifts.includes(shiftFilter);
 
-    return (
-      matchesSearch && matchesDepartment && matchesStatus && matchesShift
-    );
+    return matchesSearch && matchesDepartment && matchesStatus && matchesShift;
   });
+
+  const cardData = [
+    {
+      title: "Total Employee",
+      number: overviewData?.total_employee ?? 0,
+      iconKey: "totalEmployee",
+      iconAlt: "total employee",
+    },
+    {
+      title: "Active",
+      number: overviewData?.active ?? 0,
+      iconKey: "Active",
+      iconAlt: "active",
+    },
+    {
+      title: "Avg Performance",
+      number: overviewData?.average_performance ?? 0,
+      iconKey: "AvgPerformance",
+      iconAlt: "Avg Performance",
+    },
+    {
+      title: "Total Payroll",
+      number: overviewData?.total_payroll ?? 0,
+      iconKey: "totalpayroll",
+      iconAlt: "Total Payroll",
+    },
+    {
+      title: "On Leave",
+      number: overviewData?.leave ?? 0,
+      iconKey: "onLeave",
+      iconAlt: "On leave",
+    },
+  ];
 
   return (
     <div className="h-screen flex flex-col mt-4">
@@ -115,10 +144,10 @@ const Employees = () => {
 
         <ProgressBar />
 
-        {/* Handle loading & error for cards */}
-        {isLoading ? (
+        {/* Overview Cards */}
+        {overviewLoading ? (
           <p className="text-gray-500 mt-6">Loading overview data...</p>
-        ) : error ? (
+        ) : overviewError ? (
           <p className="text-red-500 mt-6">Failed to load overview data.</p>
         ) : (
           <div className="grid grid-cols-5 gap-4 mt-6">
@@ -149,6 +178,9 @@ const Employees = () => {
             className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer"
           >
             <option>All Departments</option>
+            <option>Cleaning</option>
+            <option>Security</option>
+            <option>Maintenance</option>
             <option>HR</option>
             <option>Finance</option>
             <option>IT</option>
@@ -169,16 +201,20 @@ const Employees = () => {
             className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer"
           >
             <option>All Shifts</option>
-            <option>Morning</option>
-            <option>Evening</option>
-            <option>Night</option>
+            <option>morning</option>
+            <option>evening</option>
+            <option>night</option>
           </select>
         </div>
       </div>
 
       {/* Scrollable Employee List */}
       <div className="flex-1 overflow-y-auto mt-6 pr-2 scrollbar-hide">
-        {filteredEmployees.length > 0 ? (
+        {employeesLoading ? (
+          <p className="text-gray-500 text-center">Loading employees...</p>
+        ) : employeesError ? (
+          <p className="text-red-500 text-center">Failed to load employees.</p>
+        ) : filteredEmployees.length > 0 ? (
           filteredEmployees.map((emp) => (
             <EmployeeCard
               key={emp.id}
@@ -194,7 +230,7 @@ const Employees = () => {
               performance={emp.performance}
               clientRating={emp.clientRating}
               punctuality={emp.punctuality}
-              payments={emp.payments}
+              // payments={emp.payments}
             />
           ))
         ) : (

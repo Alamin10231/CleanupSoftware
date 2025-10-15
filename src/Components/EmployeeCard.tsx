@@ -29,7 +29,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
   performance,
   clientRating,
   punctuality,
-  payments,
+
 }) => {
   return (
     <div className="border border-gray-300 rounded-lg p-5 bg-white shadow-sm mb-8">
@@ -50,13 +50,12 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
             {tags.map((tag, index) => (
               <span
                 key={index}
-                className={`text-xs px-2 py-1 rounded-full ${
-                  tag.toLowerCase() === "paid"
+                className={`text-xs px-2 py-1 rounded-full ${tag.toLowerCase() === "paid"
                     ? "bg-green-100 text-green-600"
                     : tag.toLowerCase() === "inactive"
-                    ? "bg-yellow-100 text-yellow-600"
-                    : "bg-gray-100 text-gray-600"
-                }`}
+                      ? "bg-yellow-100 text-yellow-600"
+                      : "bg-gray-100 text-gray-600"
+                  }`}
               >
                 {tag}
               </span>
@@ -93,6 +92,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
             style={{ width: `${taskCompletion}%` }}
           ></div>
         </div>
+
       </div>
 
       {/* Stats */}
@@ -115,10 +115,7 @@ const EmployeeCard: React.FC<EmployeeCardProps> = ({
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="mt-6 text-sm text-gray-500">
-        Payments: <span className="font-medium">{payments}</span>
-      </div>
+
     </div>
   );
 };

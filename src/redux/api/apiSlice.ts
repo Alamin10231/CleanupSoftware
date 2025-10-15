@@ -13,7 +13,7 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ["User", "Invoice", "AddEmployee","AdminEmployeeOverview"],
+  tagTypes: ["User", "Invoice", "AddEmployee", "AdminEmployeeOverview", "GetAllEmpolyeeAdmin"],
   endpoints: (builder) => ({
     getInvoices: builder.query<any, void>({
       query: () => "/plan/invoice/list/",
@@ -37,8 +37,12 @@ export const apiSlice = createApi({
       providesTags: ["User"],
     }),
     employeeOverview: builder.query<any, void>({
-      query: () =>'overview',
-      providesTags: ["AdminEmployeeOverview"]
+      query: () => "overview",
+      providesTags: ["AdminEmployeeOverview"],
+    }),
+    getAllemployeeAdmin: builder.query<any, void>({
+      query: () => "employees",
+      providesTags: ["GetAllEmpolyeeAdmin"],
     }),
     addEmployee: builder.mutation({
       query: (add_employee) => ({
@@ -57,5 +61,6 @@ export const {
   useAddEmployeeMutation,
   useGetCalculationInvoiceQuery,
   useGetAllClientQuery,
-  useEmployeeOverviewQuery
+  useEmployeeOverviewQuery,
+  useGetAllemployeeAdminQuery
 } = apiSlice;
