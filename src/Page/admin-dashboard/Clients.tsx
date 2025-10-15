@@ -276,7 +276,7 @@ const Clients = () => {
           <button
             disabled={page <= 1}
             onClick={() => setPage((prev) => prev - 1)}
-            className={`px-4 py-2 rounded border ${page > 1 ? "bg-white hover:bg-gray-100" : "bg-gray-200 cursor-not-allowed"
+            className={`px-4 py-2 cursor-pointer rounded border ${page > 1 ? "bg-white hover:bg-gray-100" : "bg-gray-200 cursor-not-allowed"
               }`}
           >
             Previous
@@ -289,7 +289,7 @@ const Clients = () => {
           <button
             disabled={page >= totalPages}
             onClick={() => setPage((prev) => prev + 1)}
-            className={`px-4 py-2 rounded border ${page < totalPages ? "bg-white hover:bg-gray-100" : "bg-gray-200 cursor-not-allowed"
+            className={`px-4 py-2 cursor-pointer rounded-md text-white font-medium ${page < totalPages ? "bg-blue-600 hover:bg-gray-300 hover:text-black"  : "bg-gray-200 cursor-not-allowed"
               }`}
           >
             Next
