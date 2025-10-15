@@ -40,8 +40,12 @@ export const apiSlice = createApi({
       query: () => "overview",
       providesTags: ["AdminEmployeeOverview"],
     }),
-    getAllemployeeAdmin: builder.query<any, void>({
-      query: () => "employees",
+    // getAllemployeeAdmin: builder.query<any, void>({
+    //   query: () => "employees",
+    //   providesTags: ["GetAllEmpolyeeAdmin"],
+    // }),
+    getAllemployeeAdmin: builder.query<any, number | void>({
+      query: (page = 1) => `employees/?page=${page}`,
       providesTags: ["GetAllEmpolyeeAdmin"],
     }),
     addEmployee: builder.mutation({

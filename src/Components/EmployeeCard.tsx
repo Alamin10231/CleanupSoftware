@@ -1,123 +1,130 @@
-import React from "react";
+// import React from "react";
 
-interface EmployeeCardProps {
-  name: string;
-  role: string;
-  tags: string[];
-  shifts: string[];
-  email: string;
-  phone: string;
-  location: string;
-  taskCompletion: number;
-  salary: string;
-  performance: number;
-  clientRating: number;
-  punctuality: string;
-  payments: number;
-}
+// interface EmployeeCardProps {
+//   name: string;
+//   role: string;
+//   tags: string[];
+//   shifts: string[];
+//   email: string;
+//   phone: string;
+//   location: string;
+//   taskCompletion: number;
+//   salary: string;
+//   performance: number;
+//   clientRating: number;
+//   punctuality: string;
+// }
 
-const EmployeeCard: React.FC<EmployeeCardProps> = ({
-  name,
-  role,
-  tags,
-  shifts,
-  email,
-  phone,
-  location,
-  taskCompletion,
-  salary,
-  performance,
-  clientRating,
-  punctuality,
+// const EmployeeCard: React.FC<EmployeeCardProps> = ({
+//   name,
+//   role,
+//   tags,
+//   shifts,
+//   email,
+//   phone,
+//   location,
+//   taskCompletion,
+//   salary,
+//   performance,
+//   clientRating,
+//   punctuality,
+// }) => {
+//   return (
+//     <div className="overflow-x-auto bg-white border border-gray-300 rounded-lg shadow-sm mb-8">
+//       <table className="min-w-full border-collapse text-sm text-gray-600">
+//         <thead className="bg-gray-100 text-gray-700 uppercase text-xs">
+//           <tr>
+//             <th className="px-4 py-3 text-left">Name</th>
+//             <th className="px-4 py-3 text-left">Role</th>
+//             <th className="px-4 py-3 text-left">Tags</th>
+//             <th className="px-4 py-3 text-left">Shifts</th>
+//             <th className="px-4 py-3 text-left">Email</th>
+//             <th className="px-4 py-3 text-left">Phone</th>
+//             <th className="px-4 py-3 text-left">Location</th>
+//             <th className="px-4 py-3 text-left">Task Completion</th>
+//             <th className="px-4 py-3 text-left">Salary</th>
+//             <th className="px-4 py-3 text-left">Performance</th>
+//             <th className="px-4 py-3 text-left">Client Rating</th>
+//             <th className="px-4 py-3 text-left">Punctuality</th>
+//           </tr>
+//         </thead>
+//         <tbody>
+//           <tr className="border-t hover:bg-gray-50 transition">
+//             {/* Name */}
+//             <td className="px-4 py-3 flex items-center gap-2">
+//               <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm">
+//                 {name.charAt(0)}
+//               </div>
+//               <div>
+//                 <p className="font-medium text-gray-700">{name}</p>
+//               </div>
+//             </td>
 
-}) => {
-  return (
-    <div className="border border-gray-300 rounded-lg p-5 bg-white shadow-sm mb-8">
-      {/* Header */}
-      <div className="flex items-start gap-4">
-        {/* Avatar */}
-        <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg">
-          {name.charAt(0)}
-        </div>
+//             {/* Role */}
+//             <td className="px-4 py-3">{role}</td>
 
-        {/* Info */}
-        <div className="flex-1">
-          <h2 className="text-lg font-semibold text-gray-600">{name}</h2>
-          <p className="text-gray-500">{role}</p>
+//             {/* Tags */}
+//             <td className="px-4 py-3">
+//               <div className="flex flex-wrap gap-1">
+//                 {tags.map((tag, index) => (
+//                   <span
+//                     key={index}
+//                     className={`text-xs px-2 py-0.5 rounded-full ${
+//                       tag.toLowerCase() === "paid"
+//                         ? "bg-green-100 text-green-600"
+//                         : tag.toLowerCase() === "inactive"
+//                         ? "bg-yellow-100 text-yellow-600"
+//                         : "bg-gray-100 text-gray-600"
+//                     }`}
+//                   >
+//                     {tag}
+//                   </span>
+//                 ))}
+//               </div>
+//             </td>
 
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 mt-2">
-            {tags.map((tag, index) => (
-              <span
-                key={index}
-                className={`text-xs px-2 py-1 rounded-full ${tag.toLowerCase() === "paid"
-                    ? "bg-green-100 text-green-600"
-                    : tag.toLowerCase() === "inactive"
-                      ? "bg-yellow-100 text-yellow-600"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
+//             {/* Shifts */}
+//             <td className="px-4 py-3">
+//               <div className="flex flex-wrap gap-1">
+//                 {shifts.map((shift, i) => (
+//                   <span
+//                     key={i}
+//                     className="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full"
+//                   >
+//                     {shift}
+//                   </span>
+//                 ))}
+//               </div>
+//             </td>
 
-          {/* Shifts */}
-          <div className="flex gap-2 mt-2">
-            {shifts.map((shift, i) => (
-              <span
-                key={i}
-                className="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full"
-              >
-                {shift}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
+//             {/* Contact Info */}
+//             <td className="px-4 py-3">{email}</td>
+//             <td className="px-4 py-3">{phone}</td>
+//             <td className="px-4 py-3">{location}</td>
 
-      {/* Contact */}
-      <div className="flex flex-wrap items-center gap-6 mt-4 text-sm text-gray-500">
-        <p>📧 {email}</p>
-        <p>📞 {phone}</p>
-        <p>📍 {location}</p>
-      </div>
+//             {/* Task Completion */}
+//             <td className="px-4 py-3">
+//               <div className="w-full bg-gray-200 rounded-full h-2">
+//                 <div
+//                   className="h-2 bg-blue-500 rounded-full"
+//                   style={{ width: `${taskCompletion}%` }}
+//                 ></div>
+//               </div>
+//               <p className="text-xs text-gray-500 mt-1 text-center">
+//                 {taskCompletion}%
+//               </p>
+//             </td>
 
-      {/* Progress */}
-      <div className="mt-6">
-        <p className="text-sm text-gray-500 mb-1">Task Completion</p>
-        <div className="w-full h-2 bg-gray-200 rounded-full">
-          <div
-            className="h-2 bg-blue-500 rounded-full"
-            style={{ width: `${taskCompletion}%` }}
-          ></div>
-        </div>
+//             {/* Stats */}
+//             <td className="px-4 py-3 font-medium text-gray-700">{salary}</td>
+//             <td className="px-4 py-3 font-medium text-gray-700">{performance}</td>
+//             <td className="px-4 py-3 font-medium text-gray-700">{clientRating}</td>
+//             <td className="px-4 py-3 font-medium text-gray-700">{punctuality}</td>
+//           </tr>
+//         </tbody>
+//       </table>
+//     </div>
+//   );
+// };
 
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-4 text-center mt-6 pt-4">
-        <div>
-          <p className="font-semibold text-gray-600">{salary}</p>
-          <p className="text-xs text-gray-500">Monthly Salary</p>
-        </div>
-        <div>
-          <p className="font-semibold text-gray-600">{performance}</p>
-          <p className="text-xs text-gray-500">Performance</p>
-        </div>
-        <div>
-          <p className="font-semibold text-gray-600">{clientRating}</p>
-          <p className="text-xs text-gray-500">Client Rating</p>
-        </div>
-        <div>
-          <p className="font-semibold text-gray-600">{punctuality}</p>
-          <p className="text-xs text-gray-500">Punctuality</p>
-        </div>
-      </div>
-
-
-    </div>
-  );
-};
-
-export default EmployeeCard;
+// export default EmployeeCard;

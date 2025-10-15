@@ -3,8 +3,10 @@ import { assets } from "@/assets/assets";
 import ActionButton from "@/Components/ActionButton";
 import Card from "@/Components/Card";
 import ProgressBar from "@/Components/ProgressBar";
-import EmployeeCard from "@/Components/EmployeeCard";
-import { useEmployeeOverviewQuery, useGetAllemployeeAdminQuery } from "@/redux/api/apiSlice";
+import {
+  useEmployeeOverviewQuery,
+  useGetAllemployeeAdminQuery,
+} from "@/redux/api/apiSlice";
 
 interface Employee {
   id: number;
@@ -17,7 +19,6 @@ interface Employee {
   email: string;
   phone: string;
   location: string;
-  taskCompletion: number;
   salary: string;
   performance: number;
   clientRating: number;
@@ -30,52 +31,62 @@ const Employees = () => {
   const [departmentFilter, setDepartmentFilter] = useState("All Departments");
   const [statusFilter, setStatusFilter] = useState("All Status");
   const [shiftFilter, setShiftFilter] = useState("All Shifts");
+  const [page, setPage] = useState(1); // ✅ Use numeric pagination instead of URLs
 
   // Fetch overview data
-  const { data: overviewData, error: overviewError, isLoading: overviewLoading } =
-    useEmployeeOverviewQuery();
+  const {
+    data: overviewData,
+    error: overviewError,
+    isLoading: overviewLoading,
+  } = useEmployeeOverviewQuery();
 
-  // Fetch all employees
-  const { data: employeeResponse, isLoading: employeesLoading, error: employeesError } =
-    useGetAllemployeeAdminQuery();
+  // Fetch paginated employee data
+  const {
+    data: employeeResponse,
+    isLoading: employeesLoading,
+    error: employeesError,
+  } = useGetAllemployeeAdminQuery(page);
 
+  // ✅ Extract page numbers from absolute URLs
+  const getPageNumber = (url: string | null) => {
+    if (!url) return null;
+    const match = url.match(/page=(\d+)/);
+    return match ? parseInt(match[1]) : null;
+  };
 
+  const nextPage = getPageNumber(employeeResponse?.next);
+  const prevPage = getPageNumber(employeeResponse?.previous);
 
-  
- // Map API data into our Employee interface
-const employees: Employee[] = useMemo(() => {
-  if (!employeeResponse?.results) return [];
+  const employees: Employee[] = useMemo(() => {
+    if (!employeeResponse?.results) return [];
 
-  return employeeResponse.results.map((emp: any) => {
-    const profile = emp.employee_profile || {};
+    return employeeResponse.results.map((emp: any) => {
+      const profile = emp.employee_profile || {};
 
-    return {
-      id: emp.id,
-      name: emp.name,
-      role: profile.role || "N/A",
-      department: profile.department || "N/A",
-      status: profile.is_on_leave
-        ? "On Leave"
-        : emp.is_active
-        ? "Active"
-        : "Inactive",
-      tags: [profile.department || "General"],
-      shifts: [profile.shift || "N/A"],
-      email: emp.email,
-      phone: emp.prime_phone || profile.contact_number || "N/A",
-      location: profile.location || "Unknown",
-      taskCompletion: emp.tasks_completed || 0,
-      salary: profile.base_salary ? `${profile.base_salary} BDT` : "0 BDT",
-      performance: emp.tasks_completed || 0, // Example: placeholder for performance metric
-      clientRating: 0, // Placeholder until backend provides rating
-      punctuality: profile.is_on_leave ? "Low" : "High",
-      payments: parseFloat(profile.base_salary || 0),
-    };
-  });
-}, [employeeResponse]);
+      return {
+        id: emp.id,
+        name: emp.name,
+        role: profile.role || "N/A",
+        department: profile.department || "N/A",
+        status: profile.is_on_leave
+          ? "On Leave"
+          : emp.is_active
+          ? "Active"
+          : "Inactive",
+        tags: [profile.department || "General"],
+        shifts: [profile.shift || "N/A"],
+        email: emp.email,
+        phone: emp.prime_phone || profile.contact_number || "N/A",
+        location: profile.location || "Unknown",
+        salary: profile.base_salary ? `${profile.base_salary} BDT` : "0 BDT",
+        performance: emp.tasks_completed || 0,
+        clientRating: emp.client_rating || 0,
+        punctuality: profile.is_on_leave ? "Low" : "High",
+        payments: parseFloat(profile.base_salary || 0),
+      };
+    });
+  }, [employeeResponse]);
 
-
-  // Filter employees
   const filteredEmployees = employees.filter((emp) => {
     const search = searchTerm.toLowerCase();
     const matchesSearch =
@@ -84,7 +95,8 @@ const employees: Employee[] = useMemo(() => {
       emp.email.toLowerCase().includes(search);
 
     const matchesDepartment =
-      departmentFilter === "All Departments" || emp.department === departmentFilter;
+      departmentFilter === "All Departments" ||
+      emp.department === departmentFilter;
 
     const matchesStatus =
       statusFilter === "All Status" || emp.status === statusFilter;
@@ -129,7 +141,7 @@ const employees: Employee[] = useMemo(() => {
   ];
 
   return (
-    <div className="h-screen flex flex-col mt-4">
+    <div className="h-screen flex flex-col mt-4 overflow-hidden">
       {/* Header Section */}
       <div className="flex-shrink-0">
         <div className="flex justify-between items-center">
@@ -208,31 +220,115 @@ const employees: Employee[] = useMemo(() => {
         </div>
       </div>
 
-      {/* Scrollable Employee List */}
+      {/* Table Section */}
       <div className="flex-1 overflow-y-auto mt-6 pr-2 scrollbar-hide">
         {employeesLoading ? (
           <p className="text-gray-500 text-center">Loading employees...</p>
         ) : employeesError ? (
           <p className="text-red-500 text-center">Failed to load employees.</p>
         ) : filteredEmployees.length > 0 ? (
-          filteredEmployees.map((emp) => (
-            <EmployeeCard
-              key={emp.id}
-              name={emp.name}
-              role={emp.role}
-              tags={emp.tags}
-              shifts={emp.shifts}
-              email={emp.email}
-              phone={emp.phone}
-              location={emp.location}
-              taskCompletion={emp.taskCompletion}
-              salary={emp.salary}
-              performance={emp.performance}
-              clientRating={emp.clientRating}
-              punctuality={emp.punctuality}
-              // payments={emp.payments}
-            />
-          ))
+          <>
+            <div className="overflow-x-auto bg-white border border-gray-300 rounded-lg shadow-sm mb-4">
+              <table className="min-w-full border-collapse text-sm text-gray-600">
+                <thead className="bg-gray-100 text-gray-700 uppercase text-xs sticky top-0">
+                  <tr>
+                    <th className="px-4 py-3 text-left">Name</th>
+                    <th className="px-4 py-3 text-left">Role</th>
+                    <th className="px-4 py-3 text-left">Tags</th>
+                    <th className="px-4 py-3 text-left">Shifts</th>
+                    <th className="px-4 py-3 text-left">Email</th>
+                    <th className="px-4 py-3 text-left">Phone</th>
+                    <th className="px-4 py-3 text-left">Location</th>
+                    <th className="px-4 py-3 text-left">Salary</th>
+                    <th className="px-4 py-3 text-left">Performance</th>
+                    <th className="px-4 py-3 text-left">Client Rating</th>
+                    <th className="px-4 py-3 text-left">Punctuality</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredEmployees.map((emp) => (
+                    <tr key={emp.id} className="border-t hover:bg-gray-50 transition">
+                      <td className="px-4 py-3 flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm">
+                          {emp.name.charAt(0)}
+                        </div>
+                        <span className="font-medium text-gray-700">{emp.name}</span>
+                      </td>
+                      <td className="px-4 py-3">{emp.role}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-1">
+                          {emp.tags.map((tag, i) => (
+                            <span
+                              key={i}
+                              className={`text-xs px-2 py-0.5 rounded-full ${
+                                tag.toLowerCase() === "paid"
+                                  ? "bg-green-100 text-green-600"
+                                  : tag.toLowerCase() === "inactive"
+                                  ? "bg-yellow-100 text-yellow-600"
+                                  : "bg-gray-100 text-gray-600"
+                              }`}
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-1">
+                          {emp.shifts.map((shift, i) => (
+                            <span
+                              key={i}
+                              className="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full"
+                            >
+                              {shift}
+                            </span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">{emp.email}</td>
+                      <td className="px-4 py-3">{emp.phone}</td>
+                      <td className="px-4 py-3">{emp.location}</td>
+                      <td className="px-4 py-3">{emp.salary}</td>
+                      <td className="px-4 py-3">{emp.performance}</td>
+                      <td className="px-4 py-3">{emp.clientRating}</td>
+                      <td className="px-4 py-3">{emp.punctuality}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="flex justify-between items-center mt-4 px-2">
+              <button
+                onClick={() => prevPage && setPage(prevPage)}
+                disabled={!prevPage}
+                className={`px-4 py-2 rounded-md text-sm font-medium ${
+                  prevPage
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+              >
+                Previous
+              </button>
+
+              <p className="text-gray-600 text-sm">
+                Showing page{" "}
+                <span className="font-semibold text-gray-800">{page}</span>
+              </p>
+
+              <button
+                onClick={() => nextPage && setPage(nextPage)}
+                disabled={!nextPage}
+                className={`px-4 py-2 rounded-md text-sm font-medium ${
+                  nextPage
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+              >
+                Next
+              </button>
+            </div>
+          </>
         ) : (
           <p className="text-gray-500 text-center">No employees found.</p>
         )}
