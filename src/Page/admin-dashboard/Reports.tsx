@@ -1,27 +1,33 @@
-import PieReport from "@/Components/Reports/PieReport"
-import Report from "@/Components/Reports/Report"
-import ReportDashboard from "@/Components/Reports/ReportDashboard"
-import ReportDetails from "@/Components/Reports/ReportDetails"
+import React from 'react';
+
+const dummyReports = [
+  {
+    id: 1,
+    title: 'Weekly Maintenance Report',
+    description: 'All maintenance tasks completed successfully.',
+  },
+  {
+    id: 2,
+    title: 'Client Complaint Report',
+    description: 'Client in apartment 4B reported a leaky faucet.',
+  },
+];
 
 const Reports = () => {
   return (
-    <div><Report></Report>
-    
-    <div className="grid grid-cols-2 gap-2">
-     <div className="col-span-1 h-72 ">
-       <ReportDashboard ></ReportDashboard>
-     </div>
-     <div className="col-span-1 h-72 ">
-      <PieReport></PieReport>
-     </div>
-    
-    </div>
     <div>
-      <ReportDetails></ReportDetails>
-    </div>
-    
-    </div>
-  )
-}
+      <h1 className="text-2xl font-semibold mb-6">Employee Reports</h1>
 
-export default Reports
+      <div className="bg-white rounded-lg border p-6">
+        {dummyReports.map((report) => (
+          <div key={report.id} className="border-b py-4">
+            <h2 className="text-lg font-semibold">{report.title}</h2>
+            <p className="text-gray-500">{report.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Reports;

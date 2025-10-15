@@ -23,10 +23,6 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import BulkSalaryPayment from "./bulk-payments";
 import { useAddEmployeeMutation, useEmployeeOverviewQuery } from "@/redux/api/apiSlice";
 
-// ✅ Toastify imports
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-
 const ActionButton = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   const [isRotating, setIsRotating] = useState(false);
@@ -56,10 +52,8 @@ const ActionButton = () => {
     try {
       const response = await addEmployee(formData).unwrap();
       console.log("✅ Employee added successfully:", response);
-      toast.success("Employee added successfully!");
     } catch (error) {
       console.error("❌ Failed to add employee:", error);
-      toast.error("Failed to add employee. Please try again.");
     }
   };
 
@@ -340,9 +334,6 @@ const ActionButton = () => {
           </DialogContent>
         </Dialog>
       </div>
-
-      {/* ✅ Toast container */}
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
     </div>
   );
 };

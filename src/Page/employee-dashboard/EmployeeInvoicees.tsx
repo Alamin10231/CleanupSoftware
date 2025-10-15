@@ -68,22 +68,6 @@ const EmployeeInvoicees = () => {
         />
       </div>
 
-      {/* Tabs */}
-      <div className="flex space-x-6 border-b mb-4">
-        {["All", "Expense", "Sales"].map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`pb-2 font-medium ${activeTab === tab
-                ? "border-b-2 border-blue-600 text-blue-600"
-                : "text-gray-600"
-              }`}
-          >
-            {tab} Invoices
-          </button>
-        ))}
-      </div>
-
       {/* Search input */}
       <div className="mb-4">
         <input
