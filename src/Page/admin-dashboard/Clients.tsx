@@ -118,13 +118,13 @@ const Clients = () => {
                         <div className="col-span-2 gap-2 grid grid-cols-1">
                           <div className="grid grid-cols-1 items-center">
                             <label htmlFor="tags" className="text-left">
-                              Tags
+                              Note
                             </label>
                             <input
-                              type="tags"
-                              id="tags"
+                              type="note"
+                              id="note"
                               className="col-span-3 border border-gray-300 rounded-md p-2 w-full"
-                              placeholder="Type & Enter"
+                              placeholder="Enter note here..."
                             />
                           </div>
                           <div className="grid grid-cols-1 items-center">
