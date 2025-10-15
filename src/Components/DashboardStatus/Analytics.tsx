@@ -1,67 +1,80 @@
-import {
-    PieChart,
-    Pie,
-    Cell,
-    Tooltip,
-    Legend,
-    ResponsiveContainer,
-} from "recharts";
+"use client";
 
-const data02 = [
-    { name: "Paid", value: 100 },
-    { name: "pending", value: 200 },
-    { name: "stopped", value: 100 },
-    { name: "paused", value: 100 },
-    { name: "paused", value: 100 },
+import React from "react";
+
+type Slice = { name: string; value: number; color: string };
+
+function toConicGradient(slices: Slice[]) {
+  const total = slices.reduce((s, x) => s + x.value, 0) || 1;
+  let acc = 0;
+  const parts = slices.map((s) => {
+    const start = (acc / total) * 360;
+    acc += s.value;
+    const end = (acc / total) * 360;
+    return `${s.color} ${start}deg ${end}deg`;
+  });
+  return `conic-gradient(${parts.join(", ")})`;
+}
+
+function percent(n: number, total: number) {
+  return total ? Math.round((n / total) * 100) : 0;
+}
+
+const analyticsData: Slice[] = [
+  { name: "Paid", value: 100, color: "#009608" },
+  { name: "Pending", value: 200, color: "#FF9800" },
+  { name: "Stopped", value: 100, color: "#D32F2F" },
+  { name: "Paused", value: 100, color: "#0288D1" },
 ];
 
-const COLORS = ["#009608", "#FF9800", "#D32F2F", "#0288D1"];
-
 export default function Analytics() {
-    return (
-        <div className="w-full h-12/12 rounded-xl border bg-white shadow border-gray-200 p-4">
-            <h2 className="text-lg font-semibold mb-4">Analytics Report</h2>
+  const total = analyticsData.reduce((s, x) => s + x.value, 0);
+  const bg = toConicGradient(analyticsData);
 
-            <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                    <Tooltip
-                        contentStyle={{
-                            backgroundColor: "white",
-                            border: "1px solid #e5e7eb",
-                            borderRadius: "0.5rem",
-                            padding: "0.5rem",
-                        }}
-                    />
-                    <Legend verticalAlign="bottom" iconType="circle" />
+  return (
+    <div className="w-full rounded-xl border bg-white p-4 shadow-sm">
+      <h2 className="mb-2 text-lg font-semibold">Analytics Report</h2>
 
-                    <Pie
-                        data={data02}
-                        dataKey="value"
-                        cx="50%"
-                        cy="45%"
-                        innerRadius={60}
-                        outerRadius={90}
-                        paddingAngle={2}
-                        label={(props) => {
-                            const { name, percent } = props as {
-                                name?: string;
-                                percent?: number;
-                            };
-                            const p =
-                                typeof percent === "number" ? percent * 100 : 0;
-                            return `${name ?? ""}: ${p.toFixed(0)}%`;
-                        }}
-                        labelLine={false}
-                    >
-                        {data02.map((_, index) => (
-                            <Cell
-                                key={index}
-                                fill={COLORS[index % COLORS.length]}
-                            />
-                        ))}
-                    </Pie>
-                </PieChart>
-            </ResponsiveContainer>
+      <div className="flex flex-col items-center gap-4">
+        {/* Donut Chart */}
+        <div className="flex items-center justify-center">
+          <div
+            className="relative aspect-square w-[220px] rounded-full"
+            style={{ background: bg }}
+            role="img"
+            aria-label="Analytics distribution donut chart"
+          >
+            <div className="absolute inset-6 rounded-full bg-white shadow-inner" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-xl font-semibold">{total}%</div>
+                <div className="text-xs text-muted-foreground">Total</div>
+              </div>
+            </div>
+          </div>
         </div>
-    );
+
+        {/* Legend */}
+        <ul className="flex flex-wrap justify-center gap-3 text-sm">
+          {analyticsData.map((s) => (
+            <li
+              key={s.name}
+              className="flex items-center gap-2 rounded-lg border px-3 py-1 transition hover:bg-muted/30"
+              title={`${s.name}: ${percent(s.value, total)}%`}
+            >
+              <div
+                className="h-3 w-3 rounded-full"
+                style={{ backgroundColor: s.color }}
+              />
+              <span className="font-medium">{s.name}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <p className="mt-3 text-xs text-muted-foreground text-center">
+        Hover on labels to view percentage.
+      </p>
+    </div>
+  );
 }
