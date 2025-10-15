@@ -329,7 +329,7 @@ export default function RegionComponent() {
               <p className="text-2xl font-bold">{stat.value}</p>
             </div>
             <div>
-              <p className="text-2xl font-bold text-blue-500 p-4 bg-sky-100 rounded-full">
+              <p className="text-2xl font-bold text-blue-500 p-3 bg-sky-100 rounded-lg">
                 {stat.icon}
               </p>
             </div>
@@ -349,44 +349,65 @@ export default function RegionComponent() {
           />
         </div>
         <div className="flex gap-20">
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center justify-center">
             <p className="text-base text-gray-500 py-2 font-bold">
               Status
             </p>
-            <p className="bg-green-100 px-3 py-2 text-green-600 rounded-full">
-              Active
-            </p>
-            <p className="bg-yellow-100 px-3 py-2 text-yellow-600 rounded-full">
-              Inactive
-            </p>
-            <p className="bg-red-100 px-3 py-2 text-red-600 rounded-full">
-              Maintenance
-            </p>
+           <Button
+  disabled
+  className="bg-green-100 px-3 py-2 text-green-600 rounded-full 
+             disabled:opacity-100 disabled:saturate-100 disabled:brightness-100 
+             disabled:hover:bg-green-100 disabled:cursor-not-allowed"
+>
+  Active
+</Button>
+          <Button
+  disabled
+  className="bg-yellow-100 px-3 py-2 text-yellow-600 rounded-full
+             disabled:opacity-100 disabled:saturate-100 disabled:brightness-100
+             disabled:hover:bg-yellow-100 disabled:cursor-not-allowed"
+>
+  Inactive
+</Button>
+
+<Button
+  disabled
+  className="bg-red-200 px-3 py-2 text-red-700 rounded-full
+             disabled:opacity-100 disabled:saturate-100 disabled:brightness-100
+             disabled:hover:bg-red-200 disabled:cursor-not-allowed"
+>
+  Maintenance
+</Button>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center justify-center">
             <p className="text-base text-gray-500 py-2 font-bold">
               Type
             </p>
-            <p className="bg-gray-100 px-3 py-2 text-gray-600 rounded-full">
-              residential
-            </p>
-            <p className="bg-gray-100 px-3 py-2 text-gray-600 rounded-full">
-              commercial
-            </p>
-            <p className="bg-gray-100 px-3 py-2 text-gray-600 rounded-full">
-              office
-            </p>
-            <p className="bg-gray-100 px-3 py-2 text-gray-600 rounded-full">
-              retail
-            </p>
+            <Button disabled className="bg-gray-100 px-3 py-2 text-gray-600 rounded-full
+                            disabled:opacity-100 disabled:cursor-not-allowed">
+  residential
+</Button>
+    <Button disabled className="bg-gray-100 px-3 py-2 text-gray-600 rounded-full
+                            disabled:opacity-100 disabled:cursor-not-allowed">
+  commercial
+</Button>
+    <Button disabled className="bg-gray-100 px-3 py-2 text-gray-600 rounded-full
+                            disabled:opacity-100 disabled:cursor-not-allowed">
+  office
+</Button>
+    <Button disabled className="bg-gray-100 px-3 py-2 text-gray-600 rounded-full
+                            disabled:opacity-100 disabled:cursor-not-allowed">
+  retail
+</Button>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center justify-center">
             <p className="text-base text-gray-500 py-2 font-bold">
               Area
             </p>
-            <p className="bg-gray-100 px-3 py-2 text-gray-600 rounded-full">
-              mohakhali
-            </p>
+            <Button disabled className="bg-gray-100 px-3 py-2 text-gray-600 rounded-full
+                            disabled:opacity-100 disabled:cursor-not-allowed">
+  mohakhali
+</Button>
           </div>
         </div>
       </div>

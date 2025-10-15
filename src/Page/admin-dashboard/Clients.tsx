@@ -13,7 +13,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/Components/ui/dialog";
-import { useGetAllClientQuery } from "@/redux/api/apiSlice";
 
 interface UserStats {
   revenue: number;
@@ -156,7 +155,7 @@ const Clients = () => {
             iconSrc={assets.total_service}
             iconAlt="An icon of a shopping cart"
           />
-        
+
           <Card
             title="Total Revenue"
             number={2540000}
