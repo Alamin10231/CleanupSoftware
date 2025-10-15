@@ -41,7 +41,7 @@ const CreateInvoiceForm = () => {
       ],
     },
   });
-
+//   const [addInvoice, { isLoading, isError }] = useAdd
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'line_items',
@@ -49,6 +49,7 @@ const CreateInvoiceForm = () => {
 
   const onSubmit = (data) => {
     console.log(data);
+   //  addInvoice(data)
   };
 
   return (

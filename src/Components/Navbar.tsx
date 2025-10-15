@@ -48,15 +48,15 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  function handleLogout() {
-    try {
-      dispatch(logout() as any);
-      setOpen(false);
-      navigate("/adminlogin");
-    } catch (error) {
-      console.log(error);
+    function handleLogout() {
+        try {
+            dispatch(logout());
+            console.log("User logged out");
+            navigate("/login");
+        } catch (error) {
+            console.log(error);
+        }
     }
-  }
 
   const displayName = user?.name ?? "Guest User";
   const displayEmail = user?.email ?? "—";
