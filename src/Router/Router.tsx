@@ -89,7 +89,6 @@ const Router = () => {
       <Route path="signup" element={<UserSignUp />} />
       <Route path="verifyotp" element={<Verifyotp />} />
       <Route path="forgetpassword" element={<ForgetPassword />} />
-      <Route path="verifycode" element={<VerifyCode />} />
       <Route path="setpassword" element={<SetPassword />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

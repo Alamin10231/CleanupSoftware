@@ -68,7 +68,7 @@ const Home = () => {
 
           {user ? (
             <div className="flex gap-6">
-              <Link to="/dashboard">
+              <Link to="/">
                 <button className="text-[#8241ED] border border-[#8241ED] px-4 py-2 cursor-pointer rounded-full hover:bg-[#8241ED] hover:text-white">
                   Dashboard
                 </button>
