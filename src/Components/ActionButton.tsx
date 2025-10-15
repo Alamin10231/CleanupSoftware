@@ -21,7 +21,7 @@ import {
 } from "./ui/select";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import BulkSalaryPayment from "./bulk-payments";
-import { useAddEmployeeMutation } from "@/redux/api/apiSlice";
+import { useAddEmployeeMutation, useEmployeeOverviewQuery } from "@/redux/api/apiSlice";
 
 const ActionButton = () => {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -38,7 +38,7 @@ const ActionButton = () => {
     nationalId: "",
     idExpiry: "",
     baseSalary: "",
-    salaryDay: "27",
+    salaryDay: "1",
     contractStart: "",
     contractEnd: "",
     group: "",
@@ -62,6 +62,7 @@ const ActionButton = () => {
     setRefreshKey((prev) => prev + 1);
     setTimeout(() => setIsRotating(false), 1000);
   };
+
 
   return (
     <div key={refreshKey}>

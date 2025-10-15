@@ -163,26 +163,6 @@ const ServiceCard: React.FC = () => {
               <div><p className="font-semibold">{formatRevenueShort(service.stats.revenue)}</p><p className="text-gray-500">Revenue</p></div>
               <div><p className="font-semibold">{service.stats.rating}</p><p className="text-gray-500">Rating</p></div>
             </div>
-
-            {/* Key Features */}
-            <div className="mt-4">
-              <h4 className="font-medium text-sm text-gray-700">Key Features</h4>
-              <div className="flex gap-2 flex-wrap mt-2">
-                {service.keyFeatures.map((f, i) => (
-                  <span key={i} className="bg-blue-50 text-blue-600 text-xs px-2 py-1 rounded-md">{f}</span>
-                ))}
-              </div>
-            </div>
-
-            {/* Included Items */}
-            <div className="mt-4">
-              <h4 className="font-medium text-sm text-gray-700">Included Items</h4>
-              <div className="flex gap-2 flex-wrap mt-2">
-                {service.includedItems.map((f, i) => (
-                  <span key={i} className="bg-green-50 text-green-600 text-xs px-2 py-1 rounded-md">{f}</span>
-                ))}
-              </div>
-            </div>
           </div>
         ))}
       </div>
