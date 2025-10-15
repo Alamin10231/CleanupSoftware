@@ -197,7 +197,7 @@ const Employees = () => {
             <option>Finance</option>
             <option>IT</option>
           </select>
-          <select
+          {/* <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer"
@@ -206,7 +206,7 @@ const Employees = () => {
             <option>Active</option>
             <option>On Leave</option>
             <option>Inactive</option>
-          </select>
+          </select> */}
           <select
             value={shiftFilter}
             onChange={(e) => setShiftFilter(e.target.value)}

@@ -34,6 +34,7 @@ const Sidebar: React.FC = () => {
       heading: "SETTINGS",
       items: [
         { icon: assets.setting, label: "Settings", path: "/settings" },
+        { icon: assets.setting, label: "chat", path: "/chat" },
       ],
     },
   ];

@@ -13,7 +13,7 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ["User", "Invoice", "AddEmployee", "AdminEmployeeOverview", "GetAllEmpolyeeAdmin"],
+  tagTypes: ["User", "Invoice", "AddEmployee", "AdminEmployeeOverview", "GetAllEmpolyeeAdmin","GetAllClientsAdmin","GetClientOverviewAdmin"],
   endpoints: (builder) => ({
     getInvoices: builder.query<any, void>({
       query: () => "/plan/invoice/list/",
@@ -48,6 +48,14 @@ export const apiSlice = createApi({
       query: (page = 1) => `employees/?page=${page}`,
       providesTags: ["GetAllEmpolyeeAdmin"],
     }),
+    getAllClientsAdmin: builder.query<any, number | void>({
+      query: (page = 1) => `clients/?page=${page}`,
+      providesTags: ["GetAllClientsAdmin"],
+    }),
+    getClientOverviewAdmin:builder.query<any, number | void>({
+      query: () => "clients/overview/",
+      providesTags: ["GetClientOverviewAdmin"],
+    }),
     addEmployee: builder.mutation({
       query: (add_employee) => ({
         url: "employees/",
@@ -66,5 +74,8 @@ export const {
   useGetCalculationInvoiceQuery,
   useGetAllClientQuery,
   useEmployeeOverviewQuery,
-  useGetAllemployeeAdminQuery
+  useGetAllemployeeAdminQuery,
+  useGetAllClientsAdminQuery,
+  useGetClientOverviewAdminQuery
+  
 } = apiSlice;

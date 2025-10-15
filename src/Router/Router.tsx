@@ -33,6 +33,8 @@ import NotFound from "@/Page/NotFound";
 import Verifyotp from "@/Components/Auth/Verifyotp";
 import Buildingregions from "@/Page/employee-dashboard/Buildingregions";
 import RegionDashboard from "@/Page/employee-dashboard/RegionDashboard";
+
+import ChatPage from "@/Page/employee-dashboard/ChatPage";
 import TaskEmployee from "@/Page/employee-dashboard/TaskEmployee";
 
 const Router = () => {
@@ -40,9 +42,8 @@ const Router = () => {
     <Routes>
       {/* Public Home */}
       <Route path="home" element={<Home />} />
-
       <Route path="/" element={<Layout />}>
-        {/* Admin */}
+        {/* admin */}
         <Route index element={<Dashboard />} />
         <Route path="client" element={<Clients />} />
         <Route path="help" element={<Help />} />
@@ -59,18 +60,28 @@ const Router = () => {
         <Route path="subscriptionplan" element={<SubscriptionPlan />} />
         <Route path="add-new-plan" element={<AddNewPlanForm />} />
         <Route path="add-services" element={<AddNewServiceForm />} />
+        <Route path="chat" element={<ChatPage />} />
 
         {/* Employee */}
         <Route path="employee-dashboard" element={<EmployeeDashboard />} />
         <Route path="employee-building" element={<RegionDashboard />} />
-        <Route path="employee-building/:buildingName" element={<TaskEmployee  />} />
-        <Route path="employee-communication" element={<EmployeeCommunication />} />
+        <Route
+          path="employee-building/:buildingName"
+          element={<TaskEmployee />}
+        />
+        <Route
+          path="employee-communication"
+          element={<EmployeeCommunication />}
+        />
         <Route path="employee-setting" element={<EmployeeSetting />} />
         <Route path="employee-forms" element={<EmployeeForms />} />
         <Route path="employee-region" element={<Buildingregions />} />
         <Route path="employee-report" element={<EmployeeReports />} />
         <Route path="employee-invoice" element={<EmployeeInvoicees />} />
-        <Route path="employee-subscriptions" element={<EmployeeSubscription />} />
+        <Route
+          path="employee-subscriptions"
+          element={<EmployeeSubscription />}
+        />
       </Route>
 
       {/* Auth routes */}
