@@ -52,7 +52,7 @@ const Navbar = () => {
         try {
             dispatch(logout());
             console.log("User logged out");
-            navigator("/login");
+            navigate("/login");
         } catch (error) {
             console.log(error);
         }
