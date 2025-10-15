@@ -302,7 +302,7 @@ const Employees = () => {
               <button
                 onClick={() => prevPage && setPage(prevPage)}
                 disabled={!prevPage}
-                className={`px-4 py-2 rounded-md text-sm font-medium ${
+                className={`px-4 py-2 cursor-pointer rounded-md text-sm font-medium ${
                   prevPage
                     ? "bg-blue-500 text-white hover:bg-blue-600"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
@@ -319,7 +319,7 @@ const Employees = () => {
               <button
                 onClick={() => nextPage && setPage(nextPage)}
                 disabled={!nextPage}
-                className={`px-4 py-2 rounded-md text-sm font-medium ${
+                className={`px-4 py-2 cursor-pointer rounded-md text-sm font-medium ${
                   nextPage
                     ? "bg-blue-500 text-white hover:bg-blue-600"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
