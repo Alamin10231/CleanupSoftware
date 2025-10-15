@@ -1,9 +1,8 @@
 import { assets } from "@/assets/assets";
 import Button from "@/Components/Button";
 import Card from "@/Components/Card";
-import UserCard from "@/Components/UserCard";
-import { useEffect, useState } from "react";
-import { FaPlus } from "react-icons/fa6";
+import { useState } from "react";
+import { FaPlus, FaEye, FaEdit } from "react-icons/fa";
 import { IoIosSearch } from "react-icons/io";
 import {
   Dialog,
@@ -13,45 +12,33 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/Components/ui/dialog";
-import { useGetAllClientQuery } from "@/redux/api/apiSlice";
-
-interface UserStats {
-  revenue: number;
-  services: number;
-  rating: number;
-  building: number;
-  last_service: string;
-}
-
-interface UserData {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  location: string;
-  status: string[];
-  avatar: string;
-  stats: UserStats;
-  joined_date: string;
-}
+import { useGetAllClientsAdminQuery, useGetClientOverviewAdminQuery } from "@/redux/api/apiSlice";
 
 const Clients = () => {
-  const [users, setUsers] = useState<UserData[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [page, setPage] = useState<number>(1);
 
-  useEffect(() => {
-    fetch("/User.json")
-      .then((res) => res.json())
-      .then((data) => setUsers(data))
-      .catch((err) => console.error("Error loading users:", err));
-  }, []);
+  const { data: all_Client, isLoading: all_Client_Loading, error: all_Client_error } =
+    useGetAllClientsAdminQuery(page);
+  const { data: Overview, isLoading: overviewLoading, error: overviewError } = useGetClientOverviewAdminQuery();
 
-  const filteredUsers = users.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.location.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+
+
+  if (all_Client_Loading) return <p>Loading...</p>;
+  if (all_Client_error) return <p>Error loading clients.</p>;
+
+  // Filter clients by search term
+  const filteredClients =
+    all_Client?.results.filter(
+      (client: any) =>
+        client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (client.client_profile?.location ?? "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+    ) || [];
+
+  const totalPages = Math.ceil(all_Client.count / 10); // Assuming 10 clients per page
 
   return (
     <div className="flex flex-col h-screen mt-6">
@@ -116,29 +103,6 @@ const Clients = () => {
                             className="col-span-3 border border-gray-300 rounded-md p-2 w-full"
                           />
                         </div>
-                        <div className="col-span-2 gap-2 grid grid-cols-1">
-                          <div className="grid grid-cols-1 items-center">
-                            <label htmlFor="tags" className="text-left">
-                              Note
-                            </label>
-                            <input
-                              type="note"
-                              id="note"
-                              className="col-span-3 border border-gray-300 rounded-md p-2 w-full"
-                              placeholder="Enter note here..."
-                            />
-                          </div>
-                          <div className="grid grid-cols-1 items-center">
-                            <label htmlFor="buildings" className="text-left">
-                              Associated Buildings
-                            </label>
-                            <input
-                              type="buildings"
-                              id="buildings"
-                              className="col-span-3 border border-gray-300 rounded-md p-2 w-full"
-                            />
-                          </div>
-                        </div>
                       </div>
                     </form>
                   </DialogDescription>
@@ -152,27 +116,34 @@ const Clients = () => {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mt-6">
           <Card
             title="Total Client"
-            number="04"
+            number={Overview?.total_client ?? 0}
             iconSrc={assets.total_service}
-            iconAlt="An icon of a shopping cart"
+            iconAlt="Clients icon"
           />
-
           <Card
             title="Total Revenue"
-            number={2540000}
+            number={Overview?.total_client_pay ?? 0}
             iconSrc={assets.Total_revenue}
-            iconAlt="An icon of a shopping cart"
+            iconAlt="Revenue icon"
           />
           <Card
-            title="Avg Popularity"
-            number={"85%"}
-            iconSrc={assets.Avg_Popularity}
-            iconAlt="An icon of a shopping cart"
+            title="Client Rating"
+            number={Overview?.client_rating ?? 0}
+            iconSrc={assets.Avg_Popularity} 
+            iconAlt="Total Services icon"
+          />
+          <Card
+            title="Active Bookings"
+            number={Overview?.active_booking ?? 0}
+            iconSrc={assets.Avg_Popularity}  
+            iconAlt="Active Bookings icon"
           />
         </div>
 
+
         {/* Search + Filters */}
         <div className="flex justify-between mt-10 mb-6 w-full">
+          {/* Search */}
           <div className="flex items-center border border-gray-400 p-2 rounded-xl w-full max-w-sm">
             <IoIosSearch className="text-gray-500 mr-2" />
             <input
@@ -183,7 +154,10 @@ const Clients = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+
+          {/* Filters */}
           <div className="flex gap-20">
+            {/* Status */}
             <div className="flex gap-2">
               <p className="text-base text-gray-500 py-2">Status</p>
               <p className="bg-green-100 p-2 text-green-600 rounded-full">
@@ -196,6 +170,8 @@ const Clients = () => {
                 Suspended
               </p>
             </div>
+
+            {/* Type */}
             <div className="flex gap-2">
               <p className="text-base text-gray-500 p-2">Type</p>
               <p className="bg-gray-100 p-2 text-gray-600 rounded-full">
@@ -205,6 +181,8 @@ const Clients = () => {
                 Business
               </p>
             </div>
+
+            {/* Plan */}
             <div className="flex gap-2">
               <p className="text-base p-2 text-gray-500">Plan</p>
               <p className="bg-gray-100 p-2 text-gray-600 rounded-full">
@@ -221,16 +199,101 @@ const Clients = () => {
         </div>
       </div>
 
-      {/* Scrollable User List */}
+      {/* Table */}
       <div className="flex-1 overflow-y-auto scrollbar-hide">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
-          {filteredUsers.length > 0 ? (
-            filteredUsers.map((user) => <UserCard key={user.id} user={user} />)
-          ) : (
-            <p className="text-gray-500 text-center col-span-full">
-              No users found.
-            </p>
-          )}
+        {filteredClients.length > 0 ? (
+          <table className="min-w-full border border-gray-300 text-sm">
+            <thead className="bg-gray-100 border-b border-gray-300">
+              <tr className="text-left text-gray-700">
+                <th className="p-3">ID</th>
+                <th className="p-3">Avatar</th>
+                <th className="p-3">Name</th>
+                <th className="p-3">Email</th>
+                <th className="p-3">Phone</th>
+                <th className="p-3">Location</th>
+                <th className="p-3">Status</th>
+                <th className="p-3">Services</th>
+                <th className="p-3">Pay</th>
+                <th className="p-3">Building</th>
+                <th className="p-3">Joined</th>
+                <th className="p-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredClients.map((client: any) => (
+                <tr
+                  key={client.id}
+                  className="border-b border-gray-200 hover:bg-gray-50 transition"
+                >
+                  <td className="p-3">{client.id}</td>
+                  <td className="p-3">
+                    <img
+                      src={client.client_profile?.avatar ?? "/default-avatar.png"}
+                      alt={client.name}
+                      className="w-12 h-12 rounded-full object-cover border border-gray-300"
+                    />
+                  </td>
+                  <td className="p-3 font-semibold">{client.name}</td>
+                  <td className="p-3">{client.email}</td>
+                  <td className="p-3">{client.prime_phone}</td>
+                  <td className="p-3">{client.client_profile?.location ?? "N/A"}</td>
+                  <td className="p-3">
+                    {client.is_active ? (
+                      <span className="bg-green-100 text-green-600 p-1 rounded-full">
+                        Active
+                      </span>
+                    ) : (
+                      <span className="bg-yellow-100 text-yellow-600 p-1 rounded-full">
+                        Inactive
+                      </span>
+                    )}
+                  </td>
+                  <td className="p-3">{client.each_client_services}</td>
+                  <td className="p-3">{client.each_client_pay}</td>
+                  <td className="p-3">{client.each_client_building}</td>
+                  <td className="p-3">
+                    {new Date(client.date_joined).toLocaleDateString()}
+                  </td>
+                  <td className="p-3 flex gap-3 text-gray-600">
+                    <button className="hover:text-blue-500 cursor-pointer">
+                      <FaEye />
+                    </button>
+                    <button className="hover:text-green-500 cursor-pointer">
+                      <FaEdit />
+                    </button>
+
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p className="text-gray-500 text-center p-5">No users found.</p>
+        )}
+
+        {/* Pagination */}
+        <div className="flex justify-between items-center mt-4">
+          <button
+            disabled={page <= 1}
+            onClick={() => setPage((prev) => prev - 1)}
+            className={`px-4 py-2 cursor-pointer rounded border ${page > 1 ? "bg-white hover:bg-gray-100" : "bg-gray-200 cursor-not-allowed"
+              }`}
+          >
+            Previous
+          </button>
+
+          <span className="text-sm text-gray-600">
+            Page {page} of {totalPages}
+          </span>
+
+          <button
+            disabled={page >= totalPages}
+            onClick={() => setPage((prev) => prev + 1)}
+            className={`px-4 py-2 cursor-pointer rounded-md text-white font-medium ${page < totalPages ? "bg-blue-600 hover:bg-gray-300 hover:text-black"  : "bg-gray-200 cursor-not-allowed"
+              }`}
+          >
+            Next
+          </button>
         </div>
       </div>
     </div>

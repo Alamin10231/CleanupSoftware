@@ -7,6 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 const EmployeeDashboard = () => {
 
+
+
+
+
   const stats = [
     { label: 'Total Task', value: '120', icon: Users, bgColor: 'bg-green-100', iconColor: 'text-green-600' },
     { label: 'Completed', value: '80', icon: ClipboardCheck, bgColor: 'bg-green-100', iconColor: 'text-green-600' },
@@ -131,14 +135,14 @@ const EmployeeDashboard = () => {
 
           <Select >
             <SelectTrigger className="px-4 w-[96px0px] py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-               <SelectValue placeholder="Year" />
+              <SelectValue placeholder="Year" />
             </SelectTrigger>
             <SelectContent>
-               <SelectItem value="2024">2024</SelectItem>
-               <SelectItem value="2023">2023</SelectItem>
-               <SelectItem value="2022">2022</SelectItem>
+              <SelectItem value="2024">2024</SelectItem>
+              <SelectItem value="2023">2023</SelectItem>
+              <SelectItem value="2022">2022</SelectItem>
             </SelectContent>
-         </Select>
+          </Select>
         </div>
 
         <div className="h-64">
@@ -146,8 +150,8 @@ const EmployeeDashboard = () => {
             <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1} />
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -220,9 +224,9 @@ const EmployeeDashboard = () => {
                 <action.icon size={24} className={action.iconColor} />
               </div>
               <div>
-                  <h3 className="font-semibold text-sm mb-1">{action.title}</h3>
-                  <p className="text-xs text-gray-500">{action.description}</p>
-               </div>
+                <h3 className="font-semibold text-sm mb-1">{action.title}</h3>
+                <p className="text-xs text-gray-500">{action.description}</p>
+              </div>
             </div>
           ))}
         </div>
