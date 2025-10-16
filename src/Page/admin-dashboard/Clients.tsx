@@ -13,26 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/Components/ui/dialog";
-
-interface UserStats {
-  revenue: number;
-  services: number;
-  rating: number;
-  building: number;
-  last_service: string;
-}
-
-interface UserData {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  location: string;
-  status: string[];
-  avatar: string;
-  stats: UserStats;
-  joined_date: string;
-}
+import { useGetAllClientsAdminQuery, useGetClientOverviewAdminQuery } from "@/redux/api/apiSlice";
 
 const Clients = () => {
   const [users, setUsers] = useState<UserData[]>([]);

@@ -11,7 +11,7 @@ interface Service {
   duration: string;
   price: string;
   bookings: number;
-  popularity: string | number;
+  popularity: string | number; 
   completionRate: { completed: number; total: number };
   stats: { active: number; completed: number; revenue: number; rating: number };
   keyFeatures: string[];
@@ -39,32 +39,19 @@ const ServiceCard: React.FC = () => {
   }, []);
 
   const filtered = services
-    .filter(
-      (s) =>
-        s.title.toLowerCase().includes(search.toLowerCase()) ||
-        s.description.toLowerCase().includes(search.toLowerCase())
+    .filter((s) =>
+      s.title.toLowerCase().includes(search.toLowerCase()) ||
+      s.description.toLowerCase().includes(search.toLowerCase())
     )
-    .filter(
-      (s) =>
-        category === "All Category" ||
-        s.category.toLowerCase() === category.toLowerCase()
-    )
-    .filter(
-      (s) =>
-        status === "All Status" ||
-        s.status.toLowerCase() === status.toLowerCase()
-    );
+    .filter((s) => category === "All Category" || s.category.toLowerCase() === category.toLowerCase())
+    .filter((s) => status === "All Status" || s.status.toLowerCase() === status.toLowerCase());
 
   // ✅ Sorting
   const sorted = filtered.sort((a, b) => {
     if (sortBy === "Sort By Name") return a.title.localeCompare(b.title);
-    if (sortBy === "Sort By Revenue (High to Low)")
-      return b.stats.revenue - a.stats.revenue;
+    if (sortBy === "Sort By Revenue (High to Low)") return b.stats.revenue - a.stats.revenue;
     // Default: Popularity
-    return (
-      parseInt(b.popularity.replace("%", "")) -
-      parseInt(a.popularity.replace("%", ""))
-    );
+    return parseInt(b.popularity.replace("%", "")) - parseInt(a.popularity.replace("%", ""));
   });
 
   return (
@@ -117,10 +104,7 @@ const ServiceCard: React.FC = () => {
       {/* Services Grid */}
       <div className="grid grid-cols-2 gap-6 mt-6">
         {sorted.map((service) => (
-          <div
-            key={service.id}
-            className="bg-white border border-gray-300 rounded-xl shadow-sm p-6"
-          >
+          <div key={service.id} className="bg-white border border-gray-300 rounded-xl shadow-sm p-6">
             {/* Header */}
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-4">
@@ -129,20 +113,12 @@ const ServiceCard: React.FC = () => {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-semibold text-[#0b1220]">
-                      {service.title}
-                    </h2>
-                    <span className="text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded-md">
-                      {service.status}
-                    </span>
+                    <h2 className="text-lg font-semibold text-[#0b1220]">{service.title}</h2>
+                    <span className="text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded-md">{service.status}</span>
                   </div>
-                  <p className="text-sm text-gray-500 mt-1">
-                    {service.description}
-                  </p>
+                  <p className="text-sm text-gray-500 mt-1">{service.description}</p>
                   <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
-                    <span className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-md">
-                      {service.category}
-                    </span>
+                    <span className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-md">{service.category}</span>
                     <span>⭐ {service.rating}</span>
                     <span>• {service.duration}</span>
                   </div>
@@ -152,28 +128,11 @@ const ServiceCard: React.FC = () => {
               {/* Actions + Price */}
               <div className="flex flex-col items-end gap-2">
                 <div className="flex items-center gap-2">
-                  <button
-                    title="View"
-                    className="p-1 rounded-md hover:bg-gray-100"
-                  >
-                    <FiEye className="text-gray-500" />
-                  </button>
-                  <button
-                    title="Edit"
-                    className="p-1 rounded-md hover:bg-gray-100"
-                  >
-                    <FiEdit2 className="text-gray-500" />
-                  </button>
-                  <button
-                    title="Delete"
-                    className="p-1 rounded-md hover:bg-gray-100"
-                  >
-                    <FiTrash2 className="text-red-500" />
-                  </button>
+                  <button title="View" className="p-1 rounded-md hover:bg-gray-100"><FiEye className="text-gray-500" /></button>
+                  <button title="Edit" className="p-1 rounded-md hover:bg-gray-100"><FiEdit2 className="text-gray-500" /></button>
+                  <button title="Delete" className="p-1 rounded-md hover:bg-gray-100"><FiTrash2 className="text-red-500" /></button>
                 </div>
-                <div className="text-right font-bold text-xl">
-                  {service.price}
-                </div>
+                <div className="text-right font-bold text-xl">{service.price}</div>
               </div>
             </div>
 
@@ -187,45 +146,22 @@ const ServiceCard: React.FC = () => {
             <div className="mt-4">
               <div className="flex justify-between text-sm text-gray-600">
                 <p>Completion Rate:</p>
-                <p>
-                  {service.completionRate.completed} /{" "}
-                  {service.completionRate.total}
-                </p>
+                <p>{service.completionRate.completed} / {service.completionRate.total}</p>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
                 <div
                   className="bg-blue-500 h-2 rounded-full"
-                  style={{
-                    width: `${
-                      (service.completionRate.completed /
-                        service.completionRate.total) *
-                      100
-                    }%`,
-                  }}
+                  style={{ width: `${(service.completionRate.completed / service.completionRate.total) * 100}%` }}
                 />
               </div>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-4 gap-4 mt-4 text-center text-sm">
-              <div>
-                <p className="font-semibold">{service.stats.active}</p>
-                <p className="text-gray-500">Active</p>
-              </div>
-              <div>
-                <p className="font-semibold">{service.stats.completed}</p>
-                <p className="text-gray-500">Completed</p>
-              </div>
-              <div>
-                <p className="font-semibold">
-                  {formatRevenueShort(service.stats.revenue)}
-                </p>
-                <p className="text-gray-500">Revenue</p>
-              </div>
-              <div>
-                <p className="font-semibold">{service.stats.rating}</p>
-                <p className="text-gray-500">Rating</p>
-              </div>
+              <div><p className="font-semibold">{service.stats.active}</p><p className="text-gray-500">Active</p></div>
+              <div><p className="font-semibold">{service.stats.completed}</p><p className="text-gray-500">Completed</p></div>
+              <div><p className="font-semibold">{formatRevenueShort(service.stats.revenue)}</p><p className="text-gray-500">Revenue</p></div>
+              <div><p className="font-semibold">{service.stats.rating}</p><p className="text-gray-500">Rating</p></div>
             </div>
           </div>
         ))}
