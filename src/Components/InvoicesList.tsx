@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import InvoiceCard from "./InvoiceCard";
 import { useGetInvoicesQuery } from "@/redux/api/apiSlice";
 
 interface Invoice {
@@ -24,7 +23,6 @@ interface Invoice {
 
 const InvoicesList = () => {
   const { data: invoicesData, isLoading, isError } = useGetInvoicesQuery(undefined);
-
   const invoices = invoicesData?.results || invoicesData || [];
 
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
@@ -121,12 +119,70 @@ const InvoicesList = () => {
         </div>
       </div>
 
-      {/* List */}
-      <div>
+      {/* Table List */}
+      <div className="overflow-x-auto mt-6">
         {filteredInvoices.length > 0 ? (
-          filteredInvoices.map((invoice) => (
-            <InvoiceCard key={invoice.invoice_id} invoice={invoice} />
-          ))
+          <table className="min-w-full border border-gray-200 bg-white rounded-lg shadow-sm">
+            <thead className="bg-gray-100 border-b border-gray-300 text-gray-700 text-sm">
+              <tr>
+                <th className="p-3 text-left">Invoice ID</th>
+                <th className="p-3 text-left">Building</th>
+                <th className="p-3 text-left">Region</th>
+                <th className="p-3 text-left">Apartment(s)</th>
+                <th className="p-3 text-left">Client</th>
+                <th className="p-3 text-left">Type</th>
+                <th className="p-3 text-left">Date Issued</th>
+                <th className="p-3 text-left">Due Date</th>
+                <th className="p-3 text-left">Total Amount</th>
+                <th className="p-3 text-left">Status</th>
+                {/* <th className="p-3 text-left">Note</th> */}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredInvoices.map((invoice) => (
+                <tr
+                  key={invoice.invoice_id}
+                  className="border-b border-gray-200 hover:bg-gray-50 transition"
+                >
+                  <td className="p-3 font-semibold text-gray-700">{invoice.invoice_id}</td>
+                  <td className="p-3">{invoice.building_name}</td>
+                  <td className="p-3">{invoice.region_name}</td>
+                  <td className="p-3">{invoice.apartment_name?.join(", ") || "N/A"}</td>
+                  <td className="p-3">{invoice.client ?? "N/A"}</td>
+                  <td className="p-3 capitalize">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${invoice.type === "incoming"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-blue-100 text-blue-700"
+                        }`}
+                    >
+                      {invoice.type}
+                    </span>
+                  </td>
+                  <td className="p-3">{new Date(invoice.date_issued).toLocaleDateString()}</td>
+                  <td className="p-3">
+                    {invoice.due_date
+                      ? new Date(invoice.due_date).toLocaleDateString()
+                      : "—"}
+                  </td>
+                  <td className="p-3 font-semibold text-gray-800">
+                    ${invoice.total_amount.toFixed(2)}
+                  </td>
+                  <td className="p-3">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${invoice.status.toLowerCase() === "paid"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-yellow-100 text-yellow-700"
+                        }`}
+                    >
+                      {invoice.status}
+                    </span>
+                  </td>
+                  {/* <td className="p-3 text-gray-600">{invoice.note || "—"}</td> */}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         ) : (
           <p className="text-center text-gray-500 mt-6">No invoices found</p>
         )}

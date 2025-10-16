@@ -3,6 +3,14 @@ import { assets } from "@/assets/assets";
 import ActionButton from "@/Components/ActionButton";
 import Card from "@/Components/Card";
 import ProgressBar from "@/Components/ProgressBar";
+import { FaEye } from "react-icons/fa";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import {
   useEmployeeOverviewQuery,
   useGetAllemployeeAdminQuery,
@@ -11,100 +19,73 @@ import {
 interface Employee {
   id: number;
   name: string;
-  role: string;
-  department: string;
-  status: string;
-  tags: string[];
-  shifts: string[];
   email: string;
-  phone: string;
-  location: string;
-  salary: string;
-  performance: number;
-  clientRating: number;
-  punctuality: string;
-  payments: number;
+  prime_phone: string;
+  is_active: boolean;
+  date_joined: string;
+  employee_profile: {
+    id: number;
+    department: string;
+    role: string;
+    shift: string;
+    is_on_leave: boolean;
+    location: string | null;
+    national_id: string;
+    contact_number: string | null;
+    contract_start: string;
+    contract_end: string;
+    base_salary: string;
+  };
 }
 
 const Employees = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [departmentFilter, setDepartmentFilter] = useState("All Departments");
-  const [statusFilter, setStatusFilter] = useState("All Status");
   const [shiftFilter, setShiftFilter] = useState("All Shifts");
-  const [page, setPage] = useState(1); // ✅ Use numeric pagination instead of URLs
+  const [page, setPage] = useState(1);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null
+  );
 
   // Fetch overview data
-  const {
-    data: overviewData,
-    error: overviewError,
-    isLoading: overviewLoading,
-  } = useEmployeeOverviewQuery();
+  const { data: overviewData, isLoading: overviewLoading, error: overviewError } =
+    useEmployeeOverviewQuery();
 
-  // Fetch paginated employee data
+  // Fetch employee data
   const {
     data: employeeResponse,
     isLoading: employeesLoading,
     error: employeesError,
   } = useGetAllemployeeAdminQuery(page);
 
-  // ✅ Extract page numbers from absolute URLs
+  // Extract pagination
   const getPageNumber = (url: string | null) => {
     if (!url) return null;
     const match = url.match(/page=(\d+)/);
     return match ? parseInt(match[1]) : null;
   };
-
   const nextPage = getPageNumber(employeeResponse?.next);
   const prevPage = getPageNumber(employeeResponse?.previous);
 
+  // Format employee data
   const employees: Employee[] = useMemo(() => {
     if (!employeeResponse?.results) return [];
-
-    return employeeResponse.results.map((emp: any) => {
-      const profile = emp.employee_profile || {};
-
-      return {
-        id: emp.id,
-        name: emp.name,
-        role: profile.role || "N/A",
-        department: profile.department || "N/A",
-        status: profile.is_on_leave
-          ? "On Leave"
-          : emp.is_active
-          ? "Active"
-          : "Inactive",
-        tags: [profile.department || "General"],
-        shifts: [profile.shift || "N/A"],
-        email: emp.email,
-        phone: emp.prime_phone || profile.contact_number || "N/A",
-        location: profile.location || "Unknown",
-        salary: profile.base_salary ? `${profile.base_salary} BDT` : "0 BDT",
-        performance: emp.tasks_completed || 0,
-        clientRating: emp.client_rating || 0,
-        punctuality: profile.is_on_leave ? "Low" : "High",
-        payments: parseFloat(profile.base_salary || 0),
-      };
-    });
+    return employeeResponse.results;
   }, [employeeResponse]);
 
+  // Apply filters
   const filteredEmployees = employees.filter((emp) => {
     const search = searchTerm.toLowerCase();
     const matchesSearch =
       emp.name.toLowerCase().includes(search) ||
-      emp.role.toLowerCase().includes(search) ||
       emp.email.toLowerCase().includes(search);
-
     const matchesDepartment =
       departmentFilter === "All Departments" ||
-      emp.department === departmentFilter;
-
-    const matchesStatus =
-      statusFilter === "All Status" || emp.status === statusFilter;
-
+      emp.employee_profile?.department === departmentFilter;
     const matchesShift =
-      shiftFilter === "All Shifts" || emp.shifts.includes(shiftFilter);
-
-    return matchesSearch && matchesDepartment && matchesStatus && matchesShift;
+      shiftFilter === "All Shifts" ||
+      emp.employee_profile?.shift === shiftFilter;
+    return matchesSearch && matchesDepartment && matchesShift;
   });
 
   const cardData = [
@@ -197,16 +178,6 @@ const Employees = () => {
             <option>Finance</option>
             <option>IT</option>
           </select>
-          {/* <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer"
-          >
-            <option>All Status</option>
-            <option>Active</option>
-            <option>On Leave</option>
-            <option>Inactive</option>
-          </select> */}
           <select
             value={shiftFilter}
             onChange={(e) => setShiftFilter(e.target.value)}
@@ -234,70 +205,51 @@ const Employees = () => {
                   <tr>
                     <th className="px-4 py-3 text-left">Name</th>
                     <th className="px-4 py-3 text-left">Role</th>
-                    <th className="px-4 py-3 text-left">Tags</th>
-                    <th className="px-4 py-3 text-left">Shifts</th>
+                    <th className="px-4 py-3 text-left">Department</th>
+                    <th className="px-4 py-3 text-left">Shift</th>
                     <th className="px-4 py-3 text-left">Email</th>
                     <th className="px-4 py-3 text-left">Phone</th>
-                    <th className="px-4 py-3 text-left">Location</th>
                     <th className="px-4 py-3 text-left">Salary</th>
-                    <th className="px-4 py-3 text-left">Performance</th>
-                    <th className="px-4 py-3 text-left">Client Rating</th>
-                    <th className="px-4 py-3 text-left">Punctuality</th>
+                    <th className="px-4 py-3 text-left">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredEmployees.map((emp) => (
-                    <tr key={emp.id} className="border-t hover:bg-gray-50 transition">
-                      <td className="px-4 py-3 flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm">
-                          {emp.name.charAt(0)}
-                        </div>
-                        <span className="font-medium text-gray-700">{emp.name}</span>
-                      </td>
-                      <td className="px-4 py-3">{emp.role}</td>
+                    <tr
+                      key={emp.id}
+                      className="border-t hover:bg-gray-50 transition"
+                    >
+                      <td className="px-4 py-3">{emp.name}</td>
                       <td className="px-4 py-3">
-                        <div className="flex flex-wrap gap-1">
-                          {emp.tags.map((tag, i) => (
-                            <span
-                              key={i}
-                              className={`text-xs px-2 py-0.5 rounded-full ${
-                                tag.toLowerCase() === "paid"
-                                  ? "bg-green-100 text-green-600"
-                                  : tag.toLowerCase() === "inactive"
-                                  ? "bg-yellow-100 text-yellow-600"
-                                  : "bg-gray-100 text-gray-600"
-                              }`}
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
+                        {emp.employee_profile?.role || "N/A"}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="flex flex-wrap gap-1">
-                          {emp.shifts.map((shift, i) => (
-                            <span
-                              key={i}
-                              className="text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full"
-                            >
-                              {shift}
-                            </span>
-                          ))}
-                        </div>
+                        {emp.employee_profile?.department || "N/A"}
+                      </td>
+                      <td className="px-4 py-3">
+                        {emp.employee_profile?.shift || "N/A"}
                       </td>
                       <td className="px-4 py-3">{emp.email}</td>
-                      <td className="px-4 py-3">{emp.phone}</td>
-                      <td className="px-4 py-3">{emp.location}</td>
-                      <td className="px-4 py-3">{emp.salary}</td>
-                      <td className="px-4 py-3">{emp.performance}</td>
-                      <td className="px-4 py-3">{emp.clientRating}</td>
-                      <td className="px-4 py-3">{emp.punctuality}</td>
+                      <td className="px-4 py-3">{emp.prime_phone}</td>
+                      <td className="px-4 py-3">
+                        {emp.employee_profile?.base_salary || "0"} SAR
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => setSelectedEmployee(emp)}
+                          className="text-blue-500 hover:text-blue-700"
+                          title="View Details"
+                        >
+                          <FaEye size={16} />
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
 
+            {/* Pagination */}
             <div className="flex justify-between items-center mt-4 px-2">
               <button
                 onClick={() => prevPage && setPage(prevPage)}
@@ -333,6 +285,86 @@ const Employees = () => {
           <p className="text-gray-500 text-center">No employees found.</p>
         )}
       </div>
+
+      {/* 👇 Employee Details Modal */}
+      <Dialog
+        open={!!selectedEmployee}
+        onOpenChange={() => setSelectedEmployee(null)}
+      >
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Employee Details</DialogTitle>
+            <DialogDescription>
+              Complete information about the selected employee.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedEmployee && (
+            <div className="mt-4 space-y-2 text-sm text-gray-700">
+              <p>
+                <strong>ID:</strong> {selectedEmployee.id}
+              </p>
+              <p>
+                <strong>Name:</strong> {selectedEmployee.name}
+              </p>
+              <p>
+                <strong>Email:</strong> {selectedEmployee.email}
+              </p>
+              <p>
+                <strong>Phone:</strong> {selectedEmployee.prime_phone}
+              </p>
+              <p>
+                <strong>Status:</strong>{" "}
+                {selectedEmployee.is_active ? "Active" : "Inactive"}
+              </p>
+              <p>
+                <strong>Date Joined:</strong>{" "}
+                {new Date(selectedEmployee.date_joined).toLocaleDateString()}
+              </p>
+
+              <hr className="my-2" />
+
+              <p>
+                <strong>Department:</strong>{" "}
+                {selectedEmployee.employee_profile?.department || "N/A"}
+              </p>
+              <p>
+                <strong>Role:</strong>{" "}
+                {selectedEmployee.employee_profile?.role || "N/A"}
+              </p>
+              <p>
+                <strong>Shift:</strong>{" "}
+                {selectedEmployee.employee_profile?.shift || "N/A"}
+              </p>
+              <p>
+                <strong>On Leave:</strong>{" "}
+                {selectedEmployee.employee_profile?.is_on_leave
+                  ? "Yes"
+                  : "No"}
+              </p>
+              <p>
+                <strong>Location:</strong>{" "}
+                {selectedEmployee.employee_profile?.location || "N/A"}
+              </p>
+              <p>
+                <strong>National ID:</strong>{" "}
+                {selectedEmployee.employee_profile?.national_id || "N/A"}
+              </p>
+              <p>
+                <strong>Contract Start:</strong>{" "}
+                {selectedEmployee.employee_profile?.contract_start || "N/A"}
+              </p>
+              <p>
+                <strong>Contract End:</strong>{" "}
+                {selectedEmployee.employee_profile?.contract_end || "N/A"}
+              </p>
+              <p>
+                <strong>Base Salary:</strong>{" "}
+                {selectedEmployee.employee_profile?.base_salary || "N/A"} SAR
+              </p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
