@@ -210,7 +210,7 @@ const Employees = () => {
                     <th className="px-4 py-3 text-left">Email</th>
                     <th className="px-4 py-3 text-left">Phone</th>
                     <th className="px-4 py-3 text-left">Salary</th>
-                    <th className="px-4 py-3 text-left">Details</th>
+                    <th className="px-4 py-3 text-left cursor-pointer">Details</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -237,10 +237,10 @@ const Employees = () => {
                       <td className="px-4 py-3">
                         <button
                           onClick={() => setSelectedEmployee(emp)}
-                          className="text-blue-500 hover:text-blue-700"
+                          className="text-blue-500 text-center cursor-pointer hover:text-blue-700"
                           title="View Details"
                         >
-                          <FaEye size={16} />
+                          <FaEye className="" size={16} />
                         </button>
                       </td>
                     </tr>
@@ -254,11 +254,10 @@ const Employees = () => {
               <button
                 onClick={() => prevPage && setPage(prevPage)}
                 disabled={!prevPage}
-                className={`px-4 py-2 cursor-pointer rounded-md text-sm font-medium ${
-                  prevPage
+                className={`px-4 py-2 cursor-pointer rounded-md text-sm font-medium ${prevPage
                     ? "bg-blue-500 text-white hover:bg-blue-600"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
+                  }`}
               >
                 Previous
               </button>
@@ -271,11 +270,10 @@ const Employees = () => {
               <button
                 onClick={() => nextPage && setPage(nextPage)}
                 disabled={!nextPage}
-                className={`px-4 py-2 cursor-pointer rounded-md text-sm font-medium ${
-                  nextPage
+                className={`px-4 py-2 cursor-pointer rounded-md text-sm font-medium ${nextPage
                     ? "bg-blue-500 text-white hover:bg-blue-600"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
+                  }`}
               >
                 Next
               </button>
