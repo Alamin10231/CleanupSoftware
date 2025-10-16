@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { Subscription } from "../../assets/assets";
+
 
 export const apiSlice = createApi({
   reducerPath: "api",
@@ -13,7 +13,7 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ["User", "Invoice", "AddEmployee"],
+  tagTypes: ["User", "Invoice", "AddEmployee","region"],
   endpoints: (builder) => ({
     getInvoices: builder.query<any, void>({
       query: () => "/plan/invoice/list/",
@@ -44,6 +44,24 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ["AddEmployee"],
     }),
+
+    getregions:builder.query<any,void>({
+      query:()=>"/locations/overview/",
+      providesTags:["region"],
+    }),
+
+    getcalculationregion:builder.query<any,void>({
+      query:()=>"/locations/overview/",
+       providesTags:["region"],
+    }),
+    addregion:builder.mutation({
+      query:(region)=>({
+        url:"/locations/overview/",
+        method:"POST",
+        body:region
+      }),
+      invalidatesTags:["region"],
+    })
   }),
 });
 
@@ -53,4 +71,7 @@ export const {
   useAddEmployeeMutation,
   useGetCalculationInvoiceQuery,
   useGetAllClientQuery,
+  useGetregionsQuery,
+  useAddregionMutation,
+  useGetcalculationregionQuery,
 } = apiSlice;

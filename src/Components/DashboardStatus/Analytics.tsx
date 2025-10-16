@@ -1,6 +1,3 @@
-"use client";
-
-import React from "react";
 
 type Slice = { name: string; value: number; color: string };
 
@@ -21,9 +18,9 @@ function percent(n: number, total: number) {
 }
 
 const analyticsData: Slice[] = [
-  { name: "Paid", value: 100, color: "#009608" },
-  { name: "Pending", value: 200, color: "#FF9800" },
-  { name: "Stopped", value: 100, color: "#D32F2F" },
+
+  { name: "Active", value: 200, color: "#FF9800" },
+  { name: "Expired", value: 100, color: "#D32F2F" },
   { name: "Paused", value: 100, color: "#0288D1" },
 ];
 
@@ -33,7 +30,7 @@ export default function Analytics() {
 
   return (
     <div className="w-full rounded-xl border bg-white p-4 shadow-sm">
-      <h2 className="mb-2 text-lg font-semibold">Analytics Report</h2>
+      <h2 className="mb-2 text-lg font-semibold">Subscription</h2>
 
       <div className="flex flex-col items-center gap-4">
         {/* Donut Chart */}
@@ -59,7 +56,7 @@ export default function Analytics() {
           {analyticsData.map((s) => (
             <li
               key={s.name}
-              className="flex items-center gap-2 rounded-lg border px-3 py-1 transition hover:bg-muted/30"
+              className="flex items-center gap-2 rounded-lg px-3 py-1 transition hover:bg-muted/30"
               title={`${s.name}: ${percent(s.value, total)}%`}
             >
               <div
