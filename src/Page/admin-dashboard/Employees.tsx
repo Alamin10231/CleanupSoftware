@@ -210,7 +210,7 @@ const Employees = () => {
                     <th className="px-4 py-3 text-left">Email</th>
                     <th className="px-4 py-3 text-left">Phone</th>
                     <th className="px-4 py-3 text-left">Salary</th>
-                    <th className="px-4 py-3 text-left">Action</th>
+                    <th className="px-4 py-3 text-left">Details</th>
                   </tr>
                 </thead>
                 <tbody>
