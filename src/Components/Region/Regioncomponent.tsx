@@ -20,12 +20,7 @@ import {
 import { Eye, MapPin, Target } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
-
-import {
-  useGetregionsQuery,
-  useGetcalculationregionQuery,
-  useAddregionMutation,
-} from "@/redux/api/apiSlice";
+import { useAddregionMutation, useGetcalculationregionQuery, useGetregionsQuery } from "@/redux/api/apiSlice";
 
 type Region = {
   id?: string | number;
