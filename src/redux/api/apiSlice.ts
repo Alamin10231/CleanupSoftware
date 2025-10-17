@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://10.10.13.75:8015/api/v1/",
+    baseUrl: "http://10.10.13.61:8015/api/v1/",
     // credentials: "include",
     // ✅ Uncomment if you use token-based auth
     prepareHeaders: (headers, { getState }) => {
@@ -23,6 +23,8 @@ export const apiSlice = createApi({
     "GetAllEmployeeAdmin",
     "GetAllClientsAdmin",
     "GetClientOverviewAdmin",
+    "GetServiceAdminOverview",
+    "GetAllServiceDataAdmin"
   ],
 
   endpoints: (builder) => ({
@@ -34,7 +36,14 @@ export const apiSlice = createApi({
       query: (params = "") => `/plan/invoice/list/${params}`,
       providesTags: ["Invoice"],
     }),
-
+    getServiceAdminOverview: builder.query<any, string | void>({
+      query: () => "task/total-service-details/",
+      providesTags: ["GetServiceAdminOverview"],
+    }),
+    getAllServiceDataAdmin: builder.query<any, string | void>({
+      query: () => "task/services/details/",
+      providesTags: ["GetAllServiceDataAdmin"],
+    }),
     getCalculationInvoice: builder.query<any, void>({
       query: () => "/plan/calculations/",
       providesTags: ["Invoice"],
@@ -95,4 +104,6 @@ export const {
   useGetAllemployeeAdminQuery,
   useGetAllClientsAdminQuery,
   useGetClientOverviewAdminQuery,
+  useGetServiceAdminOverviewQuery,
+  useGetAllServiceDataAdminQuery
 } = apiSlice;
