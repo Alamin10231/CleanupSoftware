@@ -19,7 +19,6 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       localStorage.setItem("access", access);
       localStorage.setItem("refresh", refresh);
-      localStorage.setItem("user", JSON.stringify(user));
     },
     logout: (state) => {
       state.user = null;
@@ -28,7 +27,6 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       localStorage.removeItem("access");
       localStorage.removeItem("refresh");
-      localStorage.removeItem("user");
     },
   },
 });
