@@ -1,5 +1,18 @@
 import { useEffect, useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+  
+} from "@/Components/ui/tabs";
+import { Dialog,  DialogContent,   DialogHeader, DialogTitle, DialogTrigger } from "@/Components/ui/dialog";
+import { Label } from "@/Components/ui/label";
+import { Button } from "@/Components/ui/button";
+
+
+
+
 
 interface Invoice {
   FormName: string;
@@ -41,7 +54,7 @@ const EmployeeForms = () => {
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Invoices</h1>
+        <h1 className="text-2xl font-bold">Forms</h1>
       </div>
 
       {/* Tabs */}
@@ -64,7 +77,7 @@ const EmployeeForms = () => {
                   <th className="px-4 py-2 text-left">Client</th>
                   <th className="px-4 py-2 text-left">Appartment</th>
                   <th className="px-4 py-2 text-left">Region</th>
-                  <th className="px-4 py-2 text-left">Status</th>
+                  <th className="px-4 py-2 text-left">Note</th>
                   <th className="px-4 py-2 text-left">Last Updates</th>
                 </tr>
               </thead>
@@ -79,8 +92,33 @@ const EmployeeForms = () => {
                       className={`px-4 py-4 
                       `}
                     >
-                      <span className={` ${statuscolor[invoice.Status] || ""}`}>
-                        {invoice.Status}
+                      {/* <span className={` ${statuscolor[invoice.Status] || ""}`}>
+                         {invoice.Status}
+
+                       </span> */}
+                      <span>
+                        <Dialog>
+      <form>
+        <DialogTrigger asChild>
+          <Button className="text-blue-600 bg-blue-100"  variant="outline"><span className="text-blue-600">+</span> Add Notes</Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px] ">
+          <DialogHeader>
+            <DialogTitle>Note</DialogTitle>
+            
+          </DialogHeader>
+          <div className="grid gap-4 ">
+            <div className="grid gap-3 ">
+              <Label htmlFor="name-1">Name</Label>
+              <textarea  id="name-1" name="name" defaultValue="Notes..!" className="h-24 w-full text-gray-500" />
+            </div>
+           
+          </div>
+        
+        </DialogContent>
+      </form>
+    </Dialog>
+                        
                       </span>
                     </td>
                     <td className="px-4 py-4 ">{invoice.LastUpdated}</td>
