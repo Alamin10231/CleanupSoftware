@@ -1,10 +1,9 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { Subscription } from "../../assets/assets";
 
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
-    baseUrl: "http://10.10.13.61:8015/api/v1",
+    baseUrl: "http://10.10.13.75:8015/api/v1",
     prepareHeaders: (headers, { getState }) => {
       const token = getState().auth.accessToken;
       if (token) {
@@ -77,5 +76,5 @@ export const {
   useGetAllemployeeAdminQuery,
   useGetAllClientsAdminQuery,
   useGetClientOverviewAdminQuery
-  
+
 } = apiSlice;
