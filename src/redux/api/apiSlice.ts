@@ -11,26 +11,23 @@ export type SubsPage = {
 
 // lower-case month names your backend expects (e.g. "october")
 export type MonthLower =
-  | "january"
-  | "february"
-  | "march"
-  | "april"
-  | "may"
-  | "june"
-  | "july"
-  | "august"
-  | "september"
-  | "october"
-  | "november"
-  | "december";
+  | "january" | "february" | "march" | "april" | "may" | "june"
+  | "july" | "august" | "september" | "october" | "november" | "december";
 
 // one row in outgoing_sales; API sometimes sends `soudi_hour` (typo) or `saudi_hour`
 export type OutgoingSale = {
-  time: string; // "YYYY-MM-DD HH:mm:ss"
+  time: string;          // "YYYY-MM-DD HH:mm:ss"
   amount: number;
-  month: string; // "October"
-  soudi_hour?: string; // optional label from API (typo variant)
-  saudi_hour?: string; // optional label from API (corrected variant)
+  month: string;         // "October"
+  soudi_hour?: string;   // optional label from API (typo variant)
+  saudi_hour?: string;   // optional label from API (corrected variant)
+};
+
+export type TopClient = {
+  client__id: number | null;
+  client__name: string | null;
+  client__email: string | null;
+  total_sales: number;
 };
 
 export type AdminDashboard = {
@@ -39,8 +36,25 @@ export type AdminDashboard = {
   month_sales: number;
   month_new_added_building: number;
   outgoing_sales: OutgoingSale[];
-  analitycs: { stopped: number; paused: number };
+  analitycs: { stopped: number; paused: number; new_active?: number };
   recent_activity: any[];
+  top_clients?: TopClient[];
+};
+
+/** 🔹 Top Performers (list item) */
+export type TopPerformer = {
+  id: number;
+  name: string;
+  role: string;
+  services: number;
+};
+
+/** 🔹 Generic paginated shape */
+export type Paginated<T> = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
 };
 
 export const apiSlice = createApi({
@@ -131,17 +145,11 @@ export const apiSlice = createApi({
     }),
 
     /* ---------- ADMIN DASHBOARD (POST year+month) ---------- */
-    getAdminDashboard: builder.query<
-      AdminDashboard,
-      { year: number; month: MonthLower }
-    >({
+    getAdminDashboard: builder.query<AdminDashboard, { year: number; month: MonthLower }>({
       query: ({ year, month }) => ({
         url: "/dashboard/",
         method: "POST",
-        body: {
-          year: Number(year),
-          month: String(month).toLowerCase() as MonthLower,
-        },
+        body: { year: Number(year), month: String(month).toLowerCase() as MonthLower },
       }),
       providesTags: ["AdminDashboard"],
     }),
@@ -162,9 +170,15 @@ export const apiSlice = createApi({
           page_size: String(page_size),
           ...(s ? { status: s } : {}),
         }).toString();
-        return `/plan/subscription/?${qs}`;
+        return `/plan/subscription/?${qs}`; // fixed
       },
       providesTags: ["Subscription"],
+    }),
+
+    /* ---------- TOP PERFORMERS (paginated) ---------- */
+    getTopPerformersPage: builder.query<Paginated<TopPerformer>, { page?: number; page_size?: number }>({
+      query: ({ page = 1, page_size = 10 } = {}) =>
+        `/employees/top-performers/?page=${page}&page_size=${page_size}`,
     }),
   }),
 });
@@ -192,4 +206,7 @@ export const {
 
   // admin dashboard
   useGetAdminDashboardQuery,
+
+  // top performers
+  useGetTopPerformersPageQuery,
 } = apiSlice;

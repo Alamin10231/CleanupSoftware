@@ -5,7 +5,7 @@ import DashboardOverview from "@/Components/DashboardStatus/DashboardOverview";
 import DashboardStats from "@/Components/DashboardStatus/DashboardStatus";
 import RecentActivities from "@/Components/DashboardStatus/RecentActivities";
 import Report from "@/Components/DashboardStatus/Report";
-import Schedule from "@/Components/DashboardStatus/Schedule";
+// import Schedule from "@/Components/DashboardStatus/Schedule";
 import TopPerformers from "@/Components/DashboardStatus/TopPerformers";
 
 
@@ -24,20 +24,20 @@ const Dashboard = () => {
           <Analytics />
         </div>
       </div>
-     <div className="grid grid-cols-12 gap-4 py-10">
-         <div className="col-span-4">
+     <div className="grid grid-cols-12 gap-4 py-10 ">
+         <div className="col-span-5">
            <RecentActivities></RecentActivities>
         </div>
-        <div className="col-span-4">
+        {/* <div className="col-span-4">
           <Schedule></Schedule>
-        </div>
-        <div className="col-span-4">
+        </div> */}
+        <div className="col-span-6">
           <TopPerformers></TopPerformers>
         </div>
       </div>
-        <div>
+        {/* <div>
           <DashboardOverview></DashboardOverview>
-        </div>
+        </div> */}
         
     </div>
   );
