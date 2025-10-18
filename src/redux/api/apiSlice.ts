@@ -1,18 +1,19 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import type { RootState } from "../store";
 
 export const apiSlice = createApi({
   reducerPath: "api",
   baseQuery: fetchBaseQuery({
     baseUrl: "http://10.10.13.75:8015/api/v1",
     prepareHeaders: (headers, { getState }) => {
-      const token = getState().auth.accessToken;
+      const token = (getState() as RootState).auth.accessToken;
       if (token) {
         headers.set("authorization", `Bearer ${token}`);
       }
       return headers;
     },
   }),
-  tagTypes: ["User", "Invoice", "AddEmployee", "AdminEmployeeOverview", "GetAllEmpolyeeAdmin","GetAllClientsAdmin","GetClientOverviewAdmin"],
+  tagTypes: ["User", "Invoice", "AddEmployee", "AdminEmployeeOverview", "GetAllEmpolyeeAdmin","GetAllClientsAdmin","GetClientOverviewAdmin", "Building"],
   endpoints: (builder) => ({
     getInvoices: builder.query<any, void>({
       query: () => "/plan/invoice/list/",
