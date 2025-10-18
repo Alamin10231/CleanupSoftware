@@ -1,5 +1,4 @@
 import { assets } from "@/assets/assets";
-import Button from "@/Components/Button";
 import Card from "@/Components/Card";
 import { useEffect, useState } from "react";
 import { FaPlus, FaEye, FaEdit } from "react-icons/fa";
@@ -17,6 +16,7 @@ import {
   useGetClientOverviewAdminQuery,
   useGetSearchClientsQuery,
 } from "@/redux/api/apiSlice";
+import { Button } from "@/Components/ui/button";
 
 const Clients = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -83,7 +83,9 @@ const Clients = () => {
           <div>
             <Dialog>
               <DialogTrigger>
-                <Button icon={<FaPlus />} text="Add Client" />
+                <Button>
+                  <FaPlus /> Add Client
+                </Button>
               </DialogTrigger>
               <DialogContent className="bg-white border-0 rounded-lg">
                 <DialogHeader>
