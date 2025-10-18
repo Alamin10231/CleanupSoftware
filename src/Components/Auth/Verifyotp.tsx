@@ -2,21 +2,18 @@ import { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple, FaEye, FaEyeSlash, FaFacebook } from "react-icons/fa";
 import loginpicture from "../../assets/Image/loginpicture.jpg";
-import { Link, useNavigate } from "react-router-dom";   
+import { Link, useNavigate } from "react-router-dom";
 import { assets } from "../../assets/assets";
 import { IoIosArrowBack } from "react-icons/io";
 
 export default function Verifyotp() {
-  const [password, setPassword] = useState<string>(""); 
+  const [password, setPassword] = useState<string>("");
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log({ password });
-    // এখানে API কল বা auth logic দিন
-
-    // সাবমিটের পর পরবর্তী পেইজে নেভিগেট করুন
     navigate("/adminlogin");
   };
 

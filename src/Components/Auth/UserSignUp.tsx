@@ -4,6 +4,9 @@ import { FaApple, FaEye, FaEyeSlash, FaFacebook } from "react-icons/fa";
 import loginpicture from "../../assets/Image/loginpicture.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { assets } from "../../assets/assets";
+import { useSignUpMutation } from "../../redux/features/SignUp/SignUpApi";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../../redux/features/SignUp/SignUpSlice";
 
 export default function UserSignUp() {
   // ✅ State variables
@@ -16,22 +19,24 @@ export default function UserSignUp() {
   const [remember, setRemember] = useState(false);
   const [show, setShow] = useState(false);
   const [cshow, setCShow] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const [signUp, { isLoading }] = useSignUpMutation();
 
   // ✅ Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-     const payload = {
-    name: firstName,
-    email: email,
-    phone: number,
-    password: password,
-    // role: "client", // add role here
-  };
+    const payload = {
+      name: firstName,
+      email: email,
+      prime_phone: number,
+      password: password,
+      // role: "client", // add role here
+    };
 
     // Simple validation
     if (password !== cpassword) {
@@ -45,34 +50,13 @@ export default function UserSignUp() {
     }
 
     try {
-      setLoading(true);
-
-      const response = await fetch(
-        "https://lisa-nondisposable-judgingly.ngrok-free.app/api/v1/users/register/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload
-           ),
-        }
-      );
-
-      const data = await response.json();
-      console.log("Response:", data);
-
-      if (!response.ok) {
-        throw new Error(data.message ||  JSON.stringify(data) || "Registration failed");
-      }
-
-      alert("Account created successfully!");
-      navigate("/verifyotp")
+      const response = await signUp(payload).unwrap();
+      dispatch(setCredentials(response));
+      // alert("Account created successfully!");
+      navigate("/verifyotp");
     } catch (err: any) {
       console.error("Error:", err);
-      setError(err.message || "Something went wrong, please try again.");
-    } finally {
-      setLoading(false);
+      setError(err.data?.message || "Something went wrong, please try again.");
     }
   };
 
@@ -222,20 +206,20 @@ export default function UserSignUp() {
           {error && <p className="text-red-500 text-sm">{error}</p>}
 
           {/* Submit Button */}
-         {/* <Link to="/verifyotp"> */}
-         
+          {/* <Link to="/verifyotp"> */}
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={isLoading}
             className={`w-full py-2 rounded-md transition ${
-              loading
+              isLoading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-[#2463EA] text-white hover:bg-blue-700"
             }`}
           >
-            {loading ? "Creating..." : "Create Account"}
+            {isLoading ? "Creating..." : "Create Account"}
           </button>
-         {/* </Link> */}
+          {/* </Link> */}
         </form>
 
         {/* Already have an account */}
