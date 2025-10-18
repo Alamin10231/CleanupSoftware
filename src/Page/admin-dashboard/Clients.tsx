@@ -1,7 +1,7 @@
 import { assets } from "@/assets/assets";
 import Button from "@/Components/Button";
 import Card from "@/Components/Card";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaPlus, FaEye, FaEdit } from "react-icons/fa";
 import { IoIosSearch } from "react-icons/io";
 import {
@@ -12,43 +12,71 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/Components/ui/dialog";
-import { useGetAllClientsAdminQuery, useGetClientOverviewAdminQuery } from "@/redux/api/apiSlice";
+import {
+  useGetAllClientsAdminQuery,
+  useGetClientOverviewAdminQuery,
+  useGetSearchClientsQuery,
+} from "@/redux/api/apiSlice";
 
 const Clients = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
 
-  const { data: all_Client, isLoading: all_Client_Loading, error: all_Client_error } =
-    useGetAllClientsAdminQuery(page);
-  const { data: Overview, isLoading: overviewLoading, error: overviewError } = useGetClientOverviewAdminQuery();
+  // ⏳ Debounce search input (500ms)
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedSearch(searchTerm), 500);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
 
+  // Normal paginated clients
+  const {
+    data: all_Client,
+    isLoading: all_Client_Loading,
+    error: all_Client_error,
+  } = useGetAllClientsAdminQuery(page);
 
+  // Search clients (only when search input is not empty)
+  const {
+    data: searchResults,
+    isLoading: searchLoading,
+    error: searchError,
+  } = useGetSearchClientsQuery(debouncedSearch, {
+    skip: debouncedSearch.trim() === "",
+  });
 
-  if (all_Client_Loading) return <p>Loading...</p>;
-  if (all_Client_error) return <p>Error loading clients.</p>;
+  // Overview data
+  const {
+    data: Overview,
+    isLoading: overviewLoading,
+    error: overviewError,
+  } = useGetClientOverviewAdminQuery();
 
-  // Filter clients by search term
-  const filteredClients =
-    all_Client?.results.filter(
-      (client: any) =>
-        client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (client.client_profile?.location ?? "")
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
-    ) || [];
+  // Decide which data to display
+  const clientsToDisplay = debouncedSearch.trim()
+    ? searchResults?.results || []
+    : all_Client?.results || [];
 
-  const totalPages = Math.ceil(all_Client.count / 10); // Assuming 10 clients per page
+  const loading =
+    all_Client_Loading || overviewLoading || (debouncedSearch && searchLoading);
+  const error = all_Client_error || overviewError || searchError;
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error loading clients.</p>;
+
+  const totalPages = debouncedSearch.trim()
+    ? 1
+    : Math.ceil(all_Client?.count / 10 || 1);
 
   return (
     <div className="flex flex-col h-screen mt-6">
-      {/* Fixed Top Section */}
+      {/* ===== Top Section ===== */}
       <div className="flex-shrink-0">
         {/* Title */}
         <div className="flex justify-between">
           <div>
             <h2 className="text-black text-2xl font-bold">Clients</h2>
-            <p className=" text-[#808080] text-base mt-1">
+            <p className="text-[#808080] text-base mt-1">
               Manage clients and subscription
             </p>
           </div>
@@ -63,7 +91,7 @@ const Clients = () => {
                   <DialogDescription>
                     <form>
                       <div className="grid grid-cols-2 gap-4 py-4">
-                        <div className="grid grid-cols-1 items-center ">
+                        <div className="grid grid-cols-1 items-center">
                           <label htmlFor="name" className="text-left">
                             Name<span className="text-red-500">*</span>
                           </label>
@@ -112,7 +140,7 @@ const Clients = () => {
           </div>
         </div>
 
-        {/* Top Card */}
+        {/* ===== Top Cards ===== */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mt-6">
           <Card
             title="Total Client"
@@ -129,19 +157,18 @@ const Clients = () => {
           <Card
             title="Client Rating"
             number={Overview?.client_rating ?? 0}
-            iconSrc={assets.Avg_Popularity} 
+            iconSrc={assets.Avg_Popularity}
             iconAlt="Total Services icon"
           />
           <Card
             title="Active Bookings"
             number={Overview?.active_booking ?? 0}
-            iconSrc={assets.Avg_Popularity}  
+            iconSrc={assets.Avg_Popularity}
             iconAlt="Active Bookings icon"
           />
         </div>
 
-
-        {/* Search + Filters */}
+        {/* ===== Search + Filters ===== */}
         <div className="flex justify-between mt-10 mb-6 w-full">
           {/* Search */}
           <div className="flex items-center border border-gray-400 p-2 rounded-xl w-full max-w-sm">
@@ -151,13 +178,15 @@ const Clients = () => {
               placeholder="Search by name, email or location..."
               className="outline-none w-full"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1); // Reset to first page when searching
+              }}
             />
           </div>
 
-          {/* Filters */}
+          {/* Filters (UI only for now) */}
           <div className="flex gap-20">
-            {/* Status */}
             <div className="flex gap-2">
               <p className="text-base text-gray-500 py-2">Status</p>
               <p className="bg-green-100 p-2 text-green-600 rounded-full">
@@ -171,7 +200,6 @@ const Clients = () => {
               </p>
             </div>
 
-            {/* Type */}
             <div className="flex gap-2">
               <p className="text-base text-gray-500 p-2">Type</p>
               <p className="bg-gray-100 p-2 text-gray-600 rounded-full">
@@ -182,7 +210,6 @@ const Clients = () => {
               </p>
             </div>
 
-            {/* Plan */}
             <div className="flex gap-2">
               <p className="text-base p-2 text-gray-500">Plan</p>
               <p className="bg-gray-100 p-2 text-gray-600 rounded-full">
@@ -199,9 +226,9 @@ const Clients = () => {
         </div>
       </div>
 
-      {/* Table */}
+      {/* ===== Table ===== */}
       <div className="flex-1 overflow-y-auto scrollbar-hide">
-        {filteredClients.length > 0 ? (
+        {clientsToDisplay.length > 0 ? (
           <table className="min-w-full border border-gray-300 text-sm">
             <thead className="bg-gray-100 border-b border-gray-300">
               <tr className="text-left text-gray-700">
@@ -220,7 +247,7 @@ const Clients = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredClients.map((client: any) => (
+              {clientsToDisplay.map((client: any) => (
                 <tr
                   key={client.id}
                   className="border-b border-gray-200 hover:bg-gray-50 transition"
@@ -236,7 +263,9 @@ const Clients = () => {
                   <td className="p-3 font-semibold">{client.name}</td>
                   <td className="p-3">{client.email}</td>
                   <td className="p-3">{client.prime_phone}</td>
-                  <td className="p-3">{client.client_profile?.location ?? "N/A"}</td>
+                  <td className="p-3">
+                    {client.client_profile?.location ?? "N/A"}
+                  </td>
                   <td className="p-3">
                     {client.is_active ? (
                       <span className="bg-green-100 text-green-600 p-1 rounded-full">
@@ -255,13 +284,9 @@ const Clients = () => {
                     {new Date(client.date_joined).toLocaleDateString()}
                   </td>
                   <td className="p-3 flex gap-3 text-gray-600">
-                    <button className="hover:text-blue-500 cursor-pointer">
-                      {/* <FaEye /> */}
-                    </button>
                     <button className="hover:text-green-500 cursor-pointer">
                       <FaEdit />
                     </button>
-
                   </td>
                 </tr>
               ))}
@@ -271,30 +296,38 @@ const Clients = () => {
           <p className="text-gray-500 text-center p-5">No users found.</p>
         )}
 
-        {/* Pagination */}
-        <div className="flex justify-between items-center mt-4">
-          <button
-            disabled={page <= 1}
-            onClick={() => setPage((prev) => prev - 1)}
-            className={`px-4 py-2 cursor-pointer rounded border ${page > 1 ? "bg-white hover:bg-gray-100" : "bg-gray-200 cursor-not-allowed"
+        {/* ===== Pagination ===== */}
+        {!debouncedSearch && (
+          <div className="flex justify-between items-center mt-4">
+            <button
+              disabled={page <= 1}
+              onClick={() => setPage((prev) => prev - 1)}
+              className={`px-4 py-2 cursor-pointer rounded border ${
+                page > 1
+                  ? "bg-white hover:bg-gray-100"
+                  : "bg-gray-200 cursor-not-allowed"
               }`}
-          >
-            Previous
-          </button>
+            >
+              Previous
+            </button>
 
-          <span className="text-sm text-gray-600">
-            Page {page} of {totalPages}
-          </span>
+            <span className="text-sm text-gray-600">
+              Page {page} of {totalPages}
+            </span>
 
-          <button
-            disabled={page >= totalPages}
-            onClick={() => setPage((prev) => prev + 1)}
-            className={`px-4 py-2 cursor-pointer rounded-md text-white font-medium ${page < totalPages ? "bg-blue-600 hover:bg-gray-300 hover:text-black"  : "bg-gray-200 cursor-not-allowed"
+            <button
+              disabled={page >= totalPages}
+              onClick={() => setPage((prev) => prev + 1)}
+              className={`px-4 py-2 cursor-pointer rounded-md text-white font-medium ${
+                page < totalPages
+                  ? "bg-blue-600 hover:bg-gray-300 hover:text-black"
+                  : "bg-gray-200 cursor-not-allowed"
               }`}
-          >
-            Next
-          </button>
-        </div>
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

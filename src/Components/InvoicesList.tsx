@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useGetInvoicesQuery } from "@/redux/api/apiSlice";
+import { useGetInvoicesQuery, useGetSearchAllInvoiceQuery } from "@/redux/api/apiSlice";
 
 interface Invoice {
   id: number;
@@ -24,41 +24,57 @@ interface Invoice {
 
 const InvoicesList = () => {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("All Status");
+  const [paymentMethod, setPaymentMethod] = useState("All");
+  const [sort, setSort] = useState("Default");
 
-  // Pass page as query param to API
+  // Fetch paginated invoices
   const { data: invoicesData, isLoading, isError, isFetching } = useGetInvoicesQuery(`?page=${page}`);
+  // Fetch search results dynamically based on search input
+  const { data: searchInvoice, isLoading: isSearchLoading, isError: isSearchError } = useGetSearchAllInvoiceQuery(
+    search ? `?search=${encodeURIComponent(search)}` : ""
+  );
+
   const invoices = invoicesData?.results || [];
   const totalCount = invoicesData?.count || 0;
   const nextPage = invoicesData?.next;
   const prevPage = invoicesData?.previous;
 
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("All Status");
-  const [paymentMethod, setPaymentMethod] = useState("All");
-  const [sort, setSort] = useState("Default");
 
   useEffect(() => {
-    let result: Invoice[] = [...invoices];
+    let result: Invoice[] = [];
 
+    // Use search results if search term exists, otherwise use paginated invoices
     if (search.trim() !== "") {
+      result = searchInvoice?.results || invoices || [];
+      // Fallback filtering in case backend search is incomplete
       result = result.filter(
         (inv) =>
           (inv.building_name?.toLowerCase() || "").includes(search.toLowerCase()) ||
           (inv.region_name?.toLowerCase() || "").includes(search.toLowerCase()) ||
           (inv.apartment_name?.join(" ").toLowerCase() || "").includes(search.toLowerCase()) ||
-          (inv.client?.toString() || "").includes(search)
+          (inv.client?.toString() || "").includes(search) ||
+          (inv.invoice_id?.toLowerCase() || "").includes(search.toLowerCase()) ||
+          (inv.vendor?.toLowerCase() || "").includes(search.toLowerCase()) ||
+          (inv.note?.toLowerCase() || "").includes(search.toLowerCase())
       );
+    } else {
+      result = [...invoices];
     }
 
+    // Apply status filter
     if (status !== "All Status") {
       result = result.filter((inv) => inv.status.toLowerCase() === status.toLowerCase());
     }
 
+    // Apply payment method filter
     if (paymentMethod !== "All") {
       result = result.filter((inv) => inv.type.toLowerCase() === paymentMethod.toLowerCase());
     }
 
+    // Apply sorting
     if (sort === "Oldest to New") {
       result.sort((a, b) => new Date(a.date_issued).getTime() - new Date(b.date_issued).getTime());
     } else if (sort === "New to Oldest") {
@@ -66,10 +82,11 @@ const InvoicesList = () => {
     }
 
     setFilteredInvoices(result);
-  }, [search, status, paymentMethod, sort, invoices]);
+  }, [search, status, paymentMethod, sort, invoices, searchInvoice]);
 
-  if (isLoading) return <p>Loading...</p>;
-  if (isError) return <p>Error fetching invoices.</p>;
+  // Handle loading and error states
+  if (isLoading || isSearchLoading) return <p>Loading...</p>;
+  if (isError || isSearchError) return <p>Error fetching invoices.</p>;
 
   return (
     <>
@@ -106,7 +123,7 @@ const InvoicesList = () => {
         </div>
 
         <div>
-          {/* <select
+          <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
             className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer"
@@ -114,7 +131,7 @@ const InvoicesList = () => {
             <option>Default</option>
             <option>Oldest to New</option>
             <option>New to Oldest</option>
-          </select> */}
+          </select>
         </div>
       </div>
 
@@ -187,23 +204,27 @@ const InvoicesList = () => {
               <button
                 onClick={() => prevPage && setPage((p) => Math.max(p - 1, 1))}
                 disabled={!prevPage || isFetching}
-                className={`px-4 py-2 cursor-pointer rounded-md text-sm font-medium ${prevPage
+                className={`px-4 py-2 cursor-pointer rounded-md text-sm font-medium ${
+                  prevPage
                     ? "bg-blue-500 text-white hover:bg-blue-600"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
+                }`}
               >
                 Previous
               </button>
 
-             
+              <span className="text-sm text-gray-600">
+                Page {page} of {Math.ceil(totalCount / 10)}
+              </span>
 
               <button
                 onClick={() => nextPage && setPage((p) => p + 1)}
                 disabled={!nextPage || isFetching}
-                className={`px-4 py-2 cursor-pointer rounded-md text-sm font-medium ${nextPage
+                className={`px-4 py-2 cursor-pointer rounded-md text-sm font-medium ${
+                  nextPage
                     ? "bg-blue-500 text-white hover:bg-blue-600"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
+                }`}
               >
                 Next
               </button>

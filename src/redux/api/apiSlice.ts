@@ -24,7 +24,10 @@ export const apiSlice = createApi({
     "GetAllClientsAdmin",
     "GetClientOverviewAdmin",
     "GetServiceAdminOverview",
-    "GetAllServiceDataAdmin"
+    "GetAllServiceDataAdmin",
+    "SearchClients",
+    "SearchEmployees",
+    "SearchInvoices",
   ],
 
   endpoints: (builder) => ({
@@ -63,11 +66,26 @@ export const apiSlice = createApi({
       providesTags: ["User"],
     }),
 
+    getSearchClients: builder.query({
+      query: (searchTerm = "") => `clients/?search=${searchTerm}`,
+      providesTags: ["SearchClients"],
+    }),
+    getSearchAllEmpoloyees: builder.query({
+      query: (searchEmployee = "") => `employees/?search=${searchEmployee}`,
+      providesTags: ["SearchEmployees"],
+    }),
+    getSearchAllInvoice: builder.query({
+      query: (searchInvoice = "") =>
+        `plan/invoice/list/?search=${searchInvoice}`,
+      providesTags: ["SearchInvoices"],
+    }),
+   
+
     employeeOverview: builder.query<any, void>({
       query: () => "overview",
       providesTags: ["AdminEmployeeOverview"],
     }),
-
+    //
     getAllemployeeAdmin: builder.query<any, number | void>({
       query: (page = 1) => `employees/?page=${page}`,
       providesTags: ["GetAllEmployeeAdmin"],
@@ -77,7 +95,6 @@ export const apiSlice = createApi({
       query: (page = 1) => `clients/?page=${page}`,
       providesTags: ["GetAllClientsAdmin"],
     }),
-
     getClientOverviewAdmin: builder.query<any, void>({
       query: () => "clients/overview/",
       providesTags: ["GetClientOverviewAdmin"],
@@ -105,5 +122,8 @@ export const {
   useGetAllClientsAdminQuery,
   useGetClientOverviewAdminQuery,
   useGetServiceAdminOverviewQuery,
-  useGetAllServiceDataAdminQuery
+  useGetAllServiceDataAdminQuery,
+  useGetSearchClientsQuery,
+  useGetSearchAllEmpoloyeesQuery,
+  useGetSearchAllInvoiceQuery,
 } = apiSlice;
