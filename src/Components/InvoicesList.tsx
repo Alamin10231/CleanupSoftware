@@ -195,9 +195,7 @@ const InvoicesList = () => {
                 Previous
               </button>
 
-              <p className="text-gray-600 text-sm">
-                Page {page} of {Math.ceil(totalCount / invoices.length || 1)}
-              </p>
+             
 
               <button
                 onClick={() => nextPage && setPage((p) => p + 1)}

@@ -256,7 +256,7 @@ const Clients = () => {
                   </td>
                   <td className="p-3 flex gap-3 text-gray-600">
                     <button className="hover:text-blue-500 cursor-pointer">
-                      <FaEye />
+                      {/* <FaEye /> */}
                     </button>
                     <button className="hover:text-green-500 cursor-pointer">
                       <FaEdit />
