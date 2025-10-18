@@ -176,7 +176,7 @@ const Employees = () => {
         )}
 
         {/* Search + Filters */}
-        <div className="flex items-center gap-4 mt-8 p-6 bg-white border border-gray-300 rounded-xl shadow-sm">
+        <div className="flex items-center gap-4 mt-8 bg-white rounded-xl">
           <input
             type="text"
             placeholder="Search employees..."
