@@ -27,6 +27,7 @@ export const apiSlice = createApi({
     "SearchClients",
     "SearchEmployees",
     "SearchInvoices",
+    "getEmployeeInvoice",
   ],
 
   endpoints: (builder) => ({
@@ -108,6 +109,10 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ["AddEmployee"],
     }),
+    getEmployeeInvoice: builder.query<any, string | void>({
+      query: (search = "") => `invoice_request_from_client/list/?search=${search}`,
+      providesTags: ["getEmployeeInvoice"],
+    }),
   }),
 });
 
@@ -126,4 +131,5 @@ export const {
   useGetSearchClientsQuery,
   useGetSearchAllEmpoloyeesQuery,
   useGetSearchAllInvoiceQuery,
+  useGetEmployeeInvoiceQuery,
 } = apiSlice;
