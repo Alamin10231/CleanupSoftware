@@ -13,11 +13,38 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ["User", "Invoice", "AddEmployee", "AdminEmployeeOverview", "GetAllEmpolyeeAdmin","GetAllClientsAdmin","GetClientOverviewAdmin", "Building"],
+
+  tagTypes: [
+    "User",
+    "Invoice",
+    "AddEmployee",
+    "AdminEmployeeOverview",
+    "GetAllEmployeeAdmin",
+    "GetAllClientsAdmin",
+    "GetClientOverviewAdmin", "Building",
+    "GetServiceAdminOverview",
+    "GetAllServiceDataAdmin",
+    "SearchClients",
+    "SearchEmployees",
+    "SearchInvoices",
+  ],
+
   endpoints: (builder) => ({
-    getInvoices: builder.query<any, void>({
-      query: () => "/plan/invoice/list/",
+    // getInvoices: builder.query<any, void>({
+    //   query: () => "/plan/invoice/list/",
+    //   providesTags: ["Invoice"],
+    // }),
+    getInvoices: builder.query<any, string | void>({
+      query: (params = "") => `/plan/invoice/list/${params}`,
       providesTags: ["Invoice"],
+    }),
+    getServiceAdminOverview: builder.query<any, string | void>({
+      query: () => "task/total-service-details/",
+      providesTags: ["GetServiceAdminOverview"],
+    }),
+    getAllServiceDataAdmin: builder.query<any, string | void>({
+      query: () => "task/services/details/",
+      providesTags: ["GetAllServiceDataAdmin"],
     }),
     getCalculationInvoice: builder.query<any, void>({
       query: () => "/plan/calculations/",
@@ -32,30 +59,47 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ["Invoice"],
     }),
+
     getAllClient: builder.query<any, void>({
       query: () => "users/?search=client&",
       providesTags: ["User"],
     }),
+
+    getSearchClients: builder.query({
+      query: (searchTerm = "") => `clients/?search=${searchTerm}`,
+      providesTags: ["SearchClients"],
+    }),
+    getSearchAllEmpoloyees: builder.query({
+      query: (searchEmployee = "") => `employees/?search=${searchEmployee}`,
+      providesTags: ["SearchEmployees"],
+    }),
+    getSearchAllInvoice: builder.query({
+      query: (searchInvoice = "") =>
+        `plan/invoice/list/?search=${searchInvoice}`,
+      // "plan/invoice/list/?search=238947f4-bd49-49fd-aa94-6fa9c4b8a0a1",
+      providesTags: ["SearchInvoices"],
+    }),
+
+
     employeeOverview: builder.query<any, void>({
       query: () => "overview",
       providesTags: ["AdminEmployeeOverview"],
     }),
-    // getAllemployeeAdmin: builder.query<any, void>({
-    //   query: () => "employees",
-    //   providesTags: ["GetAllEmpolyeeAdmin"],
-    // }),
+    //
     getAllemployeeAdmin: builder.query<any, number | void>({
       query: (page = 1) => `employees/?page=${page}`,
-      providesTags: ["GetAllEmpolyeeAdmin"],
+      providesTags: ["GetAllEmployeeAdmin"],
     }),
+
     getAllClientsAdmin: builder.query<any, number | void>({
       query: (page = 1) => `clients/?page=${page}`,
       providesTags: ["GetAllClientsAdmin"],
     }),
-    getClientOverviewAdmin:builder.query<any, number | void>({
+    getClientOverviewAdmin: builder.query<any, void>({
       query: () => "clients/overview/",
       providesTags: ["GetClientOverviewAdmin"],
     }),
+
     addEmployee: builder.mutation({
       query: (add_employee) => ({
         url: "employees/",
@@ -76,6 +120,10 @@ export const {
   useEmployeeOverviewQuery,
   useGetAllemployeeAdminQuery,
   useGetAllClientsAdminQuery,
-  useGetClientOverviewAdminQuery
-
+  useGetClientOverviewAdminQuery,
+  useGetServiceAdminOverviewQuery,
+  useGetAllServiceDataAdminQuery,
+  useGetSearchClientsQuery,
+  useGetSearchAllEmpoloyeesQuery,
+  useGetSearchAllInvoiceQuery,
 } = apiSlice;

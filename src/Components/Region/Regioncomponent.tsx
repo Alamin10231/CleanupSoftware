@@ -51,12 +51,11 @@ export default function RegionComponent() {
   return (
     <div className="space-y-6">
       {/* Header */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-bold text-2xl">Buildings</h1>
-          <p className="text-[#8E8E8E] text-xl">
-            Manage buildings & apartments
-          </p>
+          <p className="text-[#8E8E8E] text-xl">Manage buildings & apartments</p>
         </div>
         <AddApartment />
       </div>

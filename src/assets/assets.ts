@@ -152,12 +152,7 @@ export const ServiceTopCard = [
     iconKey: "Total_revenue",
     iconAlt: "Total_revenue",
   },
-  {
-    title: "Avg Popularity",
-    number: "85%",
-    iconKey: "Avg_Popularity",
-    iconAlt: "On leave",
-  },
+
 ];
 
 export const InvoiceTopCard = [

@@ -68,7 +68,7 @@ const ActionButton = () => {
     <div key={refreshKey}>
       <div className="flex gap-4">
         {/* Refresh Button */}
-        <button
+        {/* <button
           onClick={handleRefresh}
           className="flex gap-2.5 bg-[#E5E5E5] py-2.5 px-5 rounded-full text-[#8E8E8E] cursor-pointer items-center"
         >
@@ -78,7 +78,7 @@ const ActionButton = () => {
             className={`w-5 h-5 ${isRotating ? "animate-spin" : ""}`}
           />
           Refresh
-        </button>
+        </button> */}
 
         {/* Bulk Button */}
         <BulkSalaryPayment />
