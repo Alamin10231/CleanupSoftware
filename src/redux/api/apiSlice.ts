@@ -77,6 +77,7 @@ export const apiSlice = createApi({
     getSearchAllInvoice: builder.query({
       query: (searchInvoice = "") =>
         `plan/invoice/list/?search=${searchInvoice}`,
+      // "plan/invoice/list/?search=238947f4-bd49-49fd-aa94-6fa9c4b8a0a1",
       providesTags: ["SearchInvoices"],
     }),
    

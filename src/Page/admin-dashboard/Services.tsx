@@ -55,7 +55,7 @@ const Services = () => {
 
       {/* Card */}
       {
-        <div className="grid grid-cols-4 gap-4 mt-6">
+        <div className="grid grid-cols-3 gap-4 mt-6">
           {ServiceTopCard.map((card, index) => (
             <Card
               key={index}
@@ -67,8 +67,6 @@ const Services = () => {
           ))}
         </div>
       }
-
-
 
       {/* Service Card */}
       <div className="mt-6">

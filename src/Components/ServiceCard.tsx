@@ -66,7 +66,7 @@ const ServiceCard: React.FC = () => {
   return (
     <>
       {/* 🔍 Filters */}
-      <div className="flex items-center justify-between gap-4 mt-8 p-6 bg-white border border-gray-300 rounded-xl shadow-sm">
+      <div className="flex items-center justify-between gap-4 mt-8">
         <div className="flex items-center gap-4">
           <input
             type="text"

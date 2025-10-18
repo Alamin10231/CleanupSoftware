@@ -33,13 +33,15 @@ const InvoicesList = () => {
   const { data: invoicesData, isLoading, isError, isFetching } = useGetInvoicesQuery(`?page=${page}`);
   // Fetch search results dynamically based on search input
   const { data: searchInvoice, isLoading: isSearchLoading, isError: isSearchError } = useGetSearchAllInvoiceQuery(
-    search ? `?search=${encodeURIComponent(search)}` : ""
+    search ? `${search}` : ""
   );
 
   const invoices = invoicesData?.results || [];
   const totalCount = invoicesData?.count || 0;
   const nextPage = invoicesData?.next;
   const prevPage = invoicesData?.previous;
+
+  console.log("Invoices Data:", searchInvoice);
 
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
 
@@ -91,7 +93,7 @@ const InvoicesList = () => {
   return (
     <>
       {/* Filters */}
-      <div className="flex items-center justify-between gap-4 mt-8 p-6 bg-white border border-gray-300 rounded-xl shadow-sm">
+      <div className="flex items-center justify-between gap-4 mt-8">
         <div className="flex items-center gap-4">
           <input
             type="text"
