@@ -165,10 +165,9 @@ export default function SubscriptionsDashboard() {
             }}
             className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer"
           >
-            <option>All status</option>
-            <option>Active</option>
+            <option value={''}>All status</option>
+            <option value={'active'}>Active</option>
             <option>Pending</option>
-            <option>Auto-Renew</option>
             <option>Expired</option>
             <option>Inactive</option>
           </select>

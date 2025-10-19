@@ -11,46 +11,51 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { useGetAdminNewplansQuery } from "@/redux/api/apiSlice";
- 
+} from "@/Components/ui/alert-dialog";
+import { useGetAdminNewplansQuery } from "@/redux/features/admin/subscription/subscription.api";
 
 export default function SubscriptionPlan() {
   const [statusFilter, setStatusFilter] = useState("All status");
   const { data, isLoading, isError, refetch } = useGetAdminNewplansQuery();
 
   if (isLoading)
-    return <div className="text-center text-gray-500 py-10">Loading plans...</div>;
+    return (
+      <div className="text-center text-gray-500 py-10">Loading plans...</div>
+    );
   if (isError)
     return (
       <div className="text-center text-red-600 py-10">
-        Failed to load plans. <button onClick={() => refetch()} className="underline text-blue-600">Retry</button>
+        Failed to load plans.{" "}
+        <button onClick={() => refetch()} className="underline text-blue-600">
+          Retry
+        </button>
       </div>
     );
 
   // map API data safely
-  const plans = data?.results?.map((item: any) => ({
-    id: item.id,
-    name: item.plan?.name ?? "Unnamed Plan",
-    subtitle: item.plan?.description ?? "—",
-    price: `$${item.plan?.amount ?? 0}`,
-    cycle:
-      item.plan?.interval === "month"
-        ? "Monthly"
-        : item.plan?.interval === "year"
-        ? "Yearly"
-        : "Unknown",
-    features: item.plan?.service_line_items
-      ?.map((s: any) => s.name)
-      .join(", ") ?? "—",
-    status: item.status === "active" ? "Active" : "Inactive",
-  })) ?? [];
+  const plans =
+    data?.results?.map((item: any) => ({
+      id: item.id,
+      name: item.plan?.name ?? "Unnamed Plan",
+      subtitle: item.plan?.description ?? "—",
+      price: `$${item.plan?.amount ?? 0}`,
+      cycle:
+        item.plan?.interval === "month"
+          ? "Monthly"
+          : item.plan?.interval === "year"
+          ? "Yearly"
+          : "Unknown",
+      features:
+        item.plan?.service_line_items?.map((s: any) => s.name).join(", ") ??
+        "—",
+      status: item.status === "active" ? "Active" : "Inactive",
+    })) ?? [];
 
   // apply filter
   const filteredPlans =
     statusFilter === "All status"
       ? plans
-      : plans.filter((p) => p.status === statusFilter);
+      : plans.filter((p: any) => p.status === statusFilter);
 
   return (
     <div>
@@ -89,10 +94,12 @@ export default function SubscriptionPlan() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {filteredPlans.map((plan) => (
+            {filteredPlans.map((plan: any) => (
               <tr key={plan.id}>
                 <td className="px-4 py-3">
-                  <div className="font-medium text-gray-900 text-lg">{plan.name}</div>
+                  <div className="font-medium text-gray-900 text-lg">
+                    {plan.name}
+                  </div>
                   <div className="text-gray-500 text-sm">{plan.subtitle}</div>
                 </td>
 
@@ -135,9 +142,12 @@ export default function SubscriptionPlan() {
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogTitle>
+                          Are you absolutely sure?
+                        </AlertDialogTitle>
                         <AlertDialogDescription>
-                          This action cannot be undone. This will permanently delete your plan.
+                          This action cannot be undone. This will permanently
+                          delete your plan.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>

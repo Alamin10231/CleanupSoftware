@@ -21,10 +21,39 @@ export const subscriptionApi = baseApi.injectEndpoints({
       },
       providesTags: ["Subscription"],
     }),
+    getAdminNewplans: builder.query<any, void>({
+      query: () => "plan/subscription/",
+      providesTags: ["Subscription"],
+    }),
+    getCollectionNewPlans: builder.query<any, void>({
+      query: () => "plan/subscription/",
+      providesTags: ["Subscription"],
+    }),
+
+    /* ---------- SUBSCRIPTION status (server-side filter) ---------- */
+    getAdminStatus: builder.query<any, { status?: string; page?: number }>({
+      query: ({ status = "", page = 1 }) =>
+        `plan/subscription/?page=${page}&status=${encodeURIComponent(status)}`,
+      providesTags: ["Subscription"],
+    }),
+
+    getCollectionStatus: builder.query<any, { status?: string; page?: number }>(
+      {
+        query: ({ status = "", page = 1 }) =>
+          `plan/subscription/?page=${page}&status=${encodeURIComponent(
+            status
+          )}`,
+        providesTags: ["Subscription"],
+      }
+    ),
   }),
 });
 
 export const {
   useGetCalculationSubscriptionsQuery,
   useGetSubscriptionPageQuery,
+  useGetAdminNewplansQuery,
+  useGetCollectionNewPlansQuery,
+  useGetAdminStatusQuery,
+  useGetCollectionStatusQuery,
 } = subscriptionApi;
