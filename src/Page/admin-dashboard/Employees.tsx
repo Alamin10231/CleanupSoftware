@@ -1,21 +1,11 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { assets } from "@/assets/assets";
 import ActionButton from "@/Components/ActionButton";
 import Card from "@/Components/Card";
 import ProgressBar from "@/Components/ProgressBar";
 import { FaEye } from "react-icons/fa";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import {
-  useEmployeeOverviewQuery,
-  useGetAllemployeeAdminQuery,
-  useGetSearchAllEmpoloyeesQuery,
-} from "@/redux/api/apiSlice";
+import { useEmployeeOverviewQuery, useGetAllemployeeAdminQuery, useGetSearchAllEmpoloyeesQuery } from "@/redux/features/admin/users/employee.api";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/Components/ui/dialog";
 
 interface Employee {
   id: number;
@@ -44,11 +34,14 @@ const Employees = () => {
   const [departmentFilter, setDepartmentFilter] = useState("All Departments");
   const [shiftFilter, setShiftFilter] = useState("All Shifts");
   const [page, setPage] = useState(1);
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
+    null
+  );
 
   // Overview
-  const { data: overviewData, isLoading: overviewLoading, error: overviewError } =
-    useEmployeeOverviewQuery();
+  const {
+    data: overviewData,
+  } = useEmployeeOverviewQuery();
 
   // Normal employee list (paginated)
   const {
@@ -150,24 +143,18 @@ const Employees = () => {
 
         <ProgressBar />
 
-        {/* Overview Cards */}
-        {overviewLoading ? (
-          <p className="text-gray-500 mt-6">Loading overview data...</p>
-        ) : overviewError ? (
-          <p className="text-red-500 mt-6">Failed to load overview data.</p>
-        ) : (
-          <div className="grid grid-cols-5 gap-4 mt-6">
-            {cardData.map((card, index) => (
-              <Card
-                key={index}
-                title={card.title}
-                number={card.number}
-                iconSrc={assets[card.iconKey]}
-                iconAlt={card.iconAlt}
-              />
-            ))}
-          </div>
-        )}
+        {/* Cards */}
+        <div className="grid grid-cols-5 gap-4 mt-6">
+          {cardData.map((card, index) => (
+            <Card
+              key={index}
+              title={card.title}
+              number={card.number}
+              iconSrc={assets[card.iconKey]}
+              iconAlt={card.iconAlt}
+            />
+          ))}
+        </div>
 
         {/* Search + Filters */}
         <div className="flex items-center gap-4 mt-8 bg-white rounded-xl">
@@ -228,16 +215,27 @@ const Employees = () => {
                     <th className="px-4 py-3 text-left">Email</th>
                     <th className="px-4 py-3 text-left">Phone</th>
                     <th className="px-4 py-3 text-left">Salary</th>
-                    <th className="px-4 py-3 text-left cursor-pointer">Details</th>
+                    <th className="px-4 py-3 text-left cursor-pointer">
+                      Details
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredEmployees.map((emp) => (
-                    <tr key={emp.id} className="border-t hover:bg-gray-50 transition">
+                    <tr
+                      key={emp.id}
+                      className="border-t hover:bg-gray-50 transition"
+                    >
                       <td className="px-4 py-3">{emp.name}</td>
-                      <td className="px-4 py-3">{emp.employee_profile?.role || "N/A"}</td>
-                      <td className="px-4 py-3">{emp.employee_profile?.department || "N/A"}</td>
-                      <td className="px-4 py-3">{emp.employee_profile?.shift || "N/A"}</td>
+                      <td className="px-4 py-3">
+                        {emp.employee_profile?.role || "N/A"}
+                      </td>
+                      <td className="px-4 py-3">
+                        {emp.employee_profile?.department || "N/A"}
+                      </td>
+                      <td className="px-4 py-3">
+                        {emp.employee_profile?.shift || "N/A"}
+                      </td>
                       <td className="px-4 py-3">{emp.email}</td>
                       <td className="px-4 py-3">{emp.prime_phone}</td>
                       <td className="px-4 py-3">
@@ -274,7 +272,8 @@ const Employees = () => {
                 </button>
 
                 <p className="text-gray-600 text-sm">
-                  Showing page <span className="font-semibold text-gray-800">{page}</span> of{" "}
+                  Showing page{" "}
+                  <span className="font-semibold text-gray-800">{page}</span> of{" "}
                   {totalPages}
                 </p>
 
@@ -298,7 +297,10 @@ const Employees = () => {
       </div>
 
       {/* Employee Details Modal */}
-      <Dialog open={!!selectedEmployee} onOpenChange={() => setSelectedEmployee(null)}>
+      <Dialog
+        open={!!selectedEmployee}
+        onOpenChange={() => setSelectedEmployee(null)}
+      >
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Employee Details</DialogTitle>
@@ -308,22 +310,63 @@ const Employees = () => {
           </DialogHeader>
           {selectedEmployee && (
             <div className="mt-4 space-y-2 text-sm text-gray-700">
-              <p><strong>ID:</strong> {selectedEmployee.id}</p>
-              <p><strong>Name:</strong> {selectedEmployee.name}</p>
-              <p><strong>Email:</strong> {selectedEmployee.email}</p>
-              <p><strong>Phone:</strong> {selectedEmployee.prime_phone}</p>
-              <p><strong>Status:</strong> {selectedEmployee.is_active ? "Active" : "Inactive"}</p>
-              <p><strong>Date Joined:</strong> {new Date(selectedEmployee.date_joined).toLocaleDateString()}</p>
+              <p>
+                <strong>ID:</strong> {selectedEmployee.id}
+              </p>
+              <p>
+                <strong>Name:</strong> {selectedEmployee.name}
+              </p>
+              <p>
+                <strong>Email:</strong> {selectedEmployee.email}
+              </p>
+              <p>
+                <strong>Phone:</strong> {selectedEmployee.prime_phone}
+              </p>
+              <p>
+                <strong>Status:</strong>{" "}
+                {selectedEmployee.is_active ? "Active" : "Inactive"}
+              </p>
+              <p>
+                <strong>Date Joined:</strong>{" "}
+                {new Date(selectedEmployee.date_joined).toLocaleDateString()}
+              </p>
               <hr className="my-2" />
-              <p><strong>Department:</strong> {selectedEmployee.employee_profile?.department || "N/A"}</p>
-              <p><strong>Role:</strong> {selectedEmployee.employee_profile?.role || "N/A"}</p>
-              <p><strong>Shift:</strong> {selectedEmployee.employee_profile?.shift || "N/A"}</p>
-              <p><strong>On Leave:</strong> {selectedEmployee.employee_profile?.is_on_leave ? "Yes" : "No"}</p>
-              <p><strong>Location:</strong> {selectedEmployee.employee_profile?.location || "N/A"}</p>
-              <p><strong>National ID:</strong> {selectedEmployee.employee_profile?.national_id || "N/A"}</p>
-              <p><strong>Contract Start:</strong> {selectedEmployee.employee_profile?.contract_start || "N/A"}</p>
-              <p><strong>Contract End:</strong> {selectedEmployee.employee_profile?.contract_end || "N/A"}</p>
-              <p><strong>Base Salary:</strong> {selectedEmployee.employee_profile?.base_salary || "N/A"} SAR</p>
+              <p>
+                <strong>Department:</strong>{" "}
+                {selectedEmployee.employee_profile?.department || "N/A"}
+              </p>
+              <p>
+                <strong>Role:</strong>{" "}
+                {selectedEmployee.employee_profile?.role || "N/A"}
+              </p>
+              <p>
+                <strong>Shift:</strong>{" "}
+                {selectedEmployee.employee_profile?.shift || "N/A"}
+              </p>
+              <p>
+                <strong>On Leave:</strong>{" "}
+                {selectedEmployee.employee_profile?.is_on_leave ? "Yes" : "No"}
+              </p>
+              <p>
+                <strong>Location:</strong>{" "}
+                {selectedEmployee.employee_profile?.location || "N/A"}
+              </p>
+              <p>
+                <strong>National ID:</strong>{" "}
+                {selectedEmployee.employee_profile?.national_id || "N/A"}
+              </p>
+              <p>
+                <strong>Contract Start:</strong>{" "}
+                {selectedEmployee.employee_profile?.contract_start || "N/A"}
+              </p>
+              <p>
+                <strong>Contract End:</strong>{" "}
+                {selectedEmployee.employee_profile?.contract_end || "N/A"}
+              </p>
+              <p>
+                <strong>Base Salary:</strong>{" "}
+                {selectedEmployee.employee_profile?.base_salary || "N/A"} SAR
+              </p>
             </div>
           )}
         </DialogContent>

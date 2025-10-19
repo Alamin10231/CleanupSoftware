@@ -21,11 +21,10 @@ import {
 } from "./ui/select";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import BulkSalaryPayment from "./bulk-payments";
-import { useAddEmployeeMutation, useEmployeeOverviewQuery } from "@/redux/api/apiSlice";
+import { useAddEmployeeMutation } from "@/redux/features/admin/users/employee.api";
 
 const ActionButton = () => {
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [isRotating, setIsRotating] = useState(false);
+  const [refreshKey] = useState(0);
   const [isPayrollExpanded, setIsPayrollExpanded] = useState(true);
 
   const [addEmployee, { isLoading }] = useAddEmployeeMutation();
@@ -38,7 +37,7 @@ const ActionButton = () => {
     nationalId: "",
     idExpiry: "",
     baseSalary: "",
-    salaryDay: "1",
+    salaryDay: "27",
     contractStart: "",
     contractEnd: "",
     group: "",
@@ -57,39 +56,18 @@ const ActionButton = () => {
     }
   };
 
-  const handleRefresh = () => {
-    setIsRotating(true);
-    setRefreshKey((prev) => prev + 1);
-    setTimeout(() => setIsRotating(false), 1000);
-  };
-
-
   return (
     <div key={refreshKey}>
       <div className="flex gap-4">
-        {/* Refresh Button */}
-        {/* <button
-          onClick={handleRefresh}
-          className="flex gap-2.5 bg-[#E5E5E5] py-2.5 px-5 rounded-full text-[#8E8E8E] cursor-pointer items-center"
-        >
-          <img
-            src={assets.Refresh}
-            alt="refresh"
-            className={`w-5 h-5 ${isRotating ? "animate-spin" : ""}`}
-          />
-          Refresh
-        </button> */}
-
-        {/* Bulk Button */}
         <BulkSalaryPayment />
 
         {/* Add Employee Button */}
         <Dialog>
           <DialogTrigger asChild>
-            <button className="flex gap-2.5 text-white bg-[#2463EA] py-2.5 px-5 rounded-full cursor-pointer items-center">
-              <img src={assets.Add_Employee} alt="add" className="w-5 h-5" />
+            <Button>
+              <img src={assets.Add_Employee} alt="add" className="w-3 h-3" />
               Add Employee
-            </button>
+            </Button>
           </DialogTrigger>
 
           <DialogContent>

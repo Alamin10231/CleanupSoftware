@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useGetInvoicesQuery, useGetSearchAllInvoiceQuery } from "@/redux/api/apiSlice";
+import { useGetInvoicesQuery, useGetSearchAllInvoiceQuery } from "@/redux/features/admin/invoice/invoice.api";
+import { useEffect, useState } from "react";
 
 interface Invoice {
   id: number;

@@ -6,8 +6,13 @@ import {
   DialogTrigger,
 } from "@/Components/ui/dialog";
 import { Button } from "../ui/button";
+import { useState } from "react";
+import { useGetSearchClientsQuery } from "@/redux/features/admin/users/clients.api";
 
 export default function AddApartment() {
+  const [searchClient, setSearchClient] = useState("");
+  const { data } = useGetSearchClientsQuery(searchClient);
+  console.log("Clients Data:", data);
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -50,14 +55,12 @@ export default function AddApartment() {
               >
                 Client
               </label>
-              <select
+              <input
                 id="client"
                 className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-              >
-                <option>All / Not linked</option>
-                <option>All / Not linked</option>
-                <option>All / Not linked</option>
-              </select>
+                placeholder="search client..."
+                onChange={(e) => setSearchClient(e.target.value)}
+              />
             </div>
 
             {/* Building */}

@@ -1,31 +1,30 @@
-import { Star } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useGetAdminDashboardQuery } from "@/redux/features/admin/dashboard/dashboard.api";
 
-type Performer = {
-  id: number;
-  name: string;
-  role: string;
-  rating: number; // e.g. 5.8
-  services: number;
-};
+export default function TopClients() {
+  const { data, isLoading, isError } = useGetAdminDashboardQuery({
+    year: 2025,
+    month: "october",
+  });
 
-export default function TopPerformers() {
+  if (isLoading) return <div>Loading top clients...</div>;
+  if (isError)
+    return <div className="text-red-600">Failed to load top clients.</div>;
 
-  const [performers, setPereformers] = useState<Performer[]>([]);
-  useEffect(() => {
-    fetch("/performers.json")
-      .then((res) => res.json())
-      .then((data) => {
-        setPereformers(data);
-      })
-      .catch((err) => console.error("Error loading performers:", err));
-  }, []);
- const [showAll,setShowAll] = useState(false)
-  const visibleActivities = showAll?performers:performers.slice(0,3)
+  // Get top_clients array safely and filter out null names
+  const clients = data?.top_clients?.filter((c) => c.client__name) ?? [];
+
+  // Sort by total_sales descending (unchanged logic)
+  const sortedClients = clients.sort(
+    (a, b) => (b.total_sales ?? 0) - (a.total_sales ?? 0)
+  );
+
+  // For progress bar width (visual only, does not change logic)
+  const maxSales = Math.max(...sortedClients.map((c) => c.total_sales || 0), 1);
+
   return (
-    <div className="w-full h-[440px] rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+    <div className="w-full rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between border-gray-200 border-b pb-3">
+      <div className="flex items-center justify-between border-b border-gray-200 pb-3">
         <div className="flex items-center gap-2">
           <svg
             className="h-5 w-5 text-blue-600"
@@ -37,58 +36,65 @@ export default function TopPerformers() {
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
-              d="M8 7V3m8 4V3m-9 8h10m-9 4h10m-7 4h4"
+              d="M4 7h16M4 12h10M4 17h7"
             />
           </svg>
-          <h2 className="font-semibold text-gray-800">Top Performers</h2>
+          <h2 className="font-semibold text-gray-800">Top Clients</h2>
         </div>
-        <button className="text-sm text-blue-600 hover:underline" onClick={()=>setShowAll(!showAll)}>
-          {
-            showAll?"viewless ":"ViewAll"
-          }
-
-        </button>
       </div>
 
       {/* List */}
       <div className="mt-4 space-y-4">
-        {visibleActivities.map((p: Performer) => {
-          // convert rating (0–10) to percentage width
-          const barWidth = Math.min((p.rating / 10) * 100, 100);
+        {sortedClients.map((c) => {
+          const name = c.client__name as string;
+          const initials = name?.trim()?.slice(0, 2) || "Cl";
+          const amount = c.total_sales ?? 0;
+          const width = Math.min((amount / maxSales) * 100, 100);
 
           return (
-            <div key={p.id} className="flex items-center justify-between">
+            <div
+              key={c.client__id ?? c.client__email ?? name}
+              className="flex items-center justify-between"
+            >
+              {/* Left: avatar + info + progress */}
               <div className="flex items-center gap-3">
-                {/* Avatar */}
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 font-semibold text-blue-700">
-                  {p.name.split(" ")[0].slice(0, 2)}
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-700 font-semibold">
+                  {initials}
                 </div>
+
                 <div>
-                  <p className="font-semibold text-gray-900">{p.name}</p>
-                  <p className="text-sm text-gray-500">{p.role}</p>
-                  {/* Dynamic width bar */}
-                  <div className="mt-1 h-1 w-36 rounded bg-gray-200">
+                  <p className="font-semibold text-gray-900">{name}</p>
+                  <p className="text-sm text-gray-500">
+                    {c.client__email || "—"}
+                  </p>
+                  <div className="mt-1 h-1 w-40 rounded bg-gray-200">
                     <div
                       className="h-1 rounded bg-blue-500"
-                      style={{ width: `${barWidth}%` }}
+                      style={{ width: `${width}%` }}
                     />
                   </div>
                 </div>
               </div>
 
-              {/* Rating */}
-              <div className="text-center">
-                <div className="flex items-center justify-center gap-1 rounded-full bg-blue-50 px-2 py-1 text-blue-600">
-                  <Star className="h-4 w-4 fill-blue-600 text-blue-600" />
-                  <span className="font-medium">{p.rating}</span>
+              {/* Right: total sales (rating removed) */}
+              <div className="text-right">
+                <div className="rounded-full bg-blue-50 px-2 py-1 text-blue-600 inline-block">
+                  <span className="font-medium">
+                    {amount.toLocaleString(undefined, {
+                      maximumFractionDigits: 0,
+                    })}
+                  </span>{" "}
+                  $
                 </div>
-                <p className="mt-1 text-xs text-blue-600">
-                  {p.services} services
-                </p>
+                <p className="mt-1 text-xs text-blue-600">total</p>
               </div>
             </div>
           );
         })}
+
+        {sortedClients.length === 0 && (
+          <div className="text-sm text-gray-500">No clients found.</div>
+        )}
       </div>
     </div>
   );

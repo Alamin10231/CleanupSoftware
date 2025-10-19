@@ -1,6 +1,6 @@
-import { apiSlice } from "../../api/apiSlice";
+import { baseApi } from "../../api/baseApi";
 
-export const authApi = apiSlice.injectEndpoints({
+export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (credentials) => ({
@@ -9,7 +9,22 @@ export const authApi = apiSlice.injectEndpoints({
         body: credentials,
       }),
     }),
+    signUp: builder.mutation({
+      query: (data) => ({
+        url: "/users/register/",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    verifyOtp: builder.mutation({
+      query: (data) => ({
+        url: "/users/verify-otp/",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation } = authApi;
+export const { useLoginMutation, useSignUpMutation, useVerifyOtpMutation } =
+  authApi;
