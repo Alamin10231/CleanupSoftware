@@ -34,27 +34,33 @@ const EmployeeInvoicees = () => {
   const [description, setDescription] = useState("");
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
 
-  // Server-side search & pagination
+  // Server-side search
   const { data: apiData, isLoading } = useGetEmployeeInvoiceQuery(search);
-  console.log("Employee Invoices API Data:", apiData);
+
+  if (isLoading) return <div>Loading...</div>;
 
   // Map API response to Invoice
-  const invoices: Invoice[] = apiData?.results.map((inv) => ({
-    date: inv.expense_date,
-    vendor: inv.vendor_name,
-    category: inv.category_show_by_name.join(", "), // new API field
-    amount: inv.amount,
-    status: inv.status as "Submitted" | "Approved" | "Pending",
-    type: "Expense",
-    description: inv.discription,
-  })) || [];
+  const allInvoices: Invoice[] =
+    apiData?.results.map((inv) => ({
+      date: inv.expense_date,
+      vendor: inv.vendor_name,
+      category: inv.category_show_by_name.join(", "),
+      amount: inv.amount,
+      status: inv.status as "Submitted" | "Approved" | "Pending",
+      type: "Expense",
+      description: inv.discription,
+    })) || [];
 
-  const totalPages = apiData ? Math.ceil(apiData.count / 10) : 1; // adjust if API uses different page size
+  // Client-side pagination
+  const pageSize = 10;
+  const totalPages = Math.ceil(allInvoices.length / pageSize);
+  const invoices = allInvoices.slice((page - 1) * pageSize, page * pageSize);
 
   const getStatusClass = (status: string) => {
     if (status === "Submitted") return "bg-blue-100 text-blue-600";
     if (status === "Approved") return "bg-green-100 text-green-600";
     if (status === "Pending") return "bg-yellow-100 text-yellow-600";
+    if (status === "Cancel") return "bg-red-100 text-red-600";
     return "";
   };
 
@@ -84,10 +90,8 @@ const EmployeeInvoicees = () => {
   };
 
   const handlePageChange = (newPage: number) => {
-    setPage(newPage);
+    if (newPage >= 1 && newPage <= totalPages) setPage(newPage);
   };
-
-  if (isLoading) return <div>Loading...</div>;
 
   return (
     <div>
@@ -95,7 +99,7 @@ const EmployeeInvoicees = () => {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Invoices</h1>
         <Button onClick={() => setIsModalOpen(true)}>
-          <FiPlus />Upload Expense
+          <FiPlus /> Upload Expense
         </Button>
       </div>
 
@@ -118,12 +122,12 @@ const EmployeeInvoicees = () => {
 
       {/* Search */}
       <div className="mb-4">
-        <input
+        <Input
           type="text"
           placeholder="Search by vendor, category or status..."
           value={search}
           onChange={handleSearchChange}
-          className="w-full md:w-1/3 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full md:w-1/3"
         />
       </div>
 
@@ -283,19 +287,36 @@ const EmployeeInvoicees = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center mt-4 space-x-2">
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-          <button
-            key={p}
-            onClick={() => handlePageChange(p)}
-            className={`px-3 py-1 rounded border ${
-              p === page ? "bg-blue-600 text-white" : "bg-white text-black"
-            }`}
-          >
-            {p}
-          </button>
-        ))}
-      </div>
+      <div className="flex justify-between mt-4 items-center">
+  <Button
+    onClick={() => handlePageChange(page - 1)}
+    disabled={page === 1}
+    className={`px-4 py-2  font-semibold ${
+      page === 1
+        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+        : "bg-blue-600 text-white hover:bg-blue-700"
+    }`}
+  >
+    Previous
+  </Button>
+
+  <span className="px-3 py-1 font-medium">
+    Page {page} of {totalPages}
+  </span>
+
+  <Button
+    onClick={() => handlePageChange(page + 1)}
+    disabled={page === totalPages || invoices.length === 0}
+    className={`px-4 py-2  font-semibold ${
+      page === totalPages || invoices.length === 0
+        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+        : "bg-blue-600 text-white hover:bg-blue-700"
+    }`}
+  >
+    Next
+  </Button>
+</div>
+
     </div>
   );
 };
