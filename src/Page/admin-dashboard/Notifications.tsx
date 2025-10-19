@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { assets } from "@/assets/assets";
-import Button from "@/Components/Button";
+import { Button } from "@/Components/ui/button";
 
 interface Notification {
   id: number;
@@ -43,7 +43,9 @@ const Notifications = () => {
           <h1 className="text-2xl font-bold">Notifications</h1>
           <p className="mt-2">Stay updated with your latest activities and tasks</p>
         </div>
-        <Button text="Mark all as read" onClick={markAllAsRead} />
+        <Button onClick={markAllAsRead}>
+            Mark all as read
+        </Button>
       </div>
 
       {/* Notification list */}

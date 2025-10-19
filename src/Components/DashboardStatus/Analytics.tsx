@@ -1,4 +1,4 @@
-import { useGetAdminDashboardQuery } from "@/redux/api/apiSlice";
+import { useGetAdminDashboardQuery } from "@/redux/features/admin/dashboard/dashboard.api";
 
 type Slice = { name: string; value: number; color: string };
 

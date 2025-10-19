@@ -2,12 +2,9 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router";
 import { assets, Subscription as KpiCards } from "../../assets/assets";
 import SubscriptionsTable from "./SubscriptionsTable";
-import {
-  useGetAdminStatusQuery,
-  useGetCalculationSubscriptionsQuery,
-} from "@/redux/api/apiSlice";
+import { useGetCalculationSubscriptionsQuery, useGetSubscriptionPageQuery } from "@/redux/features/admin/subscription/subscription.api";
+import { Button } from "../ui/button";
 
-/* ---------- Table Row Type ---------- */
 type TableRow = {
   id: number;
   name: string;
@@ -59,8 +56,7 @@ function apiToRow(item: any): TableRow {
     .trim()
     .replace(/^, /, "");
 
-  const price =
-    typeof plan?.amount === "number" ? `$${plan.amount}/month` : "";
+  const price = typeof plan?.amount === "number" ? `$${plan.amount}/month` : "";
   const pkg = plan?.name ? `${plan.name} Package ${price}` : "-";
 
   // Prefer explicit next_payment_date; fall back to current_period_end
@@ -73,9 +69,9 @@ function apiToRow(item: any): TableRow {
     status: titleCase(item?.status ?? "inactive"),
     location: location || (bld?.location ?? "-"),
     package: pkg,
-    startDate: fmtDate(item?.start_date),
-    countdown: countdownText(item?.remaining_days),
-    nextPayment: fmtDate(nextPaymentRaw),
+    startDate: fmtDate(item?.start_date), // ✅ from payload
+    countdown: countdownText(item?.remaining_days), // ✅ from payload
+    nextPayment: fmtDate(nextPaymentRaw), // ✅ next_payment_date or fallback
     invoice: (item?.payment ?? "").toLowerCase() === "prepaid",
   };
 }
@@ -90,14 +86,15 @@ export default function SubscriptionsDashboard() {
   const { data: kpis, isLoading: kpisLoading } =
     useGetCalculationSubscriptionsQuery();
 
-  // ✅ Server-side filtered data
+  // Server-paginated table data
   const {
     data: pageData,
     isFetching: subsLoading,
     isError: subsError,
-  } = useGetAdminStatusQuery({
-    status: statusFilter === "All status" ? "" : statusFilter.toLowerCase(),
+  } = useGetSubscriptionPageQuery({
     page,
+    page_size: pageSize,
+    status: statusFilter,
   });
 
   const rows: TableRow[] = useMemo(
@@ -166,19 +163,20 @@ export default function SubscriptionsDashboard() {
               setPage(1);
               setStatusFilter(e.target.value);
             }}
-            className="border border-gray-300 rounded-md px-3 py-2"
+            className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer"
           >
             <option>All status</option>
             <option>Active</option>
-            <option>paused</option>
-            <option>past_due</option>
-            <option>canceled</option>
+            <option>Pending</option>
+            <option>Auto-Renew</option>
+            <option>Expired</option>
+            <option>Inactive</option>
           </select>
 
           <Link to="/subscriptionplan">
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+            <Button>
               View Plan
-            </button>
+            </Button>
           </Link>
         </div>
       </div>

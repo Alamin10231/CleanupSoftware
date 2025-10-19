@@ -4,11 +4,11 @@ import { FaApple, FaEye, FaEyeSlash, FaFacebook } from "react-icons/fa";
 import loginpicture from "../../assets/Image/loginpicture.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { assets } from "../../assets/assets";
-import { useSignUpMutation } from "../../redux/features/SignUp/SignUpApi";
 import { useDispatch } from "react-redux";
-import { setCredentials } from "../../redux/features/SignUp/SignUpSlice";
+import { useSignUpMutation } from "@/redux/features/auth/authApi";
+import { setCredentials } from "@/redux/features/auth/authSlice";
 
-export default function UserSignUp() {
+export default function SignUp() {
   // ✅ State variables
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");

@@ -1,8 +1,7 @@
 import { assets } from "@/assets/assets";
-import Button from "@/Components/Button";
 import Card from "@/Components/Card";
 import { useEffect, useState } from "react";
-import { FaPlus, FaEye, FaEdit } from "react-icons/fa";
+import { FaPlus, FaEdit } from "react-icons/fa";
 import { IoIosSearch } from "react-icons/io";
 import {
   Dialog,
@@ -12,11 +11,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/Components/ui/dialog";
-import {
-  useGetAllClientsAdminQuery,
-  useGetClientOverviewAdminQuery,
-  useGetSearchClientsQuery,
-} from "@/redux/api/apiSlice";
+import { Button } from "@/Components/ui/button";
+import { useGetAllClientsAdminQuery, useGetClientOverviewAdminQuery, useGetSearchClientsQuery } from "@/redux/features/admin/users/clients.api";
 
 const Clients = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -50,7 +46,7 @@ const Clients = () => {
     data: Overview,
     isLoading: overviewLoading,
     error: overviewError,
-  } = useGetClientOverviewAdminQuery();
+  } = useGetClientOverviewAdminQuery(undefined);
 
   // Decide which data to display
   const clientsToDisplay = debouncedSearch.trim()
@@ -83,7 +79,9 @@ const Clients = () => {
           <div>
             <Dialog>
               <DialogTrigger>
-                <Button icon={<FaPlus />} text="Add Client" />
+                <Button>
+                  <FaPlus /> Add Client
+                </Button>
               </DialogTrigger>
               <DialogContent className="bg-white border-0 rounded-lg">
                 <DialogHeader>
@@ -255,7 +253,9 @@ const Clients = () => {
                   <td className="p-3">{client.id}</td>
                   <td className="p-3">
                     <img
-                      src={client.client_profile?.avatar ?? "/default-avatar.png"}
+                      src={
+                        client.client_profile?.avatar ?? "/default-avatar.png"
+                      }
                       alt={client.name}
                       className="w-12 h-12 rounded-full object-cover border border-gray-300"
                     />
