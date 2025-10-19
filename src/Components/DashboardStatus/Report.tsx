@@ -1,3 +1,4 @@
+import { useGetAdminDashboardQuery } from "@/redux/features/admin/dashboard/dashboard.api";
 import React, { useMemo, useState } from "react";
 import {
   CartesianGrid,
@@ -8,7 +9,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useGetAdminDashboardQuery } from "@/redux/api/apiSlice";
 
 const MONTHS = [
   { label: "January", value: "january" },
@@ -31,8 +31,10 @@ export default function Report() {
   const [year, setYear] = useState(2025);
   const [month, setMonth] = useState("october"); // backend expects lower-case
 
-  const { data, isLoading, isError, refetch } =
-    useGetAdminDashboardQuery({ year, month });
+  const { data, isLoading, isError } = useGetAdminDashboardQuery({
+    year,
+    month,
+  });
 
   // Build chart from API: X = Saudi hour label, Y = amount
   const chartData = useMemo(() => {
@@ -56,8 +58,8 @@ export default function Report() {
             : "");
 
         return {
-          time: label,                 // X-axis
-          sales: Number(r.amount) || 0 // Y-axis
+          time: label, // X-axis
+          sales: Number(r.amount) || 0, // Y-axis
         };
       });
   }, [data]);
@@ -76,7 +78,9 @@ export default function Report() {
             onChange={(e) => setYear(Number(e.target.value))}
           >
             {YEARS.map((y) => (
-              <option key={y} value={y}>{y}</option>
+              <option key={y} value={y}>
+                {y}
+              </option>
             ))}
           </select>
 
@@ -87,7 +91,9 @@ export default function Report() {
             onChange={(e) => setMonth(e.target.value)}
           >
             {MONTHS.map((m) => (
-              <option key={m.value} value={m.value}>{m.label}</option>
+              <option key={m.value} value={m.value}>
+                {m.label}
+              </option>
             ))}
           </select>
         </div>
@@ -119,7 +125,12 @@ export default function Report() {
               activeDot={{ r: 6 }}
               isAnimationActive={!isLoading}
             />
-            <XAxis dataKey="time" tickLine={false} axisLine={false} tickMargin={8} />
+            <XAxis
+              dataKey="time"
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+            />
             <YAxis tickLine={false} axisLine={false} />
             <Tooltip
               cursor={{ stroke: "#94a3b8", strokeDasharray: "3 3" }}
@@ -135,7 +146,9 @@ export default function Report() {
         </ResponsiveContainer>
       </div>
 
-      {isLoading && <div className="mt-3 text-sm text-gray-500">Loading chart…</div>}
+      {isLoading && (
+        <div className="mt-3 text-sm text-gray-500">Loading chart…</div>
+      )}
     </div>
   );
 }

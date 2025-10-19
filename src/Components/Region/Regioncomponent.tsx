@@ -10,7 +10,7 @@ import BuildingDetails from "./building-details";
 import {
   useGetBuildingsQuery,
   useGetStatsQuery,
-} from "@/redux/features/region/buildingApi";
+} from "@/redux/features/admin/buildings/building.api";
 import type { Building } from "@/Types/building.types";
 
 export default function RegionComponent() {
@@ -51,7 +51,6 @@ export default function RegionComponent() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-bold text-2xl">Buildings</h1>
@@ -61,7 +60,7 @@ export default function RegionComponent() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-4 gap-4">
         {[
           { label: "Active", value: active, icon: <FaCheckCircle /> },
           { label: "Inactive", value: inactive, icon: <GoPlus /> },

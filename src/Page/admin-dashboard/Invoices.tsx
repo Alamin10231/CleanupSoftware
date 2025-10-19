@@ -2,13 +2,13 @@ import { assets } from "@/assets/assets";
 import Card from "@/Components/Card";
 import InvoicesList from "@/Components/InvoicesList";
 import { Button } from "@/Components/ui/button";
-import { useGetCalculationInvoiceQuery } from "@/redux/api/apiSlice";
+import { useGetCalculationInvoiceQuery } from "@/redux/features/admin/invoice/invoice.api";
 import { FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 
 const Invoices = () => {
-  const { data, isLoading } = useGetCalculationInvoiceQuery()
+  const { data, isLoading } = useGetCalculationInvoiceQuery(undefined)
 
   if(isLoading) return <div>loading...</div>
   // console.log(data)

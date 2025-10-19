@@ -10,7 +10,7 @@ import { setCredentials } from "@/redux/features/auth/authSlice";
 import { toast } from "sonner";
 import { Button } from "../ui/button";
 
-export default function AdminLogin() {
+export default function Login() {
     const dispatch = useDispatch();
     const [login, { isLoading, isError }] = useLoginMutation();
 
