@@ -12,16 +12,26 @@ export type SubsPage = {
 
 // lower-case month names your backend expects (e.g. "october")
 export type MonthLower =
-  | "january" | "february" | "march" | "april" | "may" | "june"
-  | "july" | "august" | "september" | "october" | "november" | "december";
+  | "january"
+  | "february"
+  | "march"
+  | "april"
+  | "may"
+  | "june"
+  | "july"
+  | "august"
+  | "september"
+  | "october"
+  | "november"
+  | "december";
 
 // one row in outgoing_sales; API sometimes sends `soudi_hour` (typo) or `saudi_hour`
 export type OutgoingSale = {
-  time: string;          // "YYYY-MM-DD HH:mm:ss"
+  time: string; // "YYYY-MM-DD HH:mm:ss"
   amount: number;
-  month: string;         // "October"
-  soudi_hour?: string;   // optional label from API (typo variant)
-  saudi_hour?: string;   // optional label from API (corrected variant)
+  month: string; // "October"
+  soudi_hour?: string; // optional label from API (typo variant)
+  saudi_hour?: string; // optional label from API (corrected variant)
 };
 
 export type TopClient = {
@@ -71,7 +81,18 @@ export const apiSlice = createApi({
     },
   }),
 
-  tagTypes: ["User","Invoice","AddEmployee","AdminEmployeeOverview","GetAllEmployeeAdmin", "GetAllClientsAdmin", "GetClientOverviewAdmin", "region", "Subscription","AdminDashboard","Building",
+  tagTypes: [
+    "User",
+    "Invoice",
+    "AddEmployee",
+    "AdminEmployeeOverview",
+    "GetAllEmployeeAdmin",
+    "GetAllClientsAdmin",
+    "GetClientOverviewAdmin",
+    "region",
+    "Subscription",
+    "AdminDashboard",
+    "Building",
     "GetServiceAdminOverview",
     "GetAllServiceDataAdmin",
     "SearchClients",
@@ -109,7 +130,6 @@ export const apiSlice = createApi({
       invalidatesTags: ["Invoice"],
     }),
 
-
     /* ---------- USERS / EMPLOYEES / REGIONS ---------- */
     getAllClient: builder.query<any, void>({
       query: () => "/users/?search=client",
@@ -130,7 +150,6 @@ export const apiSlice = createApi({
       // "plan/invoice/list/?search=238947f4-bd49-49fd-aa94-6fa9c4b8a0a1",
       providesTags: ["SearchInvoices"],
     }),
-
 
     addEmployee: builder.mutation({
       query: (add_employee) => ({
@@ -174,16 +193,44 @@ export const apiSlice = createApi({
       providesTags: ["GetClientOverviewAdmin"],
     }),
 
-
     /* ---------- ADMIN DASHBOARD (POST year+month) ---------- */
-    getAdminDashboard: builder.query<AdminDashboard, { year: number; month: MonthLower }>({
+    getAdminDashboard: builder.query<
+      AdminDashboard,
+      { year: number; month: MonthLower }
+    >({
       query: ({ year, month }) => ({
         url: "/dashboard/",
         method: "POST",
-        body: { year: Number(year), month: String(month).toLowerCase() as MonthLower },
+        body: {
+          year: Number(year),
+          month: String(month).toLowerCase() as MonthLower,
+        },
       }),
       providesTags: ["AdminDashboard"],
     }),
+    /* ---------- SUBSCRIPTION Plans---------- */
+    getAdminNewplans: builder.query<any, void>({
+      query: () => "plan/subscription/",
+      providesTags: ["Subscription"],
+    }),
+    getCollectionNewPlans: builder.query<any, void>({
+      query: () => "plan/subscription/",
+      providesTags: ["Subscription"],
+    }),
+
+/* ---------- SUBSCRIPTION status (server-side filter) ---------- */
+getAdminStatus: builder.query<any, { status?: string; page?: number }>({
+  query: ({ status = "", page = 1 }) =>
+    `plan/subscription/?page=${page}&status=${encodeURIComponent(status)}`,
+  providesTags: ["Subscription"],
+}),
+
+getCollectionStatus: builder.query<any, { status?: string; page?: number }>({
+  query: ({ status = "", page = 1 }) =>
+    `plan/subscription/?page=${page}&status=${encodeURIComponent(status)}`,
+  providesTags: ["Subscription"],
+}),
+
 
     /* ---------- SUBSCRIPTION ---------- */
     getCalculationSubscriptions: builder.query<any, void>({
@@ -207,7 +254,10 @@ export const apiSlice = createApi({
     }),
 
     /* ---------- TOP PERFORMERS (paginated) ---------- */
-    getTopPerformersPage: builder.query<Paginated<TopPerformer>, { page?: number; page_size?: number }>({
+    getTopPerformersPage: builder.query<
+      Paginated<TopPerformer>,
+      { page?: number; page_size?: number }
+    >({
       query: ({ page = 1, page_size = 10 } = {}) =>
         `/employees/top-performers/?page=${page}&page_size=${page_size}`,
     }),
@@ -238,7 +288,10 @@ export const {
   // subscription
   useGetCalculationSubscriptionsQuery,
   useGetSubscriptionPageQuery,
-
+  useGetAdminNewplansQuery,
+  useGetCollectionNewPlansQuery,
+  useGetAdminStatusQuery,
+  useGetCollectionStatusQuery,
   // admin dashboard
   useGetAdminDashboardQuery,
 

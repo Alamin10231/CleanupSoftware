@@ -3,8 +3,8 @@ import { Link } from "react-router";
 import { assets, Subscription as KpiCards } from "../../assets/assets";
 import SubscriptionsTable from "./SubscriptionsTable";
 import {
+  useGetAdminStatusQuery,
   useGetCalculationSubscriptionsQuery,
-  useGetSubscriptionPageQuery,
 } from "@/redux/api/apiSlice";
 
 /* ---------- Table Row Type ---------- */
@@ -73,9 +73,9 @@ function apiToRow(item: any): TableRow {
     status: titleCase(item?.status ?? "inactive"),
     location: location || (bld?.location ?? "-"),
     package: pkg,
-    startDate: fmtDate(item?.start_date),            // ✅ from payload
-    countdown: countdownText(item?.remaining_days),  // ✅ from payload
-    nextPayment: fmtDate(nextPaymentRaw),            // ✅ next_payment_date or fallback
+    startDate: fmtDate(item?.start_date),
+    countdown: countdownText(item?.remaining_days),
+    nextPayment: fmtDate(nextPaymentRaw),
     invoice: (item?.payment ?? "").toLowerCase() === "prepaid",
   };
 }
@@ -90,15 +90,14 @@ export default function SubscriptionsDashboard() {
   const { data: kpis, isLoading: kpisLoading } =
     useGetCalculationSubscriptionsQuery();
 
-  // Server-paginated table data
+  // ✅ Server-side filtered data
   const {
     data: pageData,
     isFetching: subsLoading,
     isError: subsError,
-  } = useGetSubscriptionPageQuery({
+  } = useGetAdminStatusQuery({
+    status: statusFilter === "All status" ? "" : statusFilter.toLowerCase(),
     page,
-    page_size: pageSize,
-    status: statusFilter,
   });
 
   const rows: TableRow[] = useMemo(
@@ -171,10 +170,9 @@ export default function SubscriptionsDashboard() {
           >
             <option>All status</option>
             <option>Active</option>
-            <option>Pending</option>
-            <option>Auto-Renew</option>
-            <option>Expired</option>
-            <option>Inactive</option>
+            <option>paused</option>
+            <option>past_due</option>
+            <option>canceled</option>
           </select>
 
           <Link to="/subscriptionplan">
