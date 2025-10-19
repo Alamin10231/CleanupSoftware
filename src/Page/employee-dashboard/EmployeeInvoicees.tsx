@@ -12,8 +12,8 @@ import {
 } from "@/Components/ui/dialog";
 import { Label } from "@/Components/ui/label";
 import { Input } from "@/Components/ui/input";
-import { useGetEmployeeInvoiceQuery } from "@/redux/api/apiSlice";
 import { Button } from "@/Components/ui/button";
+import { useGetEmployeeInvoiceQuery } from "@/redux/features/employee/invoice/invoice.api";
 
 interface Invoice {
   date: string;
