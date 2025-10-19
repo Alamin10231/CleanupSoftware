@@ -3,7 +3,7 @@ import { useGetAdminDashboardQuery } from "@/redux/api/apiSlice";
 
 export default function TopClients() {
   // Fetch the dashboard (you can pass year/month dynamically)
-  const { data, isLoading, isError, refetch } = useGetAdminDashboardQuery({
+  const { data, isLoading, isError } = useGetAdminDashboardQuery({
     year: 2025,
     month: "october",
   });

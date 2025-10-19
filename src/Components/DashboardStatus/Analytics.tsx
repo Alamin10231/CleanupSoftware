@@ -1,4 +1,3 @@
-// src/components/Analytics.tsx
 import { useGetAdminDashboardQuery } from "@/redux/api/apiSlice";
 
 type Slice = { name: string; value: number; color: string };

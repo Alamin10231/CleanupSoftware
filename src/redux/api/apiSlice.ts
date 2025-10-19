@@ -71,25 +71,7 @@ export const apiSlice = createApi({
     },
   }),
 
-  tagTypes: [
-    
-    "User",
-   
-    "Invoice",
-   
-    "AddEmployee",
-   
-    "AdminEmployeeOverview",
-   
-    "GetAllEmployeeAdmin",
-    
-    "GetAllClientsAdmin",
-    
-    "GetClientOverviewAdmin",
-    "region",
-    "Subscription",
-    "AdminDashboard",
-  , "Building",
+  tagTypes: ["User","Invoice","AddEmployee","AdminEmployeeOverview","GetAllEmployeeAdmin", "GetAllClientsAdmin", "GetClientOverviewAdmin", "region", "Subscription","AdminDashboard","Building",
     "GetServiceAdminOverview",
     "GetAllServiceDataAdmin",
     "SearchClients",
@@ -219,7 +201,7 @@ export const apiSlice = createApi({
           page_size: String(page_size),
           ...(s ? { status: s } : {}),
         }).toString();
-        return `/plan/subscription/?${qs}`; // fixed
+        return `/plan/subscription/?page${qs}`; // fixed
       },
       providesTags: ["Subscription"],
     }),
@@ -235,9 +217,13 @@ export const apiSlice = createApi({
 export const {
   // invoice
   useGetInvoicesQuery,
-  useGetCalculationInvoiceQuery,
   useAddInvoiceMutation,
-
+  useGetCalculationInvoiceQuery,
+  useGetServiceAdminOverviewQuery,
+  useGetAllServiceDataAdminQuery,
+  useGetSearchClientsQuery,
+  useGetSearchAllEmpoloyeesQuery,
+  useGetSearchAllInvoiceQuery,
   // users / employees / regions
   useGetAllClientQuery,
   useAddEmployeeMutation,
@@ -247,5 +233,15 @@ export const {
   useEmployeeOverviewQuery,
   useGetAllemployeeAdminQuery,
   useGetAllClientsAdminQuery,
-  useGetClientOverviewAdminQuery
+  useGetClientOverviewAdminQuery,
+
+  // subscription
+  useGetCalculationSubscriptionsQuery,
+  useGetSubscriptionPageQuery,
+
+  // admin dashboard
+  useGetAdminDashboardQuery,
+
+  // top performers
+  useGetTopPerformersPageQuery,
 } = apiSlice;
