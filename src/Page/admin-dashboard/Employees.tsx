@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { assets } from "@/assets/assets";
 import ActionButton from "@/Components/ActionButton";
 import Card from "@/Components/Card";
@@ -148,26 +148,20 @@ const Employees = () => {
           <ActionButton />
         </div>
 
-        <ProgressBar />
+                <ProgressBar />
 
-        {/* Overview Cards */}
-        {overviewLoading ? (
-          <p className="text-gray-500 mt-6">Loading overview data...</p>
-        ) : overviewError ? (
-          <p className="text-red-500 mt-6">Failed to load overview data.</p>
-        ) : (
-          <div className="grid grid-cols-5 gap-4 mt-6">
-            {cardData.map((card, index) => (
-              <Card
-                key={index}
-                title={card.title}
-                number={card.number}
-                iconSrc={assets[card.iconKey]}
-                iconAlt={card.iconAlt}
-              />
-            ))}
-          </div>
-        )}
+                {/* Cards */}
+                <div className="grid grid-cols-5 gap-4 mt-6">
+                    {cardData.map((card, index) => (
+                        <Card
+                            key={index}
+                            title={card.title}
+                            number={card.number}
+                            iconSrc={assets[card.iconKey]}
+                            iconAlt={card.iconAlt}
+                        />
+                    ))}
+                </div>
 
         {/* Search + Filters */}
         <div className="flex items-center gap-4 mt-8 bg-white rounded-xl">

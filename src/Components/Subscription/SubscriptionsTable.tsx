@@ -1,6 +1,5 @@
 import { FaPause } from "react-icons/fa";
 
-
 type Subscription = {
   id: number;
   name: string;
@@ -53,7 +52,9 @@ export default function SubscriptionsTable({
             >
               <td className="px-6 py-4">
                 <div className="flex flex-col">
-                  <span className="font-semibold text-gray-900">{sub.name}</span>
+                  <span className="font-semibold text-gray-900">
+                    {sub.name}
+                  </span>
                   <span className="text-xs text-gray-500">{sub.email}</span>
                   <span
                     className={`mt-1 px-3 py-1 rounded-full text-xs font-medium ${
@@ -70,22 +71,25 @@ export default function SubscriptionsTable({
                   </span>
                 </div>
               </td>
+
               <td className="px-6 py-4 text-gray-700">{sub.location}</td>
               <td className="px-6 py-4 text-gray-700">{sub.package}</td>
               <td className="px-6 py-4 text-gray-700">{sub.startDate}</td>
-              {/* <td className="px-6 py-4 text-gray-700">{sub.countdown}</td> */}
+
               <td className="px-6 py-4 text-gray-700 text-center">
-  {sub.countdown ? (
-    <span>{sub.countdown}</span>
-  ) : (
-    <FaPause className="inline-block w-5 h-5 text-gray-400" />
-  )}
-</td>
+                {sub.countdown ? (
+                  <span>{sub.countdown}</span>
+                ) : (
+                  <FaPause className="inline-block w-5 h-5 text-gray-400" />
+                )}
+              </td>
+
               <td className="px-6 py-4 text-gray-700">{sub.nextPayment}</td>
+
               <td className="px-6 py-4">
                 {sub.invoice ? (
                   <span className="px-3 py-1 text-blue-700 border border-blue-700 rounded-full text-xs font-semibold">
-                   Prepaid
+                    Prepaid
                   </span>
                 ) : (
                   <span className="px-3 py-1 text-gray-400 border border-gray-300 rounded-full text-xs font-semibold">
@@ -113,7 +117,7 @@ export default function SubscriptionsTable({
             Prev
           </button>
           <button
-            className="px-3 py-1 border border-gray-300  rounded"
+            className="px-3 py-1 border border-gray-300 rounded"
             disabled={page * pageSize >= rows.length}
             onClick={() => onPageChange(page + 1)}
           >
