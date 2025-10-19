@@ -64,7 +64,7 @@ export default function Analytics() {
             <div className="absolute inset-6 rounded-full bg-white shadow-inner dark:bg-gray-900" />
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center">
-                <div className="text-xl font-semibold">{total}</div>
+                <div className="text-4xl font-semibold">{total}</div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
                   Total
                 </div>

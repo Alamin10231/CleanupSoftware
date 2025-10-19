@@ -3,7 +3,6 @@ import man from "../../assets/Image/Heart.png";
 import vector from "../../assets/Image/Vector.png";
 import vector1 from "../../assets/Image/Vector (1).png";
 import house from "../../assets/Image/solar_card-outline.png";
-import { Button } from "../ui/button";
 import { useGetAdminDashboardQuery } from "@/redux/api/apiSlice";
 import type { AdminDashboard } from "@/redux/api/apiSlice";
 
@@ -28,7 +27,7 @@ export default function DashboardStats() {
   const [month, setMonth] = useState<string>(currentMonth);
 
   // ✅ POST /dashboard/ with { year, month }
-  const { data, isLoading, isFetching, isError, refetch } =
+  const { data, isLoading, isError } =
     useGetAdminDashboardQuery({ year, month });
 
   const d = (data ?? {}) as Partial<AdminDashboard>;
@@ -63,21 +62,6 @@ export default function DashboardStats() {
     [d]
   );
 
-  const handleExport = () => {
-    const rows = d.outgoing_sales || [];
-    const csv = [
-      "time,amount,month",
-      ...rows.map((r) => `"${r.time}","${r.amount}","${r.month}"`),
-    ].join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `outgoing_sales_${year}_${month}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   return (
     <div>
       {/* Header + "calendar-like" dropdowns */}
@@ -111,22 +95,6 @@ export default function DashboardStats() {
               <option key={m} value={m}>{capitalize(m)}</option>
             ))}
           </select>
-
-          <Button
-            onClick={() => refetch()}
-            className="px-4 py-2 bg-blue-500 text-white rounded-full"
-          >
-            <span className={`mr-2 ${isFetching ? "animate-spin" : ""}`}>↻</span>
-            Refresh
-          </Button>
-
-          <Button
-            onClick={handleExport}
-            disabled={!d.outgoing_sales?.length}
-            className="px-4 py-2 bg-blue-500 text-white rounded-full disabled:opacity-60"
-          >
-            ⭳ Export
-          </Button>
         </div>
       </div>
 

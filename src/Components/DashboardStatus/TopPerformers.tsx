@@ -38,17 +38,6 @@ export default function TopClients() {
           </svg>
           <h2 className="font-semibold text-gray-800">Top Clients</h2>
         </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => refetch()}
-            className="text-sm text-gray-500 hover:underline"
-            title="Refresh"
-          >
-            Refresh ↻
-          </button>
-          <button className="text-sm text-blue-600 hover:underline">ViewAll</button>
-        </div>
       </div>
 
       {/* List */}
