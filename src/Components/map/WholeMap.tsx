@@ -3,37 +3,38 @@ import {
     Map,
     AdvancedMarker,
 } from "@vis.gl/react-google-maps";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import CustomMarker from "./CustomMarker";
-import { mapStyles } from "./mapStyles";
 
-export default function Intro({ selectedApartment }) {
-    const [position, setPosition] = useState({ lat: 24.89, lng: 91.88 });
+export default function WholeMap({ selectedApartment }) {
+    const [position, setPosition] = useState();
+    const riyadh = { lat: 24.7136, lng: 46.6753 };
 
-    useEffect(() => {
-        if (selectedApartment) {
-            setPosition(selectedApartment.location);
-        }
-    }, [selectedApartment]);
+   //  useEffect(() => {
+   //      if (selectedApartment) {
+   //          setPosition(selectedApartment.location);
+   //      }
+   //  }, [selectedApartment]);
 
     return (
         <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
             <div className="h-full">
                 <Map
                     defaultZoom={12}
-                    defaultCenter={position}
-                  //   mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
+                    defaultCenter={riyadh}
+                    mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
                     gestureHandling={'greedy'}
                     disableDefaultUI
-                    styles={mapStyles}
+                    onClick={(e) => {
+                       console.log(e.detail.latLng);
+                    }}
                 >
-                    {selectedApartment && (
+                    {/* <Regions /> */}
                         <AdvancedMarker
                             position={position}
                         >
                             <CustomMarker />
                         </AdvancedMarker>
-                    )}
                 </Map>
             </div>
         </APIProvider>

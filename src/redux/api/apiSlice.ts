@@ -1,5 +1,6 @@
 // src/redux/api/apiSlice.ts
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import type { RootState } from "../store";
 
 /* ---------- Types ---------- */
 export type SubsPage = {
@@ -62,28 +63,56 @@ export const apiSlice = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: "http://10.10.13.75:8015/api/v1",
     prepareHeaders: (headers, { getState }) => {
-      const token = (getState() as any)?.auth?.accessToken;
-      if (token) headers.set("authorization", `Bearer ${token}`);
+      const token = (getState() as RootState).auth.accessToken;
+      if (token) {
+        headers.set("authorization", `Bearer ${token}`);
+      }
       return headers;
     },
   }),
+
   tagTypes: [
+    
     "User",
+   
     "Invoice",
+   
     "AddEmployee",
+   
     "AdminEmployeeOverview",
-    "GetAllEmpolyeeAdmin",
+   
+    "GetAllEmployeeAdmin",
+    
     "GetAllClientsAdmin",
+    
     "GetClientOverviewAdmin",
     "region",
     "Subscription",
     "AdminDashboard",
+  , "Building",
+    "GetServiceAdminOverview",
+    "GetAllServiceDataAdmin",
+    "SearchClients",
+    "SearchEmployees",
+    "SearchInvoices",
   ],
+
   endpoints: (builder) => ({
-    /* ---------- INVOICE ---------- */
-    getInvoices: builder.query<any, void>({
-      query: () => "/plan/invoice/list/",
+    // getInvoices: builder.query<any, void>({
+    //   query: () => "/plan/invoice/list/",
+    //   providesTags: ["Invoice"],
+    // }),
+    getInvoices: builder.query<any, string | void>({
+      query: (params = "") => `/plan/invoice/list/${params}`,
       providesTags: ["Invoice"],
+    }),
+    getServiceAdminOverview: builder.query<any, string | void>({
+      query: () => "task/total-service-details/",
+      providesTags: ["GetServiceAdminOverview"],
+    }),
+    getAllServiceDataAdmin: builder.query<any, string | void>({
+      query: () => "task/services/details/",
+      providesTags: ["GetAllServiceDataAdmin"],
     }),
     getCalculationInvoice: builder.query<any, void>({
       query: () => "/plan/calculations/",
@@ -98,11 +127,29 @@ export const apiSlice = createApi({
       invalidatesTags: ["Invoice"],
     }),
 
+
     /* ---------- USERS / EMPLOYEES / REGIONS ---------- */
     getAllClient: builder.query<any, void>({
       query: () => "/users/?search=client",
       providesTags: ["User"],
     }),
+
+    getSearchClients: builder.query({
+      query: (searchTerm = "") => `clients/?search=${searchTerm}`,
+      providesTags: ["SearchClients"],
+    }),
+    getSearchAllEmpoloyees: builder.query({
+      query: (searchEmployee = "") => `employees/?search=${searchEmployee}`,
+      providesTags: ["SearchEmployees"],
+    }),
+    getSearchAllInvoice: builder.query({
+      query: (searchInvoice = "") =>
+        `plan/invoice/list/?search=${searchInvoice}`,
+      // "plan/invoice/list/?search=238947f4-bd49-49fd-aa94-6fa9c4b8a0a1",
+      providesTags: ["SearchInvoices"],
+    }),
+
+
     addEmployee: builder.mutation({
       query: (add_employee) => ({
         url: "/employees/",
@@ -132,17 +179,19 @@ export const apiSlice = createApi({
       providesTags: ["AdminEmployeeOverview"],
     }),
     getAllemployeeAdmin: builder.query<any, number | void>({
-      query: (page = 1) => `/employees/?page=${page}`,
-      providesTags: ["GetAllEmpolyeeAdmin"],
+      query: (page = 1) => `employees/?page=${page}`,
+      providesTags: ["GetAllEmployeeAdmin"],
     }),
+
     getAllClientsAdmin: builder.query<any, number | void>({
       query: (page = 1) => `/clients/?page=${page}`,
       providesTags: ["GetAllClientsAdmin"],
     }),
     getClientOverviewAdmin: builder.query<any, void>({
-      query: () => "/clients/overview/",
+      query: () => "clients/overview/",
       providesTags: ["GetClientOverviewAdmin"],
     }),
+
 
     /* ---------- ADMIN DASHBOARD (POST year+month) ---------- */
     getAdminDashboard: builder.query<AdminDashboard, { year: number; month: MonthLower }>({
@@ -198,15 +247,5 @@ export const {
   useEmployeeOverviewQuery,
   useGetAllemployeeAdminQuery,
   useGetAllClientsAdminQuery,
-  useGetClientOverviewAdminQuery,
-
-  // subscription
-  useGetCalculationSubscriptionsQuery,
-  useGetSubscriptionPageQuery,
-
-  // admin dashboard
-  useGetAdminDashboardQuery,
-
-  // top performers
-  useGetTopPerformersPageQuery,
+  useGetClientOverviewAdminQuery
 } = apiSlice;

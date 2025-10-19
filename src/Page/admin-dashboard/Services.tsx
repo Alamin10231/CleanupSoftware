@@ -1,11 +1,42 @@
-import { assets, ServiceTopCard } from "@/assets/assets"
+import { assets } from "@/assets/assets"
 import Card from "@/Components/Card"
 import ServiceCard from "@/Components/ServiceCard"
 import { Button } from "@/Components/ui/button"
+import {  useGetServiceAdminOverviewQuery } from "@/redux/api/apiSlice"
 import { Link } from "react-router"
 
 
 const Services = () => {
+
+  const {data:serviceOverview} = useGetServiceAdminOverviewQuery()
+  // console.log("serviceOverview",serviceOverview);
+ 
+  
+   const ServiceTopCard = [
+  {
+    title: "Total Service",
+    number: serviceOverview?.total_services ?? 0,
+    iconKey: "total_service",
+    iconAlt: "total employee",
+  },
+  { title: "Active",
+    number: serviceOverview?.active_booking ?? 0, 
+    iconKey: "Active",
+    iconAlt: "active" },
+  // {
+  //   title: "Avg Rating",
+  //   number: 4.8,
+  //   iconKey: "AVG_rating",
+  //   iconAlt: "Avg Performance",
+  // },
+  {
+    title: "Total Revenue",
+    number: serviceOverview?.total_revenue ?? 0,
+    iconKey: "Total_revenue",
+    iconAlt: "Total_revenue",
+  },
+
+];
   return (
     <>
       <div className="flex justify-between items-center">
@@ -24,7 +55,7 @@ const Services = () => {
 
       {/* Card */}
       {
-        <div className="grid grid-cols-5 gap-4 mt-6">
+        <div className="grid grid-cols-3 gap-4 mt-6">
           {ServiceTopCard.map((card, index) => (
             <Card
               key={index}
@@ -36,8 +67,6 @@ const Services = () => {
           ))}
         </div>
       }
-
-
 
       {/* Service Card */}
       <div className="mt-6">

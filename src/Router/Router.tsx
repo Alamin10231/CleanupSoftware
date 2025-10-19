@@ -14,7 +14,6 @@ import Employees from "@/Page/admin-dashboard/Employees";
 import AdminLogin from "@/Components/Auth/AdminLogin";
 import UserSignUp from "@/Components/Auth/UserSignUp";
 import ForgetPassword from "@/Components/Auth/ForgetPassword";
-import VerifyCode from "@/Components/Auth/VerifyCode";
 import Home from "@/Page/admin-dashboard/Home";
 import SetPassword from "@/Components/Auth/SetPassword";
 import Layout from "@/Layout";
@@ -89,7 +88,6 @@ const Router = () => {
       <Route path="signup" element={<UserSignUp />} />
       <Route path="verifyotp" element={<Verifyotp />} />
       <Route path="forgetpassword" element={<ForgetPassword />} />
-      <Route path="verifycode" element={<VerifyCode />} />
       <Route path="setpassword" element={<SetPassword />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

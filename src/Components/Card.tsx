@@ -9,7 +9,7 @@ interface CardProps {
 
 const Card: React.FC<CardProps> = ({ title, number, iconSrc, iconAlt }) => {
   return (
-    <div className="flex  justify-between items-center border-gray-300 p-5 rounded-lg border shadow-sm bg-white mt-3"
+    <div className="flex justify-between items-center border-gray-300 p-5 rounded-lg border shadow-sm bg-white mt-3"
       
     >
       <div>
