@@ -1,14 +1,14 @@
 import { assets } from "@/assets/assets";
-import Button from "@/Components/Button";
 import Card from "@/Components/Card";
 import InvoicesList from "@/Components/InvoicesList";
-import { useGetCalculationInvoiceQuery } from "@/redux/api/apiSlice";
+import { Button } from "@/Components/ui/button";
+import { useGetCalculationInvoiceQuery } from "@/redux/features/admin/invoice/invoice.api";
 import { FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 
 const Invoices = () => {
-  const { data, isLoading } = useGetCalculationInvoiceQuery()
+  const { data, isLoading } = useGetCalculationInvoiceQuery(undefined)
 
   if(isLoading) return <div>loading...</div>
   // console.log(data)
@@ -21,7 +21,9 @@ const Invoices = () => {
         </div>
         <div className="flex gap-2">
           <Link to="/create-invoice">
-               <Button icon={<FaPlus />} text="Create Invoice" />
+               <Button>
+                <FaPlus />Create Invoice
+              </Button>
           </Link>
 
         </div>
@@ -32,7 +34,7 @@ const Invoices = () => {
       <Card title={`Sales`} number={data.sales} iconSrc={assets.overDue} iconAlt="Total Sales"/>
       <Card title={`Expense`} number={` ${data.expense} SAR`} iconSrc={assets.Total_revenue} iconAlt="Total_revenue"/>
       <Card title={`Total Invoice`} number={data.total_invoice} iconSrc={assets.blueInvoice} iconAlt="blueInvoice"/>
-      
+
       </div>
       {/*  Invoice Card */}
 

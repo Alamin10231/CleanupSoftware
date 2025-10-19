@@ -1,4 +1,4 @@
-import { useGetAllServiceDataAdminQuery } from "@/redux/api/apiSlice";
+import { useGetAllServiceDataAdminQuery } from "@/redux/features/admin/services/services.api";
 import React, { useMemo, useState } from "react";
 import { FiEye, FiEdit2, FiTrash2, FiHome } from "react-icons/fi";
 
@@ -114,9 +114,9 @@ const ServiceCard: React.FC = () => {
           // ✅ Safely calculate discounted price
           const discounted =
             service.discounted_price ??
-            (service.base_price &&
-              service.discount
-              ? service.base_price - (service.base_price * service.discount) / 100
+            (service.base_price && service.discount
+              ? service.base_price -
+                (service.base_price * service.discount) / 100
               : service.base_price);
 
           const completionTotal =

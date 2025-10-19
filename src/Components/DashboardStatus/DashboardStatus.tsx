@@ -3,13 +3,22 @@ import man from "../../assets/Image/Heart.png";
 import vector from "../../assets/Image/Vector.png";
 import vector1 from "../../assets/Image/Vector (1).png";
 import house from "../../assets/Image/solar_card-outline.png";
-import { useGetAdminDashboardQuery } from "@/redux/api/apiSlice";
-import type { AdminDashboard } from "@/redux/api/apiSlice";
+import { useGetAdminDashboardQuery } from "@/redux/features/admin/dashboard/dashboard.api";
 
 /* Month list the API expects (lowercase) */
 const MONTHS = [
-  "january","february","march","april","may","june",
-  "july","august","september","october","november","december",
+  "january",
+  "february",
+  "march",
+  "april",
+  "may",
+  "june",
+  "july",
+  "august",
+  "september",
+  "october",
+  "november",
+  "december",
 ] as const;
 
 /* Build a small year range around current year */
@@ -27,10 +36,12 @@ export default function DashboardStats() {
   const [month, setMonth] = useState<string>(currentMonth);
 
   // ✅ POST /dashboard/ with { year, month }
-  const { data, isLoading, isError } =
-    useGetAdminDashboardQuery({ year, month });
+  const { data, isLoading, isError } = useGetAdminDashboardQuery({
+    year,
+    month,
+  });
 
-  const d = (data ?? {}) as Partial<AdminDashboard>;
+  const d = data ?? {};
 
   const formatInt = (n?: number) =>
     typeof n === "number" ? n.toLocaleString() : "0";
@@ -69,7 +80,8 @@ export default function DashboardStats() {
         <div>
           <h1 className="font-bold text-2xl">Dashboard</h1>
           <p className="text-[#8E8E8E] font-bold">
-            Welcome to CleanUp Pro. <span className="font-bold text-black">Admin User</span>
+            Welcome to CleanUp Pro.{" "}
+            <span className="font-bold text-black">Admin User</span>
           </p>
         </div>
 
@@ -81,7 +93,9 @@ export default function DashboardStats() {
             className="border border-[#9A9AA9] rounded-full px-4 py-2 text-sm"
           >
             {buildYears(currentYear, 3, 3).map((y) => (
-              <option key={y} value={y}>{y}</option>
+              <option key={y} value={y}>
+                {y}
+              </option>
             ))}
           </select>
 
@@ -92,7 +106,9 @@ export default function DashboardStats() {
             className="border border-[#9A9AA9] rounded-full px-4 py-2 text-sm"
           >
             {MONTHS.map((m) => (
-              <option key={m} value={m}>{capitalize(m)}</option>
+              <option key={m} value={m}>
+                {capitalize(m)}
+              </option>
             ))}
           </select>
         </div>

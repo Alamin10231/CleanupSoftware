@@ -1,15 +1,14 @@
-// src/components/TopClients.tsx
-import { useGetAdminDashboardQuery } from "@/redux/api/apiSlice";
+import { useGetAdminDashboardQuery } from "@/redux/features/admin/dashboard/dashboard.api";
 
 export default function TopClients() {
-  // Fetch the dashboard (you can pass year/month dynamically)
   const { data, isLoading, isError } = useGetAdminDashboardQuery({
     year: 2025,
     month: "october",
   });
 
   if (isLoading) return <div>Loading top clients...</div>;
-  if (isError) return <div className="text-red-600">Failed to load top clients.</div>;
+  if (isError)
+    return <div className="text-red-600">Failed to load top clients.</div>;
 
   // Get top_clients array safely and filter out null names
   const clients = data?.top_clients?.filter((c) => c.client__name) ?? [];
@@ -34,7 +33,11 @@ export default function TopClients() {
             strokeWidth={2}
             viewBox="0 0 24 24"
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 7h16M4 12h10M4 17h7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M4 7h16M4 12h10M4 17h7"
+            />
           </svg>
           <h2 className="font-semibold text-gray-800">Top Clients</h2>
         </div>

@@ -1,13 +1,11 @@
-import { apiSlice } from "@/redux/api/apiSlice";
+import { baseApi } from "@/redux/api/baseApi";
 
-export const buildingApi = apiSlice.injectEndpoints({
+export const buildingApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-
-   // Stats
-   getStats: builder.query({
+    getStats: builder.query({
       query: () => "/locations/overview/",
       providesTags: ["Building"],
-   }),
+    }),
     // GET all buildings with apartments (paginated)
     getBuildings: builder.query({
       query: (page = 1) => `/buildings/?page=${page}`,
@@ -57,5 +55,5 @@ export const {
   useCreateBuildingMutation,
   useUpdateBuildingMutation,
   useDeleteBuildingMutation,
-  useGetStatsQuery
+  useGetStatsQuery,
 } = buildingApi;

@@ -11,6 +11,7 @@ import { assets } from "@/assets/assets";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Checkbox } from "./ui/checkbox";
+import { Outlet } from "react-router";
 
 const BulkSalaryPayment = () => {
     const [selectedEmployees, setSelectedEmployees] = useState(new Set());
@@ -120,10 +121,10 @@ const BulkSalaryPayment = () => {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <button className="flex gap-2.5 text-white bg-[#009608] py-2.5 px-5 rounded-full cursor-pointer items-center">
-                    <img src={assets.Bulk} alt="bulk" className="w-5 h-5" />
+                <Button className="flex gap-2.5 bg-green-600 py-2.5 px-5 rounded-full cursor-pointer items-center hover:bg-green-700 text-white">
+                    <img src={assets.Bulk} alt="bulk" className="w-2 h-4" />
                     Bulk
-                </button>
+                </Button>
             </DialogTrigger>
 
             <DialogContent className="flex flex-col p-0">
