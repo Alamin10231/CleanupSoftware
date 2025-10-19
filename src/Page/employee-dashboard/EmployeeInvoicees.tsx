@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import {
   Dialog,
@@ -12,8 +12,8 @@ import {
 } from "@/Components/ui/dialog";
 import { Label } from "@/Components/ui/label";
 import { Input } from "@/Components/ui/input";
+import { useGetEmployeeInvoiceQuery } from "@/redux/api/apiSlice";
 import { Button } from "@/Components/ui/button";
-import clsx from 'clsx';
 
 interface Invoice {
   date: string;
@@ -22,79 +22,85 @@ interface Invoice {
   amount: number;
   status: "Submitted" | "Approved" | "Pending";
   type: "Expense" | "Sales";
+  description?: string;
 }
 
 const EmployeeInvoicees = () => {
-  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [activeTab, setActiveTab] = useState("All");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [description, setDescription] = useState("");
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
 
-  useEffect(() => {
-    fetch("/employeeinvoices.json")
-      .then((res) => res.json())
-      .then((data) => setInvoices(data));
-  }, []);
+  // Server-side search
+  const { data: apiData, isLoading } = useGetEmployeeInvoiceQuery(search);
+
+  if (isLoading) return <div>Loading...</div>;
+
+  // Map API response to Invoice
+  const allInvoices: Invoice[] =
+    apiData?.results.map((inv) => ({
+      date: inv.expense_date,
+      vendor: inv.vendor_name,
+      category: inv.category_show_by_name.join(", "),
+      amount: inv.amount,
+      status: inv.status as "Submitted" | "Approved" | "Pending",
+      type: "Expense",
+      description: inv.discription,
+    })) || [];
+
+  // Client-side pagination
+  const pageSize = 10;
+  const totalPages = Math.ceil(allInvoices.length / pageSize);
+  const invoices = allInvoices.slice((page - 1) * pageSize, page * pageSize);
 
   const getStatusClass = (status: string) => {
-    if (status === "Submitted") {
-      return "bg-blue-100 text-blue-600";
-    } else if (status === "Approved") {
-      return "bg-green-100 text-green-600";
-    } else if (status === "Pending") {
-      return "bg-yellow-100 text-yellow-600";
-    } else {
-      return "";
-    }
+    if (status === "Submitted") return "bg-blue-100 text-blue-600";
+    if (status === "Approved") return "bg-green-100 text-green-600";
+    if (status === "Pending") return "bg-yellow-100 text-yellow-600";
+    if (status === "Cancel") return "bg-red-100 text-red-600";
+    return "";
   };
-
-  // Filter invoices by tab + search
-  const filteredInvoices = invoices.filter((inv) => {
-    const matchesTab = activeTab === "All" ? true : inv.type === activeTab;
-    const matchesSearch =
-      inv.vendor.toLowerCase().includes(search.toLowerCase()) ||
-      inv.category.toLowerCase().includes(search.toLowerCase()) ||
-      inv.status.toLowerCase().includes(search.toLowerCase());
-    return matchesTab && matchesSearch;
-  });
 
   const openDialog = (invoice: Invoice) => {
     setSelectedInvoice(invoice);
+    setDescription(invoice.description || "");
     setIsModalOpen(true);
   };
 
   const closeDialog = () => {
     setSelectedInvoice(null);
-    setDescription(""); // Reset description
-    setReceiptFile(null); // Reset file input
+    setDescription("");
+    setReceiptFile(null);
     setIsModalOpen(false);
   };
 
   const handleSave = () => {
     if (selectedInvoice) {
-      const updatedInvoices = invoices.map((inv) =>
-        inv.date === selectedInvoice.date ? selectedInvoice : inv
-      );
-      setInvoices(updatedInvoices);
+      // TODO: API call to save updates
       closeDialog();
     }
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(e.target.value);
+    setPage(1); // reset page on new search
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) setPage(newPage);
+  };
+
   return (
     <div>
-      {/* Header with Upload button */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold">Invoices</h1>
-          <Button
-            icon={<FiPlus />}
-            text="Upload Expense"
-            onClick={() => setIsModalOpen(true)} // open modal
-          />
-        </div>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold">Invoices</h1>
+        <Button onClick={() => setIsModalOpen(true)}>
+          <FiPlus /> Upload Expense
+        </Button>
       </div>
 
       {/* Tabs */}
@@ -114,14 +120,14 @@ const EmployeeInvoicees = () => {
         ))}
       </div>
 
-      {/* Search input */}
+      {/* Search */}
       <div className="mb-4">
-        <input
+        <Input
           type="text"
           placeholder="Search by vendor, category or status..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full md:w-1/3 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={handleSearchChange}
+          className="w-full md:w-1/3"
         />
       </div>
 
@@ -139,7 +145,7 @@ const EmployeeInvoicees = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredInvoices.map((invoice, index) => (
+            {invoices.map((invoice, index) => (
               <tr key={index} className="border-t">
                 <td className="px-4 py-2">{invoice.date}</td>
                 <td className="px-4 py-2">{invoice.vendor}</td>
@@ -154,9 +160,8 @@ const EmployeeInvoicees = () => {
                     {invoice.status}
                   </span>
                 </td>
-                <td className="px-4 py-2 ">
-                  <div className="">
-                    <Dialog >
+                <td className="px-4 py-2">
+                  <Dialog>
                     <DialogTrigger asChild>
                       <Button
                         variant="outline"
@@ -173,42 +178,40 @@ const EmployeeInvoicees = () => {
                           Update the details of this invoice.
                         </DialogDescription>
                       </DialogHeader>
-                      <div className="grid  gap-4">
+                      <div className="grid gap-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div className="grid gap-3">
-                          <Label htmlFor="vendor">Vendor Name</Label>
-                          <Input
-                            id="vendor"
-                            name="vendor"
-                            value={selectedInvoice?.vendor || ""}
-                            onChange={(e) =>
-                              setSelectedInvoice((prev) => ({
-                                ...prev!,
-                                vendor: e.target.value,
-                              }))
-                            }
-                          />
+                            <Label htmlFor="vendor">Vendor Name</Label>
+                            <Input
+                              id="vendor"
+                              value={selectedInvoice?.vendor || ""}
+                              onChange={(e) =>
+                                setSelectedInvoice((prev) => ({
+                                  ...prev!,
+                                  vendor: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
+                          <div className="grid gap-3">
+                            <Label htmlFor="category">Expense Category</Label>
+                            <Input
+                              id="category"
+                              value={selectedInvoice?.category || ""}
+                              onChange={(e) =>
+                                setSelectedInvoice((prev) => ({
+                                  ...prev!,
+                                  category: e.target.value,
+                                }))
+                              }
+                            />
+                          </div>
                         </div>
-                        <div className="grid gap-3">
-                          <Label htmlFor="category"> Expense Category</Label>
-                          <Input
-                            id="category"
-                            name="category"
-                            value={selectedInvoice?.category || ""}
-                            onChange={(e) =>
-                              setSelectedInvoice((prev) => ({
-                                ...prev!,
-                                category: e.target.value,
-                              }))
-                            }
-                          />
-                        </div>
-                        </div>
+
                         <div className="grid gap-3">
                           <Label htmlFor="amount">Amount</Label>
                           <Input
                             id="amount"
-                            name="amount"
                             type="number"
                             value={selectedInvoice?.amount || ""}
                             onChange={(e) =>
@@ -219,94 +222,60 @@ const EmployeeInvoicees = () => {
                             }
                           />
                         </div>
-                       <div className="grid gap-3">
-  <Label htmlFor="status">Status</Label>
-  <select
-    id="status"
-    name="status"
-    value={selectedInvoice?.status || ""}
-    onChange={(e) => {
-      setSelectedInvoice((prev) => ({
-        ...prev!,
-        status: e.target.value as "Submitted" | "Approved" | "Pending", // Casting the value to ensure it's valid
-      }));
-    }}
-    className="w-full p-2 border rounded-lg"
-  >
-    <option value="Submitted">Submitted</option>
-    <option value="Approved">Approved</option>
-    <option value="Pending">Pending</option>
-  </select>
-</div>
 
-                        {/* Description/Notes */}
                         <div className="grid gap-3">
                           <Label htmlFor="description">Description/Notes</Label>
                           <textarea
                             id="description"
-                            name="description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             className="w-full p-2 border rounded-lg min-h-[150px]"
-                            placeholder="Type & Enter"
-                            
                           />
                         </div>
-                        {/* File Upload */}
-                        <div className="grid gap-3 border-dotted border-gray-200 border-3 text-center items-center justify-center py-4">
-  <Label htmlFor="receipt" className="text-center mx-auto text-lg font-bold text-black ">
-    Attach Receipt
-  </Label>
-  <div className="flex items-center gap-4 bg-red-400">
-    
-   
- 
-    
-  </div>
 
-  {/* Show selected file */}
-  {receiptFile && (
-    <div className=" flex items-center justify-between">
-      <span className="text-sm text-gray-500">{receiptFile.name}</span>
-      <button
-        type="button"
-        onClick={() => setReceiptFile(null)}
-        className="text-sm text-red-600 hover:text-red-800"
-      >
-        Remove
-      </button>
-    </div>
-  )}
+                        <div className="grid gap-3 border-dotted border-gray-200 border-3 text-center py-4">
+                          <Label className="text-lg font-bold">Attach Receipt</Label>
 
-  <div className="text-sm text-black mt-2">
-    Accepted formats: PDF, JPG, PNG. Max size: 5MB
-  </div>
-   <label
-      htmlFor="receipt"
-      className="cursor-pointer px-4 py-2 border rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold"
-    >
-      Upload File
-    </label>
-</div>
+                          {receiptFile && (
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm text-gray-500">
+                                {receiptFile.name}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => setReceiptFile(null)}
+                                className="text-sm text-red-600 hover:text-red-800"
+                              >
+                                Remove
+                              </button>
+                            </div>
+                          )}
 
+                          <div className="text-sm text-black mt-2">
+                            Accepted formats: PDF, JPG, PNG. Max size: 5MB
+                          </div>
+
+                          <label
+                            htmlFor="receipt"
+                            className="cursor-pointer px-4 py-2 border rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold"
+                          >
+                            Upload File
+                          </label>
+                        </div>
                       </div>
                       <DialogFooter>
                         <DialogClose asChild>
                           <Button variant="outline">Cancel</Button>
                         </DialogClose>
-                        <Button type="button" onClick={handleSave}>
-                          Submit
-                        </Button>
+                        <Button onClick={handleSave}>Submit</Button>
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
-                  </div>
                 </td>
               </tr>
             ))}
 
-            {/* Show message when no results */}
-            {filteredInvoices.length === 0 && (
+            {invoices.length === 0 && (
               <tr>
                 <td colSpan={6} className="text-center text-gray-600 py-4">
                   No invoices found
@@ -316,6 +285,38 @@ const EmployeeInvoicees = () => {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination */}
+      <div className="flex justify-between mt-4 items-center">
+  <Button
+    onClick={() => handlePageChange(page - 1)}
+    disabled={page === 1}
+    className={`px-4 py-2  font-semibold ${
+      page === 1
+        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+        : "bg-blue-600 text-white hover:bg-blue-700"
+    }`}
+  >
+    Previous
+  </Button>
+
+  <span className="px-3 py-1 font-medium">
+    Page {page} of {totalPages}
+  </span>
+
+  <Button
+    onClick={() => handlePageChange(page + 1)}
+    disabled={page === totalPages || invoices.length === 0}
+    className={`px-4 py-2  font-semibold ${
+      page === totalPages || invoices.length === 0
+        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+        : "bg-blue-600 text-white hover:bg-blue-700"
+    }`}
+  >
+    Next
+  </Button>
+</div>
+
     </div>
   );
 };
