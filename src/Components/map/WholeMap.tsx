@@ -18,7 +18,7 @@ export default function WholeMap({ selectedApartment }) {
 
     return (
         <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-            <div className="h-full">
+            <div className="h-full" style={{ position: "relative" }}>
                 <Map
                     defaultZoom={12}
                     defaultCenter={riyadh}

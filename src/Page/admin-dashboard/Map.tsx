@@ -15,6 +15,7 @@ import {
   AccordionTrigger,
 } from "@/Components/ui/accordion";
 import WholeMap from "@/Components/map/WholeMap";
+import AddBuilding from "@/Components/map/AddBuilding";
 
 const MapRegionOverview = () => {
   const [selectedRegion, setSelectedRegion] = useState("all");
@@ -233,10 +234,7 @@ const MapRegionOverview = () => {
             </SelectContent>
           </Select>
         </div>
-        <Button className="gap-2">
-          <Plus size={16} />
-          Add Building
-        </Button>
+          <AddBuilding />
       </div>
 
       <div>

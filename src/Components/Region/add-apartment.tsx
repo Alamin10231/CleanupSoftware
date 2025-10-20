@@ -10,16 +10,26 @@ import { useState, useEffect } from "react";
 import { AdvancedMarker, APIProvider, Map } from "@vis.gl/react-google-maps";
 import CustomMarker from "../map/CustomMarker";
 import type { LatLng } from "@/Types/map.types";
+import type { Building } from "@/Types/building.types";
+
+// Minimal client type for this component's usage
+type Client = {
+  id: number;
+  name: string;
+  email?: string;
+};
 import { useGetSearchClientsQuery } from "@/redux/features/admin/users/clients.api";
-import { useGetBuilidingBySearchQuery } from "@/redux/features/admin/buildings/building.api";
+import { useCreateApartmentMutation, useGetBuilidingBySearchQuery } from "@/redux/features/admin/buildings/building.api";
+import { toast } from "sonner";
 
 export default function AddApartment() {
   const [searchClient, setSearchClient] = useState("");
-  const [selectedClient, setSelectedClient] = useState(null);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [showClientDropdown, setShowClientDropdown] = useState(false);
-
   const [searchBuilding, setSearchBuilding] = useState("");
-  const [selectedBuilding, setSelectedBuilding] = useState(null);
+  const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(
+    null
+  );
   const [showBuildingDropdown, setShowBuildingDropdown] = useState(false);
 
   const [location, setLocation] = useState<LatLng | null>(null);
@@ -40,6 +50,7 @@ export default function AddApartment() {
   const { data: buildingsData } = useGetBuilidingBySearchQuery(searchBuilding, {
     skip: searchBuilding.length < 2,
   });
+  const [addApartmentMutation] = useCreateApartmentMutation()
 
   // Handle outside clicks for dropdowns
   useEffect(() => {
@@ -53,13 +64,13 @@ export default function AddApartment() {
     }
   }, [showClientDropdown, showBuildingDropdown]);
 
-  const handleClientSelect = (client) => {
+  const handleClientSelect = (client: Client) => {
     setSelectedClient(client);
     setSearchClient(client.name);
     setShowClientDropdown(false);
   };
 
-  const handleBuildingSelect = (building) => {
+  const handleBuildingSelect = (building: Building) => {
     setSelectedBuilding(building);
     setSearchBuilding(building.name);
     setShowBuildingDropdown(false);
@@ -71,15 +82,17 @@ export default function AddApartment() {
     }
   };
 
-  const handleChange = (e) => {
-    const { name, type, value, checked } = e.target;
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, type, value, checked } = e.target as HTMLInputElement;
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!selectedClient || !selectedBuilding) {
@@ -99,6 +112,20 @@ export default function AddApartment() {
     };
 
     console.log("Submitting apartment:", payload);
+    try {
+      await addApartmentMutation(payload).unwrap();
+      toast.success("Apartment created successfully!");
+      setFormData({
+         apartment_number: "",
+         floor: "",
+         living_rooms: "",
+         bathrooms: "",
+         outdoor_area: false,
+      });
+    } catch (error) {
+      toast.error("Failed to create apartment.");
+      console.error("Error creating apartment:", error);
+    }
     // Here you can call your createApartment mutation or API
   };
 
@@ -159,7 +186,7 @@ export default function AddApartment() {
 
                 {showClientDropdown && clientsData?.results?.length > 0 && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                    {clientsData.results.map((client) => (
+                    {clientsData.results.map((client: Client) => (
                       <div
                         key={client.id}
                         className="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100"
@@ -201,7 +228,7 @@ export default function AddApartment() {
 
                 {showBuildingDropdown && buildingsData?.results?.length > 0 && (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                    {buildingsData.results.map((building) => (
+                    {buildingsData.results.map((building: Building) => (
                       <div
                         key={building.id}
                         className="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100"
