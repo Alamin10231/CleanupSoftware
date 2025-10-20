@@ -7,7 +7,7 @@ const ClientProfile = () => {
     firstName: 'Alexa',
     surname: 'Rawles',
     gender: 'Female',
-    country: '',
+    country: 'Saudi Arab',
     language: 'English',
     timeZone: '11:30 - 12:59'
   });
@@ -180,11 +180,8 @@ const ClientProfile = () => {
                         onChange={(e) => setFormData({...formData, country: e.target.value})}
                         className="w-full px-4 py-2 border border-gray-300 rounded-md appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
                       >
-                        <option value="">Your Country</option>
-                        <option>United States</option>
-                        <option>United Kingdom</option>
-                        <option>Canada</option>
-                        <option>Australia</option>
+                        <option value="">Saudi Arab</option>
+                
                       </select>
                       <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                     </div>
