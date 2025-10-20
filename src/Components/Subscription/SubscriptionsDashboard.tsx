@@ -167,9 +167,10 @@ export default function SubscriptionsDashboard() {
           >
             <option value={''}>All status</option>
             <option value={'active'}>Active</option>
-            <option>Pending</option>
-            <option>Expired</option>
-            <option>Inactive</option>
+            <option value={"paused"}>Paused</option>
+            <option value={"past_due"}>Past_due</option>
+            <option value={"inactive"}>Inactive</option>
+            <option value={"canceled"}>Canceled</option>
           </select>
 
           <Link to="/subscriptionplan">

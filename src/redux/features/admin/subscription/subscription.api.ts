@@ -42,7 +42,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
         query: ({ status = "", page = 1 }) =>
           `plan/subscription/?page=${page}&status=${encodeURIComponent(
             status
-          )}`,
+          )}`, 
         providesTags: ["Subscription"],
       }
     ),

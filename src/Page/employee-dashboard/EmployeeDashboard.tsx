@@ -1,95 +1,74 @@
-import React from 'react';
-import { Users, ClipboardCheck, Pause, AlertCircle, DollarSign, Share2, FileText, Building2, MessageSquare } from 'lucide-react';
-import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts';
-import { Badge } from '@/Components/ui/badge';
-import { Button } from '@/Components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/Components/ui/select';
+import  { useMemo } from "react";
+import {
+  Users, ClipboardCheck, Pause, AlertCircle, DollarSign,
+  Share2
+} from "lucide-react";
+import {
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart
+} from "recharts";
+import { Badge } from "@/Components/ui/badge";
+import { Button } from "@/Components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
+import { useGetEmployeeDashboardQuery, useGetEmployeeChartQuery } from "@/redux/features/employee/dashboard/dashboard.api";
 
 const EmployeeDashboard = () => {
+  const employeeId = "121"; // 👈 dynamic ID can come from login or context
+  const { data, isLoading, isError, refetch } = useGetEmployeeDashboardQuery();
+  const { data: chartApiData, isLoading: chartLoading } = useGetEmployeeChartQuery(employeeId);
 
+  // ---- Types
+  type TaskItem = {
+    id: number;
+    name: string;
+    description?: string | null;
+    status: "completed" | "pending" | "started" | string;
+    total_revenue?: number | null;
+    created_at?: string | null;
+  };
 
+  type EmployeeDashResponse = {
+    count?: number;
+    results?: TaskItem[];
+  };
 
+  // Normalize response
+  const items: TaskItem[] = (data as EmployeeDashResponse)?.results ?? [];
 
+  const stats = useMemo(() => {
+    const totalTask = (data as EmployeeDashResponse)?.count ?? items.length;
+    const completed = items.filter(i => i.status === "completed").length;
+    const inProgress = items.filter(i => i.status === "started").length;
+    const pending = items.filter(i => i.status === "pending").length;
+    const revenueThisMonth = items.reduce((sum, i) => sum + (Number(i.total_revenue) || 0), 0);
 
-  const stats = [
-    { label: 'Total Task', value: '120', icon: Users, bgColor: 'bg-green-100', iconColor: 'text-green-600' },
-    { label: 'Completed', value: '80', icon: ClipboardCheck, bgColor: 'bg-green-100', iconColor: 'text-green-600' },
-    { label: 'In Progress', value: '30', icon: Pause, bgColor: 'bg-yellow-100', iconColor: 'text-yellow-600' },
-    { label: 'Pending', value: '10', icon: AlertCircle, bgColor: 'bg-red-100', iconColor: 'text-red-600' },
-    { label: 'Revenue This Month', value: '$89.2K', icon: DollarSign, bgColor: 'bg-blue-100', iconColor: 'text-blue-600' }
-  ];
+    return { totalTask, completed, inProgress, pending, revenueThisMonth };
+  }, [data, items]);
 
-  const currentTasks = [
-    {
-      id: 1,
-      title: 'Apartment 4B - Maintenance Check',
-      client: 'Sarah Johnson',
-      scheduled: '2:00 PM',
-      status: 'In Progress',
-      statusColor: 'bg-yellow-100 text-yellow-700',
-      dotColor: 'bg-yellow-500',
-      action: 'Complete'
-    },
-    {
-      id: 2,
-      title: 'Apartment 7A - Installation',
-      client: 'Mike Davis',
-      scheduled: '4:30 PM',
-      status: 'Not Started',
-      statusColor: 'bg-gray-100 text-gray-700',
-      dotColor: 'bg-gray-400',
-      action: 'Start'
-    },
-    {
-      id: 3,
-      title: 'Apartment 2C - Inspection',
-      client: 'Emily Wilson',
-      scheduled: 'Completed: 11:30 AM',
-      status: 'Completed',
-      statusColor: 'bg-green-100 text-green-700',
-      dotColor: 'bg-green-500',
-      action: 'View Details'
-    }
-  ];
+  // --- Chart Data (from API)
+  const chartData = useMemo(() => {
+    if (!chartApiData || !Array.isArray(chartApiData)) return [];
+    return chartApiData.map((d: any) => ({
+      month: new Date(d.month).toLocaleString("default", { month: "short" }),
+      total: d.total_tasks,
+      completed: d.completed_tasks,
+      pending: d.pending_tasks,
+      started: d.started_tasks,
+      revenue: d.this_month_revenue,
+    }));
+  }, [chartApiData]);
 
-  const chartData = [
-    { month: 'Jan', value: 100 },
-    { month: 'Feb', value: 120 },
-    { month: 'Mar', value: 180 },
-    { month: 'Apr', value: 200 },
-    { month: 'May', value: 190 },
-    { month: 'June', value: 280 },
-    { month: 'July', value: 340 },
-    { month: 'August', value: 280 },
-    { month: 'September', value: 320 },
-    { month: 'October', value: 240 },
-    { month: 'November', value: 260 },
-    { month: 'December', value: 300 }
-  ];
+  if (isLoading || chartLoading)
+    return <div className="py-10 text-center text-gray-500">Loading dashboard…</div>;
 
-  const quickActions = [
-    {
-      title: 'Open Assigned Form',
-      description: 'Complete pending forms',
-      icon: FileText,
-      bgColor: 'bg-blue-100',
-      iconColor: 'text-blue-600'
-    },
-    {
-      title: 'View Apartment History',
-      description: 'Check past visits and notes',
-      icon: Building2,
-      bgColor: 'bg-green-100',
-      iconColor: 'text-green-600'
-    },
-    {
-      title: 'Send WhatsApp Reply',
-      description: 'Quick client communication',
-      icon: MessageSquare,
-      bgColor: 'bg-purple-100',
-      iconColor: 'text-purple-600'
-    }
-  ];
+  if (isError)
+    return (
+      <div className="py-10 text-center text-red-600">
+        Failed to load employee dashboard.{" "}
+        <button onClick={() => refetch()} className="underline text-blue-600">
+          Retry
+        </button>
+      </div>
+    );
 
   return (
     <div>
@@ -97,9 +76,7 @@ const EmployeeDashboard = () => {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <h1 className="text-4xl font-semibold">Welcome, Sarah Miller</h1>
-          <Badge className="bg-green-100 text-green-700 border-green-200">
-            • Active
-          </Badge>
+          <Badge className="bg-green-100 text-green-700 border-green-200">• Active</Badge>
         </div>
         <Button className="gap-2">
           <Share2 size={16} />
@@ -109,8 +86,14 @@ const EmployeeDashboard = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-5 gap-4 mb-6">
-        {stats.map((stat, index) => (
-          <div key={index} className="bg-white rounded-lg border p-4">
+        {[
+          { label: "Total Task", value: String(stats.totalTask), icon: Users, bgColor: "bg-green-100", iconColor: "text-green-600" },
+          { label: "Completed", value: String(stats.completed), icon: ClipboardCheck, bgColor: "bg-green-100", iconColor: "text-green-600" },
+          { label: "In Progress", value: String(stats.inProgress), icon: Pause, bgColor: "bg-yellow-100", iconColor: "text-yellow-600" },
+          { label: "Pending", value: String(stats.pending), icon: AlertCircle, bgColor: "bg-red-100", iconColor: "text-red-600" },
+          { label: "Revenue", value: `৳${stats.revenueThisMonth.toLocaleString()}`, icon: DollarSign, bgColor: "bg-blue-100", iconColor: "text-blue-600" },
+        ].map((stat, i) => (
+          <div key={i} className="bg-white rounded-lg border p-4">
             <div className="flex items-start justify-between mb-2">
               <div className="text-sm text-gray-600">{stat.label}</div>
               <div className={`w-10 h-10 rounded-lg ${stat.bgColor} flex items-center justify-center`}>
@@ -122,25 +105,25 @@ const EmployeeDashboard = () => {
         ))}
       </div>
 
-      {/* Tasks Overview Chart */}
+      {/* Tasks Overview Chart (Dynamic Data) */}
       <div className="bg-white rounded-lg border p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-lg font-semibold mb-1">Tasks Overview</h2>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold">310</span>
-              <span className="text-sm text-green-600">+10.7% last year</span>
+              <span className="text-3xl font-bold">{stats.totalTask}</span>
+              <span className="text-sm text-green-600">updated now</span>
             </div>
           </div>
 
-          <Select >
-            <SelectTrigger className="px-4 w-[96px0px] py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <Select>
+            <SelectTrigger className="px-4 w-[96px] py-2 border rounded-lg text-sm">
               <SelectValue placeholder="Year" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="2025">2025</SelectItem>
               <SelectItem value="2024">2024</SelectItem>
               <SelectItem value="2023">2023</SelectItem>
-              <SelectItem value="2022">2022</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -155,80 +138,12 @@ const EmployeeDashboard = () => {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis
-                dataKey="month"
-                tick={{ fontSize: 12 }}
-                stroke="#9ca3af"
-              />
-              <YAxis
-                tick={{ fontSize: 12 }}
-                stroke="#9ca3af"
-                domain={[0, 400]}
-                ticks={[0, 100, 200, 300, 400]}
-              />
+              <XAxis dataKey="month" tick={{ fontSize: 12 }} stroke="#9ca3af" />
+              <YAxis tick={{ fontSize: 12 }} stroke="#9ca3af" />
               <Tooltip />
-              <Area
-                type="monotone"
-                dataKey="value"
-                stroke="#3b82f6"
-                strokeWidth={2}
-                fill="url(#colorValue)"
-              />
+              <Area type="monotone" dataKey="total" stroke="#3b82f6" strokeWidth={2} fill="url(#colorValue)" />
             </AreaChart>
           </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Current Tasks */}
-      <div className="bg-white rounded-lg border mb-6">
-        <div className="flex items-center justify-between border-b border-gray-200 p-4">
-          <h2 className="text-lg font-semibold">Current Tasks</h2>
-          <button className="text-sm text-blue-600 hover:underline">View All</button>
-        </div>
-
-        <div>
-          {currentTasks.map((task) => (
-            <div key={task.id} className="flex items-center justify-between border-b border-gray-200 p-4 rounded-lg hover:bg-gray-100 transition">
-              <div className="flex items-center gap-4">
-                <div className={`w-2 h-2 rounded-full ${task.dotColor}`}></div>
-                <div>
-                  <div className="font-medium text-sm mb-1">{task.title}</div>
-                  <div className="text-xs text-gray-500">
-                    Client: {task.client} • Scheduled: {task.scheduled}
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Badge variant="outline" className={task.statusColor}>
-                  {task.status}
-                </Badge>
-                <Button
-                  size="sm"
-                  variant={task.action === 'View Details' ? 'outline' : 'default'}
-                >
-                  {task.action}
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div>
-        <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-3 gap-4">
-          {quickActions.map((action, index) => (
-            <div key={index} className="bg-white rounded-lg border hover:shadow-md transition cursor-pointer flex gap-4 items-center p-4">
-              <div className={`w-12 h-12 rounded-lg ${action.bgColor} flex items-center justify-center`}>
-                <action.icon size={24} className={action.iconColor} />
-              </div>
-              <div>
-                <h3 className="font-semibold text-sm mb-1">{action.title}</h3>
-                <p className="text-xs text-gray-500">{action.description}</p>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </div>
