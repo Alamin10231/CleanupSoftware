@@ -12,6 +12,16 @@ export const buildingApi = baseApi.injectEndpoints({
       providesTags: ["Building"],
     }),
 
+    getBuilidingBySearch: builder.query({
+      query: (search: string) => {
+        const qs = new URLSearchParams({
+          search,
+        });
+        return `/buildings/?search=${qs.toString()}`;
+      },
+      providesTags: ["Building"],
+    }),
+
     // GET single building details
     getBuildingById: builder.query({
       query: (id) => `/buildings/${id}`,
@@ -46,6 +56,14 @@ export const buildingApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Building"],
     }),
+    createApartment: builder.mutation({
+      query: (data) => ({
+        url: "/apartments/",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Apartment"],
+    }),
   }),
 });
 
@@ -56,4 +74,5 @@ export const {
   useUpdateBuildingMutation,
   useDeleteBuildingMutation,
   useGetStatsQuery,
+   useGetBuilidingBySearchQuery,
 } = buildingApi;

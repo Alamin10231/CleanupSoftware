@@ -22,6 +22,7 @@ export default function Login() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         toast.success("Logging in...");
+        console.log("Logging in...", { email, password });
         try {
             const res = await login({ email, password }).unwrap();
             dispatch(setCredentials(res)); // includes user, access, refresh
