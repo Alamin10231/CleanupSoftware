@@ -1,194 +1,77 @@
+import { useGetSubscriptionClientQuery } from "@/redux/features/Client/subscription.api";
 import React from "react";
 
-interface Employee {
-  id: string;
-  name: string;
-  role: string;
-  rating: number;
-  avatar?: string;
-}
-
 interface Subscription {
-  id: string;
+  id: number;
   name: string;
   startDate: string;
   endDate: string;
-  status: "Active" | "Inactive";
-  assignedEmployee: Employee | null;
-  assignDate?: string;
-  assignTime?: string;
+  status: string;
 }
 
-// Mock data - replace with API call
-const mockSubscriptions: Subscription[] = [
-  {
-    id: "1",
-    name: "Monthly Cleaning- A_204",
-    startDate: "2025-10-01",
-    endDate: "2025-10-31",
-    status: "Active",
-    assignedEmployee: {
-      id: "emp1",
-      name: "Rahim U.",
-      role: "Senior Cleaner",
-      rating: 4.4,
-    },
-    assignDate: "11-11-2025",
-    assignTime: "09:36 AM",
-  },
-  {
-    id: "2",
-    name: "Monthly Cleaning- A_204",
-    startDate: "2025-10-01",
-    endDate: "2025-10-31",
-    status: "Active",
-    assignedEmployee: null,
-  },
-  {
-    id: "3",
-    name: "Monthly Cleaning- A_204",
-    startDate: "2025-10-01",
-    endDate: "2025-10-31",
-    status: "Active",
-    assignedEmployee: {
-      id: "emp2",
-      name: "Rahim U.",
-      role: "Senior Cleaner",
-      rating: 4.4,
-    },
-    assignDate: "11-11-2025",
-    assignTime: "09:36 AM",
-  },
-];
-
 const ClientSubscription = () => {
-  // TODO: Replace with actual API call
-  // const fetchSubscriptions = async () => {
-  //   const response = await fetch('/api/subscriptions');
-  //   const data = await response.json();
-  //   setSubscriptions(data);
-  // };
+  const { data, isLoading, error } = useGetSubscriptionClientQuery();
+  console.log("API Data:", data);
 
-  const subscriptions = mockSubscriptions;
+  if (isLoading) return <p>Loading subscriptions...</p>;
+  if (error) return <p>Error loading subscriptions</p>;
 
-  const handleOpenChat = (employeeId: string) => {
-    // TODO: Implement chat functionality
-    console.log("Open chat with employee:", employeeId);
+  const subscriptions: Subscription[] = (data || []).map((sub: any) => ({
+    id: sub.id,
+    name: sub.plan?.name || "No Plan Name",
+    startDate: sub.start_date,
+    endDate: sub.current_period_end,
+    status: sub.status,
+  }));
+
+  if (subscriptions.length === 0) return <p>No subscriptions found</p>;
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "active":
+        return "bg-green-100 text-green-800";
+      case "inactive":
+        return "bg-red-100 text-red-800";
+      default:
+        return "bg-gray-100 text-gray-800";
+    }
   };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase();
+  const getRemainingDays = (endDate: string) => {
+    const end = new Date(endDate);
+    const today = new Date();
+    const diff = Math.ceil((end.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return diff >= 0 ? diff : 0;
   };
 
   return (
     <div className="min-h-[85vh] bg-gray-50 p-6">
-      <div className="max-w-full mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-blue-600">Your Subscriptions</h1>
-          <p className="text-gray-600 text-sm">Welcome to CleanUp Pro</p>
+      <div className="max-w-6xl mx-auto">
+        <div className="mb-8 text-center">
+          <h1 className="text-3xl font-bold text-blue-600 mb-2">Your Subscriptions</h1>
+          <p className="text-gray-600">Manage your active and past subscriptions</p>
         </div>
 
-        {/* Subscriptions List */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold text-gray-800">
-              Subscription
-            </h2>
-            <h2 className="text-lg font-semibold text-gray-800">
-              Assign Employee
-            </h2>
-          </div>
-
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {subscriptions.map((subscription) => (
             <div
               key={subscription.id}
-              className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+              className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow border border-gray-200"
             >
-              <div className="flex justify-between items-start">
-                {/* Left Side - Subscription Info */}
-                <div className="flex-1">
-                  <h3 className="text-lg font-medium text-gray-700 mb-2">
-                    {subscription.name}
-                  </h3>
-                  <p className="text-sm text-gray-500 mb-3">
-                    {subscription.startDate} ~ {subscription.endDate}
-                  </p>
-                  <span className="inline-block px-3 py-1 text-xs font-medium text-green-700 bg-green-100 rounded">
-                    {subscription.status}
-                  </span>
-                </div>
-
-                {/* Right Side - Employee Info */}
-                <div className="flex items-start gap-4">
-                  {subscription.assignedEmployee ? (
-                    <>
-                      {/* Employee Avatar and Info */}
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                          <span className="text-gray-600 font-medium">
-                            {getInitials(subscription.assignedEmployee.name)}
-                          </span>
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-800">
-                            {subscription.assignedEmployee.name}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {subscription.assignedEmployee.role}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            Rating: {subscription.assignedEmployee.rating}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Assign Date and Actions */}
-                      {/* Assign Date and Actions */}
-                      <div className="text-right">
-                        <p className="text-xs text-gray-500 mb-1">
-                          Assign date: {subscription.assignDate}
-                        </p>
-                        <p className="text-xs text-gray-500 mb-3">
-                          {subscription.assignTime}
-                        </p>
-                        <div className="flex gap-5 mt-10">
-                          <button
-                            onClick={() =>
-                              console.log(
-                                "View profile:",
-                                subscription.assignedEmployee!.id
-                              )
-                            }
-                            className="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded hover:bg-gray-50 transition-colors"
-                          >
-                            View Profile
-                          </button>
-                          <button
-                            onClick={() =>
-                              handleOpenChat(subscription.assignedEmployee!.id)
-                            }
-                            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition-colors"
-                          >
-                            Open Chat
-                          </button>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    /* No Employee Assigned */
-                    <div className="flex items-center justify-center h-full py-4">
-                      <p className="text-sm font-medium text-gray-500">
-                        No employee assigned
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                {subscription.name}
+              </h3>
+              <p className="text-gray-500 mb-3">
+                <span className="font-medium">Period:</span> {subscription.startDate} ~ {subscription.endDate}
+              </p>
+              <p className="text-gray-500 mb-3">
+                <span className="font-medium">Remaining Days:</span> {getRemainingDays(subscription.endDate)}
+              </p>
+              <span
+                className={`inline-block px-3 py-1 text-sm font-medium rounded ${getStatusColor(subscription.status)}`}
+              >
+                {subscription.status.toUpperCase()}
+              </span>
             </div>
           ))}
         </div>
