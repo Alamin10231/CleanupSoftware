@@ -53,4 +53,15 @@ export const MENU_CONFIG: Record<UserRole, MenuSection[]> = {
       ],
     },
   ],
+
+  client :[
+    {
+      heading: null,
+      items: [
+        { icon: assets.Dashboard_icon, label: "Profile", path: "/client-profile" },
+        { icon: assets.subscriptionss, label: "Chat", path: "/client-chat" },
+        { icon: assets.region, label: "Subscription", path: "/client-subscription" },
+      ],
+    },
+  ]
 };

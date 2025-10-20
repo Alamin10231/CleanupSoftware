@@ -35,6 +35,9 @@ import RegionDashboard from "@/Page/employee-dashboard/RegionDashboard";
 
 import ChatPage from "@/Page/employee-dashboard/ChatPage";
 import TaskEmployee from "@/Page/employee-dashboard/TaskEmployee";
+import ClientProfile from "@/Page/Client/ClientProfile";
+import ClientChat from "@/Page/Client/ClientChat";
+import ClientSubscription from "@/Page/Client/ClientSubscription";
 
 const Router = () => {
   return (
@@ -81,6 +84,10 @@ const Router = () => {
           path="employee-subscriptions"
           element={<EmployeeSubscription />}
         />
+        {/* Client */}
+        <Route path="client-profile" element={<ClientProfile />} />
+        <Route path="client-chat" element={<ClientChat/>}/>
+        <Route path="client-subscription" element={<ClientSubscription/>}/>
       </Route>
 
       {/* Auth routes */}
