@@ -3,7 +3,16 @@ import { baseApi } from "@/redux/api/baseApi";
 export const regionsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getregions: builder.query<any, void>({
-      query: () => "/locations/overview/",
+      query: () => "/regions/",
+      providesTags: ["region"],
+    }),
+    searchRegion: builder.query<any, string>({
+      query: (search: string) => {
+        if (search) {
+          return `/regions/?search=${search}`;
+        }
+        return '/regions/';
+      },
       providesTags: ["region"],
     }),
     getcalculationregion: builder.query<any, void>({
@@ -12,7 +21,7 @@ export const regionsApi = baseApi.injectEndpoints({
     }),
     addregion: builder.mutation({
       query: (region) => ({
-        url: "/locations/overview/",
+        url: "/regions/",
         method: "POST",
         body: region,
       }),
@@ -23,6 +32,7 @@ export const regionsApi = baseApi.injectEndpoints({
 
 export const {
   useGetregionsQuery,
+  useSearchRegionQuery,
   useGetcalculationregionQuery,
   useAddregionMutation,
 } = regionsApi;

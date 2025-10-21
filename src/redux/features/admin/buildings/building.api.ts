@@ -6,7 +6,7 @@ export const buildingApi = baseApi.injectEndpoints({
       query: () => "/locations/overview/",
       providesTags: ["Building"],
     }),
-    // GET all buildings with apartments (paginated)
+    
     getBuildings: builder.query({
       query: (page = 1) => `/buildings/?page=${page}`,
       providesTags: ["Building"],

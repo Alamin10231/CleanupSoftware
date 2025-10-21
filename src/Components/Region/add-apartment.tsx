@@ -12,14 +12,16 @@ import CustomMarker from "../map/CustomMarker";
 import type { LatLng } from "@/Types/map.types";
 import type { Building } from "@/Types/building.types";
 
-// Minimal client type for this component's usage
 type Client = {
   id: number;
   name: string;
   email?: string;
 };
 import { useGetSearchClientsQuery } from "@/redux/features/admin/users/clients.api";
-import { useCreateApartmentMutation, useGetBuilidingBySearchQuery } from "@/redux/features/admin/buildings/building.api";
+import {
+  useCreateApartmentMutation,
+  useGetBuilidingBySearchQuery,
+} from "@/redux/features/admin/buildings/building.api";
 import { toast } from "sonner";
 
 export default function AddApartment() {
@@ -34,7 +36,6 @@ export default function AddApartment() {
 
   const [location, setLocation] = useState<LatLng | null>(null);
 
-  // Apartment form fields
   const [formData, setFormData] = useState({
     apartment_number: "",
     floor: "",
@@ -43,6 +44,13 @@ export default function AddApartment() {
     outdoor_area: false,
   });
 
+  const isFormValid =
+    formData.apartment_number.trim() &&
+    formData.floor.trim() &&
+    formData.living_rooms.trim() &&
+    formData.bathrooms &&
+    formData.outdoor_area;
+
   const { data: clientsData } = useGetSearchClientsQuery(searchClient, {
     skip: searchClient.length < 2,
   });
@@ -50,9 +58,8 @@ export default function AddApartment() {
   const { data: buildingsData } = useGetBuilidingBySearchQuery(searchBuilding, {
     skip: searchBuilding.length < 2,
   });
-  const [addApartmentMutation] = useCreateApartmentMutation()
+  const [addApartmentMutation] = useCreateApartmentMutation();
 
-  // Handle outside clicks for dropdowns
   useEffect(() => {
     const handleClickOutside = () => {
       setShowClientDropdown(false);
@@ -116,11 +123,11 @@ export default function AddApartment() {
       await addApartmentMutation(payload).unwrap();
       toast.success("Apartment created successfully!");
       setFormData({
-         apartment_number: "",
-         floor: "",
-         living_rooms: "",
-         bathrooms: "",
-         outdoor_area: false,
+        apartment_number: "",
+        floor: "",
+        living_rooms: "",
+        bathrooms: "",
+        outdoor_area: false,
       });
     } catch (error) {
       toast.error("Failed to create apartment.");
@@ -323,7 +330,7 @@ export default function AddApartment() {
               <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
                 <Map
                   defaultZoom={12}
-                  center={location || { lat: 24.7136, lng: 46.6753 }}
+                  defaultCenter={location || { lat: 24.7136, lng: 46.6753 }}
                   mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
                   gestureHandling="greedy"
                   disableDefaultUI
@@ -340,18 +347,12 @@ export default function AddApartment() {
 
           {/* Footer */}
           <div className="border-t border-gray-200 pt-4 px-6 flex justify-end gap-3">
-            <button
-              type="button"
-              className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100"
-            >
-              Cancel
-            </button>
-            <button
+            <Button
               type="submit"
-              className="px-4 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700"
+              disabled={!isFormValid}
             >
               + Create
-            </button>
+            </Button>
           </div>
         </form>
       </DialogContent>

@@ -1,13 +1,5 @@
 import { useState } from "react";
-import { Plus, MapPin, Star, Bed, Home } from "lucide-react";
-import { Button } from "@/Components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/Components/ui/select";
+import { MapPin, Star, Bed, Home } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -15,7 +7,6 @@ import {
   AccordionTrigger,
 } from "@/Components/ui/accordion";
 import WholeMap from "@/Components/map/WholeMap";
-import AddBuilding from "@/Components/map/AddBuilding";
 
 const MapRegionOverview = () => {
   const [selectedRegion, setSelectedRegion] = useState("all");
@@ -196,47 +187,6 @@ const MapRegionOverview = () => {
 
   return (
     <div>
-      {/* Filters */}
-      <div className="flex justify-between bg-white mb-6">
-        <div className="flex gap-3">
-          <Select value={selectedRegion} onValueChange={setSelectedRegion}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="All Regions" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Regions</SelectItem>
-              <SelectItem value="downtown">Downtown</SelectItem>
-              <SelectItem value="uptown">Uptown</SelectItem>
-              <SelectItem value="suburbs">Suburbs</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="All Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="issues">Issues</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={selectedWorkers} onValueChange={setSelectedWorkers}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="All Workers" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Workers</SelectItem>
-              <SelectItem value="assigned">Assigned</SelectItem>
-              <SelectItem value="unassigned">Unassigned</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-          <AddBuilding />
-      </div>
-
       <div>
         <h2 className="text-base font-semibold mb-3">Regions & Buildings</h2>
 
@@ -312,65 +262,60 @@ const MapRegionOverview = () => {
         </div>
       </div>
 
-        {/* Main Map Area */}
-        <div>
-          <div className="bg-white rounded-lg border p-4 h-[680px] relative">
-            <WholeMap selectedApartment={selectedApartment} />
+      {/* Main Map Area */}
+      <div>
+        <div className="bg-white rounded-lg border p-4 h-[680px] relative">
+          <WholeMap selectedApartment={selectedApartment} />
 
-            {/* Location Label */}
-            <div className="absolute bottom-6 left-6 bg-white rounded-lg shadow-lg px-3 py-2">
-              <div className="text-sm font-semibold">Los Angeles</div>
-              <div className="text-xs text-gray-500">Downtown District</div>
-            </div>
+          {/* Location Label */}
+          <div className="absolute bottom-6 left-6 bg-white rounded-lg shadow-lg px-3 py-2">
+            <div className="text-sm font-semibold">Los Angeles</div>
+            <div className="text-xs text-gray-500">Downtown District</div>
           </div>
         </div>
-          {/* Featured Properties */}
-          <div className="mt-6">
-            <div className="space-y-3 grid grid-cols-4 gap-3">
-              {featuredProperties.map((property) => (
-                <div
-                  key={property.id}
-                  className="bg-white rounded-lg border overflow-hidden hover:shadow-md transition"
-                >
-                  <img
-                    src={property.image}
-                    alt={property.name}
-                    className="w-full h-24 object-cover"
-                  />
-                  <div className="p-3">
-                    <div className="font-semibold text-sm mb-1">
-                      {property.name}
-                    </div>
-                    <div className="flex items-center gap-1 mb-2">
-                      <Star
-                        size={12}
-                        className="text-yellow-500 fill-yellow-500"
-                      />
-                      <span className="text-xs font-medium">
-                        {property.rating}
-                      </span>
-                      <span className="text-xs text-gray-500">
-                        • {property.location}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3 text-xs text-gray-600 mb-2">
-                      <div className="flex items-center gap-1">
-                        <Bed size={12} />
-                        <span>{property.bedrooms} bedrooms</span>
-                      </div>
-                      <span>•</span>
-                      <span>{property.bathrooms} bathrooms</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-gray-500">
-                      <Home size={12} />
-                      <span>{property.type}</span>
-                    </div>
-                  </div>
+      </div>
+      {/* Featured Properties */}
+      <div className="mt-6">
+        <div className="space-y-3 grid grid-cols-4 gap-3">
+          {featuredProperties.map((property) => (
+            <div
+              key={property.id}
+              className="bg-white rounded-lg border overflow-hidden hover:shadow-md transition"
+            >
+              <img
+                src={property.image}
+                alt={property.name}
+                className="w-full h-24 object-cover"
+              />
+              <div className="p-3">
+                <div className="font-semibold text-sm mb-1">
+                  {property.name}
                 </div>
-              ))}
+                <div className="flex items-center gap-1 mb-2">
+                  <Star size={12} className="text-yellow-500 fill-yellow-500" />
+                  <span className="text-xs font-medium">{property.rating}</span>
+                  <span className="text-xs text-gray-500">
+                    • {property.location}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3 text-xs text-gray-600 mb-2">
+                  <div className="flex items-center gap-1">
+                    <Bed size={12} />
+                    <span>{property.bedrooms} bedrooms</span>
+                  </div>
+                  <span>•</span>
+                  <span>{property.bathrooms} bathrooms</span>
+                </div>
+                <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <Home size={12} />
+                  <span>{property.type}</span>
+                </div>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
+      </div>
+    </div>
   );
 };
 

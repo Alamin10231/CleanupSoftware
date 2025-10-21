@@ -1,4 +1,3 @@
-
 import {
   Dialog,
   DialogContent,
@@ -11,23 +10,44 @@ import { useState } from "react";
 import { AdvancedMarker, APIProvider, Map } from "@vis.gl/react-google-maps";
 import CustomMarker from "./CustomMarker";
 import type { LatLng } from "@/Types/map.types";
+import { Plus } from "lucide-react";
+import { useCreateBuildingMutation } from "@/redux/features/admin/buildings/building.api";
+import { toast } from "sonner";
+import {
+  useSearchRegionQuery,
+} from "@/redux/features/admin/regions/regions.api";
 
 export default function AddBuilding() {
+  const [searchRegion, setSearchRegion] = useState("");
+  const [selectedRegion, setSelectedRegion] = useState<number | null>(null);
+  const [showRegionDropdown, setShowRegionDropdown] = useState(false);
   const [location, setLocation] = useState<LatLng | null>({
     lat: 24.7136,
     lng: 46.6753,
   });
-
-  const [formData, setFormData] = useState({
-    name: "Sky Tower",
-    type: "residential",
-    city: "Riyadh",
-    region: 1,
-    location: "King Fahd Road, Riyadh",
-    latitude: 24.7136,
-    longitude: 46.6753,
+  const [createBuilding] = useCreateBuildingMutation();
+  const { data: regions, isLoading } = useSearchRegionQuery(searchRegion, {
+    skip: searchRegion.length < 2,
   });
 
+  const [formData, setFormData] = useState({
+    name: "",
+    type: "",
+    city: "",
+    region: null,
+    location: "",
+    latitude: null,
+    longitude: null,
+  });
+
+  const isFormValid =
+    formData.name.trim() &&
+    formData.type.trim() &&
+    formData.city.trim() &&
+    formData.region &&
+    formData.location.trim() &&
+    formData.latitude !== null &&
+    formData.longitude !== null;
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -37,7 +57,10 @@ export default function AddBuilding() {
       [name]: value,
     }));
   };
-
+  const handleRegionSelect = (region: { id: number }) => {
+    setSelectedRegion(region.id);
+    setShowRegionDropdown(false);
+  };
   const handleMapClick = (e: any) => {
     const lat = e.detail.latLng.lat;
     const lng = e.detail.latLng.lng;
@@ -51,8 +74,25 @@ export default function AddBuilding() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitting building:", formData);
-    // Here you can call your createBuilding mutation or API
+
+    try {
+      createBuilding(formData).unwrap();
+      toast.success("Building created successfully!");
+      setFormData({
+        name: "",
+        type: "",
+        city: "",
+        region: null,
+        location: "",
+        latitude: null,
+        longitude: null,
+      });
+      setLocation(null);
+      console.log("Submitting building:", formData);
+    } catch (error) {
+      toast.error("Failed to create building.");
+      console.error("Error creating building:", error);
+    }
   };
 
   return (
@@ -77,7 +117,7 @@ export default function AddBuilding() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="bg-white border-0 rounded-lg max-w-4xl">
+      <DialogContent className="bg-white border-0 rounded-lg max-w-6xl">
         <DialogHeader className="border-b border-gray-200 pb-4">
           <DialogTitle className="bg-gradient-to-r from-[#0a078f] via-[#8241ed] to-[#2463ea] bg-clip-text text-transparent font-semibold text-2xl">
             Add New Building
@@ -113,7 +153,6 @@ export default function AddBuilding() {
                 >
                   <option value="residential">Residential</option>
                   <option value="commercial">Commercial</option>
-                  <option value="mixed-use">Mixed-Use</option>
                 </select>
               </div>
 
@@ -130,17 +169,48 @@ export default function AddBuilding() {
                     className="block w-full border border-gray-300 rounded-md p-2"
                   />
                 </div>
-                <div>
+                <div className="relative">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Region *
                   </label>
                   <input
-                    type="number"
-                    name="region"
-                    value={formData.region}
-                    onChange={handleChange}
+                    type="text"
+                    value={searchRegion}
+                    onChange={(e) => {
+                      setSearchRegion(e.target.value);
+                      setShowRegionDropdown(true);
+                      if (!e.target.value) setSelectedRegion(null);
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (regions?.results?.length > 0)
+                        setShowRegionDropdown(true);
+                    }}
                     className="block w-full border border-gray-300 rounded-md p-2"
                   />
+                  {showRegionDropdown && regions?.results?.length > 0 && (
+                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                      {regions.results.map((region: any) => (
+                        <div
+                          key={region.id}
+                          className="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100"
+                          onClick={() => {
+                            setSelectedRegion(region.id);
+                            setSearchRegion(region.name);
+                            setFormData((prev) => ({
+                              ...prev,
+                              region: region.id,
+                            }));
+                            setShowRegionDropdown(false);
+                          }}
+                        >
+                          <div className="font-medium text-gray-900">
+                            {region.name}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -186,11 +256,11 @@ export default function AddBuilding() {
             </div>
 
             {/* Right side map */}
-            <div className="w-full h-[400px] rounded-md border border-gray-300 overflow-hidden">
+            <div className="w-full h-[500px] rounded-md border border-gray-300 overflow-hidden">
               <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
                 <Map
                   defaultZoom={12}
-                  center={location || { lat: 24.7136, lng: 46.6753 }}
+                  defaultCenter={location || { lat: 24.7136, lng: 46.6753 }}
                   mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
                   gestureHandling="greedy"
                   disableDefaultUI
@@ -208,18 +278,9 @@ export default function AddBuilding() {
 
           {/* Footer */}
           <div className="border-t border-gray-200 pt-4 px-6 flex justify-end gap-3">
-            <button
-              type="button"
-              className="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-100"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700"
-            >
-              + Create Building
-            </button>
+            <Button type="submit" disabled={!isFormValid}>
+              <Plus /> Create Building
+            </Button>
           </div>
         </form>
       </DialogContent>
