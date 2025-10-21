@@ -25,7 +25,7 @@ import EmployeeCommunication from "@/Page/employee-dashboard/EmployeeCommunicati
 import EmployeeSetting from "@/Page/employee-dashboard/EmployeeSetting";
 import EmployeeForms from "@/Page/employee-dashboard/EmployeeForms";
 import EmployeeReports from "@/Page/employee-dashboard/EmployeeReports";
-import EmployeeInvoicees from "@/Page/employee-dashboard/EmployeeInvoicees";
+import EmployeeInvoicees from "@/Page/employee-dashboard/invoice/EmployeeInvoicees";
 import EmployeeSubscription from "@/Page/employee-dashboard/EmployeeSubscription";
 import CreateInvoiceForm from "@/Page/admin-dashboard/create-invoice";
 import NotFound from "@/Page/NotFound";
