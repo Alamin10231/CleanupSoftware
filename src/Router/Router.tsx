@@ -38,6 +38,7 @@ import TaskEmployee from "@/Page/employee-dashboard/TaskEmployee";
 import ClientProfile from "@/Page/Client/ClientProfile";
 import ClientChat from "@/Page/Client/ClientChat";
 import ClientSubscription from "@/Page/Client/ClientSubscription";
+import ExpenseAdmin from "@/Page/admin-dashboard/ExpenseAdmin";
 
 const Router = () => {
   return (
@@ -50,6 +51,7 @@ const Router = () => {
         <Route path="client" element={<Clients />} />
         <Route path="help" element={<Help />} />
         <Route path="invoices" element={<Invoices />} />
+        <Route path="employee-expense-request" element={<ExpenseAdmin />} />
         <Route path="create-invoice" element={<CreateInvoiceForm />} />
         <Route path="employees" element={<Employees />} />
         <Route path="map" element={<Map />} />

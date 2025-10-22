@@ -9,8 +9,8 @@ import { Checkbox } from '@/Components/ui/checkbox';
 
 const EmployeeSetting = () => {
   const [profileData, setProfileData] = useState({
-    fullName: 'MR. Mosabbir',
-    email: 'mosabbir@company.com',
+    fullName: 'Naim Sheikh',
+    email: 'naim.sheikh@company.com',
     phone: '+1 (555) 123-4567',
     role: 'Admin'
   });

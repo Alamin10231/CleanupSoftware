@@ -18,6 +18,7 @@ export const MENU_CONFIG: Record<UserRole, MenuSection[]> = {
         { icon: assets.service, label: "Subscriptions", path: "/subscription" },
         { icon: assets.service, label: "Services", path: "/services" },
         { icon: assets.invoice, label: "Invoices", path: "/invoices" },
+        { icon: assets.invoice, label: " Expense Request", path: "/employee-expense-request" },
       ],
     },
     {
