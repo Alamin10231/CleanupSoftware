@@ -1,5 +1,5 @@
 // src/pages/employee/EmployeeDashboard.tsx
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Users,
   ClipboardCheck,
@@ -44,6 +44,9 @@ import {
 } from "@/redux/features/employee/dashboard/dashboard.api";
 import { useGetCurrentTaskQuery } from "@/redux/features/employee/subscription/subscription.api";
 
+// ✅ PUT-by-id hook from your API slice
+import { useUpdateTaskAssignEmployeeByIdMutation } from "@/redux/features/admin/subscription/subscription.api";
+
 type TaskItem = {
   id: number;
   name: string;
@@ -64,6 +67,8 @@ type TaskRow = {
   region_name: string;
   name: string;
 };
+
+const PAGE_SIZE = 5;
 
 const EmployeeDashboard = () => {
   const employeeId = "";
@@ -106,7 +111,7 @@ const EmployeeDashboard = () => {
     }));
   }, [chartApiData]);
 
-  // Current tasks table rows
+  // Map current tasks from API
   const currentTasks: TaskRow[] = useMemo(() => {
     if (!tasksData?.results) return [];
     return tasksData.results.map((t: any) => ({
@@ -117,21 +122,45 @@ const EmployeeDashboard = () => {
       client: t.aprtment_number ?? "Unknown Client",
       scheduled: t.scheduled_at ?? undefined,
       status: t.status ?? "Not Started",
-      description:
-      t.description ??"Not Started",
-      region_name:
-      t.region_name ??"Not Region Name",
-      name:
-      t.name ??"Not Region Name",
-                         
-      
-      service_code: t.service_code ?? undefined, // ⬅️ map the service code/id safely
+      description: t.description ?? "No description",
+      region_name: t.region_name ?? "—",
+      name: t.name ?? "—",
+      service_code: t.service_code ?? undefined,
+      building_name: t.building_name ?? "—",
     }));
   }, [tasksData]);
 
-  // Modal state
+  // -------- Local mirror for optimistic updates --------
+  const [localTasks, setLocalTasks] = useState<TaskRow[]>([]);
+  useEffect(() => {
+    setLocalTasks(currentTasks);
+  }, [currentTasks]);
+
+  // -------- Pagination (5 per page) --------
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(localTasks.length / PAGE_SIZE));
+  useEffect(() => {
+    setPage(1); // reset to first page when list changes
+  }, [localTasks.length]);
+
+  const pagedTasks = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return localTasks.slice(start, start + PAGE_SIZE);
+  }, [localTasks, page]);
+
+  // ----- Modals state -----
+  // Details modal (unchanged)
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<TaskRow | null>(null);
+
+  // Update-status modal
+  const [updateOpen, setUpdateOpen] = useState(false);
+  const [updateTask, setUpdateTask] = useState<TaskRow | null>(null);
+  const [newStatus, setNewStatus] = useState<string>("not started");
+
+  // ✅ PUT mutation hook (id in URL)
+  const [updateTaskAssignEmployeeById, { isLoading: updating }] =
+    useUpdateTaskAssignEmployeeByIdMutation();
 
   if (isLoading || chartLoading || tasksLoading) {
     return (
@@ -151,22 +180,9 @@ const EmployeeDashboard = () => {
   }
 
   // status → badge color + action label
+  // completed → "View Details"; everything else → "Update"
   const getStatusColor = (status: string) => {
     const s = status.toLowerCase();
-    if (s.includes("pending")) {
-      return {
-        statusColor: "bg-yellow-100 text-yellow-700",
-        dotColor: "bg-yellow-500",
-        action: "Complete",
-      };
-    }
-    if (s.includes("not started")) {
-      return {
-        statusColor: "bg-gray-100 text-gray-700",
-        dotColor: "bg-gray-400",
-        action: "Start",
-      };
-    }
     if (s.includes("completed")) {
       return {
         statusColor: "bg-green-100 text-green-700",
@@ -174,12 +190,69 @@ const EmployeeDashboard = () => {
         action: "View Details",
       };
     }
-    // default
+    if (s.includes("pending")) {
+      return {
+        statusColor: "bg-yellow-100 text-yellow-700",
+        dotColor: "bg-yellow-500",
+        action: "Update",
+      };
+    }
+    if (s.includes("not started")) {
+      return {
+        statusColor: "bg-gray-100 text-gray-700",
+        dotColor: "bg-gray-400",
+        action: "Update",
+      };
+    }
+    // started / default
     return {
-      statusColor: "bg-gray-100 text-gray-700",
-      dotColor: "bg-gray-400",
-      action: "Start",
+      statusColor: "bg-blue-100 text-blue-700",
+      dotColor: "bg-blue-500",
+      action: "Update",
     };
+  };
+
+  const titleCaseStatus = (s: string) => {
+    const x = s.toLowerCase();
+    if (x === "not started") return "Not Started";
+    if (x === "started") return "Started";
+    if (x === "pending") return "Pending";
+    if (x === "completed") return "Completed";
+    return s;
+  };
+
+  // Open Update modal
+  const openUpdateModal = (task: TaskRow) => {
+    setUpdateTask(task);
+    setNewStatus((task.status || "not started").toLowerCase());
+    setUpdateOpen(true);
+  };
+
+  // ✅ Save via PUT /task/task_assign_employee/:id/
+  const handleSaveStatus = async () => {
+    if (!updateTask) return;
+
+    try {
+      // body contains only the fields you want to change
+      await updateTaskAssignEmployeeById({
+        id: updateTask.id,        // <- goes in URL
+        status: newStatus,        // <- request body (adjust to backend contract)
+      }).unwrap();
+
+      // Optimistic UI update (title-cased for display)
+      const display = titleCaseStatus(newStatus);
+      setLocalTasks((rows) =>
+        rows.map((r) => (r.id === updateTask.id ? { ...r, status: display } : r))
+      );
+      setSelectedTask((prev) =>
+        prev && prev.id === updateTask.id ? { ...prev, status: display } : prev
+      );
+
+      setUpdateOpen(false);
+      console.log("Status updated successfully");
+    } catch (err: any) {
+      console.error("Failed to update task:", err?.data || err);
+    }
   };
 
   return (
@@ -297,7 +370,7 @@ const EmployeeDashboard = () => {
         </div>
       </div>
 
-      {/* Current Tasks */}
+      {/* Current Tasks (paginated) */}
       <div className="bg-white rounded-lg border mb-6">
         <div className="flex items-center justify-between border-b border-gray-200 p-4">
           <h2 className="text-lg font-semibold">Current Tasks</h2>
@@ -307,7 +380,7 @@ const EmployeeDashboard = () => {
         </div>
 
         <div>
-          {currentTasks.map((task) => {
+          {pagedTasks.map((task) => {
             const { statusColor, dotColor, action } = getStatusColor(
               task.status
             );
@@ -343,12 +416,8 @@ const EmployeeDashboard = () => {
                       if (action === "View Details") {
                         setSelectedTask(task);
                         setDetailsOpen(true);
-                      } else if (action === "Start") {
-                        // TODO: start task handler
-                        // e.g. startTask(task.id)
-                      } else if (action === "Complete") {
-                        // TODO: complete task handler
-                        // e.g. completeTask(task.id)
+                      } else {
+                        openUpdateModal(task);
                       }
                     }}
                   >
@@ -359,12 +428,40 @@ const EmployeeDashboard = () => {
             );
           })}
 
-          {currentTasks.length === 0 && (
+          {localTasks.length === 0 && (
             <div className="p-4 text-center text-gray-500">
               No tasks assigned.
             </div>
           )}
         </div>
+
+        {/* Pagination controls */}
+        {localTasks.length > 0 && (
+          <div className="flex items-center justify-between p-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1}
+            >
+              Previous
+            </Button>
+
+            <div className="text-sm text-gray-600">
+              Page <span className="font-medium">{page}</span> of{" "}
+              <span className="font-medium">{totalPages}</span>
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Quick Actions */}
@@ -412,106 +509,118 @@ const EmployeeDashboard = () => {
         </div>
       </div>
 
-      {/* ---- Details Modal ---- */}
+      {/* ---- Details Modal (unchanged) ---- */}
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Task Details</DialogTitle>
             <DialogDescription>
               {selectedTask ? (
-               <div className="mt-2">
-  {/* Header strip */}
-  <div className="rounded-t-lg bg-gray-50 px-4 py-3 border border-b-0 border-gray-200">
-    <div className="flex items-start justify-between gap-3">
-      <div>
-        <h3 className="text-base font-semibold text-gray-900">
-          Task Summary
-        </h3>
-        <p className="text-xs text-gray-500">
-          Quick snapshot of the selected task
-        </p>
-      </div>
+                <div className="mt-2">
+                  <div className="rounded-t-lg bg-gray-50 px-4 py-3 border border-b-0 border-gray-200">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-base font-semibold text-gray-900">
+                          Task Summary
+                        </h3>
+                        <p className="text-xs text-gray-500">
+                          Quick snapshot of the selected task
+                        </p>
+                      </div>
+                      <span
+                        className={[
+                          "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium border",
+                          selectedTask.status
+                            ?.toLowerCase()
+                            .includes("completed")
+                            ? "bg-green-50 text-green-700 border-green-200"
+                            : selectedTask.status
+                                ?.toLowerCase()
+                                .includes("pending")
+                            ? "bg-yellow-50 text-yellow-700 border-yellow-200"
+                            : "bg-gray-50 text-gray-700 border-gray-200",
+                        ].join(" ")}
+                      >
+                        {selectedTask.status}
+                      </span>
+                    </div>
+                  </div>
 
-      {/* Status badge */}
-      <span
-        className={[
-          "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium border",
-          selectedTask.status?.toLowerCase().includes("completed")
-            ? "bg-green-50 text-green-700 border-green-200"
-            : selectedTask.status?.toLowerCase().includes("pending")
-            ? "bg-yellow-50 text-yellow-700 border-yellow-200"
-            : "bg-gray-50 text-gray-700 border-gray-200",
-        ].join(" ")}
-      >
-        {selectedTask.status}
-      </span>
-    </div>
-  </div>
+                  <div className="rounded-b-lg border border-gray-200">
+                    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 px-4 py-5">
+                      <div className="space-y-1">
+                        <dt className="text-xs uppercase tracking-wide text-gray-500">
+                          Name
+                        </dt>
+                        <dd className="text-sm font-medium text-gray-900 break-words">
+                          {selectedTask.name ?? "—"}
+                        </dd>
+                      </div>
 
-  {/* Body */}
-  <div className="rounded-b-lg border border-gray-200">
-    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 px-4 py-5">
-      <div className="space-y-1">
-        <dt className="text-xs uppercase tracking-wide text-gray-500">Name</dt>
-        <dd className="text-sm font-medium text-gray-900 break-words">
-          {selectedTask.name ?? "—"}
-        </dd>
-      </div>
+                      <div className="space-y-1">
+                        <dt className="text-xs uppercase tracking-wide text-gray-500">
+                          Title
+                        </dt>
+                        <dd className="text-sm font-medium text-gray-900 break-words">
+                          {selectedTask.title ?? "—"}
+                        </dd>
+                      </div>
 
-      <div className="space-y-1">
-        <dt className="text-xs uppercase tracking-wide text-gray-500">Title</dt>
-        <dd className="text-sm font-medium text-gray-900 break-words">
-          {selectedTask.title ?? "—"}
-        </dd>
-      </div>
+                      <div className="space-y-1">
+                        <dt className="text-xs uppercase tracking-wide text-gray-500">
+                          Apartment
+                        </dt>
+                        <dd className="text-sm font-medium text-gray-900">
+                          {selectedTask.client ?? "—"}
+                        </dd>
+                      </div>
 
-      <div className="space-y-1">
-        <dt className="text-xs uppercase tracking-wide text-gray-500">Apartment</dt>
-        <dd className="text-sm font-medium text-gray-900">
-          {selectedTask.client ?? "—"}
-        </dd>
-      </div>
+                      <div className="space-y-1">
+                        <dt className="text-xs uppercase tracking-wide text-gray-500">
+                          Service ID
+                        </dt>
+                        <dd className="text-sm font-medium text-gray-900">
+                          {selectedTask.service_code ?? "—"}
+                        </dd>
+                      </div>
 
-      <div className="space-y-1">
-        <dt className="text-xs uppercase tracking-wide text-gray-500">Service ID</dt>
-        <dd className="text-sm font-medium text-gray-900">
-          {selectedTask.service_code ?? "—"}
-        </dd>
-      </div>
+                      <div className="space-y-1 sm:col-span-2">
+                        <dt className="text-xs uppercase tracking-wide text-gray-500">
+                          Description
+                        </dt>
+                        <dd className="text-sm text-gray-800 leading-relaxed">
+                          {selectedTask.description ? (
+                            <span className="block">
+                              {selectedTask.description}
+                            </span>
+                          ) : (
+                            "—"
+                          )}
+                        </dd>
+                      </div>
 
-      <div className="space-y-1 sm:col-span-2">
-        <dt className="text-xs uppercase tracking-wide text-gray-500">Description</dt>
-        <dd className="text-sm text-gray-800 leading-relaxed">
-          {selectedTask.description ? (
-            <span className="block">{selectedTask.description}</span>
-          ) : (
-            "—"
-          )}
-        </dd>
-      </div>
+                      <div className="space-y-1">
+                        <dt className="text-xs uppercase tracking-wide text-gray-500">
+                          Region
+                        </dt>
+                        <dd className="text-sm font-medium text-gray-900">
+                          {selectedTask.region_name ?? "—"}
+                        </dd>
+                      </div>
 
-      <div className="space-y-1">
-        <dt className="text-xs uppercase tracking-wide text-gray-500">Region</dt>
-        <dd className="text-sm font-medium text-gray-900">
-          {selectedTask.region_name ?? "—"}
-        </dd>
-      </div>
-
-      {selectedTask.scheduled && (
-        <div className="space-y-1">
-          <dt className="text-xs uppercase tracking-wide text-gray-500">Scheduled</dt>
-          <dd className="text-sm font-medium text-gray-900">
-            {new Date(selectedTask.scheduled).toLocaleString()}
-          </dd>
-        </div>
-      )}
-    </dl>
-
-    {/* Footer actions (optional) */}
-    
-  </div>
-</div>
-
+                      {selectedTask.scheduled && (
+                        <div className="space-y-1">
+                          <dt className="text-xs uppercase tracking-wide text-gray-500">
+                            Scheduled
+                          </dt>
+                          <dd className="text-sm font-medium text-gray-900">
+                            {new Date(selectedTask.scheduled).toLocaleString()}
+                          </dd>
+                        </div>
+                      )}
+                    </dl>
+                  </div>
+                </div>
               ) : (
                 "Loading…"
               )}
@@ -522,8 +631,64 @@ const EmployeeDashboard = () => {
             <Button variant="outline" onClick={() => setDetailsOpen(false)}>
               Close
             </Button>
-            {/* Optional: navigate or perform action */}
-            {/* <Button onClick={() => router.push(`/tasks/${selectedTask?.id}`)}>Open</Button> */}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ---- Update Status Modal ---- */}
+      <Dialog open={updateOpen} onOpenChange={setUpdateOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Update Task Status</DialogTitle>
+            <DialogDescription>
+              {updateTask ? (
+                <div className="mt-2 space-y-4">
+                  <div className="text-sm text-gray-600">
+                    <div>
+                      <span className="font-medium text-gray-900">Task:</span>{" "}
+                      {updateTask.title}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      Current:&nbsp;
+                      <span className="font-medium">
+                        {updateTask.status || "—"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="status"
+                      className="text-xs uppercase tracking-wide text-gray-500"
+                    >
+                      New Status
+                    </label>
+                    <Select value={newStatus} onValueChange={setNewStatus}>
+                      <SelectTrigger id="status">
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="not started">Not Started</SelectItem>
+                        <SelectItem value="started">Started</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              ) : (
+                "Loading…"
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setUpdateOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveStatus} disabled={updating}>
+              {updating ? "Saving..." : "Save"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
