@@ -13,14 +13,13 @@ import type { LatLng } from "@/Types/map.types";
 import { Plus } from "lucide-react";
 import { useCreateBuildingMutation } from "@/redux/features/admin/buildings/building.api";
 import { toast } from "sonner";
-import {
-  useSearchRegionQuery,
-} from "@/redux/features/admin/regions/regions.api";
+import { useSearchRegionQuery } from "@/redux/features/admin/regions/regions.api";
 
 export default function AddBuilding() {
   const [searchRegion, setSearchRegion] = useState("");
   const [selectedRegion, setSelectedRegion] = useState<number | null>(null);
   const [showRegionDropdown, setShowRegionDropdown] = useState(false);
+  const [address, setAddress] = useState("");
   const [location, setLocation] = useState<LatLng | null>({
     lat: 24.7136,
     lng: 46.6753,
@@ -29,6 +28,17 @@ export default function AddBuilding() {
   const { data: regions, isLoading } = useSearchRegionQuery(searchRegion, {
     skip: searchRegion.length < 2,
   });
+
+  const getAddress = async ({ lat, lng }) => {
+    const res = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${
+        import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+      }`
+    );
+    const data = await res.json();
+    const address = data.results[0].formatted_address;
+    return address;
+  };
 
   const [formData, setFormData] = useState({
     name: "",
@@ -64,6 +74,7 @@ export default function AddBuilding() {
   const handleMapClick = (e: any) => {
     const lat = e.detail.latLng.lat;
     const lng = e.detail.latLng.lng;
+   getAddress({ lat, lng }).then((addr) => setAddress(addr))
     setLocation({ lat, lng });
     setFormData((prev) => ({
       ...prev,
@@ -221,7 +232,7 @@ export default function AddBuilding() {
                 <input
                   type="text"
                   name="location"
-                  value={formData.location}
+                  value={address}
                   onChange={handleChange}
                   className="block w-full border border-gray-300 rounded-md p-2"
                 />

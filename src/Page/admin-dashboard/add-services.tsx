@@ -12,23 +12,43 @@ import {
 } from "@/Components/ui/select";
 import { Checkbox } from "@/Components/ui/checkbox";
 import { Button } from "@/Components/ui/button";
+import { useGetServiceCategoriesQuery } from "@/redux/features/admin/services/services.api";
 
 const AddNewServiceForm = () => {
-  const initialFormState = {
-    serviceName: "",
-    serviceCode: "",
+  interface FormState {
+    name: string;
+    service_code: string;
+    description: string;
+    category: number | null;
+    base_price: number;
+    bill_cycle: string;
+    discount: number | null;
+    tax_rate: number | null;
+    auto_renew_enable: boolean;
+    building: number | null;
+    apartment: number[];
+    region: number | null;
+    worker: number | null;
+    service_icon: File | null;
+    status: "started" | "pending" | "completed";
+  }
+
+  const initialFormState: FormState = {
+    name: "",
+    service_code: "",
     description: "",
-    category: "",
-    basePrice: "0.00",
-    billingCycle: "",
-    discount: "",
-    taxRate: "",
-    autoRenew: false,
-    building: "",
-    apartment: "",
-    region: "",
-    defaultWorker: "",
-    uploadedIcon: null, // File | null
+    category: null,
+    base_price: 0,
+    bill_cycle: "Daily",
+    discount: null,
+    tax_rate: null,
+    auto_renew_enable: false,
+    building: null,
+    apartment: [],
+    region: null,
+    worker: null,
+    service_icon: null,
+    status: "started",
   };
 
   const initialServicesState = {
@@ -37,25 +57,33 @@ const AddNewServiceForm = () => {
     glassWashing: false,
   };
 
+  const [categories, setCategories] = useState([
+    { id: "cleaning", label: "Cleaning" },
+    { id: "maintenance", label: "Maintenance" },
+    { id: "security", label: "Security" },
+  ]);
+  const [newCategoryName, setNewCategoryName] = useState("");
   const [formData, setFormData] = useState(initialFormState);
-  const [selectedServices, setSelectedServices] =
-    useState(initialServicesState);
-
-  // <<— for the “Other” category text
-  const [otherCategory, setOtherCategory] = useState("");
-  const [customAutoFill, setCustomAutoFill] = useState("");
-
-  const handleInputChange = (field, value) => {
+  const [selectedServices, setSelectedServices] = useState(initialServicesState);
+  const { data: categoryies, isLoading, isError } = useGetServiceCategoriesQuery(undefined)
+  type FormField = keyof typeof initialFormState;
+  console.log("Categories from API:", categoryies);
+  const handleInputChange = (
+    field: FormField,
+    value: string | boolean | File | null
+  ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleServiceToggle = (service: any) => {
+  const handleServiceToggle = (service: keyof typeof initialServicesState) => {
     setSelectedServices((prev) => ({ ...prev, [service]: !prev[service] }));
   };
 
-  const handleFileUpload = (e: any) => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setFormData((prev) => ({ ...prev, uploadedIcon: file }));
+    if (file) {
+      setFormData((prev) => ({ ...prev, uploadedIcon: file }));
+    }
   };
 
   const handleCancel = () => {
@@ -95,28 +123,28 @@ const AddNewServiceForm = () => {
 
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="space-y-2">
-            <Label htmlFor="serviceName" className="text-sm">
+            <Label htmlFor="name" className="text-sm">
               Service Name
             </Label>
             <Input
-              id="serviceName"
+              id="name"
               placeholder="e.g. Monthly Cleaning"
-              value={formData.serviceName}
-              onChange={(e) => handleInputChange("serviceName", e.target.value)}
+              value={formData.name}
+              onChange={(e) => handleInputChange("name", e.target.value)}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="serviceCode" className="text-sm">
+            <Label htmlFor="service_code" className="text-sm">
               Service Code
             </Label>
             <div className="relative">
               <Input
-                id="serviceCode"
+                id="service_code"
                 placeholder="SRV-2025-001"
-                value={formData.serviceCode}
+                value={formData.service_code}
                 onChange={(e) =>
-                  handleInputChange("serviceCode", e.target.value)
+                  handleInputChange("service_code", e.target.value)
                 }
               />
               <button
@@ -147,39 +175,70 @@ const AddNewServiceForm = () => {
           <Label htmlFor="category" className="text-sm">
             Category
           </Label>
-          <Select
-            value={formData.category}
-            onValueChange={(value) => {
-              handleInputChange("category", value);
-              if (value !== "other") setOtherCategory(""); // reset if not other
-            }}
-          >
-            <SelectTrigger id="category">
-              <SelectValue placeholder="Select a category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="cleaning">Cleaning</SelectItem>
-              <SelectItem value="maintenance">Maintenance</SelectItem>
-              <SelectItem value="security">Security</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="space-y-2">
+            <Select
+              value={formData.category}
+              onValueChange={(value) => {
+                handleInputChange("category", value);
+                if (value === "add-new") {
+                  setNewCategoryName("");
+                }
+              }}
+            >
+              <SelectTrigger id="category">
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    {category.label}
+                  </SelectItem>
+                ))}
+                <SelectItem value="add-new">+ Add New Category</SelectItem>
+              </SelectContent>
+            </Select>
 
-          {formData.category === "other" && (
-            <div className="mt-2">
-              <Label htmlFor="otherCategory" className="text-sm">
-                Please specify
-              </Label>
-              <Input
-                id="otherCategory"
-                type="text"
-                placeholder="Type your category"
-                value={otherCategory}
-                onChange={(e) => setOtherCategory(e.target.value)}
-                className="mt-1"
-              />
-            </div>
-          )}
+            {formData.category === "add-new" && (
+              <div className="flex gap-2 mt-2">
+                <Input
+                  placeholder="Enter new category name"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  className="flex-1"
+                />
+                <Button
+                  onClick={() => {
+                    if (newCategoryName.trim()) {
+                      const newCategory = {
+                        id: newCategoryName.toLowerCase().replace(/\s+/g, "-"),
+                        label: newCategoryName.trim(),
+                      };
+                      setCategories((prev) => [...prev, newCategory]);
+                      setFormData((prev) => ({
+                        ...prev,
+                        category: newCategory.id,
+                      }));
+                      setNewCategoryName("");
+                    }
+                  }}
+                  disabled={!newCategoryName.trim()}
+                  size="sm"
+                >
+                  Add
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setFormData((prev) => ({ ...prev, category: "" }));
+                    setNewCategoryName("");
+                  }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -283,91 +342,9 @@ const AddNewServiceForm = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-4">
-        {/* Package Builder (Optional) */}
+      <div className="grid grid-cols-1 gap-4 mb-4">
         <div className="bg-white border rounded-lg p-6">
-          <h2 className="text-base font-semibold mb-4">
-            Package Builder (Optional)
-          </h2>
-
-          <div className="space-y-3 mb-4">
-            <Label className="text-sm">Multi-select Services</Label>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="deepCleaning"
-                    checked={selectedServices.deepCleaning}
-                    onCheckedChange={() => handleServiceToggle("deepCleaning")}
-                  />
-                  <Label
-                    htmlFor="deepCleaning"
-                    className="text-sm cursor-pointer"
-                  >
-                    Deep Cleaning
-                  </Label>
-                </div>
-                <span className="text-sm text-gray-600">$100</span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="pestControl"
-                    checked={selectedServices.pestControl}
-                    onCheckedChange={() => handleServiceToggle("pestControl")}
-                  />
-                  <Label
-                    htmlFor="pestControl"
-                    className="text-sm cursor-pointer"
-                  >
-                    Pest Control
-                  </Label>
-                </div>
-                <span className="text-sm text-gray-600">$75</span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="glassWashing"
-                    checked={selectedServices.glassWashing}
-                    onCheckedChange={() => handleServiceToggle("glassWashing")}
-                  />
-                  <Label
-                    htmlFor="glassWashing"
-                    className="text-sm cursor-pointer"
-                  >
-                    Glass Washing
-                  </Label>
-                </div>
-                <span className="text-sm text-gray-600">$50</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm">Auto-fill Price Option</Label>
-            <div className="flex gap-2 items-center">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Auto total: $250</span>
-                <span className="text-sm text-gray-500">or custom</span>
-              </div>
-              <Input
-                type="number"
-                placeholder="120"
-                value={customAutoFill}
-                onChange={(e) => setCustomAutoFill(e.target.value)}
-                className="w-24"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Advanced Settings */}
-        <div className="bg-white border rounded-lg p-6">
-          <h2 className="text-base font-semibold mb-4">Advanced Settings</h2>
+          <h2 className="text-base font-semibold mb-4">Special Services</h2>
 
           <div className="space-y-4">
             <div className="flex justify-between gap-4">
@@ -474,7 +451,7 @@ const AddNewServiceForm = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => document.getElementById("iconUpload").click()}
+                  onClick={() => document.getElementById("iconUpload")?.click()}
                 >
                   Choose File
                 </Button>

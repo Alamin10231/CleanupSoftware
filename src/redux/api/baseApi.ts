@@ -36,7 +36,8 @@ export const baseApi = createApi({
     "SearchEmployees",
     "SearchInvoices",
     "getEmployeeInvoice",
-    "Apartment"
+    "Apartment",
+    "ServiceCategories"
   ],
 
   endpoints: () => ({}),

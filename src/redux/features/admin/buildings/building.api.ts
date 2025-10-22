@@ -6,7 +6,7 @@ export const buildingApi = baseApi.injectEndpoints({
       query: () => "/locations/overview/",
       providesTags: ["Building"],
     }),
-    
+
     getBuildings: builder.query({
       query: (page = 1) => `/buildings/?page=${page}`,
       providesTags: ["Building"],
@@ -61,6 +61,9 @@ export const buildingApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Apartment"],
     }),
+   //  getLocations: builder.query({
+   //    query: ({ lat, lng }) => `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`,
+   //    }),
   }),
 });
 
@@ -73,4 +76,5 @@ export const {
   useDeleteBuildingMutation,
   useGetStatsQuery,
   useGetBuilidingBySearchQuery,
+  useGetLocationsQuery,
 } = buildingApi;

@@ -10,10 +10,15 @@ export const servicesApi = baseApi.injectEndpoints({
       query: () => "task/services/details/",
       providesTags: ["GetAllServiceDataAdmin"],
     }),
+    getServiceCategories: builder.query({
+      query: () => "categories/",
+      providesTags: ["ServiceCategories"],
+    }),
   }),
 });
 
 export const {
   useGetServiceAdminOverviewQuery,
   useGetAllServiceDataAdminQuery,
+  useGetServiceCategoriesQuery,
 } = servicesApi;
