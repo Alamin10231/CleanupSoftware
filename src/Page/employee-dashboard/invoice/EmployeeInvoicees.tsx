@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import {
   Dialog,
@@ -14,14 +14,16 @@ import { Input } from "@/Components/ui/input";
 import { Button } from "@/Components/ui/button";
 import {
   useAddEmployeeExpenseMutation,
+  useEditEmployeeExpenseMutation,
   useGetEmployeeInvoiceQuery,
 } from "@/redux/features/employee/invoice/invoice.api";
 
-import {
-  useGetCategoryQuery
-} from "@/redux/features/employee/invoice/category.api";
+import { useGetCategoryQuery } from "@/redux/features/employee/invoice/category.api";
+import { MultiSelect } from "@/Components/ui/multi-select";
+import { format } from "date-fns";
 
 interface Invoice {
+  id?: number;
   date: string;
   vendor: string;
   category: string;
@@ -29,6 +31,7 @@ interface Invoice {
   status: "Submitted" | "Approved" | "Pending" | "Cancel";
   type: "Expense" | "Sales";
   description?: string;
+  categoryIds?: number[];
 }
 
 const EmployeeInvoicees = () => {
@@ -39,22 +42,40 @@ const EmployeeInvoicees = () => {
   const [description, setDescription] = useState("");
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [modalMode, setModalMode] = useState<"edit" | "new">("new");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
-  const { data: apiData, isLoading, error } = useGetEmployeeInvoiceQuery({
+  const {
+    data: apiData,
+    isLoading,
+    error,
+  } = useGetEmployeeInvoiceQuery({
     search,
     page,
   });
 
-  const [uploadExpense, {isLoading: isUploading}] = useAddEmployeeExpenseMutation();
-  const { data: categoryData } = useGetCategoryQuery();
-  
+  const [uploadExpense, { isLoading: isUploading }] =
+    useAddEmployeeExpenseMutation();
+
+
+    // const [editExpense, { isLoading: isEditing }] = useEditEmployeeExpenseMutation();
+    const [editExpense, { isLoading: isEditing }] = useEditEmployeeExpenseMutation();
+
+  const { data: categoryData, isLoading: isLoadingCategories } =
+    useGetCategoryQuery();
+
+  useEffect(() => {
+    // Reset to first page when search changes
+    console.log("Category data changed:", categoryData);
+  }, [categoryData]);
 
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div className="text-red-500">Error loading invoices.</div>;
 
   const invoices: Invoice[] =
     (apiData?.results || []).map((inv: any) => ({
+      id: inv.id,
       date: inv.expense_date,
+      categoryIds: inv.expense_category,
       vendor: inv.vendor_name,
       category: Array.isArray(inv.category_show_by_name)
         ? inv.category_show_by_name.join(", ")
@@ -84,6 +105,8 @@ const EmployeeInvoicees = () => {
   const openEditDialog = (invoice: Invoice) => {
     setSelectedInvoice(invoice);
     setDescription(invoice.description || "");
+    console.log("Selected invoice for editing:", invoice.categoryIds);
+    setSelectedCategories((invoice as any).categoryIds);
     setReceiptFile(null);
     setModalMode("edit");
     setIsModalOpen(true);
@@ -92,6 +115,7 @@ const EmployeeInvoicees = () => {
   // Open modal for creating a new expense
   const openNewExpenseDialog = () => {
     setSelectedInvoice(null);
+    
     setDescription("");
     setReceiptFile(null);
     setModalMode("new");
@@ -107,14 +131,28 @@ const EmployeeInvoicees = () => {
 
   const handleSave = () => {
     console.log("Saving invoice:", selectedInvoice, description, receiptFile);
-    // TODO: Call uploadExpense mutation here
+
+    if (modalMode === "edit") {
+      editExpense({
+        id: selectedInvoice?.id,
+        vendor_name: selectedInvoice?.vendor || "",
+        expense_category: selectedCategories || [],
+        expense_date: format(Date.now(), "MM/dd/yyyy"),
+        discription: description,
+        amount: selectedInvoice?.amount || 0,
+      });
+      closeDialog();
+      return;
+    }
+
     uploadExpense({
-    "vendor_name": selectedInvoice?.vendor || "",
-    "expense_category": [3], 
-    "expense_date": Date.now().toString(),
-    "discription": description,
-    "amount": selectedInvoice?.amount || 0,
-    })
+      vendor_name: selectedInvoice?.vendor || "",
+      expense_category: selectedCategories || [],
+      expense_date: format(Date.now(), "MM/dd/yyyy"),
+      discription: description,
+      amount: selectedInvoice?.amount || 0,
+    });
+    setSelectedCategories([]);
     closeDialog();
   };
 
@@ -125,6 +163,7 @@ const EmployeeInvoicees = () => {
 
   return (
     <div>
+     
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Invoices</h1>
@@ -177,7 +216,7 @@ const EmployeeInvoicees = () => {
                   <td className="px-4 py-2">
                     <Button
                       variant="outline"
-                      disabled={invoice.status === "Approved"}
+                      
                       onClick={() => openEditDialog(invoice)}
                     >
                       Edit
@@ -243,28 +282,33 @@ const EmployeeInvoicees = () => {
                   placeholder={modalMode === "new" ? "Enter vendor name" : ""}
                   onChange={(e) => {
                     const value = e.target.value;
-                    setSelectedInvoice((prev) => prev
-                        ? { ...prev, vendor: value } as any
-                        : { vendor: value, category: "", amount: 0, status: "Pending", type: "Expense" }
+                    setSelectedInvoice((prev) =>
+                      prev
+                        ? ({ ...prev, vendor: value } as any)
+                        : {
+                            vendor: value,
+                            category: "",
+                            amount: 0,
+                            status: "Pending",
+                            type: "Expense",
+                          }
                     );
                   }}
                 />
               </div>
               <div className="grid gap-3">
                 <Label htmlFor="category">Expense Category</Label>
-                <Input
-                  id="category"
-                  value={selectedInvoice?.category || ""}
-                  placeholder={modalMode === "new" ? "Enter category" : ""}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    setSelectedInvoice((prev) =>
-                      prev
-                        ? { ...prev, category: value } as any
-                        : { vendor: "", category: value, amount: 0, status: "Pending", type: "Expense" }
-                    );
-                  }}
-                />
+                {!isLoadingCategories && (
+                  <MultiSelect
+                    onValueChange={(values) => setSelectedCategories(values)}
+                    value={selectedCategories}
+                    defaultValue={selectedCategories}
+                    options={categoryData.map((c: any) => ({
+                      value: c.id,
+                      label: c.name,
+                    }))}
+                  />
+                )}
               </div>
             </div>
 
@@ -279,8 +323,14 @@ const EmployeeInvoicees = () => {
                   const value = parseFloat(e.target.value);
                   setSelectedInvoice((prev) =>
                     prev
-                      ? { ...prev, amount: value } as any
-                      : { vendor: "", category: "", amount: value, status: "Pending", type: "Expense" }
+                      ? ({ ...prev, amount: value } as any)
+                      : {
+                          vendor: "",
+                          category: "",
+                          amount: value,
+                          status: "Pending",
+                          type: "Expense",
+                        }
                   );
                 }}
               />
@@ -293,7 +343,9 @@ const EmployeeInvoicees = () => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full p-2 border rounded-lg min-h-[150px]"
-                placeholder={modalMode === "new" ? "Enter description or notes" : ""}
+                placeholder={
+                  modalMode === "new" ? "Enter description or notes" : ""
+                }
               />
             </div>
 
@@ -301,7 +353,9 @@ const EmployeeInvoicees = () => {
               <Label className="text-lg font-bold">Attach Receipt</Label>
               {receiptFile && (
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">{receiptFile.name}</span>
+                  <span className="text-sm text-gray-500">
+                    {receiptFile.name}
+                  </span>
                   <button
                     type="button"
                     onClick={() => setReceiptFile(null)}
@@ -333,7 +387,7 @@ const EmployeeInvoicees = () => {
             <DialogClose asChild>
               <Button variant="outline">Cancel</Button>
             </DialogClose>
-            <Button onClick={handleSave}>Submit</Button>
+            <Button onClick={handleSave}>{modalMode==="edit" ? "Update" : "Create"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

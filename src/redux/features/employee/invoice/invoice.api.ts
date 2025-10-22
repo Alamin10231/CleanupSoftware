@@ -15,10 +15,19 @@ export const invoiceApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["getEmployeeInvoice"],
     }),
+    editEmployeeExpense: builder.mutation({
+      query: (expense) => ({
+        url: `invoice_request_from_client/list/${expense.id}/`,
+        method: "PATCH",
+        body: expense,
+      }),
+      invalidatesTags: ["getEmployeeInvoice"],
+    }),
   }),
 });
 
 export const {
   useGetEmployeeInvoiceQuery,
   useAddEmployeeExpenseMutation,
+  useEditEmployeeExpenseMutation,
 } = invoiceApi;
