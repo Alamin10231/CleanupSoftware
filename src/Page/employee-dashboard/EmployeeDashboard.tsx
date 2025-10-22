@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+// src/pages/employee/EmployeeDashboard.tsx
+import { useMemo, useState } from "react";
 import {
   Users,
   ClipboardCheck,
@@ -28,14 +29,46 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/Components/ui/select";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/Components/ui/dialog";
+
 import {
   useGetEmployeeDashboardQuery,
   useGetEmployeeChartQuery,
 } from "@/redux/features/employee/dashboard/dashboard.api";
 import { useGetCurrentTaskQuery } from "@/redux/features/employee/subscription/subscription.api";
 
+type TaskItem = {
+  id: number;
+  name: string;
+  status: string;
+  total_revenue?: number;
+  created_at?: string;
+};
+
+type TaskRow = {
+  id: number;
+  title: string;
+  client: string;
+  scheduled?: string;
+  status: string;
+  service_code?: string | number;
+  building_name: string;
+  description: string;
+  region_name: string;
+  name: string;
+};
+
 const EmployeeDashboard = () => {
-  const employeeId = "126";
+  const employeeId = "";
+
+  // API queries
   const { data, isLoading, isError, refetch } = useGetEmployeeDashboardQuery();
   const { data: chartApiData, isLoading: chartLoading } =
     useGetEmployeeChartQuery(employeeId);
@@ -45,16 +78,9 @@ const EmployeeDashboard = () => {
     isError: tasksError,
   } = useGetCurrentTaskQuery();
 
-  // ---- Stats & Chart (existing code)
-  type TaskItem = {
-    id: number;
-    name: string;
-    status: string;
-    total_revenue?: number;
-    created_at?: string;
-  };
   const items: TaskItem[] = (data?.results ?? []) as TaskItem[];
 
+  // Summary stats
   const stats = useMemo(() => {
     const totalTask = data?.count ?? items.length;
     const completed = items.filter((i) => i.status === "completed").length;
@@ -67,6 +93,7 @@ const EmployeeDashboard = () => {
     return { totalTask, completed, inProgress, pending, revenueThisMonth };
   }, [data, items]);
 
+  // Chart data
   const chartData = useMemo(() => {
     if (!chartApiData || !Array.isArray(chartApiData)) return [];
     return chartApiData.map((d: any) => ({
@@ -79,34 +106,40 @@ const EmployeeDashboard = () => {
     }));
   }, [chartApiData]);
 
-  // -------------------------------
-  // Dynamic Current Tasks
-  // -------------------------------
-  type TaskRow = {
-    id: number;
-    title: string;
-    client: string;
-    scheduled: string;
-    status: string;
-  };
-
+  // Current tasks table rows
   const currentTasks: TaskRow[] = useMemo(() => {
     if (!tasksData?.results) return [];
     return tasksData.results.map((t: any) => ({
       id: t.id,
-      title: t.aprtment_number?.[0] ?? "Unknown Apartment",
-      client: t.client_name?.[0] ?? "Unknown Client",
-      // If API has scheduled time
+      title: `${t.building_name ?? "Unknown Building"}, ${
+        t.region_name ?? "Unknown Region"
+      }`,
+      client: t.aprtment_number ?? "Unknown Client",
+      scheduled: t.scheduled_at ?? undefined,
       status: t.status ?? "Not Started",
+      description:
+      t.description ??"Not Started",
+      region_name:
+      t.region_name ??"Not Region Name",
+      name:
+      t.name ??"Not Region Name",
+                         
+      
+      service_code: t.service_code ?? undefined, // ⬅️ map the service code/id safely
     }));
   }, [tasksData]);
 
-  if (isLoading || chartLoading || tasksLoading)
+  // Modal state
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<TaskRow | null>(null);
+
+  if (isLoading || chartLoading || tasksLoading) {
     return (
       <div className="py-10 text-center text-gray-500">Loading dashboard…</div>
     );
+  }
 
-  if (isError || tasksError)
+  if (isError || tasksError) {
     return (
       <div className="py-10 text-center text-red-600">
         Failed to load dashboard.{" "}
@@ -115,36 +148,43 @@ const EmployeeDashboard = () => {
         </button>
       </div>
     );
+  }
 
+  // status → badge color + action label
   const getStatusColor = (status: string) => {
-    if (status.toLowerCase().includes("in progress"))
+    const s = status.toLowerCase();
+    if (s.includes("pending")) {
       return {
         statusColor: "bg-yellow-100 text-yellow-700",
         dotColor: "bg-yellow-500",
         action: "Complete",
       };
-    if (status.toLowerCase().includes("not started"))
+    }
+    if (s.includes("not started")) {
       return {
         statusColor: "bg-gray-100 text-gray-700",
         dotColor: "bg-gray-400",
         action: "Start",
       };
-    if (status.toLowerCase().includes("completed"))
+    }
+    if (s.includes("completed")) {
       return {
         statusColor: "bg-green-100 text-green-700",
         dotColor: "bg-green-500",
         action: "View Details",
       };
+    }
+    // default
     return {
       statusColor: "bg-gray-100 text-gray-700",
       dotColor: "bg-gray-400",
-      action: "Update",
+      action: "Start",
     };
   };
 
   return (
     <div>
-      {/* Header & Stats (same as existing) */}
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <h1 className="text-4xl font-semibold">Welcome, Sarah Miller</h1>
@@ -257,7 +297,7 @@ const EmployeeDashboard = () => {
         </div>
       </div>
 
-      {/* Current Tasks - Dynamic API */}
+      {/* Current Tasks */}
       <div className="bg-white rounded-lg border mb-6">
         <div className="flex items-center justify-between border-b border-gray-200 p-4">
           <h2 className="text-lg font-semibold">Current Tasks</h2>
@@ -277,21 +317,40 @@ const EmployeeDashboard = () => {
                 className="flex items-center justify-between border-b border-gray-200 p-4 rounded-lg hover:bg-gray-100 transition"
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-2 h-2 rounded-full ${dotColor}`}></div>
+                  <div className={`w-2 h-2 rounded-full ${dotColor}`} />
                   <div>
                     <div className="font-medium text-sm mb-1">{task.title}</div>
                     <div className="text-xs text-gray-500">
-                      Client: {task.client}
+                      Apartment No: {task.client}
                     </div>
+                    {task.scheduled && (
+                      <div className="text-xs text-gray-400">
+                        Scheduled: {new Date(task.scheduled).toLocaleString()}
+                      </div>
+                    )}
                   </div>
                 </div>
+
                 <div className="flex items-center gap-3">
                   <Badge variant="outline" className={statusColor}>
                     {task.status}
                   </Badge>
+
                   <Button
                     size="sm"
                     variant={action === "View Details" ? "outline" : "default"}
+                    onClick={() => {
+                      if (action === "View Details") {
+                        setSelectedTask(task);
+                        setDetailsOpen(true);
+                      } else if (action === "Start") {
+                        // TODO: start task handler
+                        // e.g. startTask(task.id)
+                      } else if (action === "Complete") {
+                        // TODO: complete task handler
+                        // e.g. completeTask(task.id)
+                      }
+                    }}
                   >
                     {action}
                   </Button>
@@ -299,6 +358,7 @@ const EmployeeDashboard = () => {
               </div>
             );
           })}
+
           {currentTasks.length === 0 && (
             <div className="p-4 text-center text-gray-500">
               No tasks assigned.
@@ -351,6 +411,122 @@ const EmployeeDashboard = () => {
           ))}
         </div>
       </div>
+
+      {/* ---- Details Modal ---- */}
+      <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Task Details</DialogTitle>
+            <DialogDescription>
+              {selectedTask ? (
+               <div className="mt-2">
+  {/* Header strip */}
+  <div className="rounded-t-lg bg-gray-50 px-4 py-3 border border-b-0 border-gray-200">
+    <div className="flex items-start justify-between gap-3">
+      <div>
+        <h3 className="text-base font-semibold text-gray-900">
+          Task Summary
+        </h3>
+        <p className="text-xs text-gray-500">
+          Quick snapshot of the selected task
+        </p>
+      </div>
+
+      {/* Status badge */}
+      <span
+        className={[
+          "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium border",
+          selectedTask.status?.toLowerCase().includes("completed")
+            ? "bg-green-50 text-green-700 border-green-200"
+            : selectedTask.status?.toLowerCase().includes("pending")
+            ? "bg-yellow-50 text-yellow-700 border-yellow-200"
+            : "bg-gray-50 text-gray-700 border-gray-200",
+        ].join(" ")}
+      >
+        {selectedTask.status}
+      </span>
+    </div>
+  </div>
+
+  {/* Body */}
+  <div className="rounded-b-lg border border-gray-200">
+    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 px-4 py-5">
+      <div className="space-y-1">
+        <dt className="text-xs uppercase tracking-wide text-gray-500">Name</dt>
+        <dd className="text-sm font-medium text-gray-900 break-words">
+          {selectedTask.name ?? "—"}
+        </dd>
+      </div>
+
+      <div className="space-y-1">
+        <dt className="text-xs uppercase tracking-wide text-gray-500">Title</dt>
+        <dd className="text-sm font-medium text-gray-900 break-words">
+          {selectedTask.title ?? "—"}
+        </dd>
+      </div>
+
+      <div className="space-y-1">
+        <dt className="text-xs uppercase tracking-wide text-gray-500">Apartment</dt>
+        <dd className="text-sm font-medium text-gray-900">
+          {selectedTask.client ?? "—"}
+        </dd>
+      </div>
+
+      <div className="space-y-1">
+        <dt className="text-xs uppercase tracking-wide text-gray-500">Service ID</dt>
+        <dd className="text-sm font-medium text-gray-900">
+          {selectedTask.service_code ?? "—"}
+        </dd>
+      </div>
+
+      <div className="space-y-1 sm:col-span-2">
+        <dt className="text-xs uppercase tracking-wide text-gray-500">Description</dt>
+        <dd className="text-sm text-gray-800 leading-relaxed">
+          {selectedTask.description ? (
+            <span className="block">{selectedTask.description}</span>
+          ) : (
+            "—"
+          )}
+        </dd>
+      </div>
+
+      <div className="space-y-1">
+        <dt className="text-xs uppercase tracking-wide text-gray-500">Region</dt>
+        <dd className="text-sm font-medium text-gray-900">
+          {selectedTask.region_name ?? "—"}
+        </dd>
+      </div>
+
+      {selectedTask.scheduled && (
+        <div className="space-y-1">
+          <dt className="text-xs uppercase tracking-wide text-gray-500">Scheduled</dt>
+          <dd className="text-sm font-medium text-gray-900">
+            {new Date(selectedTask.scheduled).toLocaleString()}
+          </dd>
+        </div>
+      )}
+    </dl>
+
+    {/* Footer actions (optional) */}
+    
+  </div>
+</div>
+
+              ) : (
+                "Loading…"
+              )}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setDetailsOpen(false)}>
+              Close
+            </Button>
+            {/* Optional: navigate or perform action */}
+            {/* <Button onClick={() => router.push(`/tasks/${selectedTask?.id}`)}>Open</Button> */}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

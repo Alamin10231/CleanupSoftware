@@ -11,41 +11,10 @@ import {
   DialogTrigger,
 } from "@/Components/ui/dialog";
 import { Separator } from "@/Components/ui/separator";
+import { useGetAdminDashboardReportsQuery } from "@/redux/features/admin/reports/report.api";
+ // ✅ correct path to your RTK slice
 
-// Dummy data for now
-const dummyReports = [
-  {
-    id: "rpt-001",
-    supervisor: "John Smith",
-    employee: "Alice Johnson",
-    employeeId: "emp-101",
-    date: "2025-10-19",
-    performance: "Excellent",
-    workSummary: "Completed the assigned UI module and fixed layout bugs.",
-    remarks: "Very dedicated and punctual today.",
-  },
-  {
-    id: "rpt-002",
-    supervisor: "John Smith",
-    employee: "Mark Lee",
-    employeeId: "emp-102",
-    date: "2025-10-18",
-    performance: "Good",
-    workSummary: "Worked on backend API integration and wrote test cases.",
-    remarks: "Needs slight improvement in meeting deadlines.",
-  },
-  {
-    id: "rpt-003",
-    supervisor: "Sarah Connor",
-    employee: "Emma Brown",
-    employeeId: "emp-103",
-    date: "2025-10-18",
-    performance: "Average",
-    workSummary: "Tested new deployment pipeline.",
-    remarks: "Still learning deployment flow, but progressing well.",
-  },
-];
-
+// Performance badge colors
 const performanceColors: Record<string, string> = {
   Excellent: "bg-green-100 text-green-700 border-green-200",
   Good: "bg-blue-100 text-blue-700 border-blue-200",
@@ -54,6 +23,28 @@ const performanceColors: Record<string, string> = {
 };
 
 export default function ReportsPage() {
+  // Fetch data from API
+  const { data, isLoading, isError, refetch } = useGetAdminDashboardReportsQuery();
+
+  // Handle API states
+  if (isLoading)
+    return <div className="py-10 text-center text-gray-500">Loading reports…</div>;
+
+  if (isError)
+    return (
+      <div className="py-10 text-center text-red-600">
+        Failed to load reports.{" "}
+        <button onClick={() => refetch()} className="underline text-blue-600">
+          Retry
+        </button>
+      </div>
+    );
+
+  const reports = data?.results ?? [];
+
+  if (!reports.length)
+    return <div className="py-10 text-center text-gray-500">No reports found.</div>;
+
   return (
     <div className="p-6 space-y-6">
       <h1 className="text-3xl font-semibold">Supervisor Reports</h1>
@@ -66,7 +57,7 @@ export default function ReportsPage() {
         <CardContent>
           <ScrollArea className="max-h-[70vh]">
             <div className="divide-y divide-gray-200">
-              {dummyReports.map((report) => (
+              {reports.map((report: any) => (
                 <div
                   key={report.id}
                   className="flex justify-between items-center py-4 hover:bg-gray-50 px-2 rounded-lg transition"
@@ -74,20 +65,23 @@ export default function ReportsPage() {
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="font-semibold text-gray-800">
-                        {report.employee}
+                        {report.employee_name}
                       </h3>
                       <Badge
                         variant="outline"
-                        className={performanceColors[report.performance]}
+                        className={
+                          performanceColors[report.performance] ||
+                          "bg-gray-100 text-gray-700 border-gray-200"
+                        }
                       >
                         {report.performance}
                       </Badge>
                     </div>
                     <p className="text-sm text-gray-600">
-                      Supervisor: {report.supervisor}
+                      Supervisor: {report.supervisor_name}
                     </p>
                     <p className="text-xs text-gray-500">
-                      Date: {report.date}
+                      Date: {report.report_date}
                     </p>
                   </div>
 
@@ -102,18 +96,10 @@ export default function ReportsPage() {
   );
 }
 
-interface Report {
-  id: string;
-  supervisor: string;
-  employee: string;
-  employeeId: string;
-  date: string;
-  performance: string;
-  workSummary: string;
-  remarks: string;
-}
-
-function ReportDialog({ report }: { report: Report }) {
+// ----------------------------
+// MODAL COMPONENT
+// ----------------------------
+function ReportDialog({ report }: { report: any }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -122,20 +108,21 @@ function ReportDialog({ report }: { report: Report }) {
           View
         </Button>
       </DialogTrigger>
+
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="text-xl">
-            Report for {report.employee}
+            Report for {report.employee_name}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="flex justify-between">
             <p className="text-sm text-gray-600">
-              <strong>Supervisor:</strong> {report.supervisor}
+              <strong>Supervisor:</strong> {report.supervisor_name}
             </p>
             <p className="text-sm text-gray-600">
-              <strong>Date:</strong> {report.date}
+              <strong>Date:</strong> {report.report_date}
             </p>
           </div>
 
@@ -143,22 +130,30 @@ function ReportDialog({ report }: { report: Report }) {
 
           <div>
             <h4 className="font-semibold mb-1 text-gray-700">Work Summary</h4>
-            <p className="text-gray-700 text-sm">{report.workSummary}</p>
+            <p className="text-gray-700 text-sm">{report.work_summary}</p>
           </div>
 
           <div>
             <h4 className="font-semibold mb-1 text-gray-700">Performance</h4>
             <Badge
               variant="outline"
-              className={performanceColors[report.performance]}
+              className={
+                performanceColors[report.performance] ||
+                "bg-gray-100 text-gray-700 border-gray-200"
+              }
             >
               {report.performance}
             </Badge>
           </div>
 
           <div>
-            <h4 className="font-semibold mb-1 text-gray-700">Remarks</h4>
-            <p className="text-gray-700 text-sm">{report.remarks}</p>
+            <h4 className="font-semibold mb-1 text-gray-700">Supervisor Comments</h4>
+            <p className="text-gray-700 text-sm">{report.supervisor_comments}</p>
+          </div>
+
+          <div>
+            <h4 className="font-semibold mb-1 text-gray-700">Issues Reported</h4>
+            <p className="text-gray-700 text-sm">{report.issues_reported}</p>
           </div>
 
           <div className="flex justify-end">
