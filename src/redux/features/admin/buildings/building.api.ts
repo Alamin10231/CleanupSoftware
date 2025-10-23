@@ -6,9 +6,17 @@ export const buildingApi = baseApi.injectEndpoints({
       query: () => "/locations/overview/",
       providesTags: ["Building"],
     }),
-    // GET all buildings with apartments (paginated)
+
     getBuildings: builder.query({
       query: (page = 1) => `/buildings/?page=${page}`,
+      providesTags: ["Building"],
+    }),
+
+    getBuilidingBySearch: builder.query({
+      query: (search: string) => ({
+        url: "/buildings/",
+        params: { search },
+      }),
       providesTags: ["Building"],
     }),
 
@@ -16,6 +24,10 @@ export const buildingApi = baseApi.injectEndpoints({
     getBuildingById: builder.query({
       query: (id) => `/buildings/${id}`,
       providesTags: (id) => [{ type: "Building", id }],
+    }),
+    getBuildingsByRegion: builder.query({
+      query: (region) => `/buildings/region/${region}`,
+      providesTags: ["Building"],
     }),
 
     // POST create new building
@@ -38,7 +50,6 @@ export const buildingApi = baseApi.injectEndpoints({
       invalidatesTags: ({ id }) => [{ type: "Building", id }],
     }),
 
-    // DELETE building
     deleteBuilding: builder.mutation({
       query: (id) => ({
         url: `/buildings/${id}/`,
@@ -46,6 +57,17 @@ export const buildingApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Building"],
     }),
+    createApartment: builder.mutation({
+      query: (data) => ({
+        url: "/apartments/",
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Apartment"],
+    }),
+   //  getLocations: builder.query({
+   //    query: ({ lat, lng }) => `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`,
+   //    }),
   }),
 });
 
@@ -54,6 +76,9 @@ export const {
   useGetBuildingByIdQuery,
   useCreateBuildingMutation,
   useUpdateBuildingMutation,
+  useCreateApartmentMutation,
   useDeleteBuildingMutation,
   useGetStatsQuery,
+  useGetBuilidingBySearchQuery,
+  useGetBuildingsByRegionQuery,
 } = buildingApi;

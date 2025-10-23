@@ -12,6 +12,8 @@ import {
   useGetStatsQuery,
 } from "@/redux/features/admin/buildings/building.api";
 import type { Building } from "@/Types/building.types";
+import AddBuilding from "../map/AddBuilding";
+import AddRegion from "./add-region";
 
 export default function RegionComponent() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -54,9 +56,15 @@ export default function RegionComponent() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-bold text-2xl">Buildings</h1>
-          <p className="text-[#8E8E8E] text-xl">Manage buildings & apartments</p>
+          <p className="text-[#8E8E8E] text-xl">
+            Manage buildings & apartments
+          </p>
         </div>
-        <AddApartment />
+        <div className="flex gap-4">
+          <AddApartment />
+          <AddBuilding />
+          <AddRegion />
+        </div>
       </div>
 
       {/* Stats */}

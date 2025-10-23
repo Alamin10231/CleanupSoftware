@@ -1,38 +1,53 @@
-import { useEffect, useState } from "react";
-import { assets } from "@/assets/assets";
+import { useState } from "react";
 import { Button } from "@/Components/ui/button";
 
-interface Notification {
-  id: number;
-  title: string;
-  message: string;
-  status: string; // "new" or "read"
-  time?: string;  // optional time field
+const notificationsData = [
+    {
+        "id": 307,
+        "object_repr": "Aut voluptas in nisi - Kibo Ayers",
+        "changes": { "is_active": [ "True", "False" ] },
+        "timestamp": "2025-10-23T21:35:16.252745Z",
+        "message": "Planmodel updated by System"
+    },
+    {
+        "id": 306,
+        "object_repr": "Repudiandae eius vol - Camille Sharp",
+        "changes": { "is_active": [ "True", "False" ] },
+        "timestamp": "2025-10-23T21:35:12.910391Z",
+        "message": "Planmodel updated by System"
+    },
+    {
+        "id": 305,
+        "object_repr": "Porro Nam nihil volu - Stephen Hopkinsss",
+        "changes": { "is_active": [ "True", "False" ] },
+        "timestamp": "2025-10-23T21:35:10.828334Z",
+        "message": "Planmodel updated by System"
+    }
+];
+
+const formatTimestamp = (timestamp: string) => {
+  const date = new Date(timestamp);
+  return date.toLocaleString();
+};
+
+const formatChanges = (changes: any) => {
+    const changeKey = Object.keys(changes)[0];
+    if (changeKey === 'is_active') {
+        const [from, to] = changes[changeKey];
+        return `Status changed from ${from === 'True' ? 'Active' : 'Inactive'} to ${to === 'True' ? 'Active' : 'Inactive'}`;
+    }
+    return JSON.stringify(changes);
 }
 
 const Notifications = () => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState(notificationsData.map(n => ({...n, status: 'new'})));
 
-  // Load JSON
-  useEffect(() => {
-    fetch("/notifications.json")
-      .then((res) => res.json())
-      .then(setNotifications)
-      .catch(console.error);
-  }, []);
-
-  // Mark all as read
   const markAllAsRead = () => {
-    const updated = notifications.map((n) => ({ ...n, status: "read" }));
-    setNotifications(updated);
+    setNotifications(notifications.map((n) => ({ ...n, status: "read" })));
   };
 
-  // Mark one notification as read
   const markOneAsRead = (id: number) => {
-    const updated = notifications.map((n) =>
-      n.id === id ? { ...n, status: "read" } : n
-    );
-    setNotifications(updated);
+    setNotifications(notifications.map((n) => (n.id === id ? { ...n, status: "read" } : n)));
   };
 
   return (
@@ -55,20 +70,18 @@ const Notifications = () => {
             key={n.id}
             onClick={() => markOneAsRead(n.id)}
             className={`flex justify-between rounded-xl p-6 cursor-pointer border border-gray-300 shadow-sm ${
-              n.status === "new" ? "bg-blue-200" : "bg-gray-100"
+              n.status === "new" ? "bg-blue-100" : "bg-gray-50"
             }`}
           >
             <div>
-              <h2 className="font-semibold text-[20px]">{n.title}</h2>
-              <p className="mt-2">{n.message}</p>
+              <h2 className="font-semibold text-lg">{n.object_repr}</h2>
+              <p className="mt-2 text-gray-700">{n.message}</p>
+              <p className="mt-1 text-sm text-gray-500">{formatChanges(n.changes)}</p>
             </div>
-            <div className="flex items-center gap-4">
-              {/* Show time */}
-              {n.time && <p className="text-gray-500">{n.time}</p>}
-
-              {/* Show blue dot only if new */}
+            <div className="flex flex-col items-end">
+              <p className="text-sm text-gray-500">{formatTimestamp(n.timestamp)}</p>
               {n.status === "new" && (
-                <img src={assets.blueDot} alt="new" />
+                <div className="mt-2 w-3 h-3 bg-blue-500 rounded-full"></div>
               )}
             </div>
           </div>

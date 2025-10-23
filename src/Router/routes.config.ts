@@ -15,6 +15,7 @@ const Subscriptions = lazy(() => import("@/Page/admin-dashboard/Subscriptions"))
 const Employees = lazy(() => import("@/Page/admin-dashboard/Employees"));
 const CreateInvoiceForm = lazy(() => import("@/Page/admin-dashboard/create-invoice"));
 const AddNewPlanForm = lazy(() => import("@/Page/admin-dashboard/add-new-plan"));
+const UpdatePlan = lazy(() => import("@/Page/admin-dashboard/UpdatePlan"));
 const AddNewServiceForm = lazy(() => import("@/Page/admin-dashboard/add-services"));
 
 // Employee Components
@@ -141,6 +142,13 @@ export const PROTECTED_ROUTES: RouteConfig[] = [
     roles: ["admin"],
     permissions: [Permission.MANAGE_SERVICES],
     label: "Add New Plan",
+  },
+  {
+    path: "/update-plan/:id",
+    element: UpdatePlan,
+    roles: ["admin"],
+    permissions: [Permission.MANAGE_SERVICES],
+    label: "Update Plan",
   },
   {
     path: "/add-services",

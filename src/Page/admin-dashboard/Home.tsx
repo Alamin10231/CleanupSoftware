@@ -7,6 +7,7 @@ import Footer from "@/Components/Footer";
 import { useDispatch, useSelector } from "react-redux";
 import { ChevronRight } from "lucide-react";
 import { logout } from "@/redux/features/auth/authSlice";
+import { Button } from "@/Components/ui/button";
 
 const Home = () => {
   const faqs = [
@@ -83,13 +84,15 @@ const Home = () => {
           ) : (
             <div className="flex gap-6">
               <Link to="/login">
-                <button className="text-[#8241ED] border border-[#8241ED] px-4 py-2 cursor-pointer rounded-full hover:bg-[#8241ED] hover:text-white">
-                  Log In
-                </button>
+                <Button variant={"outline"}>
+                  Login
+                </Button>
               </Link>
               <Link to="/signup">
                 {" "}
-                <Button text="Sign Up" />
+                <Button>
+                  Sign Up
+                </Button>
               </Link>
             </div>
           )}
