@@ -169,7 +169,7 @@ const ServiceCard: React.FC = () => {
 
                 {/* Actions + Price */}
                 <div className="flex flex-col items-end gap-2">
-                  <div className="flex items-center gap-2">
+                  {/* <div className="flex items-center gap-2">
                     <button
                       title="View"
                       className="p-1 rounded-md hover:bg-gray-100"
@@ -188,7 +188,7 @@ const ServiceCard: React.FC = () => {
                     >
                       <FiTrash2 className="text-red-500" />
                     </button>
-                  </div>
+                  </div> */}
                   <div className="text-right font-bold text-xl text-gray-800">
                     SAR {discounted.toLocaleString()}
                   </div>
