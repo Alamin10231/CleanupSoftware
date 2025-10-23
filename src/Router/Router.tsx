@@ -35,6 +35,7 @@ import RegionDashboard from "@/Page/employee-dashboard/RegionDashboard";
 
 import ChatPage from "@/Page/employee-dashboard/ChatPage";
 import TaskEmployee from "@/Page/employee-dashboard/TaskEmployee";
+import UpdatePlan from "@/Page/admin-dashboard/UpdatePlan";
 
 const Router = () => {
   return (
@@ -56,8 +57,11 @@ const Router = () => {
         <Route path="services" element={<Services />} />
         <Route path="settings" element={<Settings />} />
         <Route path="subscription" element={<Subscriptions />} />
+
         <Route path="subscriptionplan" element={<SubscriptionPlan />} />
         <Route path="add-new-plan" element={<AddNewPlanForm />} />
+        <Route path="update-plan/:id" element={<UpdatePlan />} />
+
         <Route path="add-services" element={<AddNewServiceForm />} />
         <Route path="chat" element={<ChatPage />} />
 

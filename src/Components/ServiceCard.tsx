@@ -28,10 +28,13 @@ const formatRevenueShort = (num: number) => {
 };
 
 const ServiceCard: React.FC = () => {
-  const { data: all_serviceData } = useGetAllServiceDataAdminQuery();
+  const { data: all_serviceData } = useGetAllServiceDataAdminQuery(undefined);
   console.log(all_serviceData);
 
-  const services: Service[] = all_serviceData?.results || [];
+  const services: Service[] = useMemo(
+    () => all_serviceData?.results || [],
+    [all_serviceData]
+  );
 
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All Category");
@@ -81,7 +84,7 @@ const ServiceCard: React.FC = () => {
             onChange={(e) => setCategory(e.target.value)}
           >
             <option>All Category</option>
-            {[...new Set(services.map((s) => s.category.name))].map((cat) => (
+            {[...new Set(services?.map((s) => s?.category?.name))]?.map((cat) => (
               <option key={cat}>{cat}</option>
             ))}
           </select>
@@ -110,7 +113,7 @@ const ServiceCard: React.FC = () => {
 
       {/* 📦 Services Grid */}
       <div className="grid grid-cols-2 gap-6 mt-6">
-        {filtered.map((service) => {
+        {filtered?.map((service) => {
           // ✅ Safely calculate discounted price
           const discounted =
             service.discounted_price ??
@@ -159,7 +162,7 @@ const ServiceCard: React.FC = () => {
                     </p>
                     <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
                       <span className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-md">
-                        {service.category.name}
+                        {service?.category?.name}
                       </span>
                       <span>🏢 {service.building.name}</span>
                       <span>📍 {service.building.city}</span>

@@ -4,7 +4,6 @@ import { assets } from "../assets/assets";
 import type { UserRole } from "@/Types/Types";
 import { MENU_CONFIG } from "./sidebar/menuConfig";
 import { SidebarSection } from "./sidebar/SidebarSection";
-
 interface AuthState {
   user: {
     user_type: UserRole;
