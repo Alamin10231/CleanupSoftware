@@ -18,6 +18,7 @@ export const MENU_CONFIG: Record<UserRole, MenuSection[]> = {
         { icon: assets.service, label: "Subscriptions", path: "/subscription" },
         { icon: assets.service, label: "Services", path: "/services" },
         { icon: assets.invoice, label: "Invoices", path: "/invoices" },
+        { icon: assets.invoice, label: " Expense Request", path: "/employee-expense-request" },
       ],
     },
     {
@@ -53,4 +54,15 @@ export const MENU_CONFIG: Record<UserRole, MenuSection[]> = {
       ],
     },
   ],
+
+  client :[
+    {
+      heading: null,
+      items: [
+        { icon: assets.Dashboard_icon, label: "Profile", path: "/client-profile" },
+        { icon: assets.subscriptionss, label: "Chat", path: "/client-chat" },
+        { icon: assets.region, label: "Subscription", path: "/client-subscription" },
+      ],
+    },
+  ]
 };

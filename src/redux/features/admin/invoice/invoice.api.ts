@@ -23,7 +23,15 @@ export const invoiceApi = baseApi.injectEndpoints({
         `plan/invoice/list/?search=${searchInvoice}`,
       providesTags: ["SearchInvoices"],
     }),
-  }),
+    addAdminInvoice: builder.mutation({
+      query: (invoice) => ({
+        url: "plan/invoice/list/",
+        method: "POST",
+        body: invoice,
+      }),
+      invalidatesTags: ["Invoice"],
+    })
+})
 });
 
 export const {
@@ -31,4 +39,5 @@ export const {
   useAddInvoiceMutation,
   useGetCalculationInvoiceQuery,
   useGetSearchAllInvoiceQuery,
+  useAddAdminInvoiceMutation
 } = invoiceApi;

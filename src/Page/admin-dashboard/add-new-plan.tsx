@@ -1,4 +1,3 @@
-// src/pages/add-new-plan.tsx
 import React, { useState } from "react";
 import { Trash2, Plus } from "lucide-react";
 import { Label } from "@/Components/ui/label";
@@ -13,91 +12,100 @@ import {
 import { Button } from "@/Components/ui/button";
 import { Switch } from "@/Components/ui/switch";
 import { Textarea } from "@/Components/ui/textarea";
+import {
+  useAddServiceCategoryMutation,
+  useGetServiceCategoriesQuery,
+} from "@/redux/features/admin/services/services.api";
+import { useAddPlanMutation } from "@/redux/features/admin/plan/plan.api";
 import { toast } from "sonner";
-import { useCreateAdminNewPlanMutation } from "@/redux/features/employee/dashboard/dashboard.api";
 
-type ServiceRow = {
-  id: number; // local row id
-  serviceId?: number; // <-- backend PK for the service
+type ServiceLineItem = {
+  id: number;
   name: string;
   description: string;
-  unitPrice: number;
+  unit_price: number;
   quantity: number;
   total: number;
 };
 
 const AddNewPlanForm = () => {
-  const [autoRenewal, setAutoRenewal] = useState(true);
+  const [services, setServices] = useState<ServiceLineItem[]>([]);
+  const [addCategoryButton, setAddCategoryButton] = useState(false);
 
-  const [services, setServices] = useState<ServiceRow[]>([
-    {
-      id: 1,
-      serviceId: undefined,
-      name: "Deep Cleaning",
-      description: "",
-      unitPrice: 150.0,
-      quantity: 1,
-      total: 150.0,
-    },
-    {
-      id: 2,
-      serviceId: undefined,
-      name: "Carpet Cleaning",
-      description: "",
-      unitPrice: 75.0,
-      quantity: 2,
-      total: 150.0,
-    },
-  ]);
+  type FormState = {
+    name: string;
+    plan_code: string;
+    interval: string;
+    amount: number;
+    description: string;
+    is_active: boolean;
+    category: number | null;
+    discount: number;
+    auto_renewal: boolean;
+  };
 
-  const [formData, setFormData] = useState({
-    planName: "",
-    planCode: "", // required by backend as plan_code
+  const initialFormState: FormState = {
+    name: "",
+    plan_code: "",
+    interval: "month",
+    amount: 0,
     description: "",
-    categoryId: "", // must be numeric PK string -> we'll cast to number
-    billingCycle: "Monthly", // if your backend requires it elsewhere
-    price: "0.00", // UI price; backend wants "amount"
-    discount: "0",
-  });
+    is_active: true,
+    category: null,
+    discount: 0,
+    auto_renewal: true,
+  };
 
-  const [formError, setFormError] = useState<string | null>(null);
-  const [formSuccess, setFormSuccess] = useState<string | null>(null);
+  const [formData, setFormData] = useState<FormState>(initialFormState);
 
-  const [createAdminNewPlan, { isLoading: creating }] =
-    useCreateAdminNewPlanMutation();
-
-  const handleInputChange = (field: keyof typeof formData, value: string) => {
+  const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
-
+  const { data: categories, isLoading: isCategoriesLoading } =
+    useGetServiceCategoriesQuery(undefined);
+  const [addCategory, { isLoading: isAddingCategory }] =
+    useAddServiceCategoryMutation();
+  const [addPlan, { isLoading: addingPlan }] = useAddPlanMutation();
   const addService = () => {
-    setServices((s) => [
-      ...s,
-      {
-        id: Date.now(),
-        serviceId: undefined,
-        name: "",
-        description: "",
-        unitPrice: 0,
-        quantity: 1,
-        total: 0,
-      },
-    ]);
+    const newService = {
+      id: Date.now(),
+      name: "",
+      description: "",
+      unit_price: 0,
+      quantity: 1,
+      total: 0, // Calculated for display
+    };
+    setServices([...services, newService]);
+  };
+  const [newCategory, setNewCategory] = useState({
+    name: "",
+    description: "",
+  });
+  const addNewCategory = async () => {
+    try {
+      await toast.promise(addCategory({ name: newCategory.name }).unwrap(), {
+        loading: "Creating category...",
+        success: "Category created successfully",
+        error: (err) =>
+          `Failed to create category: ${err.data?.message || "Unknown error"}`,
+      });
+      setNewCategory({ name: "", description: "" });
+      setAddCategoryButton(false);
+    } catch (error) {
+      console.error("Category creation failed:", error);
+    }
+  };
+  const removeService = (id) => {
+    setServices(services.filter((s) => s.id !== id));
   };
 
-  const removeService = (id: number) => {
-    setServices((s) => s.filter((row) => row.id !== id));
-  };
-
-  const updateService = (id: number, field: keyof ServiceRow, value: any) => {
-    setServices((rows) =>
-      rows.map((s) => {
+  const updateService = (id, field, value) => {
+    setServices(
+      services.map((s) => {
         if (s.id === id) {
-          const updated: ServiceRow = { ...s, [field]: value };
-          if (field === "unitPrice" || field === "quantity") {
-            const unit = Number(updated.unitPrice) || 0;
-            const qty = Number(updated.quantity) || 0;
-            updated.total = unit * qty;
+          const updated = { ...s, [field]: value };
+          if (field === "unit_price" || field === "quantity") {
+            updated.total = (updated.unit_price || 0) * (updated.quantity || 0);
           }
           return updated;
         }
@@ -106,390 +114,380 @@ const AddNewPlanForm = () => {
     );
   };
 
-  const resetForm = () => {
-    setFormData({
-      planName: "",
-      planCode: "",
-      description: "",
-      categoryId: "",
-      billingCycle: "Monthly",
-      price: "0.00",
-      discount: "0",
-    });
-    setServices([
-      {
-        id: 1,
-        serviceId: undefined,
-        name: "Deep Cleaning",
-        description: "",
-        unitPrice: 150.0,
-        quantity: 1,
-        total: 150.0,
-      },
-      {
-        id: 2,
-        serviceId: undefined,
-        name: "Carpet Cleaning",
-        description: "",
-        unitPrice: 75.0,
-        quantity: 2,
-        total: 150.0,
-      },
-    ]);
-    setAutoRenewal(true);
-    setFormError(null);
-    setFormSuccess(null);
+  const handleCancel = () => {
+    setFormData(initialFormState);
+    setServices([]); // Reset services to empty array
   };
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormError(null);
-    setFormSuccess(null);
-
-    const name = formData.planName.trim();
-    const plan_code = formData.planCode.trim();
-    const amountNum = Number(formData.price);
-    const categoryPK = Number(formData.categoryId || NaN);
-
-    if (!name) return setFormError("Plan name is required.");
-    if (!plan_code) return setFormError("Plan code is required.");
-    if (!Number.isFinite(amountNum) || amountNum <= 0) {
-      return setFormError("Amount must be a positive number.");
-    }
-    if (!Number.isInteger(categoryPK)) {
-      return setFormError("Please select a valid Category (ID).");
-    }
-
-    // service_line_items must exist and each item should carry a service PK
-    const items = services.map((s) => ({
-      service: Number(s.serviceId), // <-- REQUIRED PK
-      quantity: Number(s.quantity) || 0,
-      unit_price: Number(s.unitPrice) || 0,
-      description: s.description || "",
-    }));
-
-    // validate service PKs present
-    const missingPk = items.some((i) => !Number.isInteger(i.service));
-    if (missingPk) {
-      return setFormError(
-        "Each service line must include a valid Service ID (PK)."
-      );
-    }
-
-    // Build exactly what the backend asked for
+  const handleSubmit = async () => {
     const payload = {
-      name, // if backend needs it
-      plan_code, // ✅ required
-      amount: amountNum, // ✅ required
-      category: categoryPK, // ✅ PK required
-      auto_renewal: autoRenewal, // if used on backend
-      description: formData.description || undefined,
-      discount: Number(formData.discount || 0),
-      billing_cycle: formData.billingCycle, // include if backend uses it
-      service_line_items: items, // ✅ required
+      name: formData.name,
+      plan_code: formData.plan_code,
+      interval: formData.interval,
+      amount: Number(formData.amount),
+      description: formData.description,
+      is_active: formData.is_active,
+      category: formData.category ? Number(formData.category) : null,
+      discount: Number(formData.discount),
+      auto_renewal: formData.auto_renewal,
+      service_line_items: services.map(({ id, total, ...rest }) => rest),
     };
 
-    toast.promise(createAdminNewPlan(payload).unwrap(), {
-      success: "Plan created successfully.",
-      error: "Failed to create plan",
-    });
-    resetForm();
+    try {
+      await toast.promise(addPlan(payload).unwrap(), {
+        loading: "Adding plan...",
+        success: "Plan added successfully",
+        error: (err) => {
+          if (typeof err === "object") {
+            const keys = Object.keys(err.data);
+            if (err.data[keys[0]][0]) {
+              if (err.data[keys[0]][0] === "This field may not be blank.")
+                return `Failed to add plan: ${keys[0]} can't be blank`;
+            }
+            return `Failed to add server.`;
+          }
+        },
+      });
+      handleCancel();
+    } catch (error) {
+      console.error("Service creation failed:", error);
+    }
   };
 
   return (
     <form onSubmit={onSubmit}>
       <h1 className="text-2xl font-semibold mb-6">Add New Plan</h1>
-
-      {/* Basic Plan Information */}
-      <div className="border rounded-lg p-6 mb-6">
-        <h2 className="text-base font-semibold mb-4">Basic Plan Information</h2>
-
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="space-y-2">
-            <Label htmlFor="planName" className="text-sm">
-              Plan Name
-            </Label>
-            <Input
-              id="planName"
-              placeholder="e.g. Standard Cleaning Package"
-              value={formData.planName}
-              onChange={(e) => handleInputChange("planName", e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="planCode" className="text-sm">
-              Plan Code
-            </Label>
-            <Input
-              id="planCode"
-              placeholder="PLAN-001"
-              value={formData.planCode}
-              onChange={(e) => handleInputChange("planCode", e.target.value)}
-              required
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2 mb-4">
-          <Label htmlFor="description" className="text-sm">
-            Description
-          </Label>
-          <Textarea
-            id="description"
-            placeholder="Short details about the plan..."
-            value={formData.description}
-            onChange={(e) => handleInputChange("description", e.target.value)}
-            className="min-h-[80px]"
-          />
-        </div>
-
-        {/* Category expects a PK (number). Put your real IDs here. */}
-        <div className="space-y-2">
-          <Label htmlFor="categoryId" className="text-sm">
-            Category (ID)
-          </Label>
-          <Select
-            value={formData.categoryId}
-            onValueChange={(value) => handleInputChange("categoryId", value)}
-          >
-            <SelectTrigger id="categoryId">
-              <SelectValue placeholder="Select category ID..." />
-            </SelectTrigger>
-            <SelectContent>
-              {/* 👇 Replace these with real category IDs from your backend */}
-              <SelectItem value="1">1 — Cleaning</SelectItem>
-              <SelectItem value="2">2 — Maintenance</SelectItem>
-              <SelectItem value="3">3 — Security</SelectItem>
-              <SelectItem value="4">4 — Other</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Pricing & Duration */}
-      <div className="border rounded-lg p-6 mb-6">
-        <h2 className="text-base font-semibold mb-4">Pricing &amp; Duration</h2>
-
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="space-y-2">
-            <Label htmlFor="billingCycle" className="text-sm">
-              Billing Cycle
-            </Label>
-            <Select
-              value={formData.billingCycle}
-              onValueChange={(value) =>
-                handleInputChange("billingCycle", value)
-              }
-            >
-              <SelectTrigger id="billingCycle">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Monthly">Monthly</SelectItem>
-                <SelectItem value="Yearly">Yearly</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="price" className="text-sm">
-              Amount (SAR)
-            </Label>
-            <div className="flex items-center gap-2">
-              <div className="w-24 grid place-items-center border rounded-md h-10 text-sm">
-                SAR
-              </div>
+      <div className="grid grid-cols-2 gap-4">
+        {/* Basic Plan Information */}
+        <div className="border rounded-lg p-6 mb-6">
+          <h2 className="text-base font-semibold mb-4">
+            Basic Plan Information
+          </h2>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-sm">
+                Plan Name
+              </Label>
               <Input
-                id="price"
+                id="name"
+                placeholder="e.g. Yearly Standard"
+                value={formData.name}
+                onChange={(e) => handleInputChange("name", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="plan_code" className="text-sm">
+                Plan Code
+              </Label>
+              <Input
+                id="plan_code"
+                placeholder="e.g. 107"
+                value={formData.plan_code}
+                onChange={(e) => handleInputChange("plan_code", e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="space-y-2 mb-4">
+            <Label htmlFor="description" className="text-sm">
+              Description
+            </Label>
+            <Textarea
+              id="description"
+              placeholder="e.g. High-speed internet plan with 24/7 support"
+              value={formData.description}
+              onChange={(e) => handleInputChange("description", e.target.value)}
+              className="min-h-[80px]"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="category" className="text-sm">
+              Category
+            </Label>
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <Select
+                  value={formData.category?.toString() || ""}
+                  onValueChange={(value) => {
+                    handleInputChange("category", Number(value));
+                  }}
+                >
+                  <SelectTrigger id="category">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {isCategoriesLoading ? (
+                      <SelectItem value="loading">Loading...</SelectItem>
+                    ) : (
+                      categories?.map(
+                        (category: { id: number; name: string }) => (
+                          <SelectItem
+                            key={category.id}
+                            value={category.id.toString()}
+                          >
+                            <div>{category.name}</div>
+                          </SelectItem>
+                        )
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
+                <Button
+                  size={"sm"}
+                  variant="outline"
+                  onClick={() => setAddCategoryButton(true)}
+                >
+                  <Plus size={8} />
+                </Button>
+              </div>
+              {addCategoryButton && (
+                <div className="flex gap-2 mt-2">
+                  <Input
+                    placeholder="Enter new category name"
+                    value={newCategory.name}
+                    onChange={(e) =>
+                      setNewCategory({
+                        name: e.target.value,
+                        description: "",
+                      })
+                    }
+                    className="flex-1"
+                  />
+                  <Button
+                    onClick={() => addNewCategory()}
+                    disabled={isAddingCategory}
+                    size="sm"
+                  >
+                    {isAddingCategory ? "Adding..." : "Add"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setAddCategoryButton(false);
+                      setNewCategory({
+                        name: "",
+                        description: "",
+                      });
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+        {/* Pricing & Duration */}
+        <div className="border rounded-lg p-6 mb-6">
+          <h2 className="text-base font-semibold mb-4">Pricing & Duration</h2>
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="space-y-2">
+              <Label htmlFor="interval" className="text-sm">
+                Interval
+              </Label>
+              <Select
+                value={formData.interval}
+                onValueChange={(value) => handleInputChange("interval", value)}
+              >
+                <SelectTrigger id="interval">
+                  <SelectValue placeholder="Select interval..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="month">Monthly</SelectItem>
+                  <SelectItem value="quarter">Quarterly</SelectItem>
+                  <SelectItem value="year">Yearly</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="amount" className="text-sm">
+                Amount
+              </Label>
+              <Input
+                id="amount"
                 type="number"
                 step="0.01"
                 placeholder="0.00"
-                value={formData.price}
-                onChange={(e) => handleInputChange("price", e.target.value)}
+                value={formData.amount}
+                onChange={(e) =>
+                  handleInputChange("amount", Number(e.target.value))
+                }
                 className="flex-1"
                 min="0"
                 required
               />
             </div>
           </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 items-end">
-          <div className="space-y-2">
-            <Label htmlFor="discount" className="text-sm">
-              Discount (%)
-            </Label>
-            <Input
-              id="discount"
-              type="number"
-              placeholder="0"
-              value={formData.discount}
-              onChange={(e) => handleInputChange("discount", e.target.value)}
-              min="0"
-              max="100"
-            />
+          <div className="grid grid-cols-2 gap-4 items-end">
+            <div className="space-y-2">
+              <Label htmlFor="discount" className="text-sm">
+                Discount (%)
+              </Label>
+              <Input
+                id="discount"
+                type="number"
+                step="0.01"
+                placeholder="0"
+                value={formData.discount}
+                onChange={(e) =>
+                  handleInputChange("discount", Number(e.target.value))
+                }
+              />
+            </div>
+            <div className="grid grid-cols-1 gap-2 items-center">
+              <Label className="text-sm">Auto-renewal</Label>
+              <div className="flex items-center w-fit gap-2">
+                <Switch
+                  id="auto_renewal"
+                  checked={formData.auto_renewal}
+                  onCheckedChange={(checked) =>
+                    handleInputChange("auto_renewal", checked)
+                  }
+                />
+                <span className="text-sm text-gray-600">
+                  {formData.auto_renewal ? "ON" : "OFF"}
+                </span>
+              </div>
+            </div>
           </div>
-
-          <div className="grid grid-cols-1 gap-2 items-center">
-            <Label className="text-sm">Auto-renewal</Label>
+          <div className="space-y-2 mt-4">
+            <Label className="text-sm"> Status</Label>
             <div className="flex items-center w-fit gap-2">
               <Switch
-                id="autoRenewal"
-                checked={autoRenewal}
-                onCheckedChange={setAutoRenewal}
+                id="is_active"
+                checked={formData.is_active}
+                onCheckedChange={(checked) =>
+                  handleInputChange("is_active", checked)
+                }
               />
               <span className="text-sm text-gray-600">
-                {autoRenewal ? "ON" : "OFF"}
+                {formData.is_active ? "Active" : "Inactive"}
               </span>
             </div>
           </div>
         </div>
       </div>
-
       {/* Services Included */}
       <div className="border rounded-lg p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-semibold">Services Included</h2>
-          <Button onClick={addService} size="sm" type="button">
+          <h2 className="text-base font-semibold">Service Line Items</h2>
+          <Button onClick={addService} size="sm">
             <Plus size={16} className="mr-1" />
             Add Service
           </Button>
         </div>
-
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-2 px-2 font-medium text-gray-700">
-                  Service ID (PK)
-                </th>
-                <th className="text-left py-2 px-2 font-medium text-gray-700">
-                  Service Name
-                </th>
-                <th className="text-left py-2 px-2 font-medium text-gray-700">
-                  Description
-                </th>
-                <th className="text-left py-2 px-2 font-medium text-gray-700">
-                  Unit Price (SAR)
-                </th>
-                <th className="text-left py-2 px-2 font-medium text-gray-700">
-                  Quantity
-                </th>
-                <th className="text-left py-2 px-2 font-medium text-gray-700">
-                  Line Total (SAR)
-                </th>
-                <th className="text-left py-2 px-2 font-medium text-gray-700">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {services.map((service) => (
-                <tr key={service.id} className="border-b">
-                  <td className="py-2 px-2">
-                    <Input
-                      type="number"
-                      placeholder="e.g. 12"
-                      value={service.serviceId ?? ""}
-                      onChange={(e) =>
-                        updateService(
-                          service.id,
-                          "serviceId",
-                          e.target.value ? Number(e.target.value) : undefined
-                        )
-                      }
-                      className="w-28"
-                      min="1"
-                      required
-                    />
-                  </td>
-                  <td className="py-2 px-2">
-                    <Input
-                      placeholder="e.g. Deep Cleaning"
-                      value={service.name}
-                      onChange={(e) =>
-                        updateService(service.id, "name", e.target.value)
-                      }
-                      className="w-48"
-                    />
-                  </td>
-                  <td className="py-2 px-2">
-                    <Input
-                      placeholder="Optional description"
-                      value={service.description}
-                      onChange={(e) =>
-                        updateService(service.id, "description", e.target.value)
-                      }
-                      className="w-56"
-                    />
-                  </td>
-                  <td className="py-2 px-2">
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={service.unitPrice}
-                      onChange={(e) =>
-                        updateService(
-                          service.id,
-                          "unitPrice",
-                          parseFloat(e.target.value) || 0
-                        )
-                      }
-                      className="w-28"
-                    />
-                  </td>
-                  <td className="py-2 px-2">
-                    <Input
-                      type="number"
-                      min="0"
-                      value={service.quantity}
-                      onChange={(e) =>
-                        updateService(
-                          service.id,
-                          "quantity",
-                          parseInt(e.target.value, 10) || 0
-                        )
-                      }
-                      className="w-20"
-                    />
-                  </td>
-                  <td className="py-2 px-2 font-medium">
-                    SAR {(service.unitPrice * service.quantity || 0).toFixed(2)}
-                  </td>
-                  <td className="py-2 px-2">
-                    <button
-                      onClick={() => removeService(service.id)}
-                      className="text-red-500 hover:text-red-700"
-                      type="button"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </td>
+          {services.length === 0 ? (
+            <p className="text-center text-sm text-gray-500">
+              No services added. Click "Add Service" to include services.
+            </p>
+          ) : (
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-2 px-2 font-medium text-gray-700">
+                    Service Name
+                  </th>
+                  <th className="text-left py-2 px-2 font-medium text-gray-700">
+                    Description
+                  </th>
+                  <th className="text-left py-2 px-2 font-medium text-gray-700">
+                    Unit Price
+                  </th>
+                  <th className="text-left py-2 px-2 font-medium text-gray-700">
+                    Quantity
+                  </th>
+                  <th className="text-left py-2 px-2 font-medium text-gray-700">
+                    Line Total
+                  </th>
+                  <th className="text-left py-2 px-2 font-medium text-gray-700">
+                    Action
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {services.map((service) => (
+                  <tr key={service.id} className="border-b">
+                    <td className="py-2 px-2">
+                      <Input
+                        placeholder="Name"
+                        value={service.name}
+                        onChange={(e) =>
+                          updateService(service.id, "name", e.target.value)
+                        }
+                        className="w-8/12"
+                      />
+                    </td>
+                    <td className="py-2 px-2">
+                      <Input
+                        placeholder="Optional description"
+                        value={service.description}
+                        onChange={(e) =>
+                          updateService(
+                            service.id,
+                            "description",
+                            e.target.value
+                          )
+                        }
+                        className="w-11/12"
+                      />
+                    </td>
+                    <td className="py-2 px-2">
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={service.unit_price}
+                        onChange={(e) =>
+                          updateService(
+                            service.id,
+                            "unit_price",
+                            parseFloat(e.target.value) || 0
+                          )
+                        }
+                        className="w-24"
+                      />
+                    </td>
+                    <td className="py-2 px-2">
+                      <Input
+                        type="number"
+                        value={service.quantity}
+                        onChange={(e) =>
+                          updateService(
+                            service.id,
+                            "quantity",
+                            parseInt(e.target.value) || 0
+                          )
+                        }
+                        className="w-16"
+                      />
+                    </td>
+                    <td className="py-2 px-2 font-medium">
+                      ${service.total.toFixed(2)}
+                    </td>
+                    <td className="py-2 px-2">
+                      <button
+                        onClick={() => removeService(service.id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
-
-      {/* Feedback */}
-      {formError && <p className="text-red-600 text-sm mb-3">{formError}</p>}
-      {formSuccess && (
-        <p className="text-green-600 text-sm mb-3">{formSuccess}</p>
-      )}
-
       {/* Footer */}
-      <div className="flex items-center justify-between pt-4 border-t">
-        <div />
+      <div className="flex items-center justify-between">
+        <div></div>
         <div className="flex gap-2">
-          <Button variant="outline" type="button" disabled={creating}>
-            Save Draft
+          <Button variant="outline" onClick={handleCancel}>
+            Cancel
           </Button>
-          <Button type="submit" disabled={creating}>
-            {creating ? "Creating…" : "Create Plan"}
+          <Button disabled={addingPlan} onClick={handleSubmit}>
+            Create Plan
           </Button>
         </div>
       </div>

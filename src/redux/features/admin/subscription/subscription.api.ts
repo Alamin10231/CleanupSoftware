@@ -23,12 +23,6 @@ export const subscriptionApi = baseApi.injectEndpoints({
       },
       providesTags: ["Subscription"],
     }),
-
-    getAdminNewplans: builder.query<any, void>({
-      query: () => "/plan/subscription/",
-      providesTags: ["Subscription"],
-    }),
-
     getCollectionNewPlans: builder.query<any, void>({
       query: () => "/plan/subscription/",
       providesTags: ["Subscription"],
@@ -56,7 +50,6 @@ export const subscriptionApi = baseApi.injectEndpoints({
 export const {
   useGetCalculationSubscriptionsQuery,
   useGetSubscriptionPageQuery,
-  useGetAdminNewplansQuery,
   useGetCollectionNewPlansQuery,
   useGetAdminStatusQuery,
   useGetCollectionStatusQuery,

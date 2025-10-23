@@ -1,10 +1,14 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { RootState } from "../store";
+import {
+  createApi,
+  fetchBaseQuery,
+  type RootState,
+} from "@reduxjs/toolkit/query/react";
 
 export const baseApi = createApi({
   reducerPath: "baseApi",
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_API_URL,
+   //  credentials: "include",
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as RootState).auth.accessToken;
       if (token) {
@@ -34,7 +38,16 @@ export const baseApi = createApi({
     "EmployeeDashboard",
     "Report",
     "Clients",
-    "UpdateProfile"
+    "UpdateProfile",
+    "Apartment",
+    "ServiceCategories",
+    "plan",
+    "getUserProfile",
+    "ClientProfile",
+    "ClientSubscription",
+    "AdminCreateInvoice",
+    "ExpenseCategory",
+    "EmployeeExpense"
   ],
 
   endpoints: () => ({}),

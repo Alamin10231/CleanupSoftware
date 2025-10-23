@@ -36,7 +36,11 @@ const fallbackAvatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=User";
 const safeParse = (x: any) => {
   if (!x) return {};
   if (typeof x === "string") {
-    try { return x ? JSON.parse(x) : {}; } catch { return {}; }
+    try {
+      return x ? JSON.parse(x) : {};
+    } catch {
+      return {};
+    }
   }
   return x;
 };
@@ -59,7 +63,10 @@ const EmployeeProfileSettingsPage: React.FC = () => {
   // ---- Avatar preview (LOCAL ONLY)
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>(
-    user?.avatar || user?.avatarUrl || user?.employee_profile?.avatar || fallbackAvatar
+    user?.avatar ||
+      user?.avatarUrl ||
+      user?.employee_profile?.avatar ||
+      fallbackAvatar
   );
 
   const EMPLOYEE_ID = user?.id as number | undefined;
@@ -127,7 +134,8 @@ const EmployeeProfileSettingsPage: React.FC = () => {
 
       // optional: free preview blob
       try {
-        if (avatarPreview?.startsWith("blob:")) URL.revokeObjectURL(avatarPreview);
+        if (avatarPreview?.startsWith("blob:"))
+          URL.revokeObjectURL(avatarPreview);
       } catch {}
 
       toast.success("Profile updated successfully.");
@@ -162,18 +170,18 @@ const EmployeeProfileSettingsPage: React.FC = () => {
             </p>
           </div>
 
-        {statusText && (
-          <span className="text-sm">
-            {statusText}{" "}
-            {isError && (
-              <span className="text-red-600">
-                {typeof (error as any)?.data === "string"
-                  ? (error as any).data
-                  : (error as any)?.data?.detail || "Please try again."}
-              </span>
-            )}
-          </span>
-        )}
+          {statusText && (
+            <span className="text-sm">
+              {statusText}{" "}
+              {isError && (
+                <span className="text-red-600">
+                  {typeof (error as any)?.data === "string"
+                    ? (error as any).data
+                    : (error as any)?.data?.detail || "Please try again."}
+                </span>
+              )}
+            </span>
+          )}
         </div>
 
         {/* Profile Picture */}
@@ -208,7 +216,9 @@ const EmployeeProfileSettingsPage: React.FC = () => {
             <Input
               id="fullName"
               value={profileData.name}
-              onChange={(e) => setProfileData((p) => ({ ...p, name: e.target.value }))}
+              onChange={(e) =>
+                setProfileData((p) => ({ ...p, name: e.target.value }))
+              }
               disabled={isLoading}
             />
           </div>
@@ -221,7 +231,9 @@ const EmployeeProfileSettingsPage: React.FC = () => {
               id="email"
               type="email"
               value={profileData.email}
-              onChange={(e) => setProfileData((p) => ({ ...p, email: e.target.value }))}
+              onChange={(e) =>
+                setProfileData((p) => ({ ...p, email: e.target.value }))
+              }
               disabled={isLoading}
             />
           </div>

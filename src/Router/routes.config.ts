@@ -15,6 +15,7 @@ const Subscriptions = lazy(() => import("@/Page/admin-dashboard/Subscriptions"))
 const Employees = lazy(() => import("@/Page/admin-dashboard/Employees"));
 const CreateInvoiceForm = lazy(() => import("@/Page/admin-dashboard/create-invoice"));
 const AddNewPlanForm = lazy(() => import("@/Page/admin-dashboard/add-new-plan"));
+const UpdatePlan = lazy(() => import("@/Page/admin-dashboard/UpdatePlan"));
 const AddNewServiceForm = lazy(() => import("@/Page/admin-dashboard/add-services"));
 
 // Employee Components
@@ -23,7 +24,7 @@ const EmployeeCommunication = lazy(() => import("@/Page/employee-dashboard/Emplo
 const EmployeeSetting = lazy(() => import("@/Page/employee-dashboard/EmployeeSetting"));
 const EmployeeForms = lazy(() => import("@/Page/employee-dashboard/EmployeeForms"));
 const EmployeeReports = lazy(() => import("@/Page/employee-dashboard/EmployeeReports"));
-const EmployeeInvoices = lazy(() => import("@/Page/employee-dashboard/EmployeeInvoicees"));
+const EmployeeInvoices = lazy(() => import("@/Page/employee-dashboard/invoice/EmployeeInvoicees"));
 const EmployeeSubscription = lazy(() => import("@/Page/employee-dashboard/EmployeeSubscription"));
 const RegionDashboard = lazy(() => import("@/Page/employee-dashboard/RegionDashboard"));
 const TaskEmployee = lazy(() => import("@/Page/employee-dashboard/TaskEmployee"));
@@ -141,6 +142,13 @@ export const PROTECTED_ROUTES: RouteConfig[] = [
     roles: ["admin"],
     permissions: [Permission.MANAGE_SERVICES],
     label: "Add New Plan",
+  },
+  {
+    path: "/update-plan/:id",
+    element: UpdatePlan,
+    roles: ["admin"],
+    permissions: [Permission.MANAGE_SERVICES],
+    label: "Update Plan",
   },
   {
     path: "/add-services",

@@ -3,8 +3,6 @@ import { IoIosArrowForward } from "react-icons/io";
 import Home from "../assets/Image/Home.png";
 import SearchBar from "@/Shared/SearchBar";
 import { useState, useRef, useEffect } from "react";
-import china from "../assets/Image/material-symbols_translate.png";
-import moonicon from "../assets/Image/iconamoon_notification.png";
 import MyIcon from "../assets/Image/Logout.svg";
 import profilepic from "../assets/Image/Profilepic/Profile photo.png";
 import manicon from "../assets/Image/manicon.svg";
@@ -14,6 +12,7 @@ import logoutsvg from "../assets/Image/ic_round-logout.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/redux/features/auth/authSlice";
 import { useNavigate } from "react-router";
+import Notifications from "./notification";
 
 type RootState = {
   auth: {
@@ -100,12 +99,8 @@ const Navbar = () => {
 
       {/* Right Section */}
       <div className="flex items-center gap-4">
-        {/* Icons */}
-        <div className="flex items-center gap-3 border-r border-[#8E8E8E] pr-3">
-          <img className="w-6 h-6" src={china} alt="translate" />
-          <img className="w-6 h-6" src={moonicon} alt="notifications" />
-        </div>
 
+         <Notifications />
         {/* Profile + Dropdown */}
         <div
           className="relative flex items-center gap-3 cursor-pointer rounded-md"

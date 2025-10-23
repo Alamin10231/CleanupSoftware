@@ -4,7 +4,6 @@ import { assets } from "../assets/assets";
 import type { UserRole } from "@/Types/Types";
 import { MENU_CONFIG } from "./sidebar/menuConfig";
 import { SidebarSection } from "./sidebar/SidebarSection";
-
 interface AuthState {
   user: {
     user_type: UserRole;
@@ -18,15 +17,19 @@ interface RootState {
 const Sidebar: React.FC = () => {
   const { user } = useSelector((state: RootState) => state.auth);
 
-  // Memoize menu data to avoid recalculation on every render
+  // ✅ Determine user role safely
+  const role: UserRole = user?.user_type ?? "employee";
+
+  // ✅ Memoized menu items based on role
   const menuData = useMemo(() => {
-    const role = user?.user_type || "employee";
-    return MENU_CONFIG[role] || MENU_CONFIG.employee;
-  }, [user?.user_type]);
+    if (role === "admin") return MENU_CONFIG.admin;
+    if (role === "client") return MENU_CONFIG.client;
+    return MENU_CONFIG.employee;
+  }, [role]);
 
   return (
-    <div className="w-60 h-screen bg-white border-r border-gray-200 flex flex-col">
-      {/* Logo */}
+    <aside className="w-60 h-screen bg-white border-r border-gray-200 flex flex-col">
+      {/* Logo Section */}
       <div className="p-6">
         <img
           src={assets.logo}
@@ -34,6 +37,7 @@ const Sidebar: React.FC = () => {
           className="w-[140px] mx-auto"
         />
       </div>
+
       <hr className="text-gray-300" />
 
       {/* Sidebar Navigation */}
@@ -42,7 +46,7 @@ const Sidebar: React.FC = () => {
           <SidebarSection key={`section-${index}`} section={section} />
         ))}
       </nav>
-    </div>
+    </aside>
   );
 };
 

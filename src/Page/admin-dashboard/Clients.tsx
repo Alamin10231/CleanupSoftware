@@ -338,7 +338,7 @@ const Clients = () => {
                 <th className="p-3">Pay</th>
                 <th className="p-3">Building</th>
                 <th className="p-3">Joined</th>
-                <th className="p-3">Actions</th>
+                {/* <th className="p-3">Actions</th> */}
               </tr>
             </thead>
             <tbody>
@@ -380,11 +380,11 @@ const Clients = () => {
                   <td className="p-3">
                     {new Date(client.date_joined).toLocaleDateString()}
                   </td>
-                  <td className="p-3 flex gap-3 text-gray-600">
+                  {/* <td className="p-3 flex gap-3 text-gray-600">
                     <button className="hover:text-green-500 cursor-pointer">
                       <FaEdit />
                     </button>
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>
