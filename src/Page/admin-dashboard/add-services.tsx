@@ -71,12 +71,12 @@ const AddNewServiceForm = () => {
     worker: null,
     status: "started",
   };
+
   const [employee, setEmployee] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState("");
   const [showEmployee, setShowEmployee] = useState(false);
   const [formData, setFormData] = useState(initialFormState);
   const [addCategoryButton, setAddCategoryButton] = useState(false);
-
   const { data: categories, isLoading: isCategoriesLoading } =
     useGetServiceCategoriesQuery(undefined);
   const [addCategory, { isLoading: isAddingCategory }] =
@@ -102,11 +102,18 @@ const AddNewServiceForm = () => {
   });
 
   type FormField = keyof typeof initialFormState;
+
   const handleInputChange = (
     field: FormField,
     value: string | boolean | File | Array<number> | number | null
   ) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+      // Clear dependent fields when region or building changes
+      ...(field === "region" && { building: null, apartment: [] }),
+      ...(field === "building" && { apartment: [] }),
+    }));
   };
 
   const addNewCategory = async () => {
@@ -126,6 +133,10 @@ const AddNewServiceForm = () => {
 
   const handleCancel = () => {
     setFormData(initialFormState);
+    setSelectedEmployee(""); // Reset employee search
+    setShowEmployee(false); // Hide employee dropdown
+    setAddCategoryButton(false); // Hide category input
+    setNewCategory({ name: "", description: "" }); // Reset new category form
   };
 
   const handleSave = async () => {
@@ -145,7 +156,6 @@ const AddNewServiceForm = () => {
       service_code: formData.service_code,
       region: formData.region,
     };
-
     try {
       await toast.promise(addService(payload).unwrap(), {
         loading: "Adding service...",
@@ -153,7 +163,7 @@ const AddNewServiceForm = () => {
         error: (err) =>
           `Failed to add service: ${err?.message || "Unknown error"}`,
       });
-      // handleCancel();
+      handleCancel();
     } catch (error) {
       console.error("Service creation failed:", error);
     }
@@ -167,14 +177,12 @@ const AddNewServiceForm = () => {
           Create and configure a new service or subscription package
         </p>
       </div>
-
       {/* Basic Service Information */}
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="bg-white border rounded-lg p-6 mb-4">
           <h2 className="text-base font-semibold mb-4">
             Basic Service Information
           </h2>
-
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-sm">
@@ -187,7 +195,6 @@ const AddNewServiceForm = () => {
                 onChange={(e) => handleInputChange("name", e.target.value)}
               />
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="service_code" className="text-sm">
                 Service Code
@@ -211,7 +218,6 @@ const AddNewServiceForm = () => {
               </div>
             </div>
           </div>
-
           <div className="space-y-2 mb-4">
             <Label htmlFor="description" className="text-sm">
               Description
@@ -224,7 +230,6 @@ const AddNewServiceForm = () => {
               className="min-h-[80px]"
             />
           </div>
-
           <div className="space-y-2">
             <Label htmlFor="category" className="text-sm">
               Category
@@ -238,11 +243,7 @@ const AddNewServiceForm = () => {
                   }}
                 >
                   <SelectTrigger id="category">
-                    <SelectValue placeholder="Select a category">
-                      {formData.category &&
-                        categories?.find((cat) => cat.id === formData.category)
-                          ?.name}
-                    </SelectValue>
+                    <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
                     {isCategoriesLoading ? (
@@ -261,7 +262,6 @@ const AddNewServiceForm = () => {
                     )}
                   </SelectContent>
                 </Select>
-
                 <Button
                   size={"sm"}
                   variant="outline"
@@ -270,7 +270,6 @@ const AddNewServiceForm = () => {
                   <Plus size={8} />
                 </Button>
               </div>
-
               {addCategoryButton && (
                 <div className="flex gap-2 mt-2">
                   <Input
@@ -296,7 +295,6 @@ const AddNewServiceForm = () => {
                     size="sm"
                     onClick={() => {
                       setAddCategoryButton(false);
-                      setFormData((prev: any) => ({ ...prev, category: "" }));
                       setNewCategory({
                         name: "",
                         description: "",
@@ -310,11 +308,9 @@ const AddNewServiceForm = () => {
             </div>
           </div>
         </div>
-
         {/* Pricing & Billing */}
         <div className="bg-white border rounded-lg p-6 mb-4">
           <h2 className="text-base font-semibold mb-4">Pricing & Billing</h2>
-
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="space-y-2">
               <Label htmlFor="basePrice" className="text-sm">
@@ -331,13 +327,12 @@ const AddNewServiceForm = () => {
                   placeholder="0.00"
                   value={formData.base_price}
                   onChange={(e) =>
-                    handleInputChange("base_price", e.target.value)
+                    handleInputChange("base_price", Number(e.target.value))
                   }
                   className="pl-7"
                 />
               </div>
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="billingCycle" className="text-sm">
                 Billing Cycle
@@ -349,18 +344,16 @@ const AddNewServiceForm = () => {
                 }
               >
                 <SelectTrigger id="billingCycle">
-                  <SelectValue placeholder="Daily" />
+                  <SelectValue placeholder="Select Billing Cycle" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Daily">Daily</SelectItem>
-                  <SelectItem value="Weekly">Weekly</SelectItem>
                   <SelectItem value="Monthly">Monthly</SelectItem>
                   <SelectItem value="Yearly">Yearly</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
-
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="space-y-2">
               <Label htmlFor="discount" className="text-sm">
@@ -386,7 +379,6 @@ const AddNewServiceForm = () => {
                 </span>
               </div>
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="tax_rate" className="text-sm">
                 Tax Rate (optional)
@@ -396,10 +388,12 @@ const AddNewServiceForm = () => {
                   id="tax_rate"
                   type="number"
                   placeholder="0"
-                  value={Number(formData.tax_rate)}
-                  onChange={(e) =>
-                    handleInputChange("tax_rate", Number(e.target.value))
-                  }
+                  value={formData.tax_rate || ""}
+                  onChange={(e) => {
+                    const value =
+                      e.target.value === "" ? null : Number(e.target.value);
+                    handleInputChange("tax_rate", value);
+                  }}
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
                   %
@@ -407,7 +401,6 @@ const AddNewServiceForm = () => {
               </div>
             </div>
           </div>
-
           <div className="flex items-center gap-2">
             <Checkbox
               id="autoRenew"
@@ -422,7 +415,6 @@ const AddNewServiceForm = () => {
           </div>
         </div>
       </div>
-
       <div className="grid grid-cols-1 gap-4 mb-4">
         <div className="bg-white border rounded-lg p-6">
           <h2 className="text-base font-semibold mb-4">Special Services</h2>
@@ -433,18 +425,26 @@ const AddNewServiceForm = () => {
                 Assign to Region
               </Label>
               <Select
-                onValueChange={(value) => handleInputChange("region", value)}
+                value={formData.region?.toString() || ""}
+                onValueChange={(value) =>
+                  handleInputChange("region", value === "" ? null : Number(value))
+                }
               >
                 <SelectTrigger id="region">
                   <SelectValue placeholder="Select Region" />
                 </SelectTrigger>
                 <SelectContent>
                   {isRegionsLoading ? (
-                    <SelectItem value="loading">Loading...</SelectItem>
+                    <SelectItem value="loading" disabled>
+                      Loading...
+                    </SelectItem>
                   ) : (
                     regionsData?.results?.map(
                       (region: { id: number; name: string }) => (
-                        <SelectItem key={region.id} value={region.id}>
+                        <SelectItem
+                          key={region.id}
+                          value={region.id.toString()}
+                        >
                           <div>{region.name}</div>
                         </SelectItem>
                       )
@@ -453,7 +453,6 @@ const AddNewServiceForm = () => {
                 </SelectContent>
               </Select>
             </div>
-
             {/* building */}
             <div className="space-y-2 w-full">
               <Label htmlFor="building" className="text-sm">
@@ -464,14 +463,17 @@ const AddNewServiceForm = () => {
                   <div className="w-full">
                     <Select
                       disabled={formData.region === null}
+                      value={formData.building?.toString() || ""}
                       onValueChange={(value) =>
-                        handleInputChange("building", Number(value))
+                        handleInputChange(
+                          "building",
+                          value === "" ? null : Number(value)
+                        )
                       }
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select Building" />
                       </SelectTrigger>
-
                       <SelectContent>
                         {isBuildingsLoading ? (
                           <SelectItem value="loading" disabled>
@@ -491,13 +493,11 @@ const AddNewServiceForm = () => {
                     </Select>
                   </div>
                 </TooltipTrigger>
-
                 {formData.region === null && (
                   <TooltipContent>Please select a region first</TooltipContent>
                 )}
               </Tooltip>
             </div>
-
             {/* apartment */}
             <div className="space-y-2 w-full">
               <Label htmlFor="apartment" className="text-sm">
@@ -511,10 +511,15 @@ const AddNewServiceForm = () => {
                     }`}
                   >
                     <MultipleSelector
-                      commandProps={{
-                        label: "Select frameworks",
-                      }}
-                      options={apartmentsData}
+                      value={
+                        formData.apartment?.map((id) => ({
+                          value: id,
+                          label:
+                            apartmentsData?.find((apt) => apt.value === id)
+                              ?.label || "",
+                        })) || []
+                      }
+                      options={apartmentsData || []}
                       placeholder="Select apartments"
                       hidePlaceholderWhenSelected
                       disabled={formData.building === null}
@@ -530,7 +535,6 @@ const AddNewServiceForm = () => {
                     />
                   </div>
                 </TooltipTrigger>
-
                 {formData.building === null && (
                   <TooltipContent>
                     Please select a building first
@@ -538,7 +542,6 @@ const AddNewServiceForm = () => {
                 )}
               </Tooltip>
             </div>
-
             {/* worker */}
             <div className="space-y-2">
               <Label htmlFor="defaultWorker" className="text-sm">
@@ -588,7 +591,6 @@ const AddNewServiceForm = () => {
                   </button>
                 )}
               </div>
-
               {showEmployee &&
                 (employees?.results?.length > 0 ? (
                   <div className="absolute z-10 lg:w-94 md:w-64 mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
@@ -621,16 +623,13 @@ const AddNewServiceForm = () => {
           </div>
         </div>
       </div>
-
       {/* Action Buttons */}
       <div className="flex justify-end mt-4 gap-4">
         <Button onClick={handleCancel} variant="outline">
           Cancel
         </Button>
-        <Button
-         disabled={addServiceLoading}
-         onClick={handleSave}>
-          {addServiceLoading ? "Saving.." : "Save"}
+        <Button disabled={addServiceLoading} onClick={handleSave}>
+          {addServiceLoading ? "Saving..." : "Save"}
         </Button>
       </div>
     </div>
