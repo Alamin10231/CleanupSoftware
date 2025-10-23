@@ -41,11 +41,11 @@ import {
 import {
   useGetEmployeeDashboardQuery,
   useGetEmployeeChartQuery,
+  useUpdateTaskAssignEmployeeByIdMutation,
 } from "@/redux/features/employee/dashboard/dashboard.api";
 import { useGetCurrentTaskQuery } from "@/redux/features/employee/subscription/subscription.api";
 
-// ✅ PUT-by-id hook from your API slice
-import { useUpdateTaskAssignEmployeeByIdMutation } from "@/redux/features/admin/subscription/subscription.api";
+
 
 type TaskItem = {
   id: number;
@@ -121,7 +121,7 @@ const EmployeeDashboard = () => {
       }`,
       client: t.aprtment_number ?? "Unknown Client",
       scheduled: t.scheduled_at ?? undefined,
-      status: t.status ?? "Not Started",
+      status: t.status ?? "canceled",
       description: t.description ?? "No description",
       region_name: t.region_name ?? "—",
       name: t.name ?? "—",
@@ -156,7 +156,7 @@ const EmployeeDashboard = () => {
   // Update-status modal
   const [updateOpen, setUpdateOpen] = useState(false);
   const [updateTask, setUpdateTask] = useState<TaskRow | null>(null);
-  const [newStatus, setNewStatus] = useState<string>("not started");
+  const [newStatus, setNewStatus] = useState<string>("canceled");
 
   // ✅ PUT mutation hook (id in URL)
   const [updateTaskAssignEmployeeById, { isLoading: updating }] =
@@ -197,7 +197,7 @@ const EmployeeDashboard = () => {
         action: "Update",
       };
     }
-    if (s.includes("not started")) {
+    if (s.includes("canceled")) {
       return {
         statusColor: "bg-gray-100 text-gray-700",
         dotColor: "bg-gray-400",
@@ -214,7 +214,7 @@ const EmployeeDashboard = () => {
 
   const titleCaseStatus = (s: string) => {
     const x = s.toLowerCase();
-    if (x === "not started") return "Not Started";
+    if (x === "canceled") return "canceled";
     if (x === "started") return "Started";
     if (x === "pending") return "Pending";
     if (x === "completed") return "Completed";
@@ -224,7 +224,7 @@ const EmployeeDashboard = () => {
   // Open Update modal
   const openUpdateModal = (task: TaskRow) => {
     setUpdateTask(task);
-    setNewStatus((task.status || "not started").toLowerCase());
+    setNewStatus((task.status || "canceled").toLowerCase());
     setUpdateOpen(true);
   };
 
@@ -668,7 +668,7 @@ const EmployeeDashboard = () => {
                         <SelectValue placeholder="Select status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="not started">Not Started</SelectItem>
+                        <SelectItem value="canceled">canceled</SelectItem>
                         <SelectItem value="started">Started</SelectItem>
                         <SelectItem value="pending">Pending</SelectItem>
                         <SelectItem value="completed">Completed</SelectItem>

@@ -1,7 +1,6 @@
 import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { Checkbox } from "@/Components/ui/checkbox";
-import { IoEyeOutline } from "react-icons/io5";
 import { useGetEmployeeSubscriptionQuery } from "@/redux/features/employee/subscription/subscription.api";
 // <-- adjust path if different
 
@@ -77,9 +76,6 @@ export default function EmployeeSubscription() {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<number[]>([]);
   const [statusFilter, setStatusFilter] = useState<"All" | UiStatus>("All");
-  const [regionFilter, setRegionFilter] = useState<string>("All");
-  const [buildingFilter, setBuildingFilter] = useState<string>("All");
-  const [ownersFilter, setOwnersFilter] = useState<string>("All");
 
   // Map API -> UI rows
   const rows: SubscriptionRow[] = useMemo(() => {
@@ -124,51 +120,16 @@ export default function EmployeeSubscription() {
     });
   }, [data]);
 
-  // Build filter option sets from data
-  const regionOptions = useMemo(
-    () => [
-      "All",
-      ...Array.from(new Set(rows.map((r) => r.region).filter(Boolean))),
-    ],
-    [rows]
-  );
-  const buildingOptions = useMemo(
-    () => [
-      "All",
-      ...Array.from(new Set(rows.map((r) => r.building).filter(Boolean))),
-    ],
-    [rows]
-  );
-  const ownerOptions = useMemo(
-    () => [
-      "All",
-      ...Array.from(
-        new Set(rows.map((r) => r.owner.split(" • ")[0]).filter(Boolean))
-      ),
-    ],
-    [rows]
-  );
-
   const filtered = useMemo(() => {
     return rows.filter((s) => {
       const matchesSearch = s.property
         .toLowerCase()
         .includes(search.toLowerCase());
       const matchesStatus = statusFilter === "All" || s.status === statusFilter;
-      const matchesRegion = regionFilter === "All" || s.region === regionFilter;
-      const matchesOwner =
-        ownersFilter === "All" || s.owner.split(" • ")[0] === ownersFilter;
-      const matchesBuilding =
-        buildingFilter === "All" || s.building === buildingFilter;
-      return (
-        matchesSearch &&
-        matchesStatus &&
-        matchesRegion &&
-        matchesBuilding &&
-        matchesOwner
-      );
+
+      return matchesSearch && matchesStatus;
     });
-  }, [rows, search, statusFilter, regionFilter, buildingFilter, ownersFilter]);
+  }, [rows, search, statusFilter]);
 
   const handleSelectAll = (check: boolean) => {
     if (check) setSelected(filtered.map((s) => s.id));
@@ -263,45 +224,6 @@ export default function EmployeeSubscription() {
           <option value="paused">Paused</option>
           <option value="stopped">Stopped</option>
         </select>
-
-        {/* Region Filter */}
-        <select
-          className="border rounded-md px-3 py-2 text-sm"
-          value={regionFilter}
-          onChange={(e) => setRegionFilter(e.target.value)}
-        >
-          {regionOptions.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt === "All" ? "All Regions" : opt}
-            </option>
-          ))}
-        </select>
-
-        {/* Building Filter */}
-        <select
-          className="border rounded-md px-3 py-2 text-sm"
-          value={buildingFilter}
-          onChange={(e) => setBuildingFilter(e.target.value)}
-        >
-          {buildingOptions.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt === "All" ? "All Buildings" : opt}
-            </option>
-          ))}
-        </select>
-
-        {/* Owners Filter */}
-        <select
-          className="border rounded-md px-3 py-2 text-sm"
-          value={ownersFilter}
-          onChange={(e) => setOwnersFilter(e.target.value)}
-        >
-          {ownerOptions.map((opt) => (
-            <option key={opt} value={opt}>
-              {opt === "All" ? "All Owners" : opt}
-            </option>
-          ))}
-        </select>
       </div>
 
       {/* Table */}
@@ -319,7 +241,6 @@ export default function EmployeeSubscription() {
               </th>
               <th className="p-3">Property & Owner</th>
               <th className="p-3">Timeline</th>
-              <th className="p-3">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -373,12 +294,6 @@ export default function EmployeeSubscription() {
                         Subscription ended
                       </span>
                     )}
-                  </td>
-
-                  <td className="p-3">
-                    <button className="p-2 hover:bg-gray-100 rounded">
-                      <IoEyeOutline />
-                    </button>
                   </td>
                 </tr>
               );

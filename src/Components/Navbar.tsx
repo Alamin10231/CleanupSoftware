@@ -66,7 +66,7 @@ const Navbar = () => {
       : user?.user_type
       ? user.user_type.charAt(0).toUpperCase() + user.user_type.slice(1)
       : "Viewer";
-
+console.log("dehi ase naki ",displayName,displayEmail)
   return (
     <div className="flex items-center justify-between px-6 ml-[250px] py-4 border-b border-gray-200 bg-white fixed top-0 left-0 right-0 z-40">
       {/* Left Section */}

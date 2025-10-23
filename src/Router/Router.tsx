@@ -35,6 +35,7 @@ import RegionDashboard from "@/Page/employee-dashboard/RegionDashboard";
 
 import ChatPage from "@/Page/employee-dashboard/ChatPage";
 import TaskEmployee from "@/Page/employee-dashboard/TaskEmployee";
+import EmployeeProfileSettingsPage from "@/Page/employee-dashboard/EmployeeSetting";
 
 const Router = () => {
   return (
@@ -77,6 +78,10 @@ const Router = () => {
         <Route path="employee-region" element={<Buildingregions />} />
         <Route path="employee-report" element={<EmployeeReports />} />
         <Route path="employee-invoice" element={<EmployeeInvoicees />} />
+        <Route
+          path="EmployeeProfileSettingsPage"
+          element={<EmployeeProfileSettingsPage />}
+        />
         <Route
           path="employee-subscriptions"
           element={<EmployeeSubscription />}

@@ -1,5 +1,4 @@
-import { Share2 } from "lucide-react";
-import { Button } from "@/Components/ui/button";
+
 
 type Kpi = {
   title: string;
@@ -40,10 +39,7 @@ export default function Employeereporting() {
         <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
           Supervisor Reporting
         </h1>
-        <Button className="gap-2">
-          <Share2 size={16} />
-          Share
-        </Button>
+       
       </div>
 
       {/* Subheading */}

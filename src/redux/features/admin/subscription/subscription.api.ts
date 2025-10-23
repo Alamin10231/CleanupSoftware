@@ -46,33 +46,13 @@ export const subscriptionApi = baseApi.injectEndpoints({
       providesTags: ["Subscription"],
     }),
 
-    // Create new plan
-    createAdminNewPlan: builder.mutation<any, any>({
-      query: (body) => ({
-        url: "/plan/list/",
-        method: "POST",
-        body,
-      }),
-      invalidatesTags: ["Subscription"],
-    }),
-
-    // ✅ Put assign employee to a task
-   updateTaskAssignEmployeeById: builder.mutation<
-      any,
-      { id: number } & Record<string, any>
-    >({
-      query: ({ id, ...body }) => ({
-        url: `/task/task_assign_employee/${id}/`,
-        method: "PUT",
-        body,
-      }),
-      invalidatesTags: ["Subscription"],
-    }),
+    
+    
 
   }),
 });
 
-// ✅ export all hooks
+
 export const {
   useGetCalculationSubscriptionsQuery,
   useGetSubscriptionPageQuery,
@@ -80,6 +60,5 @@ export const {
   useGetCollectionNewPlansQuery,
   useGetAdminStatusQuery,
   useGetCollectionStatusQuery,
-  useCreateAdminNewPlanMutation,
-  useUpdateTaskAssignEmployeeByIdMutation// <-- added
+  
 } = subscriptionApi;

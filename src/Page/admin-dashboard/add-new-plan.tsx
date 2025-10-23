@@ -13,8 +13,8 @@ import {
 import { Button } from "@/Components/ui/button";
 import { Switch } from "@/Components/ui/switch";
 import { Textarea } from "@/Components/ui/textarea";
-import { useCreateAdminNewPlanMutation } from "@/redux/features/admin/subscription/subscription.api";
 import { toast } from "sonner";
+import { useCreateAdminNewPlanMutation } from "@/redux/features/employee/dashboard/dashboard.api";
 
 type ServiceRow = {
   id: number; // local row id
