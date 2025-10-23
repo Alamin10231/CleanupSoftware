@@ -1,23 +1,31 @@
 import { useState } from "react";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/Components/ui/alert-dialog";
-import { useGetPlansQuery } from "@/redux/features/admin/plan/plan.api";
+import { useGetPlansQuery, useUpdatePlanMutation } from "@/redux/features/admin/plan/plan.api";
+import { Switch } from "@/Components/ui/switch";
+import { toast } from "sonner";
 
 export default function SubscriptionPlan() {
   const [statusFilter, setStatusFilter] = useState("All status");
   const [currentPage, setCurrentPage] = useState(1);
   const { data, isLoading, isError, refetch } = useGetPlansQuery(currentPage);
+  const [updatePlan] = useUpdatePlanMutation();
+
+  const handleStatusChange = async (plan: any, checked: boolean) => {
+    const newStatus = checked;
+    try {
+      await toast.promise(
+        updatePlan({ id: plan.id, is_active: newStatus }).unwrap(),
+        {
+          loading: "Updating status...",
+          success: "Status updated successfully!",
+          error: "Failed to update status.",
+        }
+      );
+    } catch (error) {
+      console.error("Update failed:", error);
+    }
+  };
 
   if (isLoading)
     return (
@@ -122,44 +130,16 @@ export default function SubscriptionPlan() {
                 <td className="px-4 py-3">{plan.features}</td>
 
                 <td className="px-4 py-3">
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      plan.status === "Active"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-200 text-gray-700"
-                    }`}
-                  >
-                    {plan.status}
-                  </span>
+                  <Switch
+                    checked={plan.status === "Active"}
+                    onCheckedChange={(checked) => handleStatusChange(plan, checked)}
+                  />
                 </td>
 
                 <td className="px-4 py-3 space-x-3">
-                  <Link to={`/add-new-plan?id=${plan.id}`}>
+                  <Link to={`/update-plan/${plan.id}`}>
                     <Button variant={"outline"}>Edit</Button>
                   </Link>
-
-                  <AlertDialog>
-                    <AlertDialogTrigger>
-                      <Button variant={"destructive"}>Delete</Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Are you absolutely sure?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This action cannot be undone. This will permanently
-                          delete your plan.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction>
-                          <Button variant={"destructive"}>Delete</Button>
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
                 </td>
               </tr>
             ))}
