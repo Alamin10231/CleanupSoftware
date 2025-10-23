@@ -119,8 +119,7 @@ export default function AddApartment() {
     };
 
     console.log("Submitting apartment:", payload);
-    try {
-      await addApartmentMutation(payload).unwrap();
+      addApartmentMutation(payload).unwrap();
       toast.success("Apartment created successfully!");
       setFormData({
         apartment_number: "",
@@ -129,11 +128,6 @@ export default function AddApartment() {
         bathrooms: "",
         outdoor_area: false,
       });
-    } catch (error) {
-      toast.error("Failed to create apartment.");
-      console.error("Error creating apartment:", error);
-    }
-    // Here you can call your createApartment mutation or API
   };
 
   return (

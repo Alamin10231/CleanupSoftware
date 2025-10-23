@@ -25,6 +25,10 @@ export const buildingApi = baseApi.injectEndpoints({
       query: (id) => `/buildings/${id}`,
       providesTags: (id) => [{ type: "Building", id }],
     }),
+    getBuildingsByRegion: builder.query({
+      query: (region) => `/buildings/region/${region}`,
+      providesTags: ["Building"],
+    }),
 
     // POST create new building
     createBuilding: builder.mutation({
@@ -76,5 +80,5 @@ export const {
   useDeleteBuildingMutation,
   useGetStatsQuery,
   useGetBuilidingBySearchQuery,
-  useGetLocationsQuery,
+  useGetBuildingsByRegionQuery,
 } = buildingApi;

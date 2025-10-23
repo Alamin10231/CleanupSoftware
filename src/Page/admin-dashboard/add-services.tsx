@@ -1,5 +1,11 @@
-import React, { useState } from "react";
-import { Upload, Edit2 } from "lucide-react";
+import { useState } from "react";
+import {
+  Edit2,
+  LoaderCircleIcon,
+  Plus,
+  SearchIcon,
+  XCircle,
+} from "lucide-react";
 import { Label } from "@/Components/ui/label";
 import { Input } from "@/Components/ui/input";
 import { Textarea } from "@/Components/ui/textarea";
@@ -12,7 +18,24 @@ import {
 } from "@/Components/ui/select";
 import { Checkbox } from "@/Components/ui/checkbox";
 import { Button } from "@/Components/ui/button";
-import { useGetServiceCategoriesQuery } from "@/redux/features/admin/services/services.api";
+import {
+  useAddServiceCategoryMutation,
+  useAddServiceMutation,
+  useGetServiceCategoriesQuery,
+} from "@/redux/features/admin/services/services.api";
+import { toast } from "sonner";
+import { useGetregionsQuery } from "@/redux/features/admin/regions/regions.api";
+import {
+  useGetBuildingByIdQuery,
+  useGetBuildingsByRegionQuery,
+} from "@/redux/features/admin/buildings/building.api";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/Components/ui/tooltip";
+import MultipleSelector from "@/Components/ui/multiselect";
+import { useGetSearchAllEmpoloyeesQuery } from "@/redux/features/admin/users/employee.api";
 
 const AddNewServiceForm = () => {
   interface FormState {
@@ -29,7 +52,6 @@ const AddNewServiceForm = () => {
     apartment: number[];
     region: number | null;
     worker: number | null;
-    service_icon: File | null;
     status: "started" | "pending" | "completed";
   }
 
@@ -47,63 +69,94 @@ const AddNewServiceForm = () => {
     apartment: [],
     region: null,
     worker: null,
-    service_icon: null,
     status: "started",
   };
-
-  const initialServicesState = {
-    deepCleaning: false,
-    pestControl: false,
-    glassWashing: false,
-  };
-
-  const [categories, setCategories] = useState([
-    { id: "cleaning", label: "Cleaning" },
-    { id: "maintenance", label: "Maintenance" },
-    { id: "security", label: "Security" },
-  ]);
-  const [newCategoryName, setNewCategoryName] = useState("");
+  const [employee, setEmployee] = useState("");
+  const [selectedEmployee, setSelectedEmployee] = useState("");
+  const [showEmployee, setShowEmployee] = useState(false);
   const [formData, setFormData] = useState(initialFormState);
-  const [selectedServices, setSelectedServices] = useState(initialServicesState);
-  const { data: categoryies, isLoading, isError } = useGetServiceCategoriesQuery(undefined)
+  const [addCategoryButton, setAddCategoryButton] = useState(false);
+
+  const { data: categories, isLoading: isCategoriesLoading } =
+    useGetServiceCategoriesQuery(undefined);
+  const [addCategory, { isLoading: isAddingCategory }] =
+    useAddServiceCategoryMutation();
+  const { data: regionsData, isLoading: isRegionsLoading } =
+    useGetregionsQuery(undefined);
+  const { data: buildings, isLoading: isBuildingsLoading } =
+    useGetBuildingsByRegionQuery(formData.region);
+  const { data: apartments } = useGetBuildingByIdQuery(formData.building || 0);
+  const { data: employees, isLoading: isEmployeesLoading } =
+    useGetSearchAllEmpoloyeesQuery(employee ? `${employee}` : "");
+  const [addService, { isLoading: addServiceLoading }] =
+    useAddServiceMutation();
+
+  const apartmentsData = apartments?.apartments.map((apt: any) => ({
+    value: apt.id,
+    label: apt.apartment_number,
+  }));
+
+  const [newCategory, setNewCategory] = useState({
+    name: "",
+    description: "",
+  });
+
   type FormField = keyof typeof initialFormState;
-  console.log("Categories from API:", categoryies);
   const handleInputChange = (
     field: FormField,
-    value: string | boolean | File | null
+    value: string | boolean | File | Array<number> | number | null
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleServiceToggle = (service: keyof typeof initialServicesState) => {
-    setSelectedServices((prev) => ({ ...prev, [service]: !prev[service] }));
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setFormData((prev) => ({ ...prev, uploadedIcon: file }));
+  const addNewCategory = async () => {
+    try {
+      await toast.promise(addCategory({ name: newCategory.name }).unwrap(), {
+        loading: "Creating category...",
+        success: "Category created successfully",
+        error: (err) =>
+          `Failed to create category: ${err.data?.message || "Unknown error"}`,
+      });
+      setNewCategory({ name: "", description: "" });
+      setAddCategoryButton(false);
+    } catch (error) {
+      console.error("Category creation failed:", error);
     }
   };
 
   const handleCancel = () => {
     setFormData(initialFormState);
-    setSelectedServices(initialServicesState);
-    setOtherCategory("");
-    setCustomAutoFill("");
   };
 
-  const handleSave = () => {
-    // Resolve the category: if “other” is selected, save the typed text
-    const categoryToSave =
-      formData.category === "other" ? otherCategory.trim() : formData.category;
-
+  const handleSave = async () => {
     const payload = {
-      ...formData,
-      category: categoryToSave,
+      name: formData.name,
+      description: formData.description,
+      category: formData.category,
+      base_price: Number(formData.base_price),
+      bill_cycle: formData.bill_cycle,
+      discount: formData.discount ? Number(formData.discount) : null,
+      tax_rate: formData.tax_rate ? Number(formData.tax_rate) : null,
+      building: formData.building,
+      auto_renew_enable: formData.auto_renew_enable,
+      worker: formData.worker,
+      status: formData.status,
+      apartment: formData.apartment,
+      service_code: formData.service_code,
+      region: formData.region,
     };
 
-    console.log("Saving service:", payload, selectedServices);
+    try {
+      await toast.promise(addService(payload).unwrap(), {
+        loading: "Adding service...",
+        success: "Service added successfully",
+        error: (err) =>
+          `Failed to add service: ${err?.message || "Unknown error"}`,
+      });
+      // handleCancel();
+    } catch (error) {
+      console.error("Service creation failed:", error);
+    }
   };
 
   return (
@@ -116,351 +169,454 @@ const AddNewServiceForm = () => {
       </div>
 
       {/* Basic Service Information */}
-      <div className="bg-white border rounded-lg p-6 mb-4">
-        <h2 className="text-base font-semibold mb-4">
-          Basic Service Information
-        </h2>
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <div className="bg-white border rounded-lg p-6 mb-4">
+          <h2 className="text-base font-semibold mb-4">
+            Basic Service Information
+          </h2>
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="space-y-2">
-            <Label htmlFor="name" className="text-sm">
-              Service Name
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-sm">
+                Service Name
+              </Label>
+              <Input
+                id="name"
+                placeholder="e.g. Monthly Cleaning"
+                value={formData.name}
+                onChange={(e) => handleInputChange("name", e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="service_code" className="text-sm">
+                Service Code
+              </Label>
+              <div className="relative">
+                <Input
+                  id="service_code"
+                  placeholder="SRV-2025-001"
+                  value={formData.service_code}
+                  onChange={(e) =>
+                    handleInputChange("service_code", e.target.value)
+                  }
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  title="Edit"
+                >
+                  <Edit2 size={16} />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2 mb-4">
+            <Label htmlFor="description" className="text-sm">
+              Description
             </Label>
-            <Input
-              id="name"
-              placeholder="e.g. Monthly Cleaning"
-              value={formData.name}
-              onChange={(e) => handleInputChange("name", e.target.value)}
+            <Textarea
+              id="description"
+              placeholder="Short notes about the service"
+              value={formData.description}
+              onChange={(e) => handleInputChange("description", e.target.value)}
+              className="min-h-[80px]"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="service_code" className="text-sm">
-              Service Code
+            <Label htmlFor="category" className="text-sm">
+              Category
             </Label>
-            <div className="relative">
-              <Input
-                id="service_code"
-                placeholder="SRV-2025-001"
-                value={formData.service_code}
-                onChange={(e) =>
-                  handleInputChange("service_code", e.target.value)
-                }
-              />
-              <button
-                type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                title="Edit"
-              >
-                <Edit2 size={16} />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-2 mb-4">
-          <Label htmlFor="description" className="text-sm">
-            Description
-          </Label>
-          <Textarea
-            id="description"
-            placeholder="Short notes about the service"
-            value={formData.description}
-            onChange={(e) => handleInputChange("description", e.target.value)}
-            className="min-h-[80px]"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="category" className="text-sm">
-            Category
-          </Label>
-          <div className="space-y-2">
-            <Select
-              value={formData.category}
-              onValueChange={(value) => {
-                handleInputChange("category", value);
-                if (value === "add-new") {
-                  setNewCategoryName("");
-                }
-              }}
-            >
-              <SelectTrigger id="category">
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    {category.label}
-                  </SelectItem>
-                ))}
-                <SelectItem value="add-new">+ Add New Category</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {formData.category === "add-new" && (
-              <div className="flex gap-2 mt-2">
-                <Input
-                  placeholder="Enter new category name"
-                  value={newCategoryName}
-                  onChange={(e) => setNewCategoryName(e.target.value)}
-                  className="flex-1"
-                />
-                <Button
-                  onClick={() => {
-                    if (newCategoryName.trim()) {
-                      const newCategory = {
-                        id: newCategoryName.toLowerCase().replace(/\s+/g, "-"),
-                        label: newCategoryName.trim(),
-                      };
-                      setCategories((prev) => [...prev, newCategory]);
-                      setFormData((prev) => ({
-                        ...prev,
-                        category: newCategory.id,
-                      }));
-                      setNewCategoryName("");
-                    }
+            <div className="space-y-2">
+              <div className="flex gap-2">
+                <Select
+                  value={formData.category?.toString() || ""}
+                  onValueChange={(value) => {
+                    handleInputChange("category", Number(value));
                   }}
-                  disabled={!newCategoryName.trim()}
-                  size="sm"
                 >
-                  Add
-                </Button>
+                  <SelectTrigger id="category">
+                    <SelectValue placeholder="Select a category">
+                      {formData.category &&
+                        categories?.find((cat) => cat.id === formData.category)
+                          ?.name}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {isCategoriesLoading ? (
+                      <SelectItem value="loading">Loading...</SelectItem>
+                    ) : (
+                      categories?.map(
+                        (category: { id: number; name: string }) => (
+                          <SelectItem
+                            key={category.id}
+                            value={category.id.toString()}
+                          >
+                            <div>{category.name}</div>
+                          </SelectItem>
+                        )
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
+
                 <Button
+                  size={"sm"}
                   variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setFormData((prev) => ({ ...prev, category: "" }));
-                    setNewCategoryName("");
-                  }}
+                  onClick={() => setAddCategoryButton(true)}
                 >
-                  Cancel
+                  <Plus size={8} />
                 </Button>
               </div>
-            )}
+
+              {addCategoryButton && (
+                <div className="flex gap-2 mt-2">
+                  <Input
+                    placeholder="Enter new category name"
+                    value={newCategory.name}
+                    onChange={(e) =>
+                      setNewCategory({
+                        name: e.target.value,
+                        description: "",
+                      })
+                    }
+                    className="flex-1"
+                  />
+                  <Button
+                    onClick={() => addNewCategory()}
+                    disabled={isAddingCategory}
+                    size="sm"
+                  >
+                    {isAddingCategory ? "Adding..." : "Add"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setAddCategoryButton(false);
+                      setFormData((prev: any) => ({ ...prev, category: "" }));
+                      setNewCategory({
+                        name: "",
+                        description: "",
+                      });
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Pricing & Billing */}
-      <div className="bg-white border rounded-lg p-6 mb-4">
-        <h2 className="text-base font-semibold mb-4">Pricing & Billing</h2>
+        {/* Pricing & Billing */}
+        <div className="bg-white border rounded-lg p-6 mb-4">
+          <h2 className="text-base font-semibold mb-4">Pricing & Billing</h2>
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="space-y-2">
-            <Label htmlFor="basePrice" className="text-sm">
-              Base Price
-            </Label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                $
-              </span>
-              <Input
-                id="basePrice"
-                type="number"
-                step="0.01"
-                placeholder="0.00"
-                value={formData.basePrice}
-                onChange={(e) => handleInputChange("basePrice", e.target.value)}
-                className="pl-7"
-              />
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="space-y-2">
+              <Label htmlFor="basePrice" className="text-sm">
+                Base Price
+              </Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                  $
+                </span>
+                <Input
+                  id="basePrice"
+                  type="number"
+                  step="0.01"
+                  placeholder="0.00"
+                  value={formData.base_price}
+                  onChange={(e) =>
+                    handleInputChange("base_price", e.target.value)
+                  }
+                  className="pl-7"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="billingCycle" className="text-sm">
+                Billing Cycle
+              </Label>
+              <Select
+                value={formData.bill_cycle}
+                onValueChange={(value) =>
+                  handleInputChange("bill_cycle", value)
+                }
+              >
+                <SelectTrigger id="billingCycle">
+                  <SelectValue placeholder="Daily" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Daily">Daily</SelectItem>
+                  <SelectItem value="Weekly">Weekly</SelectItem>
+                  <SelectItem value="Monthly">Monthly</SelectItem>
+                  <SelectItem value="Yearly">Yearly</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="billingCycle" className="text-sm">
-              Billing Cycle
-            </Label>
-            <Select
-              value={formData.billingCycle}
-              onValueChange={(value) =>
-                handleInputChange("billingCycle", value)
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="space-y-2">
+              <Label htmlFor="discount" className="text-sm">
+                Discount (optional)
+              </Label>
+              <div className="relative">
+                <Input
+                  id="discount"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.01"
+                  placeholder="0"
+                  value={formData.discount || ""}
+                  onChange={(e) => {
+                    const value =
+                      e.target.value === "" ? null : Number(e.target.value);
+                    handleInputChange("discount", value);
+                  }}
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+                  %
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="tax_rate" className="text-sm">
+                Tax Rate (optional)
+              </Label>
+              <div className="relative">
+                <Input
+                  id="tax_rate"
+                  type="number"
+                  placeholder="0"
+                  value={Number(formData.tax_rate)}
+                  onChange={(e) =>
+                    handleInputChange("tax_rate", Number(e.target.value))
+                  }
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+                  %
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="autoRenew"
+              checked={formData.auto_renew_enable}
+              onCheckedChange={(checked) =>
+                handleInputChange("auto_renew_enable", !!checked)
               }
-            >
-              <SelectTrigger id="billingCycle">
-                <SelectValue placeholder="Daily" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="daily">Daily</SelectItem>
-                <SelectItem value="weekly">Weekly</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-                <SelectItem value="yearly">Yearly</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="space-y-2">
-            <Label htmlFor="discount" className="text-sm">
-              Discount (optional)
+            />
+            <Label htmlFor="autoRenew" className="text-sm cursor-pointer">
+              Auto-renew Enabled
             </Label>
-            <div className="relative">
-              <Input
-                id="discount"
-                type="number"
-                placeholder="0"
-                value={formData.discount}
-                onChange={(e) => handleInputChange("discount", e.target.value)}
-              />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
-                %
-              </span>
-            </div>
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="taxRate" className="text-sm">
-              Tax Rate (optional)
-            </Label>
-            <div className="relative">
-              <Input
-                id="taxRate"
-                type="number"
-                placeholder="0"
-                value={formData.taxRate}
-                onChange={(e) => handleInputChange("taxRate", e.target.value)}
-              />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
-                %
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Checkbox
-            id="autoRenew"
-            checked={formData.autoRenew}
-            onCheckedChange={(checked) =>
-              handleInputChange("autoRenew", !!checked)
-            }
-          />
-          <Label htmlFor="autoRenew" className="text-sm cursor-pointer">
-            Auto-renew Enabled
-          </Label>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 mb-4">
         <div className="bg-white border rounded-lg p-6">
           <h2 className="text-base font-semibold mb-4">Special Services</h2>
-
-          <div className="space-y-4">
-            <div className="flex justify-between gap-4">
-              <div className="space-y-2 w-full">
-                <Label htmlFor="building" className="text-sm">
-                  Building
-                </Label>
-                <Select
-                  value={formData.building}
-                  onValueChange={(value) =>
-                    handleInputChange("building", value)
-                  }
-                >
-                  <SelectTrigger id="building">
-                    <SelectValue placeholder="Building A" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="building-a">Building A</SelectItem>
-                    <SelectItem value="building-b">Building B</SelectItem>
-                    <SelectItem value="building-c">Building C</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2 w-full">
-                <Label htmlFor="apartment" className="text-sm">
-                  Apartment
-                </Label>
-                <Select
-                  value={formData.apartment}
-                  onValueChange={(value) =>
-                    handleInputChange("apartment", value)
-                  }
-                >
-                  <SelectTrigger id="apartment">
-                    <SelectValue placeholder="All Units" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Units</SelectItem>
-                    <SelectItem value="unit-1">Unit 1</SelectItem>
-                    <SelectItem value="unit-2">Unit 2</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
+          <div className="grid grid-cols-4 gap-4">
+            {/* region */}
             <div className="space-y-2">
               <Label htmlFor="region" className="text-sm">
                 Assign to Region
               </Label>
               <Select
-                value={formData.region}
                 onValueChange={(value) => handleInputChange("region", value)}
               >
                 <SelectTrigger id="region">
-                  <SelectValue placeholder="North District" />
+                  <SelectValue placeholder="Select Region" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="north">North District</SelectItem>
-                  <SelectItem value="south">South District</SelectItem>
-                  <SelectItem value="east">East District</SelectItem>
-                  <SelectItem value="west">West District</SelectItem>
+                  {isRegionsLoading ? (
+                    <SelectItem value="loading">Loading...</SelectItem>
+                  ) : (
+                    regionsData?.results?.map(
+                      (region: { id: number; name: string }) => (
+                        <SelectItem key={region.id} value={region.id}>
+                          <div>{region.name}</div>
+                        </SelectItem>
+                      )
+                    )
+                  )}
                 </SelectContent>
               </Select>
             </div>
 
+            {/* building */}
+            <div className="space-y-2 w-full">
+              <Label htmlFor="building" className="text-sm">
+                Building
+              </Label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="w-full">
+                    <Select
+                      disabled={formData.region === null}
+                      onValueChange={(value) =>
+                        handleInputChange("building", Number(value))
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select Building" />
+                      </SelectTrigger>
+
+                      <SelectContent>
+                        {isBuildingsLoading ? (
+                          <SelectItem value="loading" disabled>
+                            Loading...
+                          </SelectItem>
+                        ) : (
+                          buildings?.map((building) => (
+                            <SelectItem
+                              key={building.id}
+                              value={String(building.id)}
+                            >
+                              {building.name}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </TooltipTrigger>
+
+                {formData.region === null && (
+                  <TooltipContent>Please select a region first</TooltipContent>
+                )}
+              </Tooltip>
+            </div>
+
+            {/* apartment */}
+            <div className="space-y-2 w-full">
+              <Label htmlFor="apartment" className="text-sm">
+                Apartment
+              </Label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div
+                    className={`w-full ${
+                      formData.building == null && "cursor-not-allowed"
+                    }`}
+                  >
+                    <MultipleSelector
+                      commandProps={{
+                        label: "Select frameworks",
+                      }}
+                      options={apartmentsData}
+                      placeholder="Select apartments"
+                      hidePlaceholderWhenSelected
+                      disabled={formData.building === null}
+                      emptyIndicator={
+                        <p className="text-center text-sm">No results found</p>
+                      }
+                      onChange={(selected) => {
+                        handleInputChange(
+                          "apartment",
+                          selected?.map((item) => item.value) || []
+                        );
+                      }}
+                    />
+                  </div>
+                </TooltipTrigger>
+
+                {formData.building === null && (
+                  <TooltipContent>
+                    Please select a building first
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            </div>
+
+            {/* worker */}
             <div className="space-y-2">
               <Label htmlFor="defaultWorker" className="text-sm">
-                Assign Default Worker
+                Assign Worker
               </Label>
-              <Select
-                value={formData.defaultWorker}
-                onValueChange={(value) =>
-                  handleInputChange("defaultWorker", value)
-                }
-              >
-                <SelectTrigger id="defaultWorker">
-                  <SelectValue placeholder="John Smith" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="john">John Smith</SelectItem>
-                  <SelectItem value="jane">Jane Doe</SelectItem>
-                  <SelectItem value="mike">Mike Johnson</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="iconUpload" className="text-sm">
-                Upload Service Icon (Optional)
-              </Label>
-              <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 text-center">
-                <Upload className="text-gray-400 mb-2" size={32} />
-                <p className="text-xs text-gray-500 mb-2">
-                  .JPG/.PNG/.SVG files only
-                </p>
-                <input
-                  id="iconUpload"
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.svg"
-                  onChange={handleFileUpload}
-                  className="hidden"
+              <div className="relative">
+                <Input
+                  type="text"
+                  value={selectedEmployee || ""}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setEmployee(value);
+                    setSelectedEmployee(value);
+                    setShowEmployee(!!value);
+                  }}
+                  onFocus={() => {
+                    if (!selectedEmployee) {
+                      setShowEmployee(true);
+                    }
+                  }}
+                  className="peer ps-9 pe-9"
+                  placeholder="Search by name or email..."
                 />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => document.getElementById("iconUpload")?.click()}
-                >
-                  Choose File
-                </Button>
-                {formData.uploadedIcon && (
-                  <p className="text-xs text-gray-600 mt-2">
-                    {formData.uploadedIcon.name}
-                  </p>
+                <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center justify-center ps-3 text-muted-foreground/80 peer-disabled:opacity-50">
+                  {isEmployeesLoading ? (
+                    <LoaderCircleIcon
+                      className="animate-spin"
+                      size={16}
+                      role="status"
+                      aria-label="Loading..."
+                    />
+                  ) : (
+                    <SearchIcon size={16} aria-hidden="true" />
+                  )}
+                </div>
+                {selectedEmployee && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedEmployee("");
+                      handleInputChange("worker", null);
+                      setShowEmployee(false);
+                    }}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+                  >
+                    <XCircle size={16} />
+                  </button>
                 )}
               </div>
+
+              {showEmployee &&
+                (employees?.results?.length > 0 ? (
+                  <div className="absolute z-10 lg:w-94 md:w-64 mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                    {employees.results.map((employee) => (
+                      <div
+                        key={employee.id}
+                        className="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100"
+                        onClick={() => {
+                          handleInputChange("worker", employee.id);
+                          setSelectedEmployee(employee.name);
+                          setEmployee("");
+                          setShowEmployee(false);
+                        }}
+                      >
+                        <div className="font-medium text-gray-900">
+                          {employee.name}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {employee.email}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="absolute z-10 lg:w-94 md:w-64 mt-1 bg-white rounded-md shadow-lg max-h-60 overflow-auto p-6">
+                    No worker found
+                  </div>
+                ))}
             </div>
           </div>
         </div>
@@ -471,7 +627,11 @@ const AddNewServiceForm = () => {
         <Button onClick={handleCancel} variant="outline">
           Cancel
         </Button>
-        <Button onClick={handleSave}>Save</Button>
+        <Button
+         disabled={addServiceLoading}
+         onClick={handleSave}>
+          {addServiceLoading ? "Saving.." : "Save"}
+        </Button>
       </div>
     </div>
   );

@@ -14,6 +14,21 @@ export const servicesApi = baseApi.injectEndpoints({
       query: () => "categories/",
       providesTags: ["ServiceCategories"],
     }),
+    addServiceCategory: builder.mutation({
+      query: (category) => ({
+        url: "categories/",
+        method: "POST",
+        body: category,
+      }),
+      invalidatesTags: ["ServiceCategories"],
+    }),
+    addService: builder.mutation({
+      query: (payload) => ({
+         url: "task/task_assign_employee/",
+         method: "POST",
+         body: payload
+      })
+    })
   }),
 });
 
@@ -21,4 +36,6 @@ export const {
   useGetServiceAdminOverviewQuery,
   useGetAllServiceDataAdminQuery,
   useGetServiceCategoriesQuery,
+  useAddServiceCategoryMutation,
+  useAddServiceMutation
 } = servicesApi;
