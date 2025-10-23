@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search as SearchIcon, ChevronDown } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Badge } from "@/Components/ui/badge";
@@ -12,7 +12,12 @@ import {
 } from "@/Components/ui/dialog";
 import { Textarea } from "@/Components/ui/textarea";
 import { Separator } from "@/Components/ui/separator";
-import { useGetReportTableQuery } from "@/redux/features/employee/report/reporttable.api";
+import {
+  useGetEmployeesPageQuery,
+  type EmployeeItem,
+} from "@/redux/features/employee/report/reporttable.api";
+
+
 
 type Status = "current" | "completed" | "canceled";
 
@@ -26,6 +31,7 @@ type Row = {
   remarks: string;
 };
 
+// Badge styles
 const statusBadge = (status: Status) => {
   const base = "text-xs px-2 py-0.5 rounded-full border";
   if (status === "current") return `${base} bg-blue-50 text-blue-700 border-blue-200`;
@@ -33,7 +39,19 @@ const statusBadge = (status: Status) => {
   return `${base} bg-red-50 text-red-700 border-red-200`;
 };
 
+// Map API employee -> Row for display
+const mapEmployeeToRow = (e: EmployeeItem): Row => ({
+  id: e.id,
+  clientName: e.name,
+  clientMail: e.email,
+  region: e.employee_profile?.department || "N/A",
+  employee: e.employee_profile?.role || "N/A",
+  status: e.is_active ? "current" : "completed",
+  remarks: `Joined on ${new Date(e.date_joined).toLocaleDateString()}`,
+});
+
 export const EmployeeTable = () => {
+  // --- UI state
   const [search, setSearch] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
   const [taskFilter, setTaskFilter] = useState<"Current Task" | "Completed" | "Canceled">(
@@ -44,44 +62,46 @@ export const EmployeeTable = () => {
   const [selected, setSelected] = useState<Row | null>(null);
   const [reportNotes, setReportNotes] = useState("");
 
+  // --- Pagination state
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 9; // ✅ Show 10 per page
+  const { data, isLoading, isError } = useGetEmployeesPageQuery(page);
 
-  const [employeeId] = useState<number>(53); 
+  const [allEmployees, setAllEmployees] = useState<EmployeeItem[]>([]);
 
+  useEffect(() => {
+    if (data?.results) {
+      setAllEmployees(data.results);
+    }
+  }, [data?.results]);
 
-  const { data, isLoading, isError } = useGetReportTableQuery(employeeId);
+  // Convert to rows for table
+  const apiRows: Row[] = useMemo(() => allEmployees.map(mapEmployeeToRow), [allEmployees]);
 
- 
-  const apiData: Row[] = useMemo(() => {
-    if (!data) return [];
-
-    return [
-      {
-        id: data.id,
-        clientName: data.name,
-        clientMail: data.email,
-        region: data.employee_profile?.department || "N/A",
-        employee: data.employee_profile?.role || "N/A",
-        status: data.is_active ? "current" : "completed",
-        remarks: `Joined on ${new Date(data.date_joined).toLocaleDateString()}`,
-      },
-    ];
-  }, [data]);
-
-  const filtered = useMemo(() => {
-    if (!apiData.length) return [];
+  // Search + filter
+  const filtered: Row[] = useMemo(() => {
+    if (!apiRows.length) return [];
 
     const q = search.toLowerCase().trim();
-    let base = apiData;
+    let base = apiRows;
 
     if (taskFilter === "Completed") base = base.filter((r) => r.status === "completed");
     else if (taskFilter === "Canceled") base = base.filter((r) => r.status === "canceled");
+    else base = base.filter((r) => r.status !== "canceled");
 
     if (!q) return base;
 
     return base.filter((r) =>
-      [String(r.id), r.clientName, r.clientMail, r.remarks].join(" ").toLowerCase().includes(q)
+      [String(r.id), r.clientName, r.clientMail, r.region, r.employee, r.remarks]
+        .join(" ")
+        .toLowerCase()
+        .includes(q)
     );
-  }, [search, taskFilter, apiData]);
+  }, [search, taskFilter, apiRows]);
+
+  // ✅ Client-side pagination logic
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paginatedData = filtered.slice((page - 1) * itemsPerPage, page * itemsPerPage);
 
   const openModal = (row: Row) => {
     setSelected(row);
@@ -95,10 +115,12 @@ export const EmployeeTable = () => {
       client: selected?.clientName,
       region: selected?.region,
       notes: reportNotes,
+      
     });
+ 
     setOpen(false);
   };
-
+ console.log("Notes:", submitReport);
   return (
     <>
       <div className="bg-white/50 border rounded-xl p-4 md:p-5">
@@ -106,6 +128,7 @@ export const EmployeeTable = () => {
           <h2 className="text-lg font-semibold">Employee Report Table</h2>
         </div>
 
+        {/* Controls */}
         <div className="mt-3 flex flex-wrap items-center gap-3">
           <div className="flex items-center w-full sm:w-80 rounded-full border px-3 py-2 bg-white">
             <SearchIcon size={16} className="text-gray-400 mr-2" />
@@ -149,58 +172,87 @@ export const EmployeeTable = () => {
           </div>
         </div>
 
-        {/* ✅ Table */}
+        {/* Table */}
         <div className="mt-4 rounded-xl border overflow-hidden">
           {isLoading ? (
             <div className="p-6 text-center text-gray-500">Loading...</div>
           ) : isError ? (
-            <div className="p-6 text-center text-red-500">Failed to load employee data</div>
+            <div className="p-6 text-center text-red-500">Failed to load employees</div>
           ) : (
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-gray-700">
-                <tr className="[&>th]:px-4 [&>th]:py-3 text-left">
-                  <th>ID</th>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Department</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {filtered.map((row) => (
-                  <tr key={row.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 text-gray-700">{row.id}</td>
-                    <td className="px-4 py-3 text-gray-700">{row.clientName}</td>
-                    <td className="px-4 py-3 text-gray-700">{row.clientMail}</td>
-                    <td className="px-4 py-3 text-gray-700">{row.region}</td>
-                    <td className="px-4 py-3">
-                      <Badge variant="outline" className={statusBadge(row.status)}>
-                        {row.status}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3">
-                      <Button size="sm" onClick={() => openModal(row)}>
-                        Report
-                      </Button>
-                    </td>
+            <>
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 text-gray-700">
+                  <tr className="[&>th]:px-4 [&>th]:py-3 text-left">
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Department</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Action</th>
                   </tr>
-                ))}
+                </thead>
+                <tbody className="divide-y">
+                  {paginatedData.map((row) => (
+                    <tr key={row.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 text-gray-700">{row.id}</td>
+                      <td className="px-4 py-3 text-gray-700">{row.clientName}</td>
+                      <td className="px-4 py-3 text-gray-700">{row.clientMail}</td>
+                      <td className="px-4 py-3 text-gray-700">{row.region}</td>
+                      <td className="px-4 py-3 text-gray-700">{row.employee}</td>
+                      <td className="px-4 py-3">
+                        <Badge variant="outline" className={statusBadge(row.status)}>
+                          {row.status}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Button size="sm" onClick={() => openModal(row)}>
+                          Report
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
 
-                {filtered.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="px-4 py-10 text-center text-gray-500">
-                      No data found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  {paginatedData.length === 0 && (
+                    <tr>
+                      <td colSpan={7} className="px-4 py-10 text-center text-gray-500">
+                        No data found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+
+              {/* ✅ Pagination controls */}
+              {totalPages > 1 && (
+                <div className="flex justify-between items-center px-4 py-3 border-t bg-gray-50">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={page === 1}
+                    onClick={() => setPage((p) => p - 1)}
+                  >
+                    Previous
+                  </Button>
+                  <span className="text-sm text-gray-600">
+                    Page {page} of {totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={page === totalPages}
+                    onClick={() => setPage((p) => p + 1)}
+                  >
+                    Next
+                  </Button>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
 
-      {/* ✅ Modal */}
+      {/* Modal */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-xl">
           <DialogHeader>
