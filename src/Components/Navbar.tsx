@@ -1,3 +1,4 @@
+// src/components/Navbar.tsx
 import { IoIosArrowForward } from "react-icons/io";
 import Home from "../assets/Image/Home.png";
 import SearchBar from "@/Shared/SearchBar";
@@ -9,7 +10,7 @@ import profilepic from "../assets/Image/Profilepic/Profile photo.png";
 import manicon from "../assets/Image/manicon.svg";
 import setting from "../assets/Image/setting.svg";
 import logoutsvg from "../assets/Image/ic_round-logout.svg";
-import admininstritor from "../assets/Image/administritor.svg";
+// import admininstritor from "../assets/Image/administritor.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/redux/features/auth/authSlice";
 import { useNavigate } from "react-router";
@@ -20,11 +21,18 @@ type RootState = {
       user_type?: string;
       name?: string;
       email?: string;
-      avatarUrl?: string;
+      avatar?: string;     // normalized server URL
+      avatarUrl?: string;  // normalized server URL
       role?: string;
+      employee_profile?: {
+        avatar?: string | null;
+        [k: string]: any;
+      };
     } | null;
   };
 };
+
+const defaultAvatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=User";
 
 const Navbar = () => {
   const [searchValue, setSearchValue] = useState("");
@@ -33,6 +41,12 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
+
+  // Read from normalized fields (set on save or getMe)
+  const avatarSrc =
+    (user?.avatar && !/^blob:/.test(user.avatar) && user.avatar) ||
+    (user?.avatarUrl && !/^blob:/.test(user.avatarUrl) && user.avatarUrl) ||
+    defaultAvatar;
 
   // Outside click - dropdown close
   useEffect(() => {
@@ -48,15 +62,14 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-    function handleLogout() {
-        try {
-            dispatch(logout());
-            console.log("User logged out");
-            navigate("/login");
-        } catch (error) {
-            console.log(error);
-        }
+  function handleLogout() {
+    try {
+      dispatch(logout());
+      navigate("/login");
+    } catch (error) {
+      console.log(error);
     }
+  }
 
   const displayName = user?.name ?? "Guest User";
   const displayEmail = user?.email ?? "—";
@@ -66,7 +79,7 @@ const Navbar = () => {
       : user?.user_type
       ? user.user_type.charAt(0).toUpperCase() + user.user_type.slice(1)
       : "Viewer";
-console.log("dehi ase naki ",displayName,displayEmail)
+
   return (
     <div className="flex items-center justify-between px-6 ml-[250px] py-4 border-b border-gray-200 bg-white fixed top-0 left-0 right-0 z-40">
       {/* Left Section */}
@@ -104,14 +117,12 @@ console.log("dehi ase naki ",displayName,displayEmail)
             aria-haspopup="menu"
             aria-expanded={open}
           >
-            {/* Avatar (only show employee photo if present; otherwise fallback) */}
-            {(user?.user_type === "employee" || !user) && (
-              <img
-                src={user?.avatarUrl ?? profilepic}
-                className="w-10 h-10 rounded"
-                alt="profile"
-              />
-            )}
+            {/* Avatar */}
+            <img
+              src={avatarSrc || profilepic}
+              className="w-10 h-10 rounded object-cover border"
+              alt="profile"
+            />
             <div className="flex flex-col">
               <h1 className="font-semibold text-sm">{displayName}</h1>
               <p className="text-[#8E8E8E] text-xs">{displayEmail}</p>
@@ -137,25 +148,22 @@ console.log("dehi ase naki ",displayName,displayEmail)
               <div className="flex items-center gap-4 w-full text-left px-4 py-3 hover:bg-gray-100 border-b">
                 {/* Profile Image */}
                 <img
-                  src={user?.avatarUrl ?? profilepic}
-                  className="w-12 h-12 rounded object-cover"
+                  src={avatarSrc || profilepic}
+                  className="w-12 h-12 rounded object-cover border"
                   alt="profile"
                 />
 
                 {/* Profile Text */}
-                <div className="flex flex-col justify-center">
-                  <h1 className="font-semibold text-sm leading-tight">
+                <div className="flex flex-col justify-center min-w-0">
+                  <h1 className="font-semibold text-sm leading-tight truncate">
                     {displayName}
                   </h1>
-                  <p className="text-gray-500 text-xs py-1">{displayEmail}</p>
+                  <p className="text-gray-500 text-xs py-1 truncate">
+                    {displayEmail}
+                  </p>
 
-                  {/* Role Badge */}
+                  {/* Role Badge (text to keep it simple) */}
                   <p className="bg-[rgba(36,99,234,0.1)] text-sm text-[#2463EA] inline-flex items-center gap-2 px-3 py-1 rounded-full">
-                    <img
-                      src={admininstritor}
-                      className="w-4 h-4"
-                      alt="role icon"
-                    />
                     {displayRole}
                   </p>
                 </div>

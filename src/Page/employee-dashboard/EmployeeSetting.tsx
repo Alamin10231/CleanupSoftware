@@ -20,8 +20,25 @@ type RootState = {
       avatar?: string;
       avatarUrl?: string;
       user_type?: string;
+      employee_profile?: {
+        id?: number;
+        department?: string;
+        role?: string;
+        shift?: string;
+        avatar?: string | null;
+        [k: string]: any;
+      };
     } | null;
   };
+};
+
+const fallbackAvatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=User";
+const safeParse = (x: any) => {
+  if (!x) return {};
+  if (typeof x === "string") {
+    try { return x ? JSON.parse(x) : {}; } catch { return {}; }
+  }
+  return x;
 };
 
 const EmployeeProfileSettingsPage: React.FC = () => {
@@ -39,12 +56,10 @@ const EmployeeProfileSettingsPage: React.FC = () => {
     role: user?.role || "",
   });
 
-  // ---- Avatar state
+  // ---- Avatar preview (LOCAL ONLY)
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>(
-    user?.avatar ||
-      (user?.avatarUrl as string) ||
-      "https://api.dicebear.com/7.x/avataaars/svg?seed=User"
+    user?.avatar || user?.avatarUrl || user?.employee_profile?.avatar || fallbackAvatar
   );
 
   const EMPLOYEE_ID = user?.id as number | undefined;
@@ -58,7 +73,7 @@ const EmployeeProfileSettingsPage: React.FC = () => {
     const f = e.target.files?.[0];
     if (!f) return;
     setAvatarFile(f);
-    setAvatarPreview(URL.createObjectURL(f));
+    setAvatarPreview(URL.createObjectURL(f)); // preview only (do NOT persist)
   };
 
   const handleSaveProfile = async () => {
@@ -71,42 +86,52 @@ const EmployeeProfileSettingsPage: React.FC = () => {
       let payload: FormData | { name: string; email: string };
 
       if (avatarFile) {
-        // Send multipart form when uploading a file
         const fd = new FormData();
         fd.append("name", profileData.name);
         fd.append("email", profileData.email);
-        fd.append("avatar", avatarFile);
+        fd.append("avatar", avatarFile); // match backend field
         payload = fd;
       } else {
-        // Send JSON when there is no file
-        payload = {
-          name: profileData.name,
-          email: profileData.email,
-        };
+        payload = { name: profileData.name, email: profileData.email };
       }
 
-      const res = await updateEmployeeProfile({
+      const raw = await updateEmployeeProfile({
         id: EMPLOYEE_ID,
         data: payload,
       }).unwrap();
 
+      const data = safeParse(raw);
+
+      // ✅ Normalize avatar from any of these spots:
+      const serverAvatar: string =
+        data?.avatar ||
+        data?.avatarUrl ||
+        data?.employee_profile?.avatar ||
+        user?.avatar ||
+        user?.avatarUrl ||
+        user?.employee_profile?.avatar ||
+        "";
+
+      // Update Redux exactly like you do for name
       const updatedUser = {
         ...user,
-        name: profileData.name,
-        email: profileData.email,
-        avatar: avatarFile ? avatarPreview : user?.avatar,
+        name: data?.name ?? profileData.name,
+        email: data?.email ?? profileData.email,
+        employee_profile: data?.employee_profile ?? user?.employee_profile,
+        avatar: serverAvatar,
+        avatarUrl: serverAvatar,
       };
 
       dispatch(setCredentials({ user: updatedUser }));
       localStorage.setItem("user", JSON.stringify(updatedUser));
-      window.dispatchEvent(
-        new CustomEvent("user:profile-updated", { detail: updatedUser })
-      );
+
+      // optional: free preview blob
+      try {
+        if (avatarPreview?.startsWith("blob:")) URL.revokeObjectURL(avatarPreview);
+      } catch {}
 
       toast.success("Profile updated successfully.");
-      console.log("✅ Profile updated:", res);
     } catch (err: any) {
-      // err could be text or a serialized error object depending on your baseApi
       const status = err?.status ?? err?.originalStatus;
       const msg =
         typeof err?.data === "string"
@@ -137,19 +162,18 @@ const EmployeeProfileSettingsPage: React.FC = () => {
             </p>
           </div>
 
-          {statusText && (
-            <span className="text-sm">
-              {statusText}{" "}
-              {isError && (
-                <span className="text-red-600">
-                  {/* If your baseApi still returns JSON on error, this may show detail */}
-                  {typeof (error as any)?.data === "string"
-                    ? (error as any).data
-                    : (error as any)?.data?.detail || "Please try again."}
-                </span>
-              )}
-            </span>
-          )}
+        {statusText && (
+          <span className="text-sm">
+            {statusText}{" "}
+            {isError && (
+              <span className="text-red-600">
+                {typeof (error as any)?.data === "string"
+                  ? (error as any).data
+                  : (error as any)?.data?.detail || "Please try again."}
+              </span>
+            )}
+          </span>
+        )}
         </div>
 
         {/* Profile Picture */}
@@ -184,7 +208,7 @@ const EmployeeProfileSettingsPage: React.FC = () => {
             <Input
               id="fullName"
               value={profileData.name}
-              onChange={(e) => handleProfileChange("name", e.target.value)}
+              onChange={(e) => setProfileData((p) => ({ ...p, name: e.target.value }))}
               disabled={isLoading}
             />
           </div>
@@ -197,7 +221,7 @@ const EmployeeProfileSettingsPage: React.FC = () => {
               id="email"
               type="email"
               value={profileData.email}
-              onChange={(e) => handleProfileChange("email", e.target.value)}
+              onChange={(e) => setProfileData((p) => ({ ...p, email: e.target.value }))}
               disabled={isLoading}
             />
           </div>

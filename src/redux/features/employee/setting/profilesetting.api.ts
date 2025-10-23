@@ -3,64 +3,80 @@ import { baseApi } from "@/redux/api/baseApi";
 
 type JsonData = Record<string, any>;
 type UpdateEmployeeArgs = { id: number; data: FormData | JsonData };
+type UpdateAvatarArgs = { id: number; file: File };
 
-// Optional: stricter type for avatar-only mutation
-type UpdateAvatarArgs = { id: number; file: File }; // field name 'avatar' (DRF-style)
+const safeParse = (x: any) => {
+  if (!x) return {};
+  if (typeof x === "string") {
+    try { return x ? JSON.parse(x) : {}; } catch { return {}; }
+  }
+  return x;
+};
+
+// normalize helper so Navbar can use user.avatar / user.avatarUrl directly
+const normalizeAvatar = (raw: any) => {
+  const data = safeParse(raw);
+  const avatar =
+    data?.avatar ||
+    data?.avatarUrl ||
+    data?.employee_profile?.avatar ||
+    "";
+  return { ...data, avatar, avatarUrl: avatar };
+};
 
 export const profileSettingApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // --- Me ---
     getMe: builder.query<any, void>({
       query: () => ({ url: "/employees/me/", method: "GET" }),
       providesTags: ["UpdateProfile"],
+      transformResponse: normalizeAvatar,
     }),
 
-    // --- General profile update (JSON or FormData) ---
     updateEmployeeProfile: builder.mutation<any, UpdateEmployeeArgs>({
       query: ({ id, data }) => {
         const isForm = typeof FormData !== "undefined" && data instanceof FormData;
         return {
           url: `/employees/${id}/`,
           method: "PATCH",
-          headers: isForm ? undefined : { "Content-Type": "application/json", Accept: "application/json" },
+          headers: isForm ? undefined : {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
           body: isForm ? data : JSON.stringify(data),
-          responseHandler: "text" as const, // avoids JSON-parse crash on HTML errors
+          responseHandler: (r) => r.text(), // keep tolerant
         };
       },
+      transformResponse: normalizeAvatar,   // ✅ parsed + normalized
       invalidatesTags: ["UpdateProfile"],
     }),
 
-    // --- Avatar-only update (always FormData) ---
     updateEmployeeAvatar: builder.mutation<any, UpdateAvatarArgs>({
       query: ({ id, file }) => {
         const fd = new FormData();
-        // 👇 match your backend field name: 'avatar' (change to 'photo' if needed)
         fd.append("avatar", file);
-
         return {
           url: `/employees/${id}/`,
           method: "PATCH",
-          body: fd,                 // don't set Content-Type for FormData
-          responseHandler: "text" as const,
+          body: fd,
+          responseHandler: (r) => r.text(),
         };
       },
+      transformResponse: normalizeAvatar,   // ✅ parsed + normalized
       invalidatesTags: ["UpdateProfile"],
     }),
 
-    // --- (Optional) Remove avatar endpoint if your API supports it ---
-    // Some backends accept PATCH { avatar: null } to clear; others have a dedicated route.
     clearEmployeeAvatar: builder.mutation<any, { id: number }>({
       query: ({ id }) => ({
         url: `/employees/${id}/`,
         method: "PATCH",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({ avatar: null }),
-        responseHandler: "text" as const,
+        responseHandler: (r) => r.text(),
       }),
+      transformResponse: normalizeAvatar,   // ✅ parsed + normalized (avatar becomes "")
       invalidatesTags: ["UpdateProfile"],
     }),
   }),
-
   overrideExisting: true,
 });
 
