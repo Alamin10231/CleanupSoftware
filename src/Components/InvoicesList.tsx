@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 interface Invoice {
   id: number;
   invoice_id: string;
+  vendor_name: string | null;
   type: "incoming" | "outgoing";
   date_issued: string;
   due_date: string | null;
@@ -59,7 +60,7 @@ const InvoicesList = () => {
           (inv.apartment_name?.join(" ").toLowerCase() || "").includes(search.toLowerCase()) ||
           (inv.client_name?.toString() || "").includes(search) ||
           (inv.invoice_id?.toLowerCase() || "").includes(search.toLowerCase()) ||
-          (inv.vendor?.toLowerCase() || "").includes(search.toLowerCase()) ||
+          (inv.vendor_name?.toLowerCase() || "").includes(search.toLowerCase()) ||
           (inv.note?.toLowerCase() || "").includes(search.toLowerCase())
       );
     } else {
