@@ -4,10 +4,11 @@ import { useEffect, useState } from "react";
 interface Invoice {
   id: number;
   invoice_id: string;
+  vendor_name: string | null;
   type: "incoming" | "outgoing";
   date_issued: string;
   due_date: string | null;
-  client: number | null;
+  client_name: string | null;
   building_name: string;
   region_name: string;
   status: string;
@@ -57,9 +58,9 @@ const InvoicesList = () => {
           (inv.building_name?.toLowerCase() || "").includes(search.toLowerCase()) ||
           (inv.region_name?.toLowerCase() || "").includes(search.toLowerCase()) ||
           (inv.apartment_name?.join(" ").toLowerCase() || "").includes(search.toLowerCase()) ||
-          (inv.client?.toString() || "").includes(search) ||
+          (inv.client_name?.toString() || "").includes(search) ||
           (inv.invoice_id?.toLowerCase() || "").includes(search.toLowerCase()) ||
-          (inv.vendor?.toLowerCase() || "").includes(search.toLowerCase()) ||
+          (inv.vendor_name?.toLowerCase() || "").includes(search.toLowerCase()) ||
           (inv.note?.toLowerCase() || "").includes(search.toLowerCase())
       );
     } else {
@@ -154,6 +155,7 @@ const InvoicesList = () => {
                   <th className="p-3 text-left">Due Date</th>
                   <th className="p-3 text-left">Total Amount</th>
                   <th className="p-3 text-left">Status</th>
+                  <th className="p-3 text-left">View</th>
                 </tr>
               </thead>
               <tbody>
@@ -166,7 +168,7 @@ const InvoicesList = () => {
                     <td className="p-3">{invoice.building_name}</td>
                     <td className="p-3">{invoice.region_name}</td>
                     <td className="p-3">{invoice.apartment_name?.join(", ") || "N/A"}</td>
-                    <td className="p-3">{invoice.client ?? "N/A"}</td>
+                    <td className="p-3">{invoice.client_name ?? "N/A"}</td>
                     <td className="p-3 capitalize">
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -183,7 +185,7 @@ const InvoicesList = () => {
                       {invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : "—"}
                     </td>
                     <td className="p-3 font-semibold text-gray-800">
-                      ${invoice.total_amount.toFixed(2)}
+                      {invoice.total_amount.toFixed(2)} SAR
                     </td>
                     <td className="p-3">
                       <span
@@ -194,6 +196,13 @@ const InvoicesList = () => {
                         }`}
                       >
                         {invoice.status}
+                      </span>
+                    </td>
+                    <td className="p-3">
+                      <span
+                        className={`px-2 py-1 cursor-pointer rounded-full text-blue-600 text-[16px]`}
+                      >
+                        View
                       </span>
                     </td>
                   </tr>

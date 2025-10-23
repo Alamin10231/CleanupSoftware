@@ -6,7 +6,7 @@ interface Service {
   id: number;
   name: string;
   description: string;
-  category: { id: number; name: string };
+  category: { id: number; name: string | number };
   base_price: number;
   discounted_price?: number | null;
   bill_cycle: string;
@@ -78,7 +78,7 @@ const ServiceCard: React.FC = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <select
+          {/* <select
             className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
@@ -87,8 +87,8 @@ const ServiceCard: React.FC = () => {
             {[...new Set(services?.map((s) => s?.category?.name))]?.map((cat) => (
               <option key={cat}>{cat}</option>
             ))}
-          </select>
-          <select
+          </select> */}
+          {/* <select
             className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
@@ -97,7 +97,7 @@ const ServiceCard: React.FC = () => {
             <option>started</option>
             <option>completed</option>
             <option>pending</option>
-          </select>
+          </select> */}
         </div>
 
         <select
@@ -145,7 +145,7 @@ const ServiceCard: React.FC = () => {
                       <h2 className="text-lg font-semibold text-[#0b1220]">
                         {service.name}
                       </h2>
-                      <span
+                      {/* <span
                         className={`text-xs px-2 py-0.5 rounded-md ${
                           service.status === "completed"
                             ? "bg-green-100 text-green-600"
@@ -155,24 +155,24 @@ const ServiceCard: React.FC = () => {
                         }`}
                       >
                         {service.status}
-                      </span>
+                      </span> */}
                     </div>
                     <p className="text-sm text-gray-500 mt-1">
                       {service.description}
                     </p>
-                    <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
+                    {/* <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
                       <span className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-md">
                         {service?.category?.name}
                       </span>
                       <span>🏢 {service.building.name}</span>
                       <span>📍 {service.building.city}</span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
                 {/* Actions + Price */}
                 <div className="flex flex-col items-end gap-2">
-                  <div className="flex items-center gap-2">
+                  {/* <div className="flex items-center gap-2">
                     <button
                       title="View"
                       className="p-1 rounded-md hover:bg-gray-100"
@@ -191,7 +191,7 @@ const ServiceCard: React.FC = () => {
                     >
                       <FiTrash2 className="text-red-500" />
                     </button>
-                  </div>
+                  </div> */}
                   <div className="text-right font-bold text-xl text-gray-800">
                     SAR {discounted.toLocaleString()}
                   </div>

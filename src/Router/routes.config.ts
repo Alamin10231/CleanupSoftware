@@ -24,7 +24,7 @@ const EmployeeCommunication = lazy(() => import("@/Page/employee-dashboard/Emplo
 const EmployeeSetting = lazy(() => import("@/Page/employee-dashboard/EmployeeSetting"));
 const EmployeeForms = lazy(() => import("@/Page/employee-dashboard/EmployeeForms"));
 const EmployeeReports = lazy(() => import("@/Page/employee-dashboard/EmployeeReports"));
-const EmployeeInvoices = lazy(() => import("@/Page/employee-dashboard/EmployeeInvoicees"));
+const EmployeeInvoices = lazy(() => import("@/Page/employee-dashboard/invoice/EmployeeInvoicees"));
 const EmployeeSubscription = lazy(() => import("@/Page/employee-dashboard/EmployeeSubscription"));
 const RegionDashboard = lazy(() => import("@/Page/employee-dashboard/RegionDashboard"));
 const TaskEmployee = lazy(() => import("@/Page/employee-dashboard/TaskEmployee"));

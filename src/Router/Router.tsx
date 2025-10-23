@@ -25,7 +25,7 @@ import EmployeeCommunication from "@/Page/employee-dashboard/EmployeeCommunicati
 import EmployeeSetting from "@/Page/employee-dashboard/EmployeeSetting";
 import EmployeeForms from "@/Page/employee-dashboard/EmployeeForms";
 import EmployeeReports from "@/Page/employee-dashboard/EmployeeReports";
-import EmployeeInvoicees from "@/Page/employee-dashboard/EmployeeInvoicees";
+import EmployeeInvoicees from "@/Page/employee-dashboard/invoice/EmployeeInvoicees";
 import EmployeeSubscription from "@/Page/employee-dashboard/EmployeeSubscription";
 import CreateInvoiceForm from "@/Page/admin-dashboard/create-invoice";
 import NotFound from "@/Page/NotFound";
@@ -36,6 +36,10 @@ import RegionDashboard from "@/Page/employee-dashboard/RegionDashboard";
 import ChatPage from "@/Page/employee-dashboard/ChatPage";
 import TaskEmployee from "@/Page/employee-dashboard/TaskEmployee";
 import UpdatePlan from "@/Page/admin-dashboard/UpdatePlan";
+import ClientProfile from "@/Page/Client/ClientProfile";
+import ClientChat from "@/Page/Client/ClientChat";
+import ClientSubscription from "@/Page/Client/ClientSubscription";
+import ExpenseAdmin from "@/Page/admin-dashboard/ExpenseAdmin";
 
 const Router = () => {
   return (
@@ -48,6 +52,7 @@ const Router = () => {
         <Route path="client" element={<Clients />} />
         <Route path="help" element={<Help />} />
         <Route path="invoices" element={<Invoices />} />
+        <Route path="employee-expense-request" element={<ExpenseAdmin />} />
         <Route path="create-invoice" element={<CreateInvoiceForm />} />
         <Route path="employees" element={<Employees />} />
         <Route path="map" element={<Map />} />
@@ -85,6 +90,10 @@ const Router = () => {
           path="employee-subscriptions"
           element={<EmployeeSubscription />}
         />
+        {/* Client */}
+        <Route path="client-profile" element={<ClientProfile />} />
+        <Route path="client-chat" element={<ClientChat/>}/>
+        <Route path="client-subscription" element={<ClientSubscription/>}/>
       </Route>
 
       {/* Auth routes */}
