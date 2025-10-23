@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "../ui/button";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,11 +12,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/Components/ui/alert-dialog";
-import { useGetAdminNewplansQuery } from "@/redux/features/admin/subscription/subscription.api";
+import { useGetPlansQuery } from "@/redux/features/admin/plan/plan.api";
 
 export default function SubscriptionPlan() {
   const [statusFilter, setStatusFilter] = useState("All status");
-  const { data, isLoading, isError, refetch } = useGetAdminNewplansQuery();
+  const [currentPage, setCurrentPage] = useState(1);
+  const { data, isLoading, isError, refetch } = useGetPlansQuery(currentPage);
 
   if (isLoading)
     return (
@@ -32,30 +33,31 @@ export default function SubscriptionPlan() {
       </div>
     );
 
-  // map API data safely
-  const plans =
+  const mappedPlans =
     data?.results?.map((item: any) => ({
       id: item.id,
-      name: item.plan?.name ?? "Unnamed Plan",
-      subtitle: item.plan?.description ?? "—",
-      price: `$${item.plan?.amount ?? 0}`,
+      name: item.name ?? "Unnamed Plan",
+      subtitle: item.description ?? "—",
+      price: `$${item.amount ?? 0}`,
       cycle:
-        item.plan?.interval === "month"
+        item.interval === "month"
           ? "Monthly"
-          : item.plan?.interval === "year"
+          : item.interval === "year"
           ? "Yearly"
           : "Unknown",
       features:
-        item.plan?.service_line_items?.map((s: any) => s.name).join(", ") ??
+        item.service_line_items?.map((s: any) => s.description).join(", ") ||
         "—",
-      status: item.status === "active" ? "Active" : "Inactive",
+      status: item.is_active ? "Active" : "Inactive",
     })) ?? [];
 
   // apply filter
   const filteredPlans =
     statusFilter === "All status"
-      ? plans
-      : plans.filter((p: any) => p.status === statusFilter);
+      ? mappedPlans
+      : mappedPlans.filter((p: any) => p.status === statusFilter);
+
+  const totalPages = data?.count && data?.results?.length ? Math.ceil(data.count / data.results.length) : 1;
 
   return (
     <div>
@@ -94,7 +96,7 @@ export default function SubscriptionPlan() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {filteredPlans.map((plan: any) => (
+            {filteredPlans?.map((plan: any) => (
               <tr key={plan.id}>
                 <td className="px-4 py-3">
                   <div className="font-medium text-gray-900 text-lg">
@@ -132,7 +134,7 @@ export default function SubscriptionPlan() {
                 </td>
 
                 <td className="px-4 py-3 space-x-3">
-                  <Link to={"/add-new-plan"}>
+                  <Link to={`/add-new-plan?id=${plan.id}`}>
                     <Button variant={"outline"}>Edit</Button>
                   </Link>
 
@@ -163,6 +165,29 @@ export default function SubscriptionPlan() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex items-center justify-between pt-4">
+        <div>
+          <p className="text-sm text-gray-700">
+            Page {currentPage} of {totalPages}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => setCurrentPage(currentPage - 1)}
+            disabled={!data.previous}
+          >
+            Previous
+          </Button>
+          <Button
+            onClick={() => setCurrentPage(currentPage + 1)}
+            disabled={!data.next}
+          >
+            Next
+          </Button>
+        </div>
       </div>
     </div>
   );

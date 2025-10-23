@@ -3,7 +3,7 @@ import { baseApi } from "@/redux/api/baseApi";
 export const planApi = baseApi.injectEndpoints({
    endpoints: (builder) => ({
       getPlans: builder.query({
-         query: () => "plan/list/",
+         query: (page = 1) => `plan/list/?page=${page}`,
          providesTags: ["plan"]
       }),
       addPlan: builder.mutation({
