@@ -8,8 +8,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { ChevronRight } from "lucide-react";
 import { logout } from "@/redux/features/auth/authSlice";
 import { Button } from "@/Components/ui/button";
+import { generateRoutes } from "@/Router/routes.config";
+import { adminSidebarItems } from "@/Router/sidebar-items/admin-items";
 
 const Home = () => {
+   console.log(generateRoutes(adminSidebarItems))
   const faqs = [
     {
       question: "Which is the Best Influence Service?",
