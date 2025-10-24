@@ -11,7 +11,7 @@ import admininstritor from "../assets/Image/administritor.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/redux/features/auth/authSlice";
 import { useNavigate } from "react-router";
-import Notifications from "./notification";
+import Notifications from "./notification-bell";
 
 type RootState = {
   auth: {
