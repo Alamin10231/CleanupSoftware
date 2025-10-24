@@ -427,7 +427,10 @@ const AddNewServiceForm = () => {
               <Select
                 value={formData.region?.toString() || ""}
                 onValueChange={(value) =>
-                  handleInputChange("region", value === "" ? null : Number(value))
+                  handleInputChange(
+                    "region",
+                    value === "" ? null : Number(value)
+                  )
                 }
               >
                 <SelectTrigger id="region">
@@ -479,7 +482,7 @@ const AddNewServiceForm = () => {
                           <SelectItem value="loading" disabled>
                             Loading...
                           </SelectItem>
-                        ) : (
+                        ) : buildings.length > 0 ? (
                           buildings?.map((building) => (
                             <SelectItem
                               key={building.id}
@@ -488,6 +491,10 @@ const AddNewServiceForm = () => {
                               {building.name}
                             </SelectItem>
                           ))
+                        ) : (
+                          <SelectItem value="none" disabled>
+                            No Buildings available
+                          </SelectItem>
                         )}
                       </SelectContent>
                     </Select>

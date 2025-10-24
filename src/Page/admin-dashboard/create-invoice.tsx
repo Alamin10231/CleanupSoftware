@@ -1,60 +1,116 @@
-import { useForm, useFieldArray, Controller } from "react-hook-form";
-import { Calendar, Upload, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Trash2 } from "lucide-react";
 import { Label } from "@/Components/ui/label";
 import { Input } from "@/Components/ui/input";
 import { Button } from "@/Components/ui/button";
 import { Textarea } from "@/Components/ui/textarea";
 import { Checkbox } from "@/Components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/Components/ui/select";
+import MultipleSelector from "@/Components/ui/multiselect";
+import { useGetregionsQuery } from "@/redux/features/admin/regions/regions.api";
+import {
+  useGetBuildingsByRegionQuery,
+  useGetBuildingByIdQuery,
+} from "@/redux/features/admin/buildings/building.api";
+import { useGetAllClientsAdminQuery } from "@/redux/features/admin/users/clients.api";
+import { useGetPlansQuery } from "@/redux/features/admin/plan/plan.api";
+import { useGetAllServiceDataAdminQuery } from "@/redux/features/admin/services/services.api";
+import { useAddInvoiceMutation } from "@/redux/features/admin/invoice/invoice.api";
+import { toast } from "sonner";
 
 const CreateInvoiceForm = () => {
-  
-  
-  const { register, control, handleSubmit, watch } = useForm({
-    defaultValues: {
-      invoice_id: "INV-2025-002",
-      type: "outgoing",
-      date_issued: "2025-09-30",
-      due_date: "2025-10-15",
-      client: 1,
-      building: 2,
-      apartments: [1],
-      plan: 1,
-      vendor: 1,
-      vendor_invoice_file: null,
-      note: "Monthly service invoice",
-      file: null,
-      paid: true,
-      line_items: [
-        {
-          description: "Laundry Service",
-          quantity: 2,
-          unit_price: 100,
-          discount: 10,
-          tax: 5,
-        },
-        {
-          description: "House Cleaning",
-          service: 2,
-          quantity: 1,
-          unit_price: 200,
-          discount: 0,
-        },
-      ],
-    },
-  });
-//   const [addInvoice, { isLoading, isError }] = useAdd
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: "line_items",
+  const [formData, setFormData] = useState<any>({
+    invoice_id: "",
+    type: "outgoing",
+    date_issued: "",
+    due_date: "",
+    client: null,
+    building: null,
+    apartments: [],
+    plan: null,
+    note: "",
+    status: "unpaid",
+    line_items: [],
   });
 
-  const onSubmit = (data: any) => {
-    console.log(data);
-   //  addInvoice(data)
+  const [addInvoice, { isLoading: isAddingInvoice }] = useAddInvoiceMutation();
+
+  const { data: regionsData } = useGetregionsQuery(undefined);
+  const { data: buildingsData } = useGetBuildingsByRegionQuery(
+    formData.region,
+    { skip: !formData.region }
+  );
+  const { data: apartmentData } = useGetBuildingByIdQuery(formData.building, {
+    skip: !formData.building,
+  });
+  const { data: clientsData } = useGetAllClientsAdminQuery(undefined);
+  const { data: plansData } = useGetPlansQuery(undefined);
+  const { data: servicesData } = useGetAllServiceDataAdminQuery(undefined);
+
+  const handleInputChange = (field: string, value: any) => {
+    setFormData((prev: any) => ({ ...prev, [field]: value }));
+  };
+
+  const handleLineItemChange = (index: number, field: string, value: any) => {
+    const updatedLineItems = [...formData.line_items];
+    updatedLineItems[index] = { ...updatedLineItems[index], [field]: value };
+    handleInputChange("line_items", updatedLineItems);
+  };
+
+  const addLineItem = () => {
+    handleInputChange("line_items", [
+      ...formData.line_items,
+      {
+        description: "",
+        service: null,
+        quantity: 1,
+        unit_price: 0,
+        discount: 0,
+        tax: 0,
+      },
+    ]);
+  };
+
+  const removeLineItem = (index: number) => {
+    const updatedLineItems = formData.line_items.filter(
+      (_: any, i: number) => i !== index
+    );
+    handleInputChange("line_items", updatedLineItems);
+  };
+
+  const handleSave = async () => {
+    const { region, ...rest } = formData;
+    const payload = {
+      ...rest,
+      date_issued: new Date(formData.date_issued).toLocaleDateString("en-US"),
+      due_date: new Date(formData.due_date).toLocaleDateString("en-US"),
+      apartments: formData.apartments.map((apt: any) => apt.value),
+    };
+    console.log(payload);
+    try {
+      await toast.promise(addInvoice(payload).unwrap(), {
+        loading: "Creating invoice...",
+        success: "Invoice created successfully!",
+        error: "Failed to create invoice.",
+      });
+    } catch (error) {
+      console.error("Invoice creation failed:", error);
+    }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSave();
+      }}
+    >
       <h1 className="text-2xl font-semibold mb-6">Create Invoice</h1>
 
       {/* Invoice Information */}
@@ -63,101 +119,160 @@ const CreateInvoiceForm = () => {
 
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="space-y-2">
-            <Label htmlFor="invoice_id" className="text-sm">
-              Invoice ID
-            </Label>
-            <Input id="invoice_id" {...register("invoice_id")} />
+            <Label htmlFor="invoice_id">Invoice ID</Label>
+            <Input
+              id="invoice_id"
+              value={formData.invoice_id}
+              onChange={(e) => handleInputChange("invoice_id", e.target.value)}
+            />
           </div>
-
           <div className="space-y-2">
-            <Label htmlFor="date_issued" className="text-sm">
-              Date Issued
-            </Label>
-            <div className="relative">
-              <Input
-                id="date_issued"
-                type="date"
-                {...register("date_issued")}
-                className="pr-10"
-              />
-              <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 pointer-events-none" />
-            </div>
+            <Label htmlFor="type">Type</Label>
+            <Select
+              onValueChange={(value) => handleInputChange("type", value)}
+              value={formData.type}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="outgoing">Outgoing</SelectItem>
+                <SelectItem value="incoming">Incoming</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="space-y-2">
-            <Label htmlFor="due_date" className="text-sm">
-              Due Date
-            </Label>
-            <div className="relative">
-              <Input
-                id="due_date"
-                type="date"
-                {...register("due_date")}
-                className="pr-10"
-              />
-              <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 pointer-events-none" />
-            </div>
+            <Label htmlFor="date_issued">Date Issued</Label>
+            <Input
+              id="date_issued"
+              type="date"
+              value={formData.date_issued}
+              onChange={(e) => handleInputChange("date_issued", e.target.value)}
+            />
           </div>
-
           <div className="space-y-2">
-            <Label htmlFor="client" className="text-sm">
-              Client
-            </Label>
-            <select
-              id="client"
-              {...register("client")}
-              className="w-full px-3 py-2 border rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Select Client</option>
-              <option value="1">John Smith</option>
-              <option value="2">Jane Doe</option>
-              <option value="3">Acme Corporation</option>
-            </select>
+            <Label htmlFor="due_date">Due Date</Label>
+            <Input
+              id="due_date"
+              type="date"
+              value={formData.due_date}
+              onChange={(e) => handleInputChange("due_date", e.target.value)}
+            />
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="space-y-2">
-            <Label htmlFor="building" className="text-sm">
-              Region/Building
-            </Label>
-            <select
-              id="building"
-              {...register("building")}
-              className="w-full px-3 py-2 border rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            <Label>Client</Label>
+            <Select
+              onValueChange={(value) =>
+                handleInputChange("client", Number(value))
+              }
+              value={formData.client}
             >
-              <option value="">Select Building</option>
-              <option value="1">Building A - Downtown</option>
-              <option value="2">Building B - Uptown</option>
-              <option value="3">Building C - Suburbs</option>
-            </select>
+              <SelectTrigger>
+                <SelectValue placeholder="Select Client" />
+              </SelectTrigger>
+              <SelectContent>
+                {clientsData?.results?.map((client: any) => (
+                  <SelectItem key={client.id} value={client.id}>
+                    {client.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-
           <div className="space-y-2">
-            <Label htmlFor="apartments" className="text-sm">
-              Apartment
-            </Label>
-            <select
-              id="apartments"
-              {...register("apartments")}
-              className="w-full px-3 py-2 border rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            <Label>Plan</Label>
+            <Select
+              onValueChange={(value) =>
+                handleInputChange("plan", Number(value))
+              }
+              value={formData.plan}
             >
-              <option value="">Select Apartment</option>
-              <option value="1">Apartment 101</option>
-              <option value="2">Apartment 102</option>
-              <option value="3">Apartment 201</option>
-            </select>
+              <SelectTrigger>
+                <SelectValue placeholder="Select Plan" />
+              </SelectTrigger>
+              <SelectContent>
+                {plansData?.results?.map((plan: any) => (
+                  <SelectItem key={plan.id} value={plan.id}>
+                    {plan.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4">
+          <div className="space-y-2">
+            <Label>Region</Label>
+            <Select
+              onValueChange={(value) => handleInputChange("region", value)}
+              value={formData.region}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select Region" />
+              </SelectTrigger>
+              <SelectContent>
+                {regionsData?.results?.map((region: any) => (
+                  <SelectItem key={region.id} value={region.id.toString()}>
+                    {region.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>Building</Label>
+            <Select
+              onValueChange={(value) =>
+                handleInputChange("building", Number(value))
+              }
+              value={formData.building?.toString()}
+              disabled={!formData.region}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select Building" />
+              </SelectTrigger>
+              <SelectContent>
+                {
+                buildingsData?.length > 0 ?
+                buildingsData?.map((building: any) => (
+                  <SelectItem key={building.id} value={building.id.toString()}>
+                    {building.name}
+                  </SelectItem>
+                )) : <SelectItem value="none"> No buildings available </SelectItem>}
+              </SelectContent>{" "}
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>Apartments</Label>
+            <MultipleSelector
+              value={formData.apartments}
+              onChange={(value) => handleInputChange("apartments", value)}
+              options={
+                apartmentData?.apartments?.map((apt: any) => ({
+                  value: apt.id,
+                  label: apt.apartment_number,
+                })) || []
+              }
+              placeholder="Select Apartments"
+              disabled={!formData.building}
+            />
           </div>
         </div>
         <div className="flex items-center space-x-2 mt-4">
-          <Controller
-            name="paid"
-            control={control}
-            render={({ field }) => <Checkbox {...field} />}
+          <Checkbox
+            checked={formData.status === "paid"}
+            onCheckedChange={(checked) =>
+              handleInputChange("status", checked ? "paid" : "unpaid")
+            }
           />
-          <Label htmlFor="paid">Paid</Label>
+          <Label>Paid</Label>
         </div>
       </div>
 
@@ -165,106 +280,109 @@ const CreateInvoiceForm = () => {
       <div className="bg-white rounded-lg border p-6 mb-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-semibold">Services & Items</h2>
-          <Button
-            type="button"
-            onClick={() =>
-              append({
-                description: "",
-                quantity: 1,
-                unit_price: 0,
-                discount: 0,
-                tax: 0,
-              })
-            }
-            size="sm"
-          >
+          <Button type="button" onClick={addLineItem} size="sm">
             Add New Row
           </Button>
         </div>
-
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-2 px-2 font-medium text-gray-700">
-                  Description
-                </th>
-                <th className="text-left py-2 px-2 font-medium text-gray-700">
-                  Quantity
-                </th>
-                <th className="text-left py-2 px-2 font-medium text-gray-700">
-                  Unit Price
-                </th>
-                <th className="text-left py-2 px-2 font-medium text-gray-700">
-                  Discount %
-                </th>
-                <th className="text-left py-2 px-2 font-medium text-gray-700">
-                  Tax %
-                </th>
-                <th className="text-left py-2 px-2 font-medium text-gray-700">
-                  Line Total
-                </th>
-                <th className="text-left py-2 px-2 font-medium text-gray-700">
-                  Action
-                </th>
+                <th>Description</th>
+                <th>Service</th>
+                <th>Quantity</th>
+                <th>Unit Price</th>
+                <th>Discount %</th>
+                <th>Tax %</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              {fields.map((item, index) => {
-                const quantity = watch(`line_items.${index}.quantity`);
-                const unit_price = watch(`line_items.${index}.unit_price`);
-                const discount = watch(`line_items.${index}.discount`);
-                const tax = watch(`line_items.${index}.tax`);
-                const lineTotal =
-                  quantity *
-                  unit_price *
-                  (1 - discount / 100) *
-                  (1 + tax / 100);
-
-                return (
-                  <tr key={item.id} className="border-b">
-                    <td className="py-2 px-2">
-                      <Input {...register(`line_items.${index}.description`)} />
-                    </td>
-                    <td className="py-2 px-2">
-                      <Input
-                        type="number"
-                        {...register(`line_items.${index}.quantity`)}
-                      />
-                    </td>
-                    <td className="py-2 px-2">
-                      <Input
-                        type="number"
-                        {...register(`line_items.${index}.unit_price`)}
-                      />
-                    </td>
-                    <td className="py-2 px-2">
-                      <Input
-                        type="number"
-                        {...register(`line_items.${index}.discount`)}
-                      />
-                    </td>
-                    <td className="py-2 px-2">
-                      <Input
-                        type="number"
-                        {...register(`line_items.${index}.tax`)}
-                      />
-                    </td>
-                    <td className="py-2 px-2 font-medium">
-                      ${lineTotal.toFixed(2)}
-                    </td>
-                    <td className="py-2 px-2">
-                      <button
-                        type="button"
-                        onClick={() => remove(index)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+              {formData.line_items.map((item: any, index: number) => (
+                <tr key={index} className="border-b">
+                  <td>
+                    <Input
+                      value={item.description}
+                      onChange={(e) =>
+                        handleLineItemChange(
+                          index,
+                          "description",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </td>
+                  <td>
+                    <Select
+                      onValueChange={(value) =>
+                        handleLineItemChange(index, "service", value)
+                      }
+                      value={item.service}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Service" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {servicesData?.map((service: any) => (
+                          <SelectItem key={service.id} value={service.id}>
+                            {service.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </td>
+                  <td>
+                    <Input
+                      type="number"
+                      value={item.quantity}
+                      onChange={(e) =>
+                        handleLineItemChange(index, "quantity", e.target.value)
+                      }
+                    />
+                  </td>
+                  <td>
+                    <Input
+                      type="number"
+                      value={item.unit_price}
+                      onChange={(e) =>
+                        handleLineItemChange(
+                          index,
+                          "unit_price",
+                          e.target.value
+                        )
+                      }
+                    />
+                  </td>
+                  <td>
+                    <Input
+                      type="number"
+                      value={item.discount}
+                      onChange={(e) =>
+                        handleLineItemChange(index, "discount", e.target.value)
+                      }
+                    />
+                  </td>
+                  <td>
+                    <Input
+                      type="number"
+                      value={item.tax}
+                      onChange={(e) =>
+                        handleLineItemChange(index, "tax", e.target.value)
+                      }
+                    />
+                  </td>
+                  <td>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => removeLineItem(index)}
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -273,53 +391,23 @@ const CreateInvoiceForm = () => {
       {/* Notes & Attachments */}
       <div className="bg-white rounded-lg border p-6 mb-4">
         <h2 className="text-base font-semibold mb-4">Notes & Attachments</h2>
-
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="note" className="text-sm">
-              Invoice Notes
-            </Label>
+            <Label htmlFor="note">Invoice Notes</Label>
             <Textarea
               id="note"
-              {...register("note")}
-              className="min-h-[100px]"
+              value={formData.note}
+              onChange={(e) => handleInputChange("note", e.target.value)}
             />
-          </div>
-
-          <div className="space-y-2">
-            <Label className="text-sm">File Upload</Label>
-            <div className="border-2 border-dashed rounded-lg p-8 text-center hover:bg-gray-50 transition">
-              <input
-                id="file"
-                type="file"
-                {...register("file")}
-                className="hidden"
-              />
-              <Upload className="mx-auto text-gray-400 mb-2" size={32} />
-              <p className="text-sm text-gray-600 mb-1">
-                Drag and drop files here or{" "}
-                <button
-                  type="button"
-                  onClick={() => document.getElementById("file").click()}
-                  className="text-blue-600 hover:underline"
-                >
-                  browse
-                </button>
-              </p>
-            </div>
           </div>
         </div>
       </div>
 
       {/* Action Buttons */}
       <div className="flex justify-end gap-2">
-        <Button type="button" variant="outline">
-          Cancel
+        <Button type="submit" disabled={isAddingInvoice}>
+          {isAddingInvoice ? "Creating..." : "Create Invoice"}
         </Button>
-        <Button type="submit" variant="outline">
-          Save Draft
-        </Button>
-        <Button type="submit">Generate Invoice</Button>
       </div>
     </form>
   );
