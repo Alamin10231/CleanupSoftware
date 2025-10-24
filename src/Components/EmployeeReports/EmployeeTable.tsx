@@ -17,8 +17,6 @@ import {
   type EmployeeItem,
 } from "@/redux/features/employee/report/reporttable.api";
 
-
-
 type Status = "current" | "completed" | "canceled";
 
 type Row = {
@@ -31,7 +29,6 @@ type Row = {
   remarks: string;
 };
 
-// Badge styles
 const statusBadge = (status: Status) => {
   const base = "text-xs px-2 py-0.5 rounded-full border";
   if (status === "current") return `${base} bg-blue-50 text-blue-700 border-blue-200`;
@@ -39,7 +36,6 @@ const statusBadge = (status: Status) => {
   return `${base} bg-red-50 text-red-700 border-red-200`;
 };
 
-// Map API employee -> Row for display
 const mapEmployeeToRow = (e: EmployeeItem): Row => ({
   id: e.id,
   clientName: e.name,
@@ -51,7 +47,6 @@ const mapEmployeeToRow = (e: EmployeeItem): Row => ({
 });
 
 export const EmployeeTable = () => {
-  // --- UI state
   const [search, setSearch] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
   const [taskFilter, setTaskFilter] = useState<"Current Task" | "Completed" | "Canceled">(
@@ -62,23 +57,17 @@ export const EmployeeTable = () => {
   const [selected, setSelected] = useState<Row | null>(null);
   const [reportNotes, setReportNotes] = useState("");
 
-  // --- Pagination state
+  // Pagination
   const [page, setPage] = useState(1);
-  const itemsPerPage = 9; // ✅ Show 10 per page
   const { data, isLoading, isError } = useGetEmployeesPageQuery(page);
 
-  const [allEmployees, setAllEmployees] = useState<EmployeeItem[]>([]);
+  // Map backend employees -> rows
+  const apiRows: Row[] = useMemo(
+    () => (data?.results || []).map(mapEmployeeToRow),
+    [data?.results]
+  );
 
-  useEffect(() => {
-    if (data?.results) {
-      setAllEmployees(data.results);
-    }
-  }, [data?.results]);
-
-  // Convert to rows for table
-  const apiRows: Row[] = useMemo(() => allEmployees.map(mapEmployeeToRow), [allEmployees]);
-
-  // Search + filter
+  // Search + filter (current page only)
   const filtered: Row[] = useMemo(() => {
     if (!apiRows.length) return [];
 
@@ -99,10 +88,6 @@ export const EmployeeTable = () => {
     );
   }, [search, taskFilter, apiRows]);
 
-  // ✅ Client-side pagination logic
-  const totalPages = Math.ceil(filtered.length / itemsPerPage);
-  const paginatedData = filtered.slice((page - 1) * itemsPerPage, page * itemsPerPage);
-
   const openModal = (row: Row) => {
     setSelected(row);
     setReportNotes("");
@@ -115,12 +100,10 @@ export const EmployeeTable = () => {
       client: selected?.clientName,
       region: selected?.region,
       notes: reportNotes,
-      
     });
- 
     setOpen(false);
   };
- console.log("Notes:", submitReport);
+
   return (
     <>
       <div className="bg-white/50 border rounded-xl p-4 md:p-5">
@@ -193,7 +176,7 @@ export const EmployeeTable = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {paginatedData.map((row) => (
+                  {filtered.map((row) => (
                     <tr key={row.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3 text-gray-700">{row.id}</td>
                       <td className="px-4 py-3 text-gray-700">{row.clientName}</td>
@@ -213,7 +196,7 @@ export const EmployeeTable = () => {
                     </tr>
                   ))}
 
-                  {paginatedData.length === 0 && (
+                  {filtered.length === 0 && (
                     <tr>
                       <td colSpan={7} className="px-4 py-10 text-center text-gray-500">
                         No data found.
@@ -223,24 +206,24 @@ export const EmployeeTable = () => {
                 </tbody>
               </table>
 
-              {/* ✅ Pagination controls */}
-              {totalPages > 1 && (
+              {/* Pagination */}
+              {(data?.next || data?.previous) && (
                 <div className="flex justify-between items-center px-4 py-3 border-t bg-gray-50">
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={page === 1}
-                    onClick={() => setPage((p) => p - 1)}
+                    disabled={!data?.previous}
+                    onClick={() => setPage((p) => Math.max(p - 1, 1))}
                   >
                     Previous
                   </Button>
                   <span className="text-sm text-gray-600">
-                    Page {page} of {totalPages}
+                    Page {page} of {Math.ceil((data?.count || 0) / 10)}
                   </span>
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={page === totalPages}
+                    disabled={!data?.next}
                     onClick={() => setPage((p) => p + 1)}
                   >
                     Next
@@ -304,9 +287,7 @@ export const EmployeeTable = () => {
             <Button variant="outline" onClick={() => setOpen(false)}>
               Close
             </Button>
-            <Button onClick={submitReport} disabled={!reportNotes.trim()}>
-              Submit Report
-            </Button>
+            <Button onClick={submitReport}>Submit Report</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

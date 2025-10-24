@@ -55,7 +55,5 @@ export const employeeDashboardApi = baseApi.injectEndpoints({
   }),
 });
 
-export const {
-  useGetEmployeesPageQuery,
-  useGetReportTableQuery, // optional (single)
-} = employeeDashboardApi;
+export const { useGetEmployeesPageQuery, useGetReportTableQuery } =
+  employeeDashboardApi;
