@@ -83,10 +83,6 @@ export default function SubscriptionPlan() {
             <option>Active</option>
             <option>Inactive</option>
           </select>
-
-          <Link to="/add-new-plan">
-            <Button>add-new-plan</Button>
-          </Link>
         </div>
       </div>
 
@@ -137,7 +133,7 @@ export default function SubscriptionPlan() {
                 </td>
 
                 <td className="px-4 py-3 space-x-3">
-                  <Link to={`/update-plan/${plan.id}`}>
+                  <Link to={`/admin/update-plan/${plan.id}`}>
                     <Button variant={"outline"}>Edit</Button>
                   </Link>
                 </td>

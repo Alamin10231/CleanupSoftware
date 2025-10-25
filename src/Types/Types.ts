@@ -1,3 +1,5 @@
+import type { ComponentType } from "react";
+
 export type Subscription = {
   id: number;
   name: string;
@@ -10,6 +12,17 @@ export type Subscription = {
   nextPayment: string;
   invoice: boolean;
 };
+
+export interface ISidebarItems {
+   title: string;
+   item: {
+      title: string;
+      url: string;
+      component: ComponentType,
+      isActive: boolean;
+      icon?: ComponentType; // Add optional icon property
+   }[];
+}
 export interface MenuItem {
   icon: string;
   label: string;

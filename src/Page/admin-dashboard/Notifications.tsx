@@ -1,29 +1,13 @@
-import { useState } from "react";
 import { Button } from "@/Components/ui/button";
-
-const notificationsData = [
-    {
-        "id": 307,
-        "object_repr": "Aut voluptas in nisi - Kibo Ayers",
-        "changes": { "is_active": [ "True", "False" ] },
-        "timestamp": "2025-10-23T21:35:16.252745Z",
-        "message": "Planmodel updated by System"
-    },
-    {
-        "id": 306,
-        "object_repr": "Repudiandae eius vol - Camille Sharp",
-        "changes": { "is_active": [ "True", "False" ] },
-        "timestamp": "2025-10-23T21:35:12.910391Z",
-        "message": "Planmodel updated by System"
-    },
-    {
-        "id": 305,
-        "object_repr": "Porro Nam nihil volu - Stephen Hopkinsss",
-        "changes": { "is_active": [ "True", "False" ] },
-        "timestamp": "2025-10-23T21:35:10.828334Z",
-        "message": "Planmodel updated by System"
-    }
-];
+import { useGetNotificationsQuery } from "@/redux/features/admin/notifications/notifications.api";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/Components/ui/table";
 
 const formatTimestamp = (timestamp: string) => {
   const date = new Date(timestamp);
@@ -31,23 +15,30 @@ const formatTimestamp = (timestamp: string) => {
 };
 
 const formatChanges = (changes: any) => {
-    const changeKey = Object.keys(changes)[0];
-    if (changeKey === 'is_active') {
-        const [from, to] = changes[changeKey];
-        return `Status changed from ${from === 'True' ? 'Active' : 'Inactive'} to ${to === 'True' ? 'Active' : 'Inactive'}`;
+    const changeEntries = Object.entries(changes);
+    if (changeEntries.length === 0) {
+        return "No changes";
     }
-    return JSON.stringify(changes);
+    if (changeEntries.length === 1) {
+        const [key, value] = changeEntries[0];
+        const [from, to] = value as [string, string];
+        return `${key}: from "${String(from)}" to "${String(to)}"`;
+    }
+    return `${changeEntries.length} fields changed`;
 }
 
 const Notifications = () => {
-  const [notifications, setNotifications] = useState(notificationsData.map(n => ({...n, status: 'new'})));
+    const { data, isLoading, isError } = useGetNotificationsQuery(undefined);
+
+    if(isLoading) return <div>Loading...</div>;
+    if(isError) return <div>Error loading notifications.</div>;
+
+    const notifications = data?.map((n: any) => ({ ...n, status: 'new' })) || [];
 
   const markAllAsRead = () => {
-    setNotifications(notifications.map((n) => ({ ...n, status: "read" })));
   };
 
   const markOneAsRead = (id: number) => {
-    setNotifications(notifications.map((n) => (n.id === id ? { ...n, status: "read" } : n)));
   };
 
   return (
@@ -63,29 +54,28 @@ const Notifications = () => {
         </Button>
       </div>
 
-      {/* Notification list */}
-      <div className="space-y-4">
-        {notifications.map((n) => (
-          <div
-            key={n.id}
-            onClick={() => markOneAsRead(n.id)}
-            className={`flex justify-between rounded-xl p-6 cursor-pointer border border-gray-300 shadow-sm ${
-              n.status === "new" ? "bg-blue-100" : "bg-gray-50"
-            }`}
-          >
-            <div>
-              <h2 className="font-semibold text-lg">{n.object_repr}</h2>
-              <p className="mt-2 text-gray-700">{n.message}</p>
-              <p className="mt-1 text-sm text-gray-500">{formatChanges(n.changes)}</p>
-            </div>
-            <div className="flex flex-col items-end">
-              <p className="text-sm text-gray-500">{formatTimestamp(n.timestamp)}</p>
-              {n.status === "new" && (
-                <div className="mt-2 w-3 h-3 bg-blue-500 rounded-full"></div>
-              )}
-            </div>
-          </div>
-        ))}
+      {/* Notification table */}
+      <div className="border rounded-lg">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Object</TableHead>
+              <TableHead>Message</TableHead>
+              <TableHead>Changes</TableHead>
+              <TableHead>Timestamp</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {notifications.map((n: any) => (
+              <TableRow key={n.id} className={n.status === 'new' ? 'bg-blue-50' : ''} onClick={() => markOneAsRead(n.id)}>
+                <TableCell className="font-medium">{n.object_repr}</TableCell>
+                <TableCell>{n.message}</TableCell>
+                <TableCell>{formatChanges(n.changes)}</TableCell>
+                <TableCell>{formatTimestamp(n.timestamp)}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     </>
   );
