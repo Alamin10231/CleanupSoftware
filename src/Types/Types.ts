@@ -20,7 +20,8 @@ export interface ISidebarItems {
       url: string;
       component: ComponentType,
       isActive: boolean;
-   }
+      icon?: ComponentType; // Add optional icon property
+   }[];
 }
 export interface MenuItem {
   icon: string;

@@ -245,7 +245,7 @@ const CreateInvoiceForm = () => {
                   <SelectItem key={building.id} value={building.id.toString()}>
                     {building.name}
                   </SelectItem>
-                )) : <SelectItem value="none"> No buildings available </SelectItem>}
+                )) : <SelectItem value="none" disabled> No buildings available </SelectItem>}
               </SelectContent>{" "}
             </Select>
           </div>

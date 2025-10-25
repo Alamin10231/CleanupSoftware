@@ -5,9 +5,10 @@ import { employeeSidebarItems } from "./sidebar-items/employee-items";
 
 export const generateRoutes = (sidebarItems: ISidebarItems[]) => {
   return sidebarItems.flatMap((section) =>
-    [section.item].map((route) => ({
+    section.item.map((route) => ({
       path: route.url,
       Component: route.component,
+      
     }))
   );
 };
@@ -15,7 +16,7 @@ export const generateRoutes = (sidebarItems: ISidebarItems[]) => {
 export const getSidebarItems = (role: UserRole) => {
    switch (role) {
       case 'admin':
-         return [...adminSidebarItems, ...employeeSidebarItems];
+         return [...adminSidebarItems];
 
       case 'employee':
          return employeeSidebarItems;
