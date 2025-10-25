@@ -171,12 +171,6 @@ export default function SubscriptionsDashboard() {
             <option>Expired</option>
             <option>Inactive</option>
           </select>
-
-          <Link to="/subscriptionplan">
-            <Button>
-              View Plan
-            </Button>
-          </Link>
         </div>
       </div>
 

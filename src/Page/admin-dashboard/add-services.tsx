@@ -77,6 +77,7 @@ const AddNewServiceForm = () => {
   const [showEmployee, setShowEmployee] = useState(false);
   const [formData, setFormData] = useState(initialFormState);
   const [addCategoryButton, setAddCategoryButton] = useState(false);
+
   const { data: categories, isLoading: isCategoriesLoading } =
     useGetServiceCategoriesQuery(undefined);
   const [addCategory, { isLoading: isAddingCategory }] =
@@ -84,8 +85,8 @@ const AddNewServiceForm = () => {
   const { data: regionsData, isLoading: isRegionsLoading } =
     useGetregionsQuery(undefined);
   const { data: buildings, isLoading: isBuildingsLoading } =
-    useGetBuildingsByRegionQuery(formData.region);
-  const { data: apartments } = useGetBuildingByIdQuery(formData.building || 0);
+    useGetBuildingsByRegionQuery(formData.region, { skip: !formData.region });
+  const { data: apartments } = useGetBuildingByIdQuery(formData.building || 0, { skip: !formData.building });
   const { data: employees, isLoading: isEmployeesLoading } =
     useGetSearchAllEmpoloyeesQuery(employee ? `${employee}` : "");
   const [addService, { isLoading: addServiceLoading }] =
@@ -427,7 +428,10 @@ const AddNewServiceForm = () => {
               <Select
                 value={formData.region?.toString() || ""}
                 onValueChange={(value) =>
-                  handleInputChange("region", value === "" ? null : Number(value))
+                  handleInputChange(
+                    "region",
+                    value === "" ? null : Number(value)
+                  )
                 }
               >
                 <SelectTrigger id="region">
@@ -479,7 +483,7 @@ const AddNewServiceForm = () => {
                           <SelectItem value="loading" disabled>
                             Loading...
                           </SelectItem>
-                        ) : (
+                        ) : buildings && buildings.length > 0 ? (
                           buildings?.map((building) => (
                             <SelectItem
                               key={building.id}
@@ -488,6 +492,10 @@ const AddNewServiceForm = () => {
                               {building.name}
                             </SelectItem>
                           ))
+                        ) : (
+                          <SelectItem value="none" disabled>
+                            No Buildings available
+                          </SelectItem>
                         )}
                       </SelectContent>
                     </Select>
