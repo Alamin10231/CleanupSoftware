@@ -45,7 +45,7 @@ const EmployeeSubscription = lazy(
 
 export const employeeSidebarItems: ISidebarItems[] = [
   {
-    title: "",
+    title: "Employee Dashboard",
     item: [
       {
         title: "Dashboard",

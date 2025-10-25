@@ -10,7 +10,8 @@ import SignUp from "@/Components/Auth/SignUp";
 import ForgetPassword from "@/Components/Auth/ForgetPassword";
 import Verifyotp from "@/Components/Auth/Verifyotp";
 import NotFound from "@/Page/NotFound";
-// import { supervisorSidebarItems } from "./sidebar-items/supervisor-items";
+import { clientSidebarItems } from "./sidebar-items/client-items";
+import { supervisorSidebarItems } from "./sidebar-items/supervisor-items";
 
 export const router = createBrowserRouter([
   {
@@ -35,16 +36,23 @@ export const router = createBrowserRouter([
       ...generateRoutes(employeeSidebarItems),
     ],
   },
-  // {
-  //    Component: DashboardLayout,
-  //    path: "/supervisor",
-  //    children: [...generateRoutes(employeeSidebarItems), ...generateRoutes(supervisorSidebarItems)]
-  // },
+  {
+    Component: DashboardLayout,
+    path: "/supervisor",
+    children: [
+      { index: true, element: <Navigate to={"dashboard"} /> },
+      ...generateRoutes(employeeSidebarItems),
+      ...generateRoutes(supervisorSidebarItems),
+    ],
+  },
 
   {
     Component: DashboardLayout,
     path: "/client",
-    children: [],
+    children: [
+      { index: true, element: <Navigate to={"profile"} /> },
+      ...generateRoutes(clientSidebarItems),
+    ],
   },
   {
     Component: Login,
@@ -63,7 +71,7 @@ export const router = createBrowserRouter([
     path: "/verifyotp",
   },
   {
-   Component: NotFound,
-   path: "*"
-  }
+    Component: NotFound,
+    path: "*",
+  },
 ]);

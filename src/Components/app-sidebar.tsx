@@ -21,6 +21,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useSelector((state: RootState) => state.auth);
   const data = {
     navMain: getSidebarItems(user?.user_type),
+   //  navMain: getSidebarItems("supervisor"),
   };
   return (
     <Sidebar {...props}>

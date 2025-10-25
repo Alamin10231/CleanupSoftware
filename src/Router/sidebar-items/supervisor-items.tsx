@@ -1,13 +1,17 @@
-// import EmployeeReports from "@/Page/employee-dashboard/EmployeeReports";
+import { Proportions } from "lucide-react";
+import { lazy } from "react";
 
-// export const supervisorSidebarItems = [
-//    {
-//       title: "Employee Report",
-//       item: {
-//          title: "Reporting",
-//          url: "/supervisor/reporting",
-//          component: EmployeeReports,
-//          isActive: false
-//       }
-//    }
-// ]
+const EmployeeReports = lazy(() => import("@/Page/employee-dashboard/EmployeeReports"));
+
+export const supervisorSidebarItems = [
+   {
+      title: "supervisor Reporting",
+      item: [{
+         title: "Reporting",
+         url: "/supervisor/reporting",
+         component: EmployeeReports,
+         icon: Proportions,
+         isActive: false
+      }]
+   }
+]

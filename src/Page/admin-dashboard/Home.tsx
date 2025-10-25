@@ -8,11 +8,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { ChevronRight } from "lucide-react";
 import { logout } from "@/redux/features/auth/authSlice";
 import { Button } from "@/Components/ui/button";
-import { generateRoutes } from "@/Router/routes.config";
-import { adminSidebarItems } from "@/Router/sidebar-items/admin-items";
 
 const Home = () => {
-   console.log(generateRoutes(adminSidebarItems))
+
   const faqs = [
     {
       question: "Which is the Best Influence Service?",
@@ -71,7 +69,7 @@ const Home = () => {
 
           {user ? (
             <div className="flex gap-6">
-              <Link to="/">
+              <Link to={`/${user.user_type}`}>
                 <button className="text-[#8241ED] border border-[#8241ED] px-4 py-2 cursor-pointer rounded-full hover:bg-[#8241ED] hover:text-white">
                   Dashboard
                 </button>
