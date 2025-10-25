@@ -1,6 +1,6 @@
 import DashboardLayout from "@/DashboardLayout";
 import Home from "@/Page/admin-dashboard/Home";
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import { generateRoutes } from "./routes.config";
 import { adminSidebarItems } from "./sidebar-items/admin-items";
 import { employeeSidebarItems } from "./sidebar-items/employee-items";
@@ -15,12 +15,16 @@ export const router = createBrowserRouter([
    {
       Component: DashboardLayout,
       path: "/admin",
-      children: [...generateRoutes(adminSidebarItems)]
+      children: [
+         { index: true, element: <Navigate to="/admin/dashboard" /> },
+         ...generateRoutes(adminSidebarItems)]
    },
    {
       Component: DashboardLayout,
       path: "/employee",
-      children: [...generateRoutes(employeeSidebarItems)]
+      children: [
+         { index: true, element: <Navigate to="/employee/dashboard" /> },
+         ...generateRoutes(employeeSidebarItems)]
    },
    // {
    //    Component: DashboardLayout,

@@ -1,5 +1,6 @@
-import Clients from "@/Page/admin-dashboard/Clients";
-import Dashboard from "@/Page/admin-dashboard/Dashboard";
+import { lazy } from "react";
+const Clients = lazy(() => import("@/Page/admin-dashboard/Clients"));
+const Dashboard = lazy(() => import("@/Page/admin-dashboard/Dashboard"));
 import type { ISidebarItems } from "@/Types/Types";
 
 export const adminSidebarItems: ISidebarItems[] = [

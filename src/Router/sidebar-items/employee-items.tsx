@@ -1,4 +1,5 @@
-import EmployeeDashboard from "@/Page/employee-dashboard/EmployeeDashboard";
+import { lazy } from "react";
+const EmployeeDashboard = lazy(() => import("@/Page/employee-dashboard/EmployeeDashboard"))
 import type { ISidebarItems } from "@/Types/Types";
 
 export const employeeSidebarItems: ISidebarItems[] = [
