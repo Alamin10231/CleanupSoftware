@@ -13,7 +13,7 @@ import { logout } from "@/redux/features/auth/authSlice";
 import { useNavigate } from "react-router";
 import Notifications from "./notification-bell";
 
-type RootState = {
+export type RootState = {
   auth: {
     user: {
       user_type?: string;
@@ -47,15 +47,15 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-    function handleLogout() {
-        try {
-            dispatch(logout());
-            console.log("User logged out");
-            navigate("/login");
-        } catch (error) {
-            console.log(error);
-        }
+  function handleLogout() {
+    try {
+      dispatch(logout());
+      console.log("User logged out");
+      navigate("/login");
+    } catch (error) {
+      console.log(error);
     }
+  }
 
   const displayName = user?.name ?? "Guest User";
   const displayEmail = user?.email ?? "—";
@@ -86,8 +86,7 @@ const Navbar = () => {
 
       {/* Right Section */}
       <div className="flex items-center gap-4">
-
-         <Notifications />
+        <Notifications />
         {/* Profile + Dropdown */}
         <div
           className="relative flex items-center gap-3 cursor-pointer rounded-md"
