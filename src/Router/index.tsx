@@ -10,7 +10,6 @@ import SignUp from "@/Components/Auth/SignUp";
 import ForgetPassword from "@/Components/Auth/ForgetPassword";
 import Verifyotp from "@/Components/Auth/Verifyotp";
 import NotFound from "@/Page/NotFound";
-import UpdatePlanForm from "@/Page/admin-dashboard/UpdatePlan";
 // import { supervisorSidebarItems } from "./sidebar-items/supervisor-items";
 
 export const router = createBrowserRouter([
@@ -24,19 +23,15 @@ export const router = createBrowserRouter([
     //  Component: checkRole(DashboardLayout, "admin"),
     path: "/admin",
     children: [
-      { index: true, element: <Navigate to="/admin/dashboard" /> },
+      { index: true, element: <Navigate to="dashboard" /> }, // Changed to relative path
       ...generateRoutes(adminSidebarItems),
-      {
-        Component: UpdatePlanForm,
-        path: "update-plan/:id",
-      },
     ],
   },
   {
     Component: checkRole(DashboardLayout, "employee"),
     path: "/employee",
     children: [
-      { index: true, element: <Navigate to="/employee/dashboard" /> },
+      { index: true, element: <Navigate to="dashboard" /> }, // Changed to relative path
       ...generateRoutes(employeeSidebarItems),
     ],
   },
@@ -68,7 +63,7 @@ export const router = createBrowserRouter([
     path: "/verifyotp",
   },
   {
-    Component: NotFound,
-    path: "*",
-  },
+   Component: NotFound,
+   path: "*"
+  }
 ]);

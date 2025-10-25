@@ -45,124 +45,78 @@ const EmployeeSubscription = lazy(
 
 export const employeeSidebarItems: ISidebarItems[] = [
   {
-    title: "Dashboard",
+    title: "",
     item: [
       {
         title: "Dashboard",
-        url: "/employee-dashboard",
+        url: "dashboard", // Changed from /employee-dashboard
         component: EmployeeDashboard,
         isActive: true,
-        icon: LayoutDashboard, // Added icon
+        icon: LayoutDashboard,
       },
-    ],
-  },
-  {
-    title: "Building",
-    item: [
       {
         title: "Building",
-        url: "/employee-building",
+        url: "building", // Changed from /employee-building
         component: RegionDashboard,
         isActive: false,
-        icon: Building, // Added icon
+        icon: Building,
       },
-    ],
-  },
-  {
-    title: "Building Tasks",
-    item: [
       {
         title: "Building Tasks",
-        url: "/employee-building/:buildingName",
+        url: "building/:buildingName", // Changed from /employee-building/:buildingName
         component: TaskEmployee,
         isActive: false,
-        icon: ClipboardList, // Added icon
+        icon: ClipboardList,
       },
-    ],
-  },
-  {
-    title: "Communication",
-    item: [
       {
         title: "Communication",
-        url: "/employee-communication",
+        url: "communication", // Changed from /employee-communication
         component: EmployeeCommunication,
         isActive: false,
-        icon: MessageSquare, // Added icon
+        icon: MessageSquare,
       },
-    ],
-  },
-  {
-    title: "Settings",
-    item: [
       {
-        title: "Settings",
-        url: "/employee-setting",
-        component: EmployeeSetting,
-        isActive: false,
-        icon: Settings, // Added icon
+         title: "Forms",
+         url: "forms", // Changed from /employee-forms
+         component: EmployeeForms,
+         isActive: false,
+         icon: FileText,
       },
-    ],
-  },
-  {
-    title: "Forms",
-    item: [
       {
-        title: "Forms",
-        url: "/employee-forms",
-        component: EmployeeForms,
-        isActive: false,
-        icon: FileText, // Added icon
+         title: "Region",
+         url: "region", // Changed from /employee-region
+         component: Buildingregions,
+         isActive: false,
+         icon: MapPin,
       },
-    ],
-  },
-  {
-    title: "Region",
-    item: [
-      {
-        title: "Region",
-        url: "/employee-region",
-        component: Buildingregions,
-        isActive: false,
-        icon: MapPin, // Added icon
-      },
-    ],
-  },
-  {
-    title: "Reports",
-    item: [
       {
         title: "Reports",
-        url: "/employee-report",
+        url: "report", // Changed from /employee-report
         component: EmployeeReports,
         isActive: false,
-        icon: BarChart, // Added icon
+        icon: BarChart,
       },
-    ],
-  },
-  {
-    title: "Invoices",
-    item: [
       {
         title: "Invoices",
-        url: "/employee-invoice",
+        url: "invoice", // Changed from /employee-invoice
         component: EmployeeInvoicees,
         isActive: false,
-        icon: FileText, // Added icon
+        icon: FileText,
       },
-    ],
-  },
-  {
-    title: "Subscriptions",
-    item: [
       {
         title: "Subscriptions",
-        url: "/employee-subscriptions",
+        url: "subscriptions", // Changed from /employee-subscriptions
         component: EmployeeSubscription,
         isActive: false,
-        icon: CreditCard, // Added icon
+        icon: CreditCard,
+      },
+      {
+        title: "Settings",
+        url: "setting", // Changed from /employee-setting
+        component: EmployeeSetting,
+        isActive: false,
+        icon: Settings,
       },
     ],
   },
 ];
-

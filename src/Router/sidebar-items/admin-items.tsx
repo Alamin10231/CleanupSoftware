@@ -46,7 +46,6 @@ const SubscriptionPlan = lazy(
 const AddNewPlanForm = lazy(
   () => import("@/Page/admin-dashboard/add-new-plan")
 );
-const UpdatePlanForm = lazy(() => import("@/Page/admin-dashboard/UpdatePlan"));
 const AddNewServiceForm = lazy(
   () => import("@/Page/admin-dashboard/add-services")
 );
