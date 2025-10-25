@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Badge } from "@/Components/ui/badge";
 import { ScrollArea } from "@/Components/ui/scroll-area";
@@ -11,40 +12,7 @@ import {
   DialogTrigger,
 } from "@/Components/ui/dialog";
 import { Separator } from "@/Components/ui/separator";
-
-// Dummy data for now
-const dummyReports = [
-  {
-    id: "rpt-001",
-    supervisor: "John Smith",
-    employee: "Alice Johnson",
-    employeeId: "emp-101",
-    date: "2025-10-19",
-    performance: "Excellent",
-    workSummary: "Completed the assigned UI module and fixed layout bugs.",
-    remarks: "Very dedicated and punctual today.",
-  },
-  {
-    id: "rpt-002",
-    supervisor: "John Smith",
-    employee: "Mark Lee",
-    employeeId: "emp-102",
-    date: "2025-10-18",
-    performance: "Good",
-    workSummary: "Worked on backend API integration and wrote test cases.",
-    remarks: "Needs slight improvement in meeting deadlines.",
-  },
-  {
-    id: "rpt-003",
-    supervisor: "Sarah Connor",
-    employee: "Emma Brown",
-    employeeId: "emp-103",
-    date: "2025-10-18",
-    performance: "Average",
-    workSummary: "Tested new deployment pipeline.",
-    remarks: "Still learning deployment flow, but progressing well.",
-  },
-];
+import { useGetSupervisorReportsQuery } from "@/redux/features/admin/Report/supervisorReport.api";
 
 const performanceColors: Record<string, string> = {
   Excellent: "bg-green-100 text-green-700 border-green-200",
@@ -54,88 +22,108 @@ const performanceColors: Record<string, string> = {
 };
 
 export default function ReportsPage() {
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isError } = useGetSupervisorReportsQuery(page);
+
+  if (isLoading) return <p className="text-center mt-10">Loading...</p>;
+  if (isError) return <p className="text-center mt-10">Something went wrong!</p>;
+
+  const reports = data?.results || [];
+
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-3xl font-semibold">Supervisor Reports</h1>
+      <h1 className="text-3xl font-semibold text-gray-800">Supervisor Reports</h1>
 
-      <Card>
+      <Card className="shadow-lg border border-gray-200">
         <CardHeader>
-          <CardTitle className="text-xl">All Reports</CardTitle>
+          <CardTitle className="text-xl text-gray-900">All Reports</CardTitle>
         </CardHeader>
 
         <CardContent>
           <ScrollArea className="max-h-[70vh]">
-            <div className="divide-y divide-gray-200">
-              {dummyReports.map((report) => (
-                <div
-                  key={report.id}
-                  className="flex justify-between items-center py-4 hover:bg-gray-50 px-2 rounded-lg transition"
-                >
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-gray-800">
-                        {report.employee}
-                      </h3>
+            <table className="w-full text-left border-collapse">
+              <thead className="bg-gray-100 sticky top-0">
+                <tr>
+                  <th className="px-4 py-2 text-sm font-medium text-gray-700">Employee</th>
+                  <th className="px-4 py-2 text-sm font-medium text-gray-700">Supervisor</th>
+                  <th className="px-4 py-2 text-sm font-medium text-gray-700">Date</th>
+                  <th className="px-4 py-2 text-sm font-medium text-gray-700">Performance</th>
+                  <th className="px-4 py-2 text-sm font-medium text-gray-700">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reports.map((report: any, idx: number) => (
+                  <tr
+                    key={report.id}
+                    className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                  >
+                    <td className="px-4 py-2">{report.employee_name}</td>
+                    <td className="px-4 py-2">{report.supervisor_name}</td>
+                    <td className="px-4 py-2">{report.report_date}</td>
+                    <td className="px-4 py-2">
                       <Badge
                         variant="outline"
                         className={performanceColors[report.performance]}
                       >
                         {report.performance}
                       </Badge>
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      Supervisor: {report.supervisor}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Date: {report.date}
-                    </p>
-                  </div>
-
-                  <ReportDialog report={report} />
-                </div>
-              ))}
-            </div>
+                    </td>
+                    <td className="px-4 py-2">
+                      <ReportDialog report={report} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </ScrollArea>
+
+          {/* Pagination */}
+          <div className="flex justify-between mt-4">
+            <Button
+              disabled={!data?.previous}
+              onClick={() => setPage((p) => Math.max(p - 1, 1))}
+            >
+              Previous
+            </Button>
+            <span className="text-gray-600">
+              Page {page}
+            </span>
+            <Button
+              disabled={!data?.next}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
   );
 }
 
-interface Report {
-  id: string;
-  supervisor: string;
-  employee: string;
-  employeeId: string;
-  date: string;
-  performance: string;
-  workSummary: string;
-  remarks: string;
-}
-
-function ReportDialog({ report }: { report: Report }) {
+function ReportDialog({ report }: any) {
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm" className="flex items-center gap-1">
-          <Eye size={16} />
-          View
+          <Eye size={16} /> View
         </Button>
       </DialogTrigger>
+
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-xl">
-            Report for {report.employee}
+          <DialogTitle className="text-xl text-gray-800">
+            Report for {report.employee_name}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-4 mt-2">
           <div className="flex justify-between">
             <p className="text-sm text-gray-600">
-              <strong>Supervisor:</strong> {report.supervisor}
+              <strong>Supervisor:</strong> {report.supervisor_name}
             </p>
             <p className="text-sm text-gray-600">
-              <strong>Date:</strong> {report.date}
+              <strong>Date:</strong> {report.report_date}
             </p>
           </div>
 
@@ -143,8 +131,15 @@ function ReportDialog({ report }: { report: Report }) {
 
           <div>
             <h4 className="font-semibold mb-1 text-gray-700">Work Summary</h4>
-            <p className="text-gray-700 text-sm">{report.workSummary}</p>
+            <p className="text-gray-700 text-sm">{report.work_summary}</p>
           </div>
+
+          {report.report_summary && (
+            <div>
+              <h4 className="font-semibold mb-1 text-gray-700">Report Summary</h4>
+              <p className="text-gray-700 text-sm">{report.report_summary}</p>
+            </div>
+          )}
 
           <div>
             <h4 className="font-semibold mb-1 text-gray-700">Performance</h4>
@@ -157,9 +152,16 @@ function ReportDialog({ report }: { report: Report }) {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-1 text-gray-700">Remarks</h4>
-            <p className="text-gray-700 text-sm">{report.remarks}</p>
+            <h4 className="font-semibold mb-1 text-gray-700">Supervisor Comments</h4>
+            <p className="text-gray-700 text-sm">{report.supervisor_comments}</p>
           </div>
+
+          {report.issues_reported && (
+            <div>
+              <h4 className="font-semibold mb-1 text-gray-700">Issues Reported</h4>
+              <p className="text-gray-700 text-sm">{report.issues_reported}</p>
+            </div>
+          )}
 
           <div className="flex justify-end">
             <Button variant="outline">Close</Button>

@@ -19,6 +19,7 @@ import {
   ListPlus,
   Pencil,
 } from "lucide-react"; // Import necessary icons
+import AdminDynamicForm from "@/Page/admin-dashboard/AdminDynamicForm";
 
 const Clients = lazy(() => import("@/Page/admin-dashboard/Clients"));
 const Dashboard = lazy(() => import("@/Page/admin-dashboard/Dashboard"));
@@ -171,6 +172,13 @@ export const adminSidebarItems: ISidebarItems[] = [
         isActive: false,
         icon: BarChart, // Added icon
       },
+      {
+        title: "Create Form",
+        url: "/admin/create-form",
+        component: AdminDynamicForm,
+        isActive: false,
+        icon: Pencil, // Added icon
+      }
     ],
   },
 
