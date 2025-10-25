@@ -17,6 +17,7 @@ import {
 import { SearchForm } from "./Components/search-form";
 import Notifications from "./Components/notification-bell";
 import Navbar from "./Components/Navbar";
+import { Toaster } from "sonner";
 
 export default function DashboardLayout() {
    const { pathname } = useLocation()
@@ -47,6 +48,7 @@ export default function DashboardLayout() {
           <SearchForm className="w-full sm:ml-auto sm:w-auto" />
           <Notifications />
           <Navbar />
+          <Toaster position="top-right" className="z-[99]" />
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4">
           <Outlet />

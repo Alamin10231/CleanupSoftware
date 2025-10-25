@@ -5,11 +5,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/Components/ui/dialog";
-import { Button } from "../ui/button";
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { useAddregionMutation } from "@/redux/features/admin/regions/regions.api";
 import { toast } from "sonner";
+import { Button } from "../ui/button";
 
 export default function AddRegion() {
   const [regionName, setRegionName] = useState("");
