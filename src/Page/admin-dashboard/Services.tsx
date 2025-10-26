@@ -1,9 +1,7 @@
 import { assets } from "@/assets/assets";
 import Card from "@/Components/Card";
 import ServiceCard from "@/Components/ServiceCard";
-import { Button } from "@/Components/ui/button";
 import { useGetServiceAdminOverviewQuery } from "@/redux/features/admin/services/services.api";
-import { Link } from "react-router";
 
 const Services = () => {
   const { data: serviceOverview } = useGetServiceAdminOverviewQuery(undefined);
@@ -33,15 +31,6 @@ const Services = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="font-bold text-2xl text-[#030229]">Services</h1>
-          <p className="text-gray-500 mt-2">
-            Manage, analyze & elevate your offering portfolio. Refined
-            experience with enhanced visuals.
-          </p>
-        </div>
-        <div className="flex gap-4">
-          <Link to="/add-services">
-            <Button size={"lg"}>Add Services</Button>
-          </Link>
         </div>
       </div>
 

@@ -16,7 +16,7 @@ const Invoices = () => {
     <div>
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-black text-2xl font-bold">Clients</h2>
+          <h2 className="text-black text-2xl font-bold">Clients Invoices</h2>
           <p className="text-[#808080] text-base mt-1">Manage clients and subscription</p>
         </div>
         <div className="flex gap-2">

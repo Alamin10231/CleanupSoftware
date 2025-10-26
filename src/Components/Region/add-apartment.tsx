@@ -6,17 +6,11 @@ import {
   DialogTrigger,
 } from "@/Components/ui/dialog";
 import { Button } from "../ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AdvancedMarker, APIProvider, Map } from "@vis.gl/react-google-maps";
 import CustomMarker from "../map/CustomMarker";
 import type { LatLng } from "@/Types/map.types";
 import type { Building } from "@/Types/building.types";
-
-type Client = {
-  id: number;
-  name: string;
-  email?: string;
-};
 import { useGetSearchClientsQuery } from "@/redux/features/admin/users/clients.api";
 import {
   useCreateApartmentMutation,
@@ -24,32 +18,139 @@ import {
 } from "@/redux/features/admin/buildings/building.api";
 import { toast } from "sonner";
 
+type Client = {
+  id: number;
+  name: string;
+  email?: string;
+};
+
+type ApartmentFormData = {
+  apartment_number: string;
+  floor: string;
+  living_rooms: string;
+  bathrooms: string;
+  outdoor_area: boolean;
+};
+
+const INITIAL_FORM_DATA: ApartmentFormData = {
+  apartment_number: "",
+  floor: "",
+  living_rooms: "",
+  bathrooms: "",
+  outdoor_area: false,
+};
+
+const DEFAULT_MAP_CENTER: LatLng = { lat: 24.7136, lng: 46.6753 };
+
+// Searchable Dropdown Component
+interface SearchDropdownProps<T> {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  onSelect: (item: T) => void;
+  items: T[];
+  showDropdown: boolean;
+  onToggleDropdown: (show: boolean) => void;
+  placeholder: string;
+  renderItem: (item: T) => React.ReactNode;
+  getKey: (item: T) => string | number;
+}
+
+function SearchDropdown<T>({
+  label,
+  value,
+  onChange,
+  onSelect,
+  items,
+  showDropdown,
+  onToggleDropdown,
+  placeholder,
+  renderItem,
+  getKey,
+}: SearchDropdownProps<T>) {
+  return (
+    <div className="relative">
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {label} *
+      </label>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => {
+          onChange(e.target.value);
+          onToggleDropdown(true);
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (items.length > 0) onToggleDropdown(true);
+        }}
+        className="block w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        placeholder={placeholder}
+      />
+
+      {showDropdown && items.length > 0 && (
+        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+          {items.map((item) => (
+            <div
+              key={getKey(item)}
+              className="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100"
+              onClick={() => onSelect(item)}
+            >
+              {renderItem(item)}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Form Input Component
+interface FormInputProps {
+  label: string;
+  name: string;
+  type?: "text" | "number";
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder: string;
+}
+
+function FormInput({
+  label,
+  name,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+}: FormInputProps) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {label} *
+      </label>
+      <input
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="block w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      />
+    </div>
+  );
+}
+
 export default function AddApartment() {
   const [searchClient, setSearchClient] = useState("");
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [showClientDropdown, setShowClientDropdown] = useState(false);
+
   const [searchBuilding, setSearchBuilding] = useState("");
-  const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(
-    null
-  );
+  const [selectedBuilding, setSelectedBuilding] = useState<Building | null>(null);
   const [showBuildingDropdown, setShowBuildingDropdown] = useState(false);
 
   const [location, setLocation] = useState<LatLng | null>(null);
-
-  const [formData, setFormData] = useState({
-    apartment_number: "",
-    floor: "",
-    living_rooms: "",
-    bathrooms: "",
-    outdoor_area: false,
-  });
-
-  const isFormValid =
-    formData.apartment_number.trim() &&
-    formData.floor.trim() &&
-    formData.living_rooms.trim() &&
-    formData.bathrooms &&
-    formData.outdoor_area;
+  const [formData, setFormData] = useState<ApartmentFormData>(INITIAL_FORM_DATA);
 
   const { data: clientsData } = useGetSearchClientsQuery(searchClient, {
     skip: searchClient.length < 2,
@@ -58,52 +159,85 @@ export default function AddApartment() {
   const { data: buildingsData } = useGetBuilidingBySearchQuery(searchBuilding, {
     skip: searchBuilding.length < 2,
   });
+
   const [addApartmentMutation] = useCreateApartmentMutation();
 
+  // Validate form
+  const isFormValid =
+    selectedClient !== null &&
+    selectedBuilding !== null &&
+    formData.apartment_number.trim() !== "" &&
+    formData.floor.trim() !== "" &&
+    formData.living_rooms.trim() !== "" &&
+    formData.bathrooms.trim() !== "";
+
+  // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = () => {
       setShowClientDropdown(false);
       setShowBuildingDropdown(false);
     };
+
     if (showClientDropdown || showBuildingDropdown) {
       document.addEventListener("click", handleClickOutside);
       return () => document.removeEventListener("click", handleClickOutside);
     }
   }, [showClientDropdown, showBuildingDropdown]);
 
-  const handleClientSelect = (client: Client) => {
+  // Handlers
+  const handleClientSelect = useCallback((client: Client) => {
     setSelectedClient(client);
     setSearchClient(client.name);
     setShowClientDropdown(false);
-  };
+  }, []);
 
-  const handleBuildingSelect = (building: Building) => {
+  const handleBuildingSelect = useCallback((building: Building) => {
     setSelectedBuilding(building);
     setSearchBuilding(building.name);
     setShowBuildingDropdown(false);
+
     if (building.latitude && building.longitude) {
       setLocation({
         lat: parseFloat(building.latitude),
         lng: parseFloat(building.longitude),
       });
     }
-  };
+  }, []);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  const handleClientSearch = useCallback((value: string) => {
+    setSearchClient(value);
+    if (!value) setSelectedClient(null);
+  }, []);
+
+  const handleBuildingSearch = useCallback((value: string) => {
+    setSearchBuilding(value);
+    if (!value) setSelectedBuilding(null);
+  }, []);
+
+  const handleChange = useCallback((
+    e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const { name, type, value, checked } = e.target as HTMLInputElement;
+    const { name, type, value, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-  };
+  }, []);
+
+  const resetForm = useCallback(() => {
+    setFormData(INITIAL_FORM_DATA);
+    setSelectedClient(null);
+    setSelectedBuilding(null);
+    setSearchClient("");
+    setSearchBuilding("");
+    setLocation(null);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!selectedClient || !selectedBuilding) {
-      alert("Please select both a client and building.");
+      toast.error("Please select both a client and building.");
       return;
     }
 
@@ -118,16 +252,14 @@ export default function AddApartment() {
       location: selectedBuilding.location || "Unknown",
     };
 
-    console.log("Submitting apartment:", payload);
-      addApartmentMutation(payload).unwrap();
+    try {
+      await addApartmentMutation(payload).unwrap();
       toast.success("Apartment created successfully!");
-      setFormData({
-        apartment_number: "",
-        floor: "",
-        living_rooms: "",
-        bathrooms: "",
-        outdoor_area: false,
-      });
+      resetForm();
+    } catch (error) {
+      toast.error("Failed to create apartment. Please try again.");
+      console.error("Error creating apartment:", error);
+    }
   };
 
   return (
@@ -164,146 +296,81 @@ export default function AddApartment() {
             {/* Left side form */}
             <div className="space-y-4">
               {/* Client Search */}
-              <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Client *
-                </label>
-                <input
-                  type="text"
-                  value={searchClient}
-                  onChange={(e) => {
-                    setSearchClient(e.target.value);
-                    setShowClientDropdown(true);
-                    if (!e.target.value) setSelectedClient(null);
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (clientsData?.results?.length > 0)
-                      setShowClientDropdown(true);
-                  }}
-                  className="block w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Search by name or email..."
-                />
-
-                {showClientDropdown && clientsData?.results?.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                    {clientsData.results.map((client: Client) => (
-                      <div
-                        key={client.id}
-                        className="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100"
-                        onClick={() => handleClientSelect(client)}
-                      >
-                        <div className="font-medium text-gray-900">
-                          {client.name}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {client.email}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+              <SearchDropdown
+                label="Client"
+                value={searchClient}
+                onChange={handleClientSearch}
+                onSelect={handleClientSelect}
+                items={clientsData?.results || []}
+                showDropdown={showClientDropdown}
+                onToggleDropdown={setShowClientDropdown}
+                placeholder="Search by name or email..."
+                renderItem={(client) => (
+                  <>
+                    <div className="font-medium text-gray-900">{client.name}</div>
+                    <div className="text-sm text-gray-500">{client.email}</div>
+                  </>
                 )}
-              </div>
+                getKey={(client) => client.id}
+              />
 
               {/* Building Search */}
-              <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Building *
-                </label>
-                <input
-                  type="text"
-                  value={searchBuilding}
-                  onChange={(e) => {
-                    setSearchBuilding(e.target.value);
-                    setShowBuildingDropdown(true);
-                    if (!e.target.value) setSelectedBuilding(null);
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (buildingsData?.results?.length > 0)
-                      setShowBuildingDropdown(true);
-                  }}
-                  className="block w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Search by location or name..."
-                />
-
-                {showBuildingDropdown && buildingsData?.results?.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                    {buildingsData.results.map((building: Building) => (
-                      <div
-                        key={building.id}
-                        className="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100"
-                        onClick={() => handleBuildingSelect(building)}
-                      >
-                        <div className="font-medium text-gray-900">
-                          {building.name}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {building.location}, {building.city}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+              <SearchDropdown
+                label="Building"
+                value={searchBuilding}
+                onChange={handleBuildingSearch}
+                onSelect={handleBuildingSelect}
+                items={buildingsData?.results || []}
+                showDropdown={showBuildingDropdown}
+                onToggleDropdown={setShowBuildingDropdown}
+                placeholder="Search by location or name..."
+                renderItem={(building) => (
+                  <>
+                    <div className="font-medium text-gray-900">{building.name}</div>
+                    <div className="text-sm text-gray-500">
+                      {building.location}, {building.city}
+                    </div>
+                  </>
                 )}
-              </div>
+                getKey={(building) => building.id}
+              />
 
               {/* Apartment Details */}
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Apartment Number *
-                  </label>
-                  <input
-                    type="text"
-                    name="apartment_number"
-                    value={formData.apartment_number}
-                    onChange={handleChange}
-                    placeholder="e.g. A-203"
-                    className="block w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Floor *
-                  </label>
-                  <input
-                    type="number"
-                    name="floor"
-                    value={formData.floor}
-                    onChange={handleChange}
-                    placeholder="e.g. 2"
-                    className="block w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
+                <FormInput
+                  label="Apartment Number"
+                  name="apartment_number"
+                  value={formData.apartment_number}
+                  onChange={handleChange}
+                  placeholder="e.g. A-203"
+                />
+                <FormInput
+                  label="Floor"
+                  name="floor"
+                  type="number"
+                  value={formData.floor}
+                  onChange={handleChange}
+                  placeholder="e.g. 2"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Living Rooms *
-                  </label>
-                  <input
-                    type="number"
-                    name="living_rooms"
-                    value={formData.living_rooms}
-                    onChange={handleChange}
-                    placeholder="e.g. 2"
-                    className="block w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Bathrooms *
-                  </label>
-                  <input
-                    type="number"
-                    name="bathrooms"
-                    value={formData.bathrooms}
-                    onChange={handleChange}
-                    placeholder="e.g. 1"
-                    className="block w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
+                <FormInput
+                  label="Living Rooms"
+                  name="living_rooms"
+                  type="number"
+                  value={formData.living_rooms}
+                  onChange={handleChange}
+                  placeholder="e.g. 2"
+                />
+                <FormInput
+                  label="Bathrooms"
+                  name="bathrooms"
+                  type="number"
+                  value={formData.bathrooms}
+                  onChange={handleChange}
+                  placeholder="e.g. 1"
+                />
               </div>
 
               {/* Outdoor Area */}
@@ -324,7 +391,7 @@ export default function AddApartment() {
               <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
                 <Map
                   defaultZoom={12}
-                  defaultCenter={location || { lat: 24.7136, lng: 46.6753 }}
+                  defaultCenter={location || DEFAULT_MAP_CENTER}
                   mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
                   gestureHandling="greedy"
                   disableDefaultUI
@@ -341,10 +408,7 @@ export default function AddApartment() {
 
           {/* Footer */}
           <div className="border-t border-gray-200 pt-4 px-6 flex justify-end gap-3">
-            <Button
-              type="submit"
-              disabled={!isFormValid}
-            >
+            <Button type="submit" disabled={!isFormValid}>
               + Create
             </Button>
           </div>

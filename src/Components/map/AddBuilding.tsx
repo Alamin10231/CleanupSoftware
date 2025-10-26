@@ -6,7 +6,7 @@ import {
   DialogTrigger,
 } from "@/Components/ui/dialog";
 import { Button } from "../ui/button";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AdvancedMarker, APIProvider, Map } from "@vis.gl/react-google-maps";
 import CustomMarker from "./CustomMarker";
 import type { LatLng } from "@/Types/map.types";
@@ -15,93 +15,263 @@ import { useCreateBuildingMutation } from "@/redux/features/admin/buildings/buil
 import { toast } from "sonner";
 import { useSearchRegionQuery } from "@/redux/features/admin/regions/regions.api";
 
+type Region = {
+  id: number;
+  name: string;
+};
+
+type BuildingFormData = {
+  name: string;
+  type: string;
+  city: string;
+  region: number | null;
+  location: string;
+  latitude: number | null;
+  longitude: number | null;
+};
+
+const INITIAL_FORM_DATA: BuildingFormData = {
+  name: "",
+  type: "residential",
+  city: "",
+  region: null,
+  location: "",
+  latitude: null,
+  longitude: null,
+};
+
+const DEFAULT_MAP_CENTER: LatLng = { lat: 24.7136, lng: 46.6753 };
+
+const BUILDING_TYPES = [
+  { value: "residential", label: "Residential" },
+  { value: "commercial", label: "Commercial" },
+];
+
+// Searchable Dropdown Component
+interface SearchDropdownProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  onSelect: (region: Region) => void;
+  items: Region[];
+  showDropdown: boolean;
+  onToggleDropdown: (show: boolean) => void;
+  placeholder?: string;
+}
+
+function SearchDropdown({
+  label,
+  value,
+  onChange,
+  onSelect,
+  items,
+  showDropdown,
+  onToggleDropdown,
+  placeholder = "Search...",
+}: SearchDropdownProps) {
+  return (
+    <div className="relative">
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {label} *
+      </label>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => {
+          onChange(e.target.value);
+          onToggleDropdown(true);
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (items.length > 0) onToggleDropdown(true);
+        }}
+        placeholder={placeholder}
+        className="block w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      />
+      {showDropdown && items.length > 0 && (
+        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              className="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100"
+              onClick={() => onSelect(item)}
+            >
+              <div className="font-medium text-gray-900">{item.name}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Form Input Component
+interface FormInputProps {
+  label: string;
+  name: string;
+  type?: "text" | "number";
+  value: string | number | null;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+  required?: boolean;
+}
+
+function FormInput({
+  label,
+  name,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
+  required = false,
+}: FormInputProps) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        {label} {required && "*"}
+      </label>
+      <input
+        type={type}
+        name={name}
+        value={value ?? ""}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="block w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+      />
+    </div>
+  );
+}
+
+// Geocoding Service
+class GeocodingService {
+  private static apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+  static async getAddressFromCoordinates(
+    lat: number,
+    lng: number
+  ): Promise<string> {
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${this.apiKey}`
+      );
+      const data = await response.json();
+
+      if (data.results && data.results.length > 0) {
+        return data.results[0].formatted_address;
+      }
+      return "";
+    } catch (error) {
+      console.error("Error fetching address:", error);
+      return "";
+    }
+  }
+}
+
 export default function AddBuilding() {
   const [searchRegion, setSearchRegion] = useState("");
   const [selectedRegion, setSelectedRegion] = useState<number | null>(null);
   const [showRegionDropdown, setShowRegionDropdown] = useState(false);
-  const [address, setAddress] = useState("");
-  const [location, setLocation] = useState<LatLng | null>({
-    lat: 24.7136,
-    lng: 46.6753,
-  });
-  const [createBuilding] = useCreateBuildingMutation();
-  const { data: regions, isLoading } = useSearchRegionQuery(searchRegion, {
+  const [location, setLocation] = useState<LatLng>(DEFAULT_MAP_CENTER);
+  const [formData, setFormData] = useState<BuildingFormData>(INITIAL_FORM_DATA);
+
+  const [createBuilding, { isLoading: isCreating }] =
+    useCreateBuildingMutation();
+  const { data: regions } = useSearchRegionQuery(searchRegion, {
     skip: searchRegion.length < 2,
   });
 
-  const getAddress = async ({ lat, lng }) => {
-    const res = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${
-        import.meta.env.VITE_GOOGLE_MAPS_API_KEY
-      }`
-    );
-    const data = await res.json();
-    const address = data.results[0].formatted_address;
-    return address;
-  };
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = () => setShowRegionDropdown(false);
 
-  const [formData, setFormData] = useState({
-    name: "",
-    type: "",
-    city: "",
-    region: null,
-    location: "",
-    latitude: null,
-    longitude: null,
-  });
+    if (showRegionDropdown) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [showRegionDropdown]);
 
+  // Validate form
   const isFormValid =
-    formData.name.trim() &&
-    formData.type.trim() &&
-    formData.city.trim() &&
-    formData.region &&
-    formData.location.trim() &&
+    formData.name.trim() !== "" &&
+    formData.type.trim() !== "" &&
+    formData.city.trim() !== "" &&
+    formData.region !== null &&
+    formData.location.trim() !== "" &&
     formData.latitude !== null &&
     formData.longitude !== null;
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
+
+  // Handlers
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      const { name, value } = e.target;
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    },
+    []
+  );
+
+  const handleRegionSelect = useCallback((region: Region) => {
+    setSelectedRegion(region.id);
+    setSearchRegion(region.name);
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      region: region.id,
     }));
-  };
-  const handleRegionSelect = (region: { id: number }) => {
-    setSelectedRegion(region.id);
     setShowRegionDropdown(false);
-  };
-  const handleMapClick = (e: any) => {
+  }, []);
+
+  const handleRegionSearch = useCallback((value: string) => {
+    setSearchRegion(value);
+    if (!value) {
+      setSelectedRegion(null);
+      setFormData((prev) => ({ ...prev, region: null }));
+    }
+  }, []);
+
+  const handleMapClick = useCallback(async (e: any) => {
     const lat = e.detail.latLng.lat;
     const lng = e.detail.latLng.lng;
-   getAddress({ lat, lng }).then((addr) => setAddress(addr))
+
     setLocation({ lat, lng });
     setFormData((prev) => ({
       ...prev,
       latitude: lat,
       longitude: lng,
     }));
-  };
 
-  const handleSubmit = (e: React.FormEvent) => {
+    // Fetch and set address
+    const address = await GeocodingService.getAddressFromCoordinates(lat, lng);
+    if (address) {
+      setFormData((prev) => ({
+        ...prev,
+        location: address,
+      }));
+    }
+  }, []);
+
+  const resetForm = useCallback(() => {
+    setFormData(INITIAL_FORM_DATA);
+    setLocation(DEFAULT_MAP_CENTER);
+    setSearchRegion("");
+    setSelectedRegion(null);
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!isFormValid) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
     try {
-      createBuilding(formData).unwrap();
+      await createBuilding(formData).unwrap();
       toast.success("Building created successfully!");
-      setFormData({
-        name: "",
-        type: "",
-        city: "",
-        region: null,
-        location: "",
-        latitude: null,
-        longitude: null,
-      });
-      setLocation(null);
-      console.log("Submitting building:", formData);
+      resetForm();
     } catch (error) {
-      toast.error("Failed to create building.");
+      toast.error("Failed to create building. Please try again.");
       console.error("Error creating building:", error);
     }
   };
@@ -109,7 +279,7 @@ export default function AddBuilding() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size={"lg"}>
+        <Button size="lg">
           <svg
             className="w-6 h-6 text-white"
             fill="none"
@@ -139,18 +309,14 @@ export default function AddBuilding() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
             {/* Left side form */}
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Building Name *
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="block w-full border border-gray-300 rounded-md p-2"
-                />
-              </div>
+              <FormInput
+                label="Building Name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Enter building name"
+                required
+              />
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -160,109 +326,62 @@ export default function AddBuilding() {
                   name="type"
                   value={formData.type}
                   onChange={handleChange}
-                  className="block w-full border border-gray-300 rounded-md p-2"
+                  className="block w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="residential">Residential</option>
-                  <option value="commercial">Commercial</option>
+                  {BUILDING_TYPES.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    City *
-                  </label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleChange}
-                    className="block w-full border border-gray-300 rounded-md p-2"
-                  />
-                </div>
-                <div className="relative">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Region *
-                  </label>
-                  <input
-                    type="text"
-                    value={searchRegion}
-                    onChange={(e) => {
-                      setSearchRegion(e.target.value);
-                      setShowRegionDropdown(true);
-                      if (!e.target.value) setSelectedRegion(null);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (regions?.results?.length > 0)
-                        setShowRegionDropdown(true);
-                    }}
-                    className="block w-full border border-gray-300 rounded-md p-2"
-                  />
-                  {showRegionDropdown && regions?.results?.length > 0 && (
-                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                      {regions.results.map((region: any) => (
-                        <div
-                          key={region.id}
-                          className="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100"
-                          onClick={() => {
-                            setSelectedRegion(region.id);
-                            setSearchRegion(region.name);
-                            setFormData((prev) => ({
-                              ...prev,
-                              region: region.id,
-                            }));
-                            setShowRegionDropdown(false);
-                          }}
-                        >
-                          <div className="font-medium text-gray-900">
-                            {region.name}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Location / Address *
-                </label>
-                <input
-                  type="text"
-                  name="location"
-                  value={address}
+                <FormInput
+                  label="City"
+                  name="city"
+                  value={formData.city}
                   onChange={handleChange}
-                  className="block w-full border border-gray-300 rounded-md p-2"
+                  placeholder="Enter city"
+                  required
+                />
+
+                <SearchDropdown
+                  label="Region"
+                  value={searchRegion}
+                  onChange={handleRegionSearch}
+                  onSelect={handleRegionSelect}
+                  items={regions?.results || []}
+                  showDropdown={showRegionDropdown}
+                  onToggleDropdown={setShowRegionDropdown}
+                  placeholder="Search region..."
                 />
               </div>
 
+              <FormInput
+                label="Location / Address"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                placeholder="Click on map to set location"
+                required
+              />
+
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Latitude
-                  </label>
-                  <input
-                    type="number"
-                    name="latitude"
-                    value={formData.latitude}
-                    onChange={handleChange}
-                    className="block w-full border border-gray-300 rounded-md p-2"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Longitude
-                  </label>
-                  <input
-                    type="number"
-                    name="longitude"
-                    value={formData.longitude}
-                    onChange={handleChange}
-                    className="block w-full border border-gray-300 rounded-md p-2"
-                  />
-                </div>
+                <FormInput
+                  label="Latitude"
+                  name="latitude"
+                  type="number"
+                  value={formData.latitude}
+                  onChange={handleChange}
+                />
+                <FormInput
+                  label="Longitude"
+                  name="longitude"
+                  type="number"
+                  value={formData.longitude}
+                  onChange={handleChange}
+                />
               </div>
             </div>
 
@@ -271,7 +390,7 @@ export default function AddBuilding() {
               <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
                 <Map
                   defaultZoom={12}
-                  defaultCenter={location || { lat: 24.7136, lng: 46.6753 }}
+                  center={location}
                   mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
                   gestureHandling="greedy"
                   disableDefaultUI
@@ -289,8 +408,9 @@ export default function AddBuilding() {
 
           {/* Footer */}
           <div className="border-t border-gray-200 pt-4 px-6 flex justify-end gap-3">
-            <Button type="submit" disabled={!isFormValid}>
-              <Plus /> Create Building
+            <Button type="submit" disabled={!isFormValid || isCreating}>
+              <Plus className="w-4 h-4 mr-2" />
+              {isCreating ? "Creating..." : "Create Building"}
             </Button>
           </div>
         </form>

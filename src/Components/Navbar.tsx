@@ -26,6 +26,7 @@ const Navbar = () => {
   const profileWrapRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
+  console.log(user)
   const navigate = useNavigate();
 
   // Outside click - dropdown close

@@ -90,8 +90,8 @@ export const adminSidebarItems: ISidebarItems[] = [
     title: "Business",
     item: [
       {
-        title: "Subscriptions",
-        url: "/admin/subscription",
+        title: "Subscibers",
+        url: "/admin/subscibers",
         component: Subscriptions,
         isActive: false,
         icon: CreditCard, // Added icon
