@@ -163,9 +163,7 @@ function ReportDialog({ report }: any) {
             </div>
           )}
 
-          <div className="flex justify-end">
-            <Button variant="outline">Close</Button>
-          </div>
+          
         </div>
       </DialogContent>
     </Dialog>
