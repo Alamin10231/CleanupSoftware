@@ -1,64 +1,13 @@
-import { useState } from "react"
-import { BellIcon } from "lucide-react"
-
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { BellIcon } from "lucide-react";
+import { Badge } from "@/Components/ui/badge";
+import { Button } from "@/Components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
-
-const initialNotifications = [
-  {
-    id: 1,
-    user: "Chris Tompson",
-    action: "requested review on",
-    target: "PR #42: Feature implementation",
-    timestamp: "15 minutes ago",
-    unread: true,
-  },
-  {
-    id: 2,
-    user: "Emma Davis",
-    action: "shared",
-    target: "New component library",
-    timestamp: "45 minutes ago",
-    unread: true,
-  },
-  {
-    id: 3,
-    user: "James Wilson",
-    action: "assigned you to",
-    target: "API integration task",
-    timestamp: "4 hours ago",
-    unread: false,
-  },
-  {
-    id: 4,
-    user: "Alex Morgan",
-    action: "replied to your comment in",
-    target: "Authentication flow",
-    timestamp: "12 hours ago",
-    unread: false,
-  },
-  {
-    id: 5,
-    user: "Sarah Chen",
-    action: "commented on",
-    target: "Dashboard redesign",
-    timestamp: "2 days ago",
-    unread: false,
-  },
-  {
-    id: 6,
-    user: "Miky Derya",
-    action: "mentioned you in",
-    target: "coss.com open graph image",
-    timestamp: "2 weeks ago",
-    unread: false,
-  },
-]
+} from "@/Components/ui/popover";
+import { useGetNotificationsQuery } from "@/redux/features/admin/notifications/notifications.api";
+import { useState, useEffect } from "react";
 
 function Dot({ className }: { className?: string }) {
   return (
@@ -73,12 +22,23 @@ function Dot({ className }: { className?: string }) {
     >
       <circle cx="3" cy="3" r="3" />
     </svg>
-  )
+  );
 }
 
 export default function Notifications() {
-  const [notifications, setNotifications] = useState(initialNotifications)
-  const unreadCount = notifications.filter((n) => n.unread).length
+  const { data, isLoading } = useGetNotificationsQuery(undefined);
+  const [notifications, setNotifications] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (data) {
+      const notificationData = data.results || data;
+      setNotifications(notificationData.slice(0, 5).map((n: any) => ({ ...n, unread: true })));
+    }
+  }, [data]);
+
+  if (isLoading) return <div>Loading...</div>;
+
+  const unreadCount = notifications.filter((n) => n.unread).length;
 
   const handleMarkAllAsRead = () => {
     setNotifications(
@@ -86,8 +46,8 @@ export default function Notifications() {
         ...notification,
         unread: false,
       }))
-    )
-  }
+    );
+  };
 
   const handleNotificationClick = (id: number) => {
     setNotifications(
@@ -96,8 +56,8 @@ export default function Notifications() {
           ? { ...notification, unread: false }
           : notification
       )
-    )
-  }
+    );
+  };
 
   return (
     <Popover>
@@ -144,18 +104,10 @@ export default function Notifications() {
                   className="text-left text-foreground/80 after:absolute after:inset-0"
                   onClick={() => handleNotificationClick(notification.id)}
                 >
-                  <span className="font-medium text-foreground hover:underline">
-                    {notification.user}
-                  </span>{" "}
-                  {notification.action}{" "}
-                  <span className="font-medium text-foreground hover:underline">
-                    {notification.target}
-                  </span>
-                  .
+                  <p className="text-xs text-muted-foreground">
+                    {notification.message}
+                  </p>
                 </button>
-                <div className="text-xs text-muted-foreground">
-                  {notification.timestamp}
-                </div>
               </div>
               {notification.unread && (
                 <div className="absolute end-0 self-center">
@@ -168,5 +120,5 @@ export default function Notifications() {
         ))}
       </PopoverContent>
     </Popover>
-  )
+  );
 }

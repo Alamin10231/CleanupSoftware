@@ -172,12 +172,6 @@ export default function SubscriptionsDashboard() {
             <option value={"inactive"}>Inactive</option>
             <option value={"canceled"}>Canceled</option>
           </select>
-
-          <Link to="/subscriptionplan">
-            <Button>
-              View Plan
-            </Button>
-          </Link>
         </div>
       </div>
 

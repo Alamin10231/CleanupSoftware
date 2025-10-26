@@ -1,20 +1,15 @@
-// src/components/Navbar.tsx
-import { IoIosArrowForward } from "react-icons/io";
-import Home from "../assets/Image/Home.png";
-import SearchBar from "@/Shared/SearchBar";
 import { useState, useRef, useEffect } from "react";
-import MyIcon from "../assets/Image/Logout.svg";
 import profilepic from "../assets/Image/Profilepic/Profile photo.png";
 import manicon from "../assets/Image/manicon.svg";
 import setting from "../assets/Image/setting.svg";
-import logoutsvg from "../assets/Image/ic_round-logout.svg";
-// import admininstritor from "../assets/Image/administritor.svg";
+import admininstritor from "../assets/Image/administritor.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/redux/features/auth/authSlice";
-import { useNavigate } from "react-router";
-import Notifications from "./notification";
+import { useNavigate } from "react-router-dom"; // Import useLocation and Link
+import { LogOut } from "lucide-react";
+import { Button } from "./ui/button";
 
-type RootState = {
+export type RootState = {
   auth: {
     user: {
       user_type?: string;
@@ -34,7 +29,6 @@ type RootState = {
 const defaultAvatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=User";
 
 const Navbar = () => {
-  const [searchValue, setSearchValue] = useState("");
   const [open, setOpen] = useState(false);
   const profileWrapRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
@@ -64,6 +58,7 @@ const Navbar = () => {
   function handleLogout() {
     try {
       dispatch(logout());
+      console.log("User logged out");
       navigate("/login");
     } catch (error) {
       console.log(error);
@@ -80,27 +75,7 @@ const Navbar = () => {
       : "Viewer";
 
   return (
-    <div className="flex items-center justify-between px-6 ml-[250px] py-4 border-b border-gray-200 bg-white fixed top-0 left-0 right-0 z-40">
-      {/* Left Section */}
-      <div className="flex items-center gap-2">
-        <img src={Home} className="w-5" alt="Home" />
-        <IoIosArrowForward className="text-[#8E8E8E] text-xl" />
-        <p className="text-[#8E8E8E] font-semibold text-xl">Dashboard</p>
-      </div>
-
-      {/* Middle SearchBar */}
-      <div className="flex mx-8 w-full max-w-xl">
-        <SearchBar
-          value={searchValue}
-          onChange={setSearchValue}
-          placeholder="Search..."
-        />
-      </div>
-
-      {/* Right Section */}
-      <div className="flex items-center gap-4">
-
-         <Notifications />
+      <div className="flex items-center gap-4 mx-4">
         {/* Profile + Dropdown */}
         <div
           className="relative flex items-center gap-3 cursor-pointer rounded-md"
@@ -125,14 +100,13 @@ const Navbar = () => {
           </div>
 
           {/* Logout button */}
-          <button
+          <Button
+            variant={'outline'}
             onClick={handleLogout}
-            className="flex items-center gap-2 py-2 text-white rounded-md"
             aria-label="Log out"
-            title="Log out"
           >
-            <img src={MyIcon} alt="logout icon" className="w-5 h-5" />
-          </button>
+            <LogOut color="gray" />
+          </Button>
 
           {/* Dropdown */}
           {open && (
@@ -190,14 +164,13 @@ const Navbar = () => {
                 className="w-full flex items-center gap-3 text-left px-4 py-4 hover:bg-gray-100"
                 onClick={handleLogout}
               >
-                <img src={logoutsvg} alt="" />
-                <p className="text-[#D32F2F]">Logout</p>
+                <LogOut color="red" size={18}/>
+                <p className="text-red-600 font-medium">Logout</p>
               </button>
             </div>
           )}
         </div>
       </div>
-    </div>
   );
 };
 
