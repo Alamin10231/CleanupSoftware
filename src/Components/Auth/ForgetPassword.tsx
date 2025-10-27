@@ -5,38 +5,29 @@ import loginpicture from "../../assets/Image/loginpicture.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { assets } from "../../assets/assets";
 import { IoIosArrowBack } from "react-icons/io";
-
+import { toast } from "sonner";
+import { useForgetPasswordMutation } from "@/redux/features/auth/authApi";
 
 export default function ForgetPassword() {
   const [email, setEmail] = useState<string>("");
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
 
+  const [forgetPassword, { isLoading }] = useForgetPasswordMutation();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ email });
+    toast.loading("Sending OTP...", { id: "forget-password" });
     try {
-      const verifycode = await fetch(
-        "https://lisa-nondisposable-judgingly.ngrok-free.app/api/v1/users/forget-password/",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(email),
-        }
-      );
-      const data = await verifycode.json();
-      console.log("Response:", data);
-       if (!verifycode.ok) {
-        throw new Error(data.message ||  JSON.stringify(data) || "verification failed");
-      }
-      alert("Account created successfully!");
+      await forgetPassword({ email }).unwrap();
+      toast.success("OTP sent successfully!", { id: "forget-password" });
+      navigate(`/set-password/${encodeURIComponent(email)}`);
     } catch (err: any) {
       console.log(err);
+      toast.error(err.data?.message || "Something went wrong", {
+        id: "forget-password",
+      });
     }
-
-    navigate("/verifycode");
   };
 
   return (

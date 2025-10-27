@@ -1,38 +1,15 @@
 import { assets } from "@/assets/assets";
 import Card from "@/Components/Card";
 import { useEffect, useState } from "react";
-import { FaPlus, FaEdit } from "react-icons/fa";
 import { IoIosSearch } from "react-icons/io";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/Components/ui/dialog";
-import { Button } from "@/Components/ui/button";
-import { toast } from "sonner";
-import {
-  useCreateAdminClientMutation,
-  useGetAllClientsAdminQuery,
-  useGetClientOverviewAdminQuery,
-  useGetSearchClientsQuery,
-} from "@/redux/features/admin/users/clients.api";
+import { useGetAllClientsAdminQuery, useGetClientOverviewAdminQuery, useGetSearchClientsQuery } from "@/redux/features/admin/users/clients.api";
+import { AddClient } from "./add-client";
 
 const Clients = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
 
-  // dialog + form state (required fields only)
-  const [open, setOpen] = useState(false);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
-  const [formError, setFormError] = useState<string | null>(null);
-
-  // debounce search
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(searchTerm), 500);
     return () => clearTimeout(t);
@@ -135,105 +112,7 @@ const Clients = () => {
               Manage clients and subscription
             </p>
           </div>
-          <div>
-            <Dialog
-              open={open}
-              onOpenChange={(v) => {
-                setOpen(v);
-                if (!v) resetForm();
-              }}
-            >
-              <DialogTrigger asChild>
-                <Button onClick={() => setOpen(true)}>
-                  <FaPlus /> Add Client
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="bg-white border-0 rounded-lg">
-                <DialogHeader>
-                  <DialogTitle>New Client</DialogTitle>
-                </DialogHeader>
-
-                <form onSubmit={onSubmit}>
-                  <div className="grid grid-cols-2 gap-4 py-4">
-                    <div className="grid grid-cols-1 items-center">
-                      <label htmlFor="name" className="text-left">
-                        Name<span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        id="name"
-                        className="col-span-3 border border-gray-300 rounded-md p-2 w-full"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        required
-                        autoFocus
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 items-center">
-                      <label htmlFor="email" className="text-left">
-                        Email<span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        className="col-span-3 border border-gray-300 rounded-md p-2 w-full"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 items-center">
-                      <label htmlFor="phone" className="text-left">
-                        Phone<span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="tel"
-                        id="phone"
-                        className="col-span-3 border border-gray-300 rounded-md p-2 w-full"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        required
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 items-center">
-                      <label htmlFor="address" className="text-left">
-                        Address<span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        id="address"
-                        className="col-span-3 border border-gray-300 rounded-md p-2 w-full"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  {formError && (
-                    <p className="text-red-600 text-sm -mt-2 mb-2">
-                      {formError}
-                    </p>
-                  )}
-
-                  <div className="flex justify-end gap-3">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() => setOpen(false)}
-                      disabled={creating}
-                    >
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={creating}>
-                      {creating ? "Saving..." : "Create"}
-                    </Button>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
-          </div>
+          <AddClient />
         </div>
 
         {/* ===== Top Cards ===== */}
@@ -266,7 +145,8 @@ const Clients = () => {
 
         {/* ===== Search + Filters ===== */}
         <div className="flex justify-between mt-10 mb-6 w-full">
-          <div className="flex items-center border border-gray-400 p-2 rounded-xl w-full max-w-sm">
+          {/* Search */}
+          <div className="flex items-center border border-gray-400 p-2 rounded-xl w-full max-w-2xl">
             <IoIosSearch className="text-gray-500 mr-2" />
             <input
               type="text"
@@ -278,45 +158,6 @@ const Clients = () => {
                 setPage(1);
               }}
             />
-          </div>
-
-          {/* Filters UI unchanged */}
-          <div className="flex gap-20">
-            <div className="flex gap-2">
-              <p className="text-base text-gray-500 py-2">Status</p>
-              <p className="bg-green-100 p-2 text-green-600 rounded-full">
-                Active
-              </p>
-              <p className="bg-yellow-100 p-2 text-yellow-600 rounded-full">
-                Inactive
-              </p>
-              <p className="bg-red-100 p-2 text-red-600 rounded-full">
-                Suspended
-              </p>
-            </div>
-
-            <div className="flex gap-2">
-              <p className="text-base text-gray-500 p-2">Type</p>
-              <p className="bg-gray-100 p-2 text-gray-600 rounded-full">
-                Individual
-              </p>
-              <p className="bg-gray-100 p-2 text-gray-600 rounded-full">
-                Business
-              </p>
-            </div>
-
-            <div className="flex gap-2">
-              <p className="text-base p-2 text-gray-500">Plan</p>
-              <p className="bg-gray-100 p-2 text-gray-600 rounded-full">
-                Basic
-              </p>
-              <p className="bg-gray-100 p-2 text-gray-600 rounded-full">
-                Premium
-              </p>
-              <p className="bg-gray-100 p-2 text-gray-600 rounded-full">
-                Enterprise
-              </p>
-            </div>
           </div>
         </div>
       </div>

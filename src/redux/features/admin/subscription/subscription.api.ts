@@ -34,15 +34,23 @@ export const subscriptionApi = baseApi.injectEndpoints({
       providesTags: ["Subscription"],
     }),
 
-    getCollectionStatus: builder.query<any, { status?: string; page?: number }>({
-      query: ({ status = "", page = 1 }) =>
-        `/plan/subscription/?page=${page}&status=${encodeURIComponent(status)}`,
-      providesTags: ["Subscription"],
-    }),
-
-    
-    
-
+    getCollectionStatus: builder.query<any, { status?: string; page?: number }>(
+      {
+        query: ({ status = "", page = 1 }) =>
+          `plan/subscription/?page=${page}&status=${encodeURIComponent(
+            status
+          )}`,
+        providesTags: ["Subscription"],
+      }
+    ),
+    addSubscription: builder.mutation({
+      query: (body) => ({
+         url: 'plan/subscriptions-create/',
+         method: 'POST',
+         body
+      }),
+      invalidatesTags: ["Subscription"]
+    })
   }),
 });
 
@@ -53,5 +61,5 @@ export const {
   useGetCollectionNewPlansQuery,
   useGetAdminStatusQuery,
   useGetCollectionStatusQuery,
-  
+  useAddSubscriptionMutation
 } = subscriptionApi;

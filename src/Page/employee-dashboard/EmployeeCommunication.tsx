@@ -1,386 +1,166 @@
-// import { useState } from "react";
+import { useGetEmployeeTasksQuery } from "@/redux/features/employee/EmployeeTask.api";
+import type { RootState } from "@/redux/store";
+import { useState, useRef, useEffect } from "react";
+import { useSelector } from "react-redux";
 
-// const EmployeeCommunication = () => {
-//   const [messages, setMessages] = useState([
-//       { id: 1, text: "Do you remember what you did last night at the workshop? 😂", sender: "other", time: "18:12", liked: true },
-//       { id: 2, text: "no haha", sender: "me", time: "18:16" },
-//       { id: 3, text: "i don’t remember anything 😅", sender: "me", time: "18:18" },
-//       { id: 1, text: "Do you remember what you did last night at the workshop? 😂", sender: "other", time: "18:12", liked: true },
-//     ]);
-//     const [newMessage, setNewMessage] = useState("");
-
-//     const handleSend = () => {
-//       if (!newMessage.trim()) return;
-//       const msg = {
-//         id: Date.now(),
-//         text: newMessage,
-//         sender: "me",
-//         time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-//       };
-//       setMessages([...messages, msg]);
-//       setNewMessage("");
-//     };
-
-//     return (
-//       <div className="flex flex-col h-[85vh] bg-gray-50 ">
-
-//         {/* Messages Area */}
-//         <div className="flex-1 overflow-y-auto rounded-2xl bg-[#a7c4f2] p-4 space-y-3">
-//           <p className="text-center text-sm text-gray-700 mb-2">Today</p>
-
-//           {messages.map((msg) => (
-//             <div
-//               key={msg.id}
-//               className={`flex ${msg.sender === "me" ? "justify-end" : "justify-start"}`}
-//             >
-//               <div
-//                 className={`relative max-w-xs px-4 py-2 rounded-2xl text-sm ${
-//                   msg.sender === "me"
-//                     ? "bg-green-300 text-black rounded-br-none"
-//                     : "bg-white text-gray-900 rounded-bl-none"
-//                 }`}
-//               >
-//                 <p>{msg.text}</p>
-//                 <div className="text-xs text-gray-600 mt-1 flex items-center justify-end gap-1">
-//                   <span>{msg.time}</span>
-//                   {msg.liked && msg.sender !== "me" && <span>❤️</span>}
-//                   {msg.sender === "me" && <span>✔️</span>}
-//                 </div>
-//               </div>
-//             </div>
-//           ))}
-//         </div>
-
-//         {/* Input Box */}
-//         <div className="bg-white p-3 flex items-center gap-2 border-t">
-//           <input
-//             type="text"
-//             placeholder="Message"
-//             className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm outline-none"
-//             value={newMessage}
-//             onChange={(e) => setNewMessage(e.target.value)}
-//             onKeyDown={(e) => e.key === "Enter" && handleSend()}
-//           />
-//           <button
-//             onClick={handleSend}
-//             className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition"
-//           >
-//             ➤
-//           </button>
-//         </div>
-//       </div>
-//     );
-// }
-
-// export default EmployeeCommunication
-
-// Chat.tsx
-
-import { useEffect, useMemo, useRef, useState } from "react";
-
-/**
- * ---- Expected backend protocol (Django Channels) ----
- * Client -> Server:
- *  { "action": "join", "name": string }
- *  { "action": "message", "name": string, "text": string }
- *  { "action": "typing", "name": string, "isTyping": boolean }
- *
- * Server -> Client examples:
- *  { "event": "message", "name": string, "text": string, "ts": number }
- *  { "event": "typing", "name": string, "isTyping": boolean }
- *  { "event": "system", "text": string }
- *
- * Adjust the keys to match your Django response if different.
- */
-
-type IncomingEvent =
-  | { event: "message"; name: string; text: string; ts?: number }
-  | { event: "typing"; name: string; isTyping: boolean }
-  | { event: "system"; text: string };
-
-type OutgoingPayload =
-  | { action: "join"; name: string }
-  | { action: "message"; name: string; text: string }
-  | { action: "typing"; name: string; isTyping: boolean };
-
-type ChatMessage = {
-  name: string;
+interface Message {
+  id: number;
   text: string;
-  ts: number;
-  kind: "user" | "system";
-};
+  sender: "user" | "employee";
+  timestamp: Date;
+}
 
-type Props = {
-  /** WebSocket URL from Django Channels, e.g. ws://localhost:8000/ws/chat/room1/ */
-  wsUrl: string;
-};
+const EmployeeCommunication = () => {
+  const { user } = useSelector((state: RootState) => state.auth);
+  const ws = useRef<WebSocket | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+  const { data: employeeTasks } = useGetEmployeeTasksQuery(user?.email || "");
+  console.log(employeeTasks.results)
+  const handleSend = async () => {
+    if (!newMessage.trim()) return;
 
-export default function Chat({ wsUrl }: Props) {
-  const [stage, setStage] = useState<"name" | "chat">("name");
-  const [name, setName] = useState("");
-  const [text, setText] = useState("");
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [typers, setTypers] = useState<Record<string, number>>({}); // name -> last_seen ms
-  const wsRef = useRef<WebSocket | null>(null);
-  const typingRef = useRef<{ timer?: number; lastSent?: number }>({});
-  const listRef = useRef<HTMLDivElement>(null);
-
-  // Auto-scroll on new message
-  useEffect(() => {
-    listRef.current?.scrollTo({
-      top: listRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }, [messages]);
-
-  // Connect WebSocket once when stage becomes "chat"
-  useEffect(() => {
-    if (stage !== "chat") return;
-    const ws = new WebSocket(wsUrl);
-    wsRef.current = ws;
-
-    ws.onopen = () => {
-      safeSend({ action: "join", name });
-      pushSystem(`Connected as ${name}`);
+    const userMessage: Message = {
+      id: Date.now(),
+      text: newMessage,
+      sender: "user",
+      timestamp: new Date(),
     };
 
-    ws.onmessage = (evt) => {
-      try {
-        const data: IncomingEvent = JSON.parse(evt.data);
-        if (data.event === "message") {
-          setMessages((prev) => [
-            ...prev,
-            {
-              name: data.name,
-              text: data.text,
-              ts: data.ts ?? Date.now(),
-              kind: "user",
-            },
-          ]);
-        } else if (data.event === "typing") {
-          // Track who is typing (expire after 3s)
-          setTypers((prev) => ({
-            ...prev,
-            [data.name]: data.isTyping ? Date.now() : 0,
-          }));
-        } else if (data.event === "system") {
-          pushSystem(data.text);
-        }
-      } catch {
-        // ignore malformed messages
+    setMessages((prev) => [...prev, userMessage]);
+    setNewMessage("");
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      const payload = {
+        action: "send_message",
+        message: newMessage,
+      };
+
+      ws.current.send(JSON.stringify(payload));
+    }
+
+    try {
+      // TODO: Send message to API
+      // Example API call structure:
+      /*
+      const response = await fetch('/api/chat/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          employeeId: selectedEmployee.id,
+          message: newMessage,
+        }),
+      });
+      const data = await response.json();
+      
+      // Add employee response if received immediately
+      if (data.response) {
+        const employeeMessage: Message = {
+          id: data.id,
+          text: data.response,
+          sender: "employee",
+          timestamp: new Date(data.timestamp),
+        };
+        setMessages((prev) => [...prev, employeeMessage]);
       }
-    };
+      */
+    } catch (error) {
+      console.error("Error sending message:", error);
+    }
+  };
 
-    ws.onclose = () => {
-      pushSystem("Disconnected.");
+  useEffect(() => {
+    ws.current?.close();
+
+    const webSocket = new WebSocket(
+      `ws://10.10.13.61:8015/ws/chat/one-to-one/osmangani3osm@gmail.com/?token=${localStorage.getItem("access")?.replace(/"/g, "")}`
+    );
+    ws.current = webSocket;
+
+    webSocket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("Received WebSocket message:", data);
+
+      console.log("Message content:", data);
+
+      if ((data as any).sender_email === user?.email) return;
+
+      if (data.message.trim() === "") return;
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          text: data.message,
+          sender: "employee",
+          timestamp: new Date(),
+        },
+      ]);
     };
 
     return () => {
-      try {
-        ws.close();
-      } catch (err) {
-        console.log(err);
-      }
-      wsRef.current = null;
+      webSocket.close();
+      ws.current = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stage, wsUrl, name]);
-
-  // Prune stale typers every 1s (anyone older than 3s disappears)
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      const now = Date.now();
-      setTypers((prev) => {
-        const next: Record<string, number> = {};
-        for (const [k, v] of Object.entries(prev)) {
-          if (v && now - v < 3000) next[k] = v;
-        }
-        return next;
-      });
-    }, 1000);
-    return () => window.clearInterval(id);
   }, []);
 
-  const someoneTyping = useMemo(() => {
-    const names = Object.keys(typers).filter((n) => typers[n] && n !== name);
-    if (names.length === 0) return "";
-    if (names.length === 1) return `${names[0]} is typing…`;
-    if (names.length === 2) return `${names[0]} and ${names[1]} are typing…`;
-    return "Several people are typing…";
-  }, [typers, name]);
-
-  function safeSend(payload: OutgoingPayload) {
-    const ws = wsRef.current;
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    ws.send(JSON.stringify(payload));
-  }
-
-  function pushSystem(text: string) {
-    setMessages((prev) => [
-      ...prev,
-      { name: "system", text, ts: Date.now(), kind: "system" },
-    ]);
-  }
-
-  function handleStart() {
-    if (!name.trim()) return;
-    setStage("chat");
-  }
-
-  function handleSend() {
-    const t = text.trim();
-    if (!t) return;
-    safeSend({ action: "message", name, text: t });
-    // Optimistic add
-    setMessages((prev) => [
-      ...prev,
-      { name, text: t, ts: Date.now(), kind: "user" },
-    ]);
-    setText("");
-    // Stop typing state
-    sendTyping(false);
-  }
-
-  function sendTyping(isTyping: boolean) {
-    // throttle typing pings to 400ms
-    const now = Date.now();
-    const last = typingRef.current.lastSent ?? 0;
-    if (isTyping && now - last < 400) return;
-    typingRef.current.lastSent = now;
-    safeSend({ action: "typing", name, isTyping });
-  }
-
   return (
-    <div className="flex flex-col h-[720px] bg-white border rounded-2xl overflow-hidden">
-      {stage === "name" ? (
-        <div className="max-w-md w-full mx-auto mt-6 rounded-2xl border border-slate-200 bg-white shadow p-5">
-          <h1 className="text-lg font-semibold text-slate-800">
-            Enter your name
-          </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            This name will be visible to everyone in the room.
+    <div className="flex flex-col h-[85vh] bg-gray-50 ">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-gray-50">
+        {messages.length === 0 ? (
+          <p className="text-center text-gray-400 mt-10 text-sm sm:text-base">
+            No messages yet. Start the conversation!
           </p>
-
-          <label
-            htmlFor="displayName"
-            className="mt-4 block text-sm font-medium text-slate-700"
-          >
-            Display name
-          </label>
-          <input
-            id="displayName"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Your name (e.g. John Doe)"
-            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-800 placeholder-slate-400 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-          />
-
-          <div className="mt-4">
-            <button
-              type="button"
-              onClick={handleStart}
-              className="w-full inline-flex items-center justify-center rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow hover:bg-emerald-700 active:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              disabled={!name.trim()}
+        ) : (
+          messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`flex ${
+                msg.sender === "user" ? "justify-end" : "justify-start"
+              }`}
             >
-              Continue
-            </button>
-          </div>
-        </div>
-      ) : (
-        <>
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-full bg-emerald-600 text-white grid place-items-center text-sm font-semibold">
-                {name[0]?.toUpperCase() || "?"}
-              </div>
-              <div className="font-medium text-slate-800">Realtime chat</div>
-            </div>
-            <div className="text-sm text-slate-500">
-              Signed in as{" "}
-              <span className="font-medium text-slate-700">{name}</span>
-            </div>
-          </div>
-
-          {/* Messages */}
-          <div
-            ref={listRef}
-            className="flex-1 bg-white overflow-y-auto px-3 py-4 space-y-3"
-          >
-            {messages.length === 0 ? (
-              <div className="h-full grid place-items-center">
-                <p className="text-slate-400 text-sm">No messages yet</p>
-              </div>
-            ) : (
-              messages.map((m, i) => (
-                <div
-                  key={i}
-                  className={`flex ${
-                    m.name === name ? "justify-end" : "justify-start"
+              <div
+                className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 sm:px-5 sm:py-3 ${
+                  msg.sender === "user"
+                    ? "bg-blue-600 text-white"
+                    : "bg-white text-gray-800 border border-gray-200"
+                }`}
+              >
+                <p className="text-sm sm:text-base break-words">{msg.text}</p>
+                <p
+                  className={`text-xs mt-1 ${
+                    msg.sender === "user" ? "text-blue-100" : "text-gray-400"
                   }`}
                 >
-                  <div
-                    className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm shadow ${
-                      m.kind === "system"
-                        ? "bg-slate-50 border border-slate-200 text-slate-500 mx-auto"
-                        : m.name === name
-                        ? "bg-emerald-600 text-white rounded-tr-sm"
-                        : "bg-white border border-slate-200 text-slate-800 rounded-tl-sm"
-                    }`}
-                  >
-                    {m.kind !== "system" && m.name !== name && (
-                      <div className="text-[11px] opacity-70 mb-0.5">
-                        {m.name}
-                      </div>
-                    )}
-                    <div>{m.text}</div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-
-          {/* Typing indicator */}
-          {someoneTyping && (
-            <div className="px-4 py-1 text-xs text-slate-500 border-t border-slate-100">
-              {someoneTyping}
+                  {msg.timestamp.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+              </div>
             </div>
-          )}
+          ))
+        )}
+      </div>
 
-          {/* Composer */}
-          <div className="sticky bottom-0 mx-3 pb-4 pt-2 bg-white z-10">
-            <div className="w-full rounded-2xl border border-slate-200 shadow-sm px-2.5 py-2 flex items-end gap-2">
-              <textarea
-                className="flex-1 resize-none outline-none text-[15px] placeholder-slate-400"
-                rows={1}
-                placeholder="Type a message..."
-                value={text}
-                onChange={(e) => {
-                  setText(e.target.value);
-                  // notify backend we're typing
-                  if (e.target.value.trim()) sendTyping(true);
-                }}
-                onBlur={() => sendTyping(false)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend();
-                  }
-                }}
-              />
-              <button
-                onClick={handleSend}
-                className="inline-flex items-center justify-center bg-emerald-600 text-white text-sm font-medium px-4 py-2 rounded-xl shadow"
-                type="button"
-                disabled={!text.trim()}
-              >
-                Send
-              </button>
-            </div>
-          </div>
-        </>
-      )}
+      {/* Input Box */}
+      <div className="bg-white p-3 flex items-center gap-2 border-t">
+        <input
+          type="text"
+          placeholder="Message"
+          className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm outline-none"
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSend()}
+        />
+        <button
+          onClick={handleSend}
+          className="bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition"
+        >
+          ➤
+        </button>
+      </div>
     </div>
   );
-}
+};
+
+export default EmployeeCommunication;

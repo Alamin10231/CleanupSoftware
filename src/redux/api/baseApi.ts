@@ -48,7 +48,13 @@ export const baseApi = createApi({
     "AdminCreateInvoice",
     "ExpenseCategory",
     "EmployeeExpense",
-    "notification"
+    "notification",
+    "reports",
+    "form",
+    "task",
+    "GetSupervisorReports",
+    "GetEmployeeTasks",
+    "Employee"
   ],
 
   endpoints: () => ({}),

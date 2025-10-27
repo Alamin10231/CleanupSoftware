@@ -6,6 +6,7 @@ import { logout } from "@/redux/features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
 import { Button } from "./ui/button";
+import Notifications from "./notification-bell";
 
 export type RootState = {
   auth: {
@@ -73,30 +74,31 @@ const Navbar = () => {
       : "Viewer";
 
   return (
-    <div className="flex items-center gap-4 mx-4">
-      <div
-        className="relative flex items-center gap-3 cursor-pointer rounded-md"
-        ref={profileWrapRef}
-      >
+      <div className="flex items-center gap-6 mx-4">
+        { user?.user_type === "admin" && <Notifications /> }
+        {/* Profile + Dropdown */}
         <div
-          className="flex items-center gap-2"
-          onClick={() => setOpen((v) => !v)}
-          aria-haspopup="menu"
-          aria-expanded={open}
+          className="relative flex items-center gap-3 cursor-pointer rounded-md"
+          ref={profileWrapRef}
         >
-          <img
-            src={avatarSrc}
-            className="w-10 h-10 rounded object-cover border"
-            alt="profile"
-            onError={(e) => {
-              e.currentTarget.src = defaultAvatar;
-            }}
-          />
-          <div className="flex flex-col">
-            <h1 className="font-semibold text-sm">{displayName}</h1>
-            <p className="text-[#8E8E8E] text-xs">{displayEmail}</p>
+          <div
+            className="flex items-center gap-2"
+            onClick={() => setOpen((v) => !v)}
+            aria-haspopup="menu"
+            aria-expanded={open}
+          >
+            {(user?.user_type === "employee" || !user) && (
+              <img
+                src={user?.avatarUrl ?? profilepic}
+                className="w-10 h-10 rounded"
+                alt="profile"
+              />
+            )}
+            <div className="flex flex-col">
+              <h1 className="font-semibold text-sm">{displayName}</h1>
+              <p className="text-[#8E8E8E] text-xs">{displayEmail}</p>
+            </div>
           </div>
-        </div>
 
         <Button variant="outline" onClick={handleLogout} aria-label="Log out">
           <LogOut color="gray" />

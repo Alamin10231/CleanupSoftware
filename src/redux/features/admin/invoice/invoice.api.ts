@@ -30,8 +30,14 @@ export const invoiceApi = baseApi.injectEndpoints({
         body: invoice,
       }),
       invalidatesTags: ["Invoice"],
-    })
-})
+    }),
+    downloadInvoicePdf: builder.query<Blob, number>({
+      query: (id) => ({
+        url: `/plan/invoice/${id}/download_pdf/`,
+        responseHandler: (response) => response.blob(),
+      }),
+    }),
+  }),
 });
 
 export const {
@@ -39,5 +45,6 @@ export const {
   useAddInvoiceMutation,
   useGetCalculationInvoiceQuery,
   useGetSearchAllInvoiceQuery,
-  useAddAdminInvoiceMutation
+  useAddAdminInvoiceMutation,
+  useDownloadInvoicePdfQuery,
 } = invoiceApi;

@@ -1,20 +1,63 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
-import { FaApple, FaEye, FaEyeSlash, FaFacebook } from "react-icons/fa";
+import { FaApple, FaFacebook } from "react-icons/fa";
 import loginpicture from "../../assets/Image/loginpicture.jpg";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
 import { assets } from "../../assets/assets";
 import { IoIosArrowBack } from "react-icons/io";
+import { useVerifyOtpMutation } from "@/redux/features/auth/authApi";
+import { toast } from "sonner";
+import { useDispatch } from "react-redux";
+import { setOtp } from "@/redux/features/auth/authSlice";
 
 export default function Verifyotp() {
-  const [password, setPassword] = useState<string>("");
-  const [show, setShow] = useState(false);
+  const [otp, setOtpState] = useState("");
   const navigate = useNavigate();
+  const [verifyOtp, { isLoading }] = useVerifyOtpMutation();
+  const dispatch = useDispatch();
+  const { email } = useParams();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [resendDisabled, setResendDisabled] = useState(true);
+  const [countdown, setCountdown] = useState(60);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (resendDisabled) {
+      timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev === 1) {
+            setResendDisabled(false);
+            clearInterval(timer);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [resendDisabled]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ password });
-    navigate("/adminlogin");
+    console.log("submitting otp...", email, otp);
+    toast.loading("Verifying OTP...", { id: "verify-otp" });
+    try {
+      await verifyOtp({ email, code: otp }).unwrap();
+      toast.success("OTP verified successfully!", { id: "verify-otp" });
+      dispatch(setOtp(otp));
+      navigate(`/set-password/${encodeURIComponent(email)}/${otp}`);
+    } catch (err: any) {
+      toast.error(err.data?.message || "Something went wrong", {
+        id: "verify-otp",
+      });
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setResendDisabled(true);
+    setCountdown(60);
+    // Implement resend OTP logic here
+    toast.success("OTP has been resent");
   };
 
   return (
@@ -36,50 +79,60 @@ export default function Verifyotp() {
         <div className="self-start flex items-center justify-center gap-2">
           <IoIosArrowBack />
           <span>
-            Back to <Link to="/adminlogin" className="text-blue-600 underline">login</Link>
+            Back to{" "}
+            <Link to="/adminlogin" className="text-blue-600 underline">
+              login
+            </Link>
           </span>
         </div>
 
-        <h1 className="text-2xl font-semibold mb-6 self-start">
-         Verify code
-        </h1>
+        <h1 className="text-2xl font-semibold mb-6 self-start">Verify code</h1>
         <p className="self-start pb-3 text-xl max-w-md text-[#313131]">
-         An authentication code has been sent to your email
+          An authentication code has been sent to your email
         </p>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="w-full max-w-full space-y-5">
           <div className="relative w-full">
             <fieldset className="border border-gray-400 rounded px-3 pt-1">
-                <legend className="text-sm px-1 text-[#1C1B1F]">Enter Code</legend>
-                <input
-                  type="text"
-                  placeholder="****"
-                  className="w-full outline-none border-none pb-2 focus:ring-0 text-[#1C1B1F]"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </fieldset>
-
-            {/* Eye Icon */}
-            <button
-              type="button"
-              onClick={() => setShow(!show)}
-              className="absolute right-3 top-8 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-            >
-              {show ? <FaEyeSlash /> : <FaEye />}
-            </button>
+              <legend className="text-sm px-1 text-[#1C1B1F]">
+                Enter Code
+              </legend>
+              <input
+                type="text"
+                placeholder="******"
+                className="w-full outline-none border-none pb-2 focus:ring-0 text-[#1C1B1F]"
+                value={otp}
+                onChange={(e) => setOtpState(e.target.value)}
+              />
+            </fieldset>
           </div>
 
           {/* Submit Button */}
-          <Link to="/adminlogin">
           <button
             type="submit"
+            disabled={isLoading}
             className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
           >
-            Verify
-          </button></Link>
+            {isLoading ? "Verifying..." : "Verify"}
+          </button>
         </form>
+
+        {/* Resend OTP */}
+        <div className="text-sm text-gray-600 mt-4">
+          Didn't receive the code?{" "}
+          <button
+            onClick={handleResendOtp}
+            disabled={resendDisabled}
+            className={`font-medium ${
+              resendDisabled
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-blue-600 hover:underline"
+            }`}
+          >
+            {resendDisabled ? `Resend in ${countdown}s` : "Resend OTP"}
+          </button>
+        </div>
 
         {/* Social login */}
         <div className="flex items-center my-6 w-full max-w-sm">

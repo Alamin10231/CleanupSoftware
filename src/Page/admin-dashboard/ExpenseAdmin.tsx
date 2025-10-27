@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   useGetExpensesQuery,
   useUpdateExpenseStatusMutation,
@@ -24,23 +24,238 @@ import {
 import { Badge } from "@/Components/ui/badge";
 import { Loader2, Search } from "lucide-react";
 import { FaEye } from "react-icons/fa";
-// import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
-const ExpenseAdmin = () => {
+// Types
+type ExpenseStatus = "Approved" | "Submitted" | "Cancel";
+
+interface Expense {
+  id: number;
+  expense_date: string;
+  vendor_name: string;
+  category_show_by_name?: string[];
+  discription: string;
+  amount: number;
+  status: ExpenseStatus;
+  created_at: string;
+  updated_at: string;
+  [key: string]: any;
+}
+
+interface ExpenseListResponse {
+  results: Expense[];
+  next: string | null;
+  previous: string | null;
+}
+
+// Constants
+const DEBOUNCE_DELAY = 500;
+const STATUS_COLORS: Record<ExpenseStatus, string> = {
+  Approved: "bg-green-100 text-green-800",
+  Submitted: "bg-yellow-100 text-yellow-800",
+  Cancel: "bg-red-100 text-red-800",
+};
+
+// Utility Functions
+const formatDateTime = (dateString: string): string => {
+  if (!dateString) return "—";
+  return new Date(dateString).toLocaleString("en-US", {
+    dateStyle: "long",
+    timeStyle: "short",
+  });
+};
+
+const formatFieldName = (key: string): string => {
+  return key.replaceAll("_", " ");
+};
+
+const formatFieldValue = (value: any): string => {
+  if (Array.isArray(value)) return value.join(", ");
+  if (typeof value === "object" && value !== null) return JSON.stringify(value);
+  return value?.toString() || "—";
+};
+
+// Components
+interface StatusBadgeProps {
+  status: ExpenseStatus;
+}
+
+function StatusBadge({ status }: StatusBadgeProps) {
+  return (
+    <Badge className={STATUS_COLORS[status] || "bg-gray-100 text-gray-800"}>
+      {status}
+    </Badge>
+  );
+}
+
+interface ExpenseActionsProps {
+  expense: Expense;
+  isUpdating: boolean;
+  onView: (expense: Expense) => void;
+  onStatusChange: (id: number, status: ExpenseStatus) => void;
+}
+
+function ExpenseActions({
+  expense,
+  isUpdating,
+  onView,
+  onStatusChange,
+}: ExpenseActionsProps) {
+  return (
+    <div className="flex justify-center gap-2">
+      <Button
+        size="sm"
+        variant="outline"
+        className="text-blue-600 border-blue-600 hover:bg-blue-50 hover:text-blue-700 transition"
+        onClick={() => onView(expense)}
+      >
+        <FaEye className="w-4 h-4" />
+      </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={isUpdating || expense.status === "Approved"}
+        className="text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700 transition disabled:opacity-50"
+        onClick={() => onStatusChange(expense.id, "Approved")}
+      >
+        Approve
+      </Button>
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={isUpdating || expense.status === "Cancel"}
+        className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700 transition disabled:opacity-50"
+        onClick={() => onStatusChange(expense.id, "Cancel")}
+      >
+        Cancel
+      </Button>
+    </div>
+  );
+}
+
+interface ExpenseDetailsModalProps {
+  expense: Expense | null;
+  onClose: () => void;
+}
+
+function ExpenseDetailsModal({ expense, onClose }: ExpenseDetailsModalProps) {
+  if (!expense) return null;
+
+  const excludedFields = ["created_at", "updated_at"];
+
+  return (
+    <Dialog open={!!expense} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[650px]">
+        <DialogHeader>
+          <DialogTitle>Expense Details</DialogTitle>
+          <DialogDescription>
+            Full details for expense #{expense.id}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="mt-4 space-y-3 text-sm">
+          {Object.entries(expense).map(([key, value]) => {
+            if (excludedFields.includes(key)) return null;
+
+            return (
+              <div
+                key={key}
+                className="flex justify-between border-b py-2 gap-4"
+              >
+                <span className="font-medium text-gray-700 capitalize min-w-[120px]">
+                  {formatFieldName(key)}:
+                </span>
+                <span className="text-gray-800 text-right break-words">
+                  {formatFieldValue(value)}
+                </span>
+              </div>
+            );
+          })}
+
+          <div className="flex justify-between border-b py-2 gap-4">
+            <span className="font-medium text-gray-700 min-w-[120px]">
+              Created at:
+            </span>
+            <span className="text-gray-800 text-right">
+              {formatDateTime(expense.created_at)}
+            </span>
+          </div>
+
+          <div className="flex justify-between border-b py-2 gap-4">
+            <span className="font-medium text-gray-700 min-w-[120px]">
+              Updated at:
+            </span>
+            <span className="text-gray-800 text-right">
+              {formatDateTime(expense.updated_at)}
+            </span>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+interface PaginationControlsProps {
+  page: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+  isLoading: boolean;
+  onNext: () => void;
+  onPrev: () => void;
+}
+
+function PaginationControls({
+  page,
+  hasNext,
+  hasPrev,
+  isLoading,
+  onNext,
+  onPrev,
+}: PaginationControlsProps) {
+  return (
+    <div className="flex justify-between items-center mt-6">
+      <Button
+        onClick={onPrev}
+        disabled={!hasPrev || isLoading}
+        variant={hasPrev && !isLoading ? "default" : "secondary"}
+        className="px-5"
+      >
+        Previous
+      </Button>
+
+      <span className="text-gray-600 font-medium">Page {page}</span>
+
+      <Button
+        onClick={onNext}
+        disabled={!hasNext || isLoading}
+        variant={hasNext && !isLoading ? "default" : "secondary"}
+        className="px-5"
+      >
+        Next
+      </Button>
+    </div>
+  );
+}
+
+// Main Component
+export default function ExpenseAdmin() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [selectedExpense, setSelectedExpense] = useState<any>(null);
-
-  // const { toast } = useToast();
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
 
   // Debounce search input
   useEffect(() => {
-    const timeout = setTimeout(() => setDebouncedSearch(search), 500);
+    const timeout = setTimeout(() => setDebouncedSearch(search), DEBOUNCE_DELAY);
     return () => clearTimeout(timeout);
   }, [search]);
 
-  // Fetch all expenses
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
+
+  // API Hooks
   const { data, isLoading, isError, isFetching } = useGetExpensesQuery({
     page,
     search: debouncedSearch,
@@ -49,58 +264,60 @@ const ExpenseAdmin = () => {
   const [updateExpenseStatus, { isLoading: isUpdating }] =
     useUpdateExpenseStatusMutation();
 
+  // Data
   const expenses = data?.results || [];
-  const nextPage = data?.next;
-  const prevPage = data?.previous;
+  const hasNext = !!data?.next;
+  const hasPrev = !!data?.previous && page > 1;
 
-  const handleNext = () => {
-    if (nextPage) setPage((p) => p + 1);
-  };
-  const handlePrev = () => {
-    if (prevPage && page > 1) setPage((p) => p - 1);
-  };
-  useEffect(() => {
-    setPage(1);
-  }, [debouncedSearch]);
+  // Handlers
+  const handleNext = useCallback(() => {
+    if (hasNext) setPage((p) => p + 1);
+  }, [hasNext]);
 
-  // ✅ Handle status change
-  const handleStatusChange = async (id: number, status: string) => {
-    try {
-      await updateExpenseStatus({ id, status }).unwrap();
-      // toast({
-      //   title: "Status Updated",
-      //   description: `Expense #${id} marked as ${status}.`,
-      //   variant: "success",
-      // });
-    } catch (err: any) {
-      // toast({
-      //   title: "Error",
-      //   description: "Failed to update status.",
-      //   variant: "destructive",
-      // });
-    }
-  };
+  const handlePrev = useCallback(() => {
+    if (hasPrev) setPage((p) => p - 1);
+  }, [hasPrev]);
 
-  const formatDateTime = (dateString: string) => {
-    if (!dateString) return "—";
-    return new Date(dateString).toLocaleString("en-US", {
-      dateStyle: "long",
-      timeStyle: "short",
-    });
-  };
+  const handleStatusChange = useCallback(
+    async (id: number, status: ExpenseStatus) => {
+      try {
+        await updateExpenseStatus({ id, status }).unwrap();
+        toast.success(`Expense #${id} marked as ${status}.`);
+      } catch (error) {
+        toast.error("Failed to update status. Please try again.");
+        console.error("Error updating expense status:", error);
+      }
+    },
+    [updateExpenseStatus]
+  );
 
+  const handleViewExpense = useCallback((expense: Expense) => {
+    setSelectedExpense(expense);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setSelectedExpense(null);
+  }, []);
+
+  // Loading State
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <Loader2 className="animate-spin w-6 h-6 text-gray-500" />
+        <Loader2 className="animate-spin w-8 h-8 text-blue-600" />
       </div>
     );
   }
 
+  // Error State
   if (isError) {
     return (
-      <div className="text-center text-red-500 mt-10">
-        Failed to load expenses 😢
+      <div className="flex flex-col items-center justify-center h-64 text-center">
+        <p className="text-red-500 text-lg font-medium">
+          Failed to load expenses
+        </p>
+        <p className="text-gray-500 text-sm mt-2">
+          Please try refreshing the page
+        </p>
       </div>
     );
   }
@@ -108,7 +325,7 @@ const ExpenseAdmin = () => {
   return (
     <div className="p-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <h2 className="text-2xl font-semibold text-gray-800">
           Expense Requests
         </h2>
@@ -126,7 +343,7 @@ const ExpenseAdmin = () => {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-gray-200 shadow-sm overflow-hidden bg-white">
         <Table>
           <TableCaption>A list of submitted expense requests</TableCaption>
           <TableHeader className="bg-gray-50">
@@ -144,64 +361,28 @@ const ExpenseAdmin = () => {
 
           <TableBody>
             {expenses.length > 0 ? (
-              expenses.map((item: any) => (
-                <TableRow key={item.id}>
-                  <TableCell className="font-medium">{item.id}</TableCell>
-                  <TableCell>{item.expense_date}</TableCell>
-                  <TableCell>{item.vendor_name}</TableCell>
+              expenses.map((expense) => (
+                <TableRow key={expense.id}>
+                  <TableCell className="font-medium">{expense.id}</TableCell>
+                  <TableCell>{expense.expense_date}</TableCell>
+                  <TableCell>{expense.vendor_name}</TableCell>
                   <TableCell>
-                    {item.category_show_by_name?.join(", ") || "—"}
+                    {expense.category_show_by_name?.join(", ") || "—"}
                   </TableCell>
                   <TableCell className="max-w-[220px] truncate">
-                    {item.discription}
+                    {expense.discription}
                   </TableCell>
-                  <TableCell>${item.amount}</TableCell>
+                  <TableCell>${expense.amount.toFixed(2)}</TableCell>
                   <TableCell>
-                    <Badge
-                      className={`${
-                        item.status === "Approved"
-                          ? "bg-green-100 text-green-800"
-                          : item.status === "Submitted"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {item.status}
-                    </Badge>
+                    <StatusBadge status={expense.status} />
                   </TableCell>
-
-                  {/* Action Buttons */}
-                  <TableCell className="text-center space-x-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-blue-600 border-blue-600 hover:bg-transparent hover:text-blue-700 transition"
-                      onClick={() => setSelectedExpense(item)}
-                    >
-                      <FaEye className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={isUpdating}
-                      className="text-blue-600 border-blue-600 hover:bg-transparent hover:text-blue-700 transition"
-                      onClick={() =>
-                        handleStatusChange(item.id, "Approved")
-                      }
-                    >
-                      Approve
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      disabled={isUpdating}
-                      className="text-blue-600 border-blue-600 hover:bg-transparent hover:text-blue-700 transition"
-                      onClick={() =>
-                        handleStatusChange(item.id, "Cancel")
-                      }
-                    >
-                      Cancel
-                    </Button>
+                  <TableCell>
+                    <ExpenseActions
+                      expense={expense}
+                      isUpdating={isUpdating}
+                      onView={handleViewExpense}
+                      onStatusChange={handleStatusChange}
+                    />
                   </TableCell>
                 </TableRow>
               ))
@@ -209,9 +390,9 @@ const ExpenseAdmin = () => {
               <TableRow>
                 <TableCell
                   colSpan={8}
-                  className="text-center py-6 text-gray-500"
+                  className="text-center py-8 text-gray-500"
                 >
-                  No expenses found.
+                  {search ? "No expenses found matching your search." : "No expenses found."}
                 </TableCell>
               </TableRow>
             )}
@@ -220,86 +401,20 @@ const ExpenseAdmin = () => {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-between items-center mt-6">
-        <Button
-          onClick={handlePrev}
-          disabled={!prevPage || page === 1 || isFetching}
-          className={`px-5 ${
-            !prevPage || page === 1 || isFetching
-              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-              : "bg-blue-600 text-white hover:bg-blue-600"
-          }`}
-        >
-          Previous
-        </Button>
-
-        <span className="text-gray-600 font-medium">Page {page}</span>
-
-        <Button
-          onClick={handleNext}
-          disabled={!nextPage || isFetching || expenses.length === 0}
-          className={`px-5 ${
-            !nextPage || isFetching || expenses.length === 0
-              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-              : "bg-blue-600 text-white hover:bg-blue-600"
-          }`}
-        >
-          Next
-        </Button>
-      </div>
+      <PaginationControls
+        page={page}
+        hasNext={hasNext}
+        hasPrev={hasPrev}
+        isLoading={isFetching}
+        onNext={handleNext}
+        onPrev={handlePrev}
+      />
 
       {/* Modal */}
-      <Dialog
-        open={!!selectedExpense}
-        onOpenChange={() => setSelectedExpense(null)}
-      >
-        <DialogContent className="sm:max-w-[650px]">
-          <DialogHeader>
-            <DialogTitle>Expense Details</DialogTitle>
-            <DialogDescription>
-              Full details for expense #{selectedExpense?.id}
-            </DialogDescription>
-          </DialogHeader>
-
-          {selectedExpense && (
-            <div className="mt-4 space-y-3 text-sm">
-              {Object.entries(selectedExpense).map(([key, value]) => {
-                if (["created_at", "updated_at"].includes(key)) return null; // skip duplicate display
-                return (
-                  <p key={key} className="flex justify-between border-b py-1">
-                    <span className="font-medium text-gray-700 capitalize">
-                      {key.replaceAll("_", " ")}:
-                    </span>
-                    <span className="text-gray-800">
-                      {Array.isArray(value)
-                        ? value.join(", ")
-                        : typeof value === "object" && value !== null
-                        ? JSON.stringify(value)
-                        : value?.toString() || "—"}
-                    </span>
-                  </p>
-                );
-              })}
-
-              {/* ✅ Human-readable timestamps */}
-              <p className="flex justify-between border-b py-1">
-                <span className="font-medium text-gray-700">Created at:</span>
-                <span className="text-gray-800">
-                  {formatDateTime(selectedExpense.created_at)}
-                </span>
-              </p>
-              <p className="flex justify-between border-b py-1">
-                <span className="font-medium text-gray-700">Updated at:</span>
-                <span className="text-gray-800">
-                  {formatDateTime(selectedExpense.updated_at)}
-                </span>
-              </p>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <ExpenseDetailsModal
+        expense={selectedExpense}
+        onClose={handleCloseModal}
+      />
     </div>
   );
-};
-
-export default ExpenseAdmin;
+}

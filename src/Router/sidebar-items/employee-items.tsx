@@ -3,38 +3,26 @@ import type { ISidebarItems } from "@/Types/Types";
 import {
   LayoutDashboard,
   Building,
-  ClipboardList,
   MessageSquare,
   Settings,
   FileText,
-  MapPin,
-  BarChart,
   CreditCard,
-} from "lucide-react"; // Import necessary icons
-
-const RegionDashboard = lazy(
-  () => import("@/Page/employee-dashboard/RegionDashboard")
-);
-const TaskEmployee = lazy(
-  () => import("@/Page/employee-dashboard/TaskEmployee")
-);
-const Buildingregions = lazy(
-  () => import("@/Page/employee-dashboard/Buildingregions")
+} from "lucide-react";
+import ServiceTable from "@/Page/employee-dashboard/communication";
+const EmployeeTaskDashboard = lazy(
+  () => import("@/Page/employee-dashboard/employee-task")
 );
 const EmployeeDashboard = lazy(
   () => import("@/Page/employee-dashboard/EmployeeDashboard")
 );
-const EmployeeCommunication = lazy(
-  () => import("@/Page/employee-dashboard/EmployeeCommunication")
-);
+// const EmployeeCommunication = lazy(
+//   () => import("@/Page/employee-dashboard/EmployeeCommunication")
+// );
 const EmployeeSetting = lazy(
   () => import("@/Page/employee-dashboard/EmployeeSetting")
 );
 const EmployeeForms = lazy(
   () => import("@/Page/employee-dashboard/EmployeeForms")
-);
-const EmployeeReports = lazy(
-  () => import("@/Page/employee-dashboard/EmployeeReports")
 );
 const EmployeeInvoicees = lazy(
   () => import("@/Page/employee-dashboard/invoice/EmployeeInvoicees")
@@ -57,21 +45,14 @@ export const employeeSidebarItems: ISidebarItems[] = [
       {
         title: "Building",
         url: "building", // Changed from /employee-building
-        component: RegionDashboard,
+        component: EmployeeTaskDashboard,
         isActive: false,
         icon: Building,
       },
       {
-        title: "Building Tasks",
-        url: "building/:buildingName", // Changed from /employee-building/:buildingName
-        component: TaskEmployee,
-        isActive: false,
-        icon: ClipboardList,
-      },
-      {
         title: "Communication",
         url: "communication", // Changed from /employee-communication
-        component: EmployeeCommunication,
+        component: ServiceTable,
         isActive: false,
         icon: MessageSquare,
       },
@@ -81,20 +62,6 @@ export const employeeSidebarItems: ISidebarItems[] = [
          component: EmployeeForms,
          isActive: false,
          icon: FileText,
-      },
-      {
-         title: "Region",
-         url: "region", // Changed from /employee-region
-         component: Buildingregions,
-         isActive: false,
-         icon: MapPin,
-      },
-      {
-        title: "Reports",
-        url: "report", // Changed from /employee-report
-        component: EmployeeReports,
-        isActive: false,
-        icon: BarChart,
       },
       {
         title: "Invoices",

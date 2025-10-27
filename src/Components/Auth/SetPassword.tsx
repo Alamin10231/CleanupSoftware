@@ -1,60 +1,42 @@
 import { useState } from "react";
-import { FcGoogle } from "react-icons/fc";
-import { FaApple, FaEye, FaEyeSlash, FaFacebook } from "react-icons/fa";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import loginpicture from "../../assets/Image/loginpicture.jpg";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { assets } from "../../assets/assets";
 import { IoIosArrowBack } from "react-icons/io";
+import { useResetPasswordMutation } from "@/redux/features/auth/authApi";
+import { toast } from "sonner";
 
-export default function VerifyCode() {
+export default function SetPassword() {
+   const { email } = useParams()
   const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
   const [cpassword, setCPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [loading, setLoading] = useState(false);
-
+  const [resetPassword, { isLoading }] = useResetPasswordMutation();
   const navigate = useNavigate();
-  const email = localStorage.getItem("resetEmail"); // from previous step
-  const token = localStorage.getItem("resetToken"); // if your backend uses token
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+      console.log('submitting password reset...', { email, code, new_password: password})
     if (password !== cpassword) {
-      alert("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
-
-    setLoading(true);
+    toast.loading("Resetting password...", { id: "reset-password" });
     try {
-      const response = await fetch(
-        "https://lisa-nondisposable-judgingly.ngrok-free.app/api/v1/users/reset-password/",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email,
-            
-            password,
-            confirm_password: cpassword,
-          }),
-        }
-      );
-
-      const data = await response.json();
-      console.log("Response:", data);
-
-      if (!response.ok) {
-        throw new Error(data.message || "Password reset failed");
-      }
-
-      alert("Password reset successful! You can now log in.");
-      navigate("/adminlogin");
+      await resetPassword({
+        email,
+        code,
+        new_password: password,
+      }).unwrap();
+      toast.success("Password reset successful!", { id: "reset-password" });
+      navigate("/login");
     } catch (err: any) {
-      console.error(err);
-      alert(err.message || "Something went wrong, please try again.");
-    } finally {
-      setLoading(false);
+      toast.error(err.data?.message || "Something went wrong", {
+        id: "reset-password",
+      });
     }
   };
 
@@ -141,37 +123,34 @@ export default function VerifyCode() {
               </button>
             </fieldset>
           </div>
+          {/* otp */}
+          <div className="relative w-full">
+            <fieldset className="border border-gray-400 rounded px-3 pt-1 relative">
+              <legend className="text-sm px-1 text-[#1C1B1F]">
+                OTP
+              </legend>
+              <input
+                type={"text"}
+                placeholder="••••••••"
+                className="w-full outline-none border-none pb-2 focus:ring-0 text-[#1C1B1F] pr-10"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                required
+              />
+            </fieldset>
+          </div>
 
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={loading}
+            disabled={isLoading}
             className={`w-full bg-blue-600 text-white py-2 rounded-md transition ${
-              loading ? "opacity-70 cursor-not-allowed" : "hover:bg-blue-700"
+              isLoading ? "opacity-70 cursor-not-allowed" : "hover:bg-blue-700"
             }`}
           >
-            {loading ? "Submitting..." : "Submit"}
+            {isLoading ? "Submitting..." : "Submit"}
           </button>
         </form>
-
-        {/* Social login */}
-        <div className="flex items-center my-6 w-full max-w-sm">
-          <div className="flex-grow border-t border-gray-300" />
-          <span className="mx-4 text-gray-500 text-sm">Or login with</span>
-          <div className="flex-grow border-t border-gray-300" />
-        </div>
-
-        <div className="flex gap-4">
-          <button className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50">
-            <FaFacebook className="text-blue-600 mr-2" /> Facebook
-          </button>
-          <button className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50">
-            <FcGoogle className="mr-2" /> Google
-          </button>
-          <button className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50">
-            <FaApple className="text-black mr-2" /> Apple
-          </button>
-        </div>
       </div>
 
       {/* Right Panel */}
