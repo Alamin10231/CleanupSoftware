@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Search as SearchIcon, ChevronDown } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Badge } from "@/Components/ui/badge";
@@ -11,14 +11,14 @@ import {
   DialogFooter,
 } from "@/Components/ui/dialog";
 import { Textarea } from "@/Components/ui/textarea";
-import { Separator } from "@/Components/ui/separator";
+import { Separator } from "@/components/ui/separator";
+import { useSelector } from "react-redux";
 import {
   useGetEmployeesPageQuery,
+  useCreateSupervisorFormMutation,
   type EmployeeItem,
 } from "@/redux/features/employee/report/reporttable.api";
-
 type Status = "current" | "completed" | "canceled";
-
 type Row = {
   id: number;
   clientName: string;
@@ -31,8 +31,10 @@ type Row = {
 
 const statusBadge = (status: Status) => {
   const base = "text-xs px-2 py-0.5 rounded-full border";
-  if (status === "current") return `${base} bg-blue-50 text-blue-700 border-blue-200`;
-  if (status === "completed") return `${base} bg-green-50 text-green-700 border-green-200`;
+  if (status === "current")
+    return `${base} bg-blue-50 text-blue-700 border-blue-200`;
+  if (status === "completed")
+    return `${base} bg-green-50 text-green-700 border-green-200`;
   return `${base} bg-red-50 text-red-700 border-red-200`;
 };
 
@@ -49,39 +51,48 @@ const mapEmployeeToRow = (e: EmployeeItem): Row => ({
 export const EmployeeTable = () => {
   const [search, setSearch] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
-  const [taskFilter, setTaskFilter] = useState<"Current Task" | "Completed" | "Canceled">(
-    "Current Task"
-  );
+  const [taskFilter, setTaskFilter] = useState<
+    "Current Task" | "Completed" | "Canceled"
+  >("Current Task");
 
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<Row | null>(null);
   const [reportNotes, setReportNotes] = useState("");
 
-  // Pagination
+  // RTK hooks
+  const [createSupervisorForm, { isLoading: submitting }] =
+    useCreateSupervisorFormMutation();
+
   const [page, setPage] = useState(1);
   const { data, isLoading, isError } = useGetEmployeesPageQuery(page);
 
-  // Map backend employees -> rows
   const apiRows: Row[] = useMemo(
     () => (data?.results || []).map(mapEmployeeToRow),
     [data?.results]
   );
 
-  // Search + filter (current page only)
   const filtered: Row[] = useMemo(() => {
     if (!apiRows.length) return [];
-
     const q = search.toLowerCase().trim();
     let base = apiRows;
 
-    if (taskFilter === "Completed") base = base.filter((r) => r.status === "completed");
-    else if (taskFilter === "Canceled") base = base.filter((r) => r.status === "canceled");
+    if (taskFilter === "Completed")
+      base = base.filter((r) => r.status === "completed");
+    else if (taskFilter === "Canceled")
+      base = base.filter((r) => r.status === "canceled");
     else base = base.filter((r) => r.status !== "canceled");
 
     if (!q) return base;
 
     return base.filter((r) =>
-      [String(r.id), r.clientName, r.clientMail, r.region, r.employee, r.remarks]
+      [
+        String(r.id),
+        r.clientName,
+        r.clientMail,
+        r.region,
+        r.employee,
+        r.remarks,
+      ]
         .join(" ")
         .toLowerCase()
         .includes(q)
@@ -93,15 +104,25 @@ export const EmployeeTable = () => {
     setReportNotes("");
     setOpen(true);
   };
+  const supervisor = useSelector((state: any) => state.auth.user);
+  const submitReport = async () => {
+    if (!selected) return;
+    try {
+      await createSupervisorForm({
+        employee: selected.id,
+        supervisor: supervisor.id, // you can make this dynamic (e.g., logged-in supervisor id)
+        work_summary: reportNotes || "No summary provided",
+        performance: selected.status === "current" ? "Good" : "Completed",
+        issues_reported: reportNotes,
+      }).unwrap();
 
-  const submitReport = () => {
-    console.log("Report submitted", {
-      employee: selected?.employee,
-      client: selected?.clientName,
-      region: selected?.region,
-      notes: reportNotes,
-    });
-    setOpen(false);
+      alert("✅ Report submitted successfully!");
+      setOpen(false);
+      setReportNotes("");
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      alert("❌ Failed to submit report.");
+    }
   };
 
   return (
@@ -136,20 +157,22 @@ export const EmployeeTable = () => {
                 className="absolute z-10 mt-2 w-44 rounded-md border bg-white shadow-sm overflow-hidden"
                 onMouseLeave={() => setFilterOpen(false)}
               >
-                {(["Current Task", "Completed", "Canceled"] as const).map((opt) => (
-                  <button
-                    key={opt}
-                    onClick={() => {
-                      setTaskFilter(opt);
-                      setFilterOpen(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
-                      taskFilter === opt ? "bg-gray-50" : ""
-                    }`}
-                  >
-                    {opt}
-                  </button>
-                ))}
+                {(["Current Task", "Completed", "Canceled"] as const).map(
+                  (opt) => (
+                    <button
+                      key={opt}
+                      onClick={() => {
+                        setTaskFilter(opt);
+                        setFilterOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
+                        taskFilter === opt ? "bg-gray-50" : ""
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  )
+                )}
               </div>
             )}
           </div>
@@ -160,7 +183,9 @@ export const EmployeeTable = () => {
           {isLoading ? (
             <div className="p-6 text-center text-gray-500">Loading...</div>
           ) : isError ? (
-            <div className="p-6 text-center text-red-500">Failed to load employees</div>
+            <div className="p-6 text-center text-red-500">
+              Failed to load employees
+            </div>
           ) : (
             <>
               <table className="w-full text-sm">
@@ -179,12 +204,21 @@ export const EmployeeTable = () => {
                   {filtered.map((row) => (
                     <tr key={row.id} className="hover:bg-gray-50">
                       <td className="px-4 py-3 text-gray-700">{row.id}</td>
-                      <td className="px-4 py-3 text-gray-700">{row.clientName}</td>
-                      <td className="px-4 py-3 text-gray-700">{row.clientMail}</td>
+                      <td className="px-4 py-3 text-gray-700">
+                        {row.clientName}
+                      </td>
+                      <td className="px-4 py-3 text-gray-700">
+                        {row.clientMail}
+                      </td>
                       <td className="px-4 py-3 text-gray-700">{row.region}</td>
-                      <td className="px-4 py-3 text-gray-700">{row.employee}</td>
+                      <td className="px-4 py-3 text-gray-700">
+                        {row.employee}
+                      </td>
                       <td className="px-4 py-3">
-                        <Badge variant="outline" className={statusBadge(row.status)}>
+                        <Badge
+                          variant="outline"
+                          className={statusBadge(row.status)}
+                        >
                           {row.status}
                         </Badge>
                       </td>
@@ -198,7 +232,10 @@ export const EmployeeTable = () => {
 
                   {filtered.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="px-4 py-10 text-center text-gray-500">
+                      <td
+                        colSpan={7}
+                        className="px-4 py-10 text-center text-gray-500"
+                      >
                         No data found.
                       </td>
                     </tr>
@@ -206,7 +243,6 @@ export const EmployeeTable = () => {
                 </tbody>
               </table>
 
-              {/* Pagination */}
               {(data?.next || data?.previous) && (
                 <div className="flex justify-between items-center px-4 py-3 border-t bg-gray-50">
                   <Button
@@ -251,7 +287,9 @@ export const EmployeeTable = () => {
                 <div>
                   <div className="text-xs text-gray-500">Employee Name</div>
                   <div className="font-medium">{selected.clientName}</div>
-                  <div className="text-gray-500 text-sm">{selected.clientMail}</div>
+                  <div className="text-gray-500 text-sm">
+                    {selected.clientMail}
+                  </div>
                 </div>
                 <div>
                   <div className="text-xs text-gray-500">Department</div>
@@ -261,7 +299,10 @@ export const EmployeeTable = () => {
                   <div className="text-xs text-gray-500">Role</div>
                   <div className="flex items-center gap-2">
                     <span className="font-medium">{selected.employee}</span>
-                    <Badge variant="outline" className={statusBadge(selected.status)}>
+                    <Badge
+                      variant="outline"
+                      className={statusBadge(selected.status)}
+                    >
                       {selected.status}
                     </Badge>
                   </div>
@@ -287,7 +328,9 @@ export const EmployeeTable = () => {
             <Button variant="outline" onClick={() => setOpen(false)}>
               Close
             </Button>
-            <Button onClick={submitReport}>Submit Report</Button>
+            <Button onClick={submitReport} disabled={submitting}>
+              {submitting ? "Submitting..." : "Submit Report"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

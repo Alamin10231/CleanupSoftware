@@ -1,7 +1,6 @@
 // src/redux/features/employee/report/reporttable.api.ts
 import { baseApi } from "@/redux/api/baseApi";
 
-// Minimal types to match your backend
 export type EmployeeProfile = {
   id: number;
   department: string | null;
@@ -24,9 +23,8 @@ export type EmployeeItem = {
   user_type: string;
   prime_phone: string | null;
   is_active: boolean;
-  date_joined: string; // ISO
+  date_joined: string;
   employee_profile?: EmployeeProfile | null;
-  // other fields...
 };
 
 export type EmployeePage = {
@@ -38,7 +36,7 @@ export type EmployeePage = {
 
 export const employeeDashboardApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // Fetch 1 page of employees (server already paginates)
+    // ✅ Fetch employee list (paginated)
     getEmployeesPage: builder.query<EmployeePage, number | void>({
       query: (page = 1) => ({
         url: `/employees/?page=${page}`,
@@ -47,13 +45,30 @@ export const employeeDashboardApi = baseApi.injectEndpoints({
       providesTags: ["Report"],
     }),
 
-    // (kept for your single-employee fetch if you still need it elsewhere)
+    // ✅ Fetch single employee details
     getReportTable: builder.query<EmployeeItem, number>({
-      query: (id: number) => ({ url: `employees/${id}`, method: "GET" }),
+      query: (id: number) => ({
+        url: `employees/${id}`,
+        method: "GET",
+      }),
       providesTags: ["Report"],
+    }),
+
+    // ✅ POST supervisor form
+    createSupervisorForm: builder.mutation<any, Record<string, any>>({
+      query: (body) => ({
+        url: `supervisor-forms/`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["Report"], 
     }),
   }),
 });
 
-export const { useGetEmployeesPageQuery, useGetReportTableQuery } =
-  employeeDashboardApi;
+
+export const {
+  useGetEmployeesPageQuery,
+  useGetReportTableQuery,
+  useCreateSupervisorFormMutation,
+} = employeeDashboardApi;

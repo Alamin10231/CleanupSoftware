@@ -4,24 +4,24 @@ export const employeeDashboardApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getEmployeeDashboard: builder.query<any, void>({
       query: () => "task/task_assign_employee/",
-      providesTags: ["EmployeeDashboard"],
+      providesTags: ["EmployeeDashboard"], // This tag is provided for caching
     }),
 
     getEmployeeChart: builder.query<any, string>({
       query: (employeeId) => `task/report/employee/${employeeId}/`,
-      providesTags: ["EmployeeDashboard"],
+      providesTags: ["EmployeeDashboard"], // This tag is provided for caching
     }),
-     createAdminNewPlan: builder.mutation<any, any>({
+
+    createAdminNewPlan: builder.mutation<any, any>({
       query: (body) => ({
         url: "/plan/list/",
         method: "POST",
         body,
       }),
-      invalidatesTags: ["Subscription"],
+      invalidatesTags: ["EmployeeDashboard"], // Invalidate the dashboard data if a new plan is created
     }),
 
-   
-   updateTaskAssignEmployeeById: builder.mutation<
+    updateTaskAssignEmployeeById: builder.mutation<
       any,
       { id: number } & Record<string, any>
     >({
@@ -30,11 +30,14 @@ export const employeeDashboardApi = baseApi.injectEndpoints({
         method: "PATCH",
         body,
       }),
-      invalidatesTags: ["Subscription"],
+      invalidatesTags: ["EmployeeDashboard"], // Invalidate the dashboard data if a task is updated
     }),
   }),
 });
 
-export const { useGetEmployeeDashboardQuery, useGetEmployeeChartQuery ,useCreateAdminNewPlanMutation,
-  useUpdateTaskAssignEmployeeByIdMutation } =
-  employeeDashboardApi;
+export const {
+  useGetEmployeeDashboardQuery,
+  useGetEmployeeChartQuery,
+  useCreateAdminNewPlanMutation,
+  useUpdateTaskAssignEmployeeByIdMutation,
+} = employeeDashboardApi;

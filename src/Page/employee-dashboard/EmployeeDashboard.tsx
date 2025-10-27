@@ -1,5 +1,6 @@
 // src/pages/employee/EmployeeDashboard.tsx
 import { useEffect, useMemo, useState } from "react";
+import { useSelector } from "react-redux";
 import {
   Users,
   ClipboardCheck,
@@ -71,12 +72,14 @@ type TaskRow = {
 const PAGE_SIZE = 5;
 
 const EmployeeDashboard = () => {
-  const employeeId = "";
-
+  // const employeeId = "126";
+    const employeeId = useSelector((state: any) => state.auth.user?.id);
+ const employeeName = useSelector((state: any) => state.auth.user?.name);
   // API queries
   const { data, isLoading, isError, refetch } = useGetEmployeeDashboardQuery();
   const { data: chartApiData, isLoading: chartLoading } =
     useGetEmployeeChartQuery(employeeId);
+    console.log("id",employeeId)
   const {
     data: tasksData,
     isLoading: tasksLoading,
@@ -136,11 +139,11 @@ const EmployeeDashboard = () => {
     setLocalTasks(currentTasks);
   }, [currentTasks]);
 
-  // -------- Pagination (5 per page) --------
+
   const [page, setPage] = useState(1);
   const totalPages = Math.max(1, Math.ceil(localTasks.length / PAGE_SIZE));
   useEffect(() => {
-    setPage(1); // reset to first page when list changes
+    setPage(1); 
   }, [localTasks.length]);
 
   const pagedTasks = useMemo(() => {
@@ -158,7 +161,7 @@ const EmployeeDashboard = () => {
   const [updateTask, setUpdateTask] = useState<TaskRow | null>(null);
   const [newStatus, setNewStatus] = useState<string>("canceled");
 
-  // ✅ PUT mutation hook (id in URL)
+
   const [updateTaskAssignEmployeeById, { isLoading: updating }] =
     useUpdateTaskAssignEmployeeByIdMutation();
 
@@ -178,9 +181,6 @@ const EmployeeDashboard = () => {
       </div>
     );
   }
-
-  // status → badge color + action label
-  // completed → "View Details"; everything else → "Update"
   const getStatusColor = (status: string) => {
     const s = status.toLowerCase();
     if (s.includes("completed")) {
@@ -259,11 +259,8 @@ const EmployeeDashboard = () => {
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <h1 className="text-4xl font-semibold">Welcome, Sarah Miller</h1>
-          <Badge className="bg-green-100 text-green-700 border-green-200">
-            • Active
-          </Badge>
+        <div className="flex items-center gap-3"> <h1> {employeeName || "Employee"}</h1>
+          
         </div>
         <Button className="gap-2">
           <Share2 size={16} />
