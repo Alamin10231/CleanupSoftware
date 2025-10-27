@@ -12,6 +12,8 @@ import Verifyotp from "@/Components/Auth/Verifyotp";
 import NotFound from "@/Page/NotFound";
 import { clientSidebarItems } from "./sidebar-items/client-items";
 import { supervisorSidebarItems } from "./sidebar-items/supervisor-items";
+import UpdatePlanForm from "@/Page/admin-dashboard/UpdatePlan";
+import SetPassword from "@/Components/Auth/SetPassword";
 
 export const router = createBrowserRouter([
   {
@@ -20,19 +22,23 @@ export const router = createBrowserRouter([
     children: [],
   },
   {
-    Component: DashboardLayout,
-    //  Component: checkRole(DashboardLayout, "admin"),
+   //  Component: DashboardLayout,
+     Component: checkRole(DashboardLayout, "admin"),
     path: "/admin",
     children: [
-      { index: true, element: <Navigate to="dashboard" /> }, // Changed to relative path
+      { index: true, element: <Navigate to="dashboard" /> },
       ...generateRoutes(adminSidebarItems),
+      {
+         Component: UpdatePlanForm,
+         path: '/admin/update-plan/:id'
+      },
     ],
   },
   {
     Component: checkRole(DashboardLayout, "employee"),
     path: "/employee",
     children: [
-      { index: true, element: <Navigate to="dashboard" /> }, // Changed to relative path
+      { index: true, element: <Navigate to="dashboard" /> },
       ...generateRoutes(employeeSidebarItems),
     ],
   },
@@ -68,7 +74,11 @@ export const router = createBrowserRouter([
   },
   {
     Component: Verifyotp,
-    path: "/verifyotp",
+    path: "/verifyotp/:email",
+  },
+  {
+    Component: SetPassword,
+    path: "/set-password/:email"
   },
   {
     Component: NotFound,

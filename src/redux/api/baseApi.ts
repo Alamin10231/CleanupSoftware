@@ -46,6 +46,9 @@ export const baseApi = createApi({
     "ExpenseCategory",
     "EmployeeExpense",
     "notification",
+    "reports",
+    "form",
+    "task",
     "GetSupervisorReports",
     "GetEmployeeTasks",
     "Employee"

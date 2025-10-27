@@ -8,6 +8,7 @@ import { useSelector } from "react-redux";
 interface Employee {
   id: number;
   username: string;
+  username: string;
   name?: string;
   role?: string;
   rating?: number;
@@ -46,6 +47,8 @@ const ClientSubscription = () => {
 
   console.log("Fetched subscription data:", data);
 
+  console.log("Fetched subscription data:", data);
+
   const subscriptions: Subscription[] = data?.map((sub: any) => ({
     id: sub.id,
     name: sub.plan?.name || "No Plan Name",
@@ -65,12 +68,15 @@ const ClientSubscription = () => {
     console.log("Opening chat with:", employee);
     const empDetails = await getEmployeeDetails(employee.id).unwrap();
     console.log("Fetched employee details:", empDetails);
+    console.log("Opening chat with:", employee);
+    const empDetails = await getEmployeeDetails(employee.id).unwrap();
+    console.log("Fetched employee details:", empDetails);
     // TODO: Fetch chat history from API
     // Example API call structure:
     // const response = await fetch(`/api/chat/history/${employee.id}`);
     // const chatHistory = await response.json();
     // setMessages(chatHistory);
-    
+
     // For now, load empty messages
 
     console.log("Setting up WebSocket connection for employee ID:", empDetails.email);
@@ -120,6 +126,9 @@ const ClientSubscription = () => {
     ws.current?.close();
     ws.current = null;
     console.log("Websocket connection closed");
+    ws.current?.close();
+    ws.current = null;
+    console.log("Websocket connection closed");
     setNewMessage("");
   };
 
@@ -159,7 +168,7 @@ const ClientSubscription = () => {
         }),
       });
       const data = await response.json();
-      
+
       // Add employee response if received immediately
       if (data.response) {
         const employeeMessage: Message = {

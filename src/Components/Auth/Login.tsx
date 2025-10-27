@@ -18,19 +18,20 @@ export default function Login() {
     const [password, setPassword] = useState("");
     const [show, setShow] = useState(false);
     const navigate = useNavigate();
+    const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        toast.success("Logging in...");
-        console.log("Logging in...", { email, password });
+        setError(null);
         try {
             const res = await login({ email, password }).unwrap();
-            dispatch(setCredentials(res)); // includes user, access, refresh
-            toast("Login successful!");
+            dispatch(setCredentials(res));
+            toast.success("Login successful!");
             navigate("/");
-            console.log("User info:", res.user);
-        } catch (err) {
-            console.error("Login failed:", err);
+        } catch (err: any) {
+            const message = err.data?.message || "An error occurred";
+            setError(message);
+            toast.error(message);
         }
     };
 
@@ -97,7 +98,7 @@ export default function Login() {
                     </div>
 
                     {/* Error Message */}
-                    {isError && <p className="text-red-500 text-sm">{isError}</p>}
+                    {error && <p className="text-red-500 text-sm">{error}</p>}
 
                     {/* Remember + Forgot */}
                     <div className="flex items-center justify-between text-sm">
@@ -109,7 +110,7 @@ export default function Login() {
                             <span>Remember me</span>
                         </label>
                         <Link
-                            to="/forgetpassword"
+                            to="/forget-password"
                             className="text-blue-500 hover:underline"
                         >
                             Forgot Password

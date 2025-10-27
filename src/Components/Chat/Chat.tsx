@@ -1,313 +1,376 @@
-// Chat.tsx
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useSelector } from "react-redux";
+import { Send, Loader2, AlertCircle } from "lucide-react";
+import { Button } from "@/Components/ui/button";
+import { Input } from "@/Components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Alert, AlertDescription } from "@/Components/ui/alert";
+import type { RootState } from "../Navbar";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+// Types
+interface ChatMessage {
+  message?: string;
+  sender?: string;
+  timestamp?: string;
+  action?: string;
+  [key: string]: any;
+}
 
-/**
- * ---- Expected backend protocol (Django Channels) ----
- * Client -> Server:
- *  { "action": "join", "name": string }
- *  { "action": "message", "name": string, "text": string }
- *  { "action": "typing", "name": string, "isTyping": boolean }
- *
- * Server -> Client examples:
- *  { "event": "message", "name": string, "text": string, "ts": number }
- *  { "event": "typing", "name": string, "isTyping": boolean }
- *  { "event": "system", "text": string }
- *
- * Adjust the keys to match your Django response if different.
- */
+type ConnectionStatus = "connecting" | "connected" | "disconnected" | "error";
 
-type IncomingEvent =
-  | { event: "message"; name: string; text: string; ts?: number }
-  | { event: "typing"; name: string; isTyping: boolean }
-  | { event: "system"; text: string };
+// Constants
+const WS_BASE_URL = "ws://10.10.13.61:8015";
+const RECONNECT_INTERVAL = 3000;
+const MAX_RECONNECT_ATTEMPTS = 5;
 
-type OutgoingPayload =
-  | { action: "join"; name: string }
-  | { action: "message"; name: string; text: string }
-  | { action: "typing"; name: string; isTyping: boolean };
-
-type ChatMessage = {
-  name: string;
-  text: string;
-  ts: number;
-  kind: "user" | "system";
+// Utility Functions
+const getAccessToken = (): string => {
+  const token = localStorage.getItem("access");
+  return token ? token.replace(/"/g, "") : "";
 };
 
-type Props = {
-  /** WebSocket URL from Django Channels, e.g. ws://localhost:8000/ws/chat/room1/ */
-  wsUrl: string;
+const buildWebSocketUrl = (username: string, token: string): string => {
+  return `${WS_BASE_URL}/ws/chat/one-to-one/${"alamin8149822949"}/?token=${token}`;
 };
 
-export default function Chat({ wsUrl }: Props) {
-  const [stage, setStage] = useState<"name" | "chat">("name");
-  const [name, setName] = useState("");
-  const [text, setText] = useState("");
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [typers, setTypers] = useState<Record<string, number>>({}); // name -> last_seen ms
-  const wsRef = useRef<WebSocket | null>(null);
-  const typingRef = useRef<{ timer?: number; lastSent?: number }>({});
-  const listRef = useRef<HTMLDivElement>(null);
+const formatTimestamp = (timestamp?: string): string => {
+  if (!timestamp) return new Date().toLocaleTimeString();
+  return new Date(timestamp).toLocaleTimeString();
+};
 
-  // Auto-scroll on new message
-  useEffect(() => {
-    listRef.current?.scrollTo({
-      top: listRef.current.scrollHeight,
-      behavior: "smooth",
-    });
-  }, [messages]);
+// Components
+interface MessageBubbleProps {
+  message: ChatMessage;
+  isOwnMessage: boolean;
+}
 
-  // Connect WebSocket once when stage becomes "chat"
-  useEffect(() => {
-    if (stage !== "chat") return;
-    const ws = new WebSocket(wsUrl);
-    wsRef.current = ws;
+function MessageBubble({ message, isOwnMessage }: MessageBubbleProps) {
+  return (
+    <div
+      className={`flex items-end gap-2 ${
+        isOwnMessage ? "justify-end" : "justify-start"
+      } mb-4`}
+    >
+      {!isOwnMessage && (
+        <img
+          src="/public/default-avatar.png"
+          alt="Avatar"
+          className="w-8 h-8 rounded-full"
+        />
+      )}
+      <div
+        className={`max-w-[70%] rounded-lg px-4 py-3 ${
+          isOwnMessage
+            ? "bg-blue-600 text-white rounded-br-none"
+            : "bg-gray-200 text-gray-900 rounded-bl-none"
+        }`}
+      >
+        {message.sender && !isOwnMessage && (
+          <div className="text-xs font-bold mb-1 text-gray-600">
+            {message.sender}
+          </div>
+        )}
+        <p className="text-sm break-words">{message.message || JSON.stringify(message)}</p>
+        <div className="text-xs mt-1 text-right opacity-70">
+          {formatTimestamp(message.timestamp)}
+        </div>
+      </div>
+      {isOwnMessage && (
+        <img
+          src="/public/default-avatar.png"
+          alt="Avatar"
+          className="w-8 h-8 rounded-full"
+        />
+      )}
+    </div>
+  );
+}
 
-    ws.onopen = () => {
-      safeSend({ action: "join", name });
-      pushSystem(`Connected as ${name}`);
-    };
+interface ConnectionStatusBadgeProps {
+  status: ConnectionStatus;
+}
 
-    ws.onmessage = (evt) => {
-      try {
-        const data: IncomingEvent = JSON.parse(evt.data);
-        if (data.event === "message") {
-          setMessages((prev) => [
-            ...prev,
-            {
-              name: data.name,
-              text: data.text,
-              ts: data.ts ?? Date.now(),
-              kind: "user",
-            },
-          ]);
-        } else if (data.event === "typing") {
-          // Track who is typing (expire after 3s)
-          setTypers((prev) => ({
-            ...prev,
-            [data.name]: data.isTyping ? Date.now() : 0,
-          }));
-        } else if (data.event === "system") {
-          pushSystem(data.text);
-        }
-      } catch {
-        // ignore malformed messages
-      }
-    };
+function ConnectionStatusBadge({ status }: ConnectionStatusBadgeProps) {
+  const statusConfig = {
+    connecting: { color: "bg-yellow-500", text: "Connecting..." },
+    connected: { color: "bg-green-500", text: "Connected" },
+    disconnected: { color: "bg-red-500", text: "Disconnected" },
+    error: { color: "bg-red-500", text: "Error" },
+  };
 
-    ws.onclose = () => {
-      pushSystem("Disconnected.");
-    };
-    
+  const config = statusConfig[status];
 
-    return () => {
-      try {
-        ws.close();
-      } catch(err) {
-        console.log(err)
-      }
-      wsRef.current = null;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stage, wsUrl, name]);
+  return (
+    <div className="flex items-center gap-2">
+      <div className={`w-2 h-2 rounded-full ${config.color} animate-pulse`} />
+      <span className="text-xs text-gray-600">{config.text}</span>
+    </div>
+  );
+}
 
-  // Prune stale typers every 1s (anyone older than 3s disappears)
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      const now = Date.now();
-      setTypers((prev) => {
-        const next: Record<string, number> = {};
-        for (const [k, v] of Object.entries(prev)) {
-          if (v && now - v < 3000) next[k] = v;
-        }
-        return next;
-      });
-    }, 1000);
-    return () => window.clearInterval(id);
+// Main Component
+export default function WebSocketChat({ wsUrl }: { wsUrl: string }) {
+  const [message, setMessage] = useState("");
+  const [chatLog, setChatLog] = useState<ChatMessage[]>([]);
+  const [connectionStatus, setConnectionStatus] =
+    useState<ConnectionStatus>("connecting");
+  const [reconnectAttempts, setReconnectAttempts] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+
+  const { user } = useSelector((state: RootState) => state.auth);
+  const ws = useRef<WebSocket | null>(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Auto-scroll to bottom
+  const scrollToBottom = useCallback(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
 
-  const someoneTyping = useMemo(() => {
-    const names = Object.keys(typers).filter((n) => typers[n] && n !== name);
-    if (names.length === 0) return "";
-    if (names.length === 1) return `${names[0]} is typing…`;
-    if (names.length === 2) return `${names[0]} and ${names[1]} are typing…`;
-    return "Several people are typing…";
-  }, [typers, name]);
+  useEffect(() => {
+    scrollToBottom();
+  }, [chatLog, scrollToBottom]);
 
-  function safeSend(payload: OutgoingPayload) {
-    const ws = wsRef.current;
-    if (!ws || ws.readyState !== WebSocket.OPEN) return;
-    ws.send(JSON.stringify(payload));
-  }
+  // WebSocket connection
+  const connectWebSocket = useCallback(() => {
+    if (!user?.username) {
+      setError("User not authenticated. Please log in.");
+      setConnectionStatus("error");
+      return;
+    }
 
-  function pushSystem(text: string) {
-    setMessages((prev) => [
-      ...prev,
-      { name: "system", text, ts: Date.now(), kind: "system" },
-    ]);
-  }
+    const token = getAccessToken();
+    if (!token) {
+      setError("Authentication token not found. Please log in again.");
+      setConnectionStatus("error");
+      return;
+    }
 
-  function handleStart() {
-    if (!name.trim()) return;
-    setStage("chat");
-  }
+    try {
+      const finalWsUrl = `${WS_BASE_URL}/ws/chat/one-to-one/${"alamin8149822949"}/?token=${token}`;
+      console.log("Connecting to WebSocket:", finalWsUrl);
 
-  function handleSend() {
-    const t = text.trim();
-    if (!t) return;
-    safeSend({ action: "message", name, text: t });
-    // Optimistic add
-    setMessages((prev) => [
-      ...prev,
-      { name, text: t, ts: Date.now(), kind: "user" },
-    ]);
-    setText("");
-    // Stop typing state
-    sendTyping(false);
-  }
+      ws.current = new WebSocket(finalWsUrl);
 
-  function sendTyping(isTyping: boolean) {
-    // throttle typing pings to 400ms
-    const now = Date.now();
-    const last = typingRef.current.lastSent ?? 0;
-    if (isTyping && now - last < 400) return;
-    typingRef.current.lastSent = now;
-    safeSend({ action: "typing", name, isTyping });
+      ws.current.onopen = () => {
+        console.log("✅ WebSocket connected");
+        setConnectionStatus("connected");
+        setReconnectAttempts(0);
+        setError(null);
+
+        // Send any saved messages
+        const savedMessages = JSON.parse(localStorage.getItem("offlineMessages") || "[]");
+        if (savedMessages.length > 0) {
+          savedMessages.forEach((msg: ChatMessage) => {
+            if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+              try {
+                ws.current.send(JSON.stringify(msg));
+                console.log("📤 Offline message sent:", msg);
+              } catch (err) {
+                console.error("Error sending offline message:", err);
+              }
+            }
+          });
+          localStorage.removeItem("offlineMessages");
+        }
+      };
+
+      ws.current.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          console.log("📩 Message received:", data);
+          setChatLog((prev) => [...prev, data]);
+        } catch (err) {
+          console.error("Error parsing message:", err);
+        }
+      };
+
+      ws.current.onerror = (event) => {
+        console.error("❌ WebSocket error:", event);
+        setError("Connection error occurred");
+        setConnectionStatus("error");
+      };
+
+      ws.current.onclose = (event) => {
+        console.log("🔌 WebSocket disconnected:", event.code, event.reason);
+        setConnectionStatus("disconnected");
+
+        // Attempt reconnection
+        if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
+          console.log(
+            `Attempting to reconnect... (${reconnectAttempts + 1}/${MAX_RECONNECT_ATTEMPTS})`
+          );
+          reconnectTimeoutRef.current = setTimeout(() => {
+            setReconnectAttempts((prev) => prev + 1);
+            connectWebSocket();
+          }, RECONNECT_INTERVAL);
+        } else {
+          setError(
+            "Connection lost. Maximum reconnection attempts reached. Please refresh the page."
+          );
+        }
+      };
+    } catch (err) {
+      console.error("Error creating WebSocket:", err);
+      setError("Failed to establish connection");
+      setConnectionStatus("error");
+    }
+  }, [user?.username, reconnectAttempts, wsUrl]);
+
+  // Initialize WebSocket connection
+  useEffect(() => {
+    connectWebSocket();
+
+    return () => {
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+      }
+      if (ws.current) {
+        ws.current.close();
+      }
+    };
+  }, [connectWebSocket]);
+
+  // Send message
+  const sendMessage = useCallback(() => {
+    if (!message.trim()) return;
+
+    const payload = {
+      action: "send_message",
+      message: message.trim(),
+      timestamp: new Date().toISOString(),
+    };
+
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      try {
+        ws.current.send(JSON.stringify(payload));
+        console.log("📤 Message sent:", payload);
+        setMessage("");
+      } catch (err) {
+        console.error("Error sending message:", err);
+        setError("Failed to send message");
+      }
+    } else {
+      // Save message to local storage if offline
+      const savedMessages = JSON.parse(localStorage.getItem("offlineMessages") || "[]");
+      savedMessages.push(payload);
+      localStorage.setItem("offlineMessages", JSON.stringify(savedMessages));
+      setChatLog((prev) => [...prev, { ...payload, sender: user.username, isOwnMessage: true }]);
+      setMessage("");
+      setError("You are offline. Message will be sent when you are back online.");
+    }
+  }, [message, user]);
+
+  // Handle Enter key press
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    },
+    [sendMessage]
+  );
+
+  // Manual reconnect
+  const handleReconnect = useCallback(() => {
+    setReconnectAttempts(0);
+    setError(null);
+    connectWebSocket();
+  }, [connectWebSocket]);
+
+  if (!user) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Please log in to access the chat.
+        </AlertDescription>
+      </Alert>
+    );
   }
 
   return (
-    <div className="flex flex-col h-[720px] bg-white border rounded-2xl overflow-hidden">
-      {stage === "name" ? (
-        <div className="max-w-md w-full mx-auto mt-6 rounded-2xl border border-slate-200 bg-white shadow p-5">
-          <h1 className="text-lg font-semibold text-slate-800">
-            Enter your name
-          </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            This name will be visible to everyone in the room.
-          </p>
-
-          <label
-            htmlFor="displayName"
-            className="mt-4 block text-sm font-medium text-slate-700"
-          >
-            Display name
-          </label>
-          <input
-            id="displayName"
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Your name (e.g. John Doe)"
-            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-800 placeholder-slate-400 outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
-          />
-
-          <div className="mt-4">
-            <button
-              type="button"
-              onClick={handleStart}
-              className="w-full inline-flex items-center justify-center rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow hover:bg-emerald-700 active:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              disabled={!name.trim()}
-            >
-              Continue
-            </button>
-          </div>
+    <Card className="w-full max-w-2xl mx-auto">
+      <CardHeader className="border-b">
+        <div className="flex items-center justify-between">
+          <CardTitle>Chat with {user.name}</CardTitle>
+          <ConnectionStatusBadge status={connectionStatus} />
         </div>
-      ) : (
-        <>
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-full bg-emerald-600 text-white grid place-items-center text-sm font-semibold">
-                {name[0]?.toUpperCase() || "?"}
-              </div>
-              <div className="font-medium text-slate-800">
-                Realtime group chat
-              </div>
-            </div>
-            <div className="text-sm text-slate-500">
-              Signed in as{" "}
-              <span className="font-medium text-slate-700">{name}</span>
-            </div>
-          </div>
+      </CardHeader>
 
-          {/* Messages */}
-          <div
-            ref={listRef}
-            className="flex-1 bg-white overflow-y-auto px-3 py-4 space-y-3"
-          >
-            {messages.length === 0 ? (
-              <div className="h-full grid place-items-center">
-                <p className="text-slate-400 text-sm">No messages yet</p>
-              </div>
-            ) : (
-              messages.map((m, i) => (
-                <div
-                  key={i}
-                  className={`flex ${
-                    m.name === name ? "justify-end" : "justify-start"
-                  }`}
+      <CardContent className="p-0">
+        {/* Error Alert */}
+        {error && (
+          <Alert variant="destructive" className="m-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="flex items-center justify-between">
+              <span>{error}</span>
+              {connectionStatus === "disconnected" && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleReconnect}
+                  className="ml-2"
                 >
-                  <div
-                    className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm shadow ${
-                      m.kind === "system"
-                        ? "bg-slate-50 border border-slate-200 text-slate-500 mx-auto"
-                        : m.name === name
-                        ? "bg-emerald-600 text-white rounded-tr-sm"
-                        : "bg-white border border-slate-200 text-slate-800 rounded-tl-sm"
-                    }`}
-                  >
-                    {m.kind !== "system" && m.name !== name && (
-                      <div className="text-[11px] opacity-70 mb-0.5">
-                        {m.name}
-                      </div>
-                    )}
-                    <div>{m.text}</div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+                  Reconnect
+                </Button>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
 
-          {/* Typing indicator */}
-          {someoneTyping && (
-            <div className="px-4 py-1 text-xs text-slate-500 border-t border-slate-100">
-              {someoneTyping}
+        {/* Chat Messages */}
+        <div className="h-96 overflow-y-auto p-4 bg-gray-50">
+          {chatLog.length === 0 ? (
+            <div className="flex items-center justify-center h-full text-gray-500">
+              <p>No messages yet. Start the conversation!</p>
             </div>
-          )}
-
-          {/* Composer */}
-          <div className="sticky bottom-0 mx-3 pb-4 pt-2 bg-white z-10">
-            <div className="w-full rounded-2xl border border-slate-200 shadow-sm px-2.5 py-2 flex items-end gap-2">
-              <textarea
-                className="flex-1 resize-none outline-none text-[15px] placeholder-slate-400"
-                rows={1}
-                placeholder="Type a message..."
-                value={text}
-                onChange={(e) => {
-                  setText(e.target.value);
-                  // notify backend we're typing
-                  if (e.target.value.trim()) sendTyping(true);
-                }}
-                onBlur={() => sendTyping(false)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend();
-                  }
-                }}
+          ) : (
+            chatLog.map((msg, index) => (
+              <MessageBubble
+                key={index}
+                message={msg}
+                isOwnMessage={msg.sender === user.username}
               />
-              <button
-                onClick={handleSend}
-                className="inline-flex items-center justify-center bg-emerald-600 text-white text-sm font-medium px-4 py-2 rounded-xl shadow"
-                type="button"
-                disabled={!text.trim()}
-              >
-                Send
-              </button>
-            </div>
+            ))
+          )}
+          <div ref={chatEndRef} />
+        </div>
+
+        {/* Message Input */}
+        <div className="border-t p-4 bg-white">
+          <div className="flex gap-2">
+            <Input
+              type="text"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Type a message..."
+              disabled={connectionStatus !== "connected"}
+              className="flex-1"
+            />
+            <Button
+              onClick={sendMessage}
+              disabled={
+                !message.trim() || connectionStatus !== "connected"
+              }
+              size="icon"
+            >
+              {connectionStatus === "connecting" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+            </Button>
           </div>
-        </>
-      )}
-    </div>
+          {connectionStatus !== "connected" && (
+            <p className="text-xs text-gray-500 mt-2">
+              Waiting for connection...
+            </p>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

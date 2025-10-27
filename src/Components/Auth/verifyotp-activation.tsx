@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple, FaFacebook } from "react-icons/fa";
 import loginpicture from "../../assets/Image/loginpicture.jpg";
-import { Link, useNavigate, useParams, useLocation } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { assets } from "../../assets/assets";
 import { IoIosArrowBack } from "react-icons/io";
 import { useVerifyOtpMutation } from "@/redux/features/auth/authApi";
@@ -45,7 +45,7 @@ export default function Verifyotp() {
       await verifyOtp({ email, code: otp }).unwrap();
       toast.success("OTP verified successfully!", { id: "verify-otp" });
       dispatch(setOtp(otp));
-      navigate(`/set-password/${encodeURIComponent(email)}/${otp}`);
+      navigate("/login");
     } catch (err: any) {
       toast.error(err.data?.message || "Something went wrong", {
         id: "verify-otp",

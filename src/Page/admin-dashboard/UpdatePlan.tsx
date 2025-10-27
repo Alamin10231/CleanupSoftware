@@ -99,7 +99,7 @@ const UpdatePlanForm = () => {
     if (!initialData) return;
 
     const changedData: Partial<FormState> = {};
-    
+
     (Object.keys(formData) as Array<keyof FormState>).forEach(key => {
       if (key === 'service_line_items') {
         if (JSON.stringify(formData.service_line_items) !== JSON.stringify(initialData.service_line_items)) {
@@ -123,7 +123,7 @@ const UpdatePlanForm = () => {
         success: "Plan updated successfully!",
         error: "Failed to update plan.",
       });
-      navigate("/subscription");
+      navigate("/admin/subscriptionplan");
     } catch (error) {
       console.error("Update failed:", error);
     }
@@ -212,7 +212,7 @@ const UpdatePlanForm = () => {
             </div>
         </div>
       </div>
-      
+
       {/* Services Included */}
       <div className="border rounded-lg p-6 mb-6">
         <div className="flex items-center justify-between mb-4">

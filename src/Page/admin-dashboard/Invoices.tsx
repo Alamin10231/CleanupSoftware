@@ -20,7 +20,7 @@ const Invoices = () => {
           <p className="text-[#808080] text-base mt-1">Manage clients and subscription</p>
         </div>
         <div className="flex gap-2">
-          <Link to="/create-invoice">
+          <Link to="/admin/create-invoice">
                <Button>
                 <FaPlus />Create Invoice
               </Button>

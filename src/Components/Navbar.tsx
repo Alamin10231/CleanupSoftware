@@ -74,7 +74,6 @@ const Navbar = () => {
             aria-haspopup="menu"
             aria-expanded={open}
           >
-            {/* Avatar (only show employee photo if present; otherwise fallback) */}
             {(user?.user_type === "employee" || !user) && (
               <img
                 src={user?.avatarUrl ?? profilepic}

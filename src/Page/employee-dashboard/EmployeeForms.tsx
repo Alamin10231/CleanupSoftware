@@ -1,150 +1,15 @@
-// import { useEffect, useState } from "react";
-// import {
-//   Tabs,
-//   TabsContent,
-//   TabsList,
-//   TabsTrigger,
-  
-// } from "@/Components/ui/tabs";
-// import { Dialog,  DialogContent,   DialogHeader, DialogTitle, DialogTrigger } from "@/Components/ui/dialog";
-// import { Label } from "@/Components/ui/label";
-// import { Button } from "@/Components/ui/button";
-
-
-// interface Invoice {
-//   FormName: string;
-//   Client: string;
-//   Apartment: string;
-//   Region: string;
-//   Status: "Submitted" | "Draft";
-//   LastUpdated: string;
-// }
-
-// const EmployeeForms = () => {
-//   const [invoices, setInvoices] = useState<Invoice[]>([]);
-//   const [tab, setTab] = useState("all");
-
-//   useEffect(() => {
-//     fetch("/FormData.json")
-//       .then((res) => res.json())
-//       .then((data) => setInvoices(data.FormData));
-//   }, []);
-
-//   const filteredInvoices = invoices.filter((fo) => {
-//     const matchTab =
-//       tab == "all"
-//         ? true
-//         : tab === "Submitted"
-//         ? fo.Status === "Submitted"
-//         : tab === "Draft"
-//         ? fo.Status === "Draft"
-//         : true;
-
-//     return matchTab;
-//   });
-
-//   const statuscolor = {
-//     Submitted: "text-green-500 bg-[#E2F5EC] px-4 py-2 rounded-md",
-//     Draft: "text-[#F5A926] bg-[#F7F1E4] px-9 py-2 rounded-md",
-//   };
-
-//   return (
-//     <div className="p-6 max-w-6xl mx-auto space-y-6">
-//       <div className="flex items-center justify-between">
-//         <h1 className="text-2xl font-bold">Forms</h1>
-//       </div>
-
-//       {/* Tabs */}
-//       <Tabs defaultValue="all" value={tab} onValueChange={setTab}>
-//         <TabsList>
-//           {["all", "Submitted", "Draft"].map((t) => (
-//             <TabsTrigger key={t} value={t}>
-//               {t === "all" ? "All" : t}
-//             </TabsTrigger>
-//           ))}
-//         </TabsList>
-
-//         {/* Table */}
-//         <TabsContent value={tab} className="">
-//           <div className="overflow-x-auto border rounded-lg mt-4 ">
-//             <table className="w-full border-collapse text-md bg-[#F7FAFC]">
-//               <thead className=" text-black ">
-//                 <tr className="text-black  ">
-//                   <th className="px-4 py-2 text-left">FormName</th>
-//                   <th className="px-4 py-2 text-left">Client</th>
-//                   <th className="px-4 py-2 text-left">Appartment</th>
-//                   <th className="px-4 py-2 text-left">Region</th>
-//                   <th className="px-4 py-2 text-left">Note</th>
-//                   <th className="px-4 py-2 text-left">Last Updates</th>
-//                 </tr>
-//               </thead>
-//               <tbody className="bg-[#F7FAFC] text-gray-500">
-//                 {filteredInvoices.map((invoice, index) => (
-//                   <tr key={index} className="border-t hover:bg-gray-50">
-//                     <td className="px-4 py-4 ">{invoice.FormName}</td>
-//                     <td className="px-4 py-4 ">{invoice.Client}</td>
-//                     <td className="px-4 py-4 ">{invoice.Apartment}</td>
-//                     <td className="px-4 py-4 ">{invoice.Region}</td>
-//                     <td
-//                       className={`px-4 py-4 
-//                       `}
-//                     >
-//                       {/* <span className={` ${statuscolor[invoice.Status] || ""}`}>
-//                          {invoice.Status}
-
-//                        </span> */}
-//                       <span>
-//                         <Dialog>
-//       <form>
-//         <DialogTrigger asChild>
-//           <Button className="text-blue-600 bg-blue-100"  variant="outline"><span className="text-blue-600">+</span> Add Notes</Button>
-//         </DialogTrigger>
-//         <DialogContent className="sm:max-w-[425px] ">
-//           <DialogHeader>
-//             <DialogTitle>Note</DialogTitle>
-            
-//           </DialogHeader>
-//           <div className="grid gap-4 ">
-//             <div className="grid gap-3 ">
-//               <Label htmlFor="name-1">Name</Label>
-//               <textarea  id="name-1" name="name" defaultValue="Notes..!" className="h-24 w-full text-gray-500" />
-//             </div>
-           
-//           </div>
-        
-//         </DialogContent>
-//       </form>
-//     </Dialog>
-                        
-//                       </span>
-//                     </td>
-//                     <td className="px-4 py-4 ">{invoice.LastUpdated}</td>
-//                     <td className="px-4 py-4  text-blue-600 cursor-pointer hover:underline"></td>
-//                   </tr>
-//                 ))}
-
-//                 {filteredInvoices.length === 0 && (
-//                   <tr>
-//                     <td colSpan={9} className="text-center text-gray-500 py-4">
-//                       No invoices found
-//                     </td>
-//                   </tr>
-//                 )}
-//               </tbody>
-//             </table>
-//           </div>
-//         </TabsContent>
-//       </Tabs>
-//     </div>
-//   );
-// };
-
-// export default EmployeeForms;
-
-import React, { useState } from "react";
-import { Button } from "@/Components/ui/button";
-import { Input } from "@/Components/ui/input";
+import { useState } from "react";
+import {
+  FileText,
+  Calendar,
+  User,
+  ChevronRight,
+  Loader2,
+  CheckCircle2,
+} from "lucide-react";
 import { Label } from "@/Components/ui/label";
+import { Input } from "@/Components/ui/input";
+import { Textarea } from "@/Components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -152,322 +17,387 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/Components/ui/select";
-import { Textarea } from "@/Components/ui/textarea";
-import { Card, CardHeader, CardTitle, CardContent } from "@/Components/ui/card";
-import { useGetFormsQuery } from "@/redux/features/admin/DynamicForm/DynamicForm.api";
-import { useSubmitFormMutation } from "@/redux/features/admin/DynamicForm/formSubmissionApi.api";
+import { Checkbox } from "@/Components/ui/checkbox";
+import { Button } from "@/Components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/Components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/Components/ui/dialog";
+import { Badge } from "@/Components/ui/badge";
+import { toast } from "sonner";
+import {
+  useAddResponseMutation,
+  useGetFormsQuery,
+  useSubmitFormMutation,
+} from "@/redux/features/admin/custom-form/custome-form.api";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/Components/Navbar";
+
+interface FormField {
+  id: number;
+  field_label: string;
+  field_type: string;
+  is_required: boolean;
+  options: string;
+  form: number;
+}
+
+interface DynamicForm {
+  id: number;
+  fields: FormField[];
+  form_name: string;
+  created_at: string;
+  admin: number;
+}
 
 const EmployeeForms = () => {
-  const [selectedFormId, setSelectedFormId] = useState<number | null>(null);
-  const [formValues, setFormValues] = useState<Record<string, string>>({});
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [message, setMessage] = useState<{
-    type: "success" | "error" | "";
-    text: string;
-  }>({
-    type: "",
-    text: "",
-  });
+  const {
+    data: formData,
+    isLoading: formLoading,
+    isError: formError,
+  } = useGetFormsQuery(undefined);
+  const [addResponse, { isLoading: isSubmitting }] = useSubmitFormMutation();
+  const { user } = useSelector((state: RootState) => state.auth);
 
-  // Fetch all forms
-  const { data: formsResponse, isLoading: loadingForms, error } = useGetFormsQuery({});
-  
-  // Submit form mutation
-  const [submitForm, { isLoading: submitting }] = useSubmitFormMutation();
+  const forms = formData?.results || [];
 
-  // ✅ Handle different API response structures
-  const formsData = Array.isArray(formsResponse) 
-    ? formsResponse 
-    : formsResponse?.results || formsResponse?.data || [];
+  const [selectedForm, setSelectedForm] = useState<DynamicForm | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [formResponses, setFormResponses] = useState<Record<string, any>>({});
 
-  // Log the data structure for debugging
-  React.useEffect(() => {
-    console.log("📦 Forms API Response:", formsResponse);
-    console.log("📋 Processed Forms Data:", formsData);
-  }, [formsResponse]);
-
-  // Get selected form
-  const selectedForm = formsData?.find((form: any) => form.id === selectedFormId);
-
-  // Handle form selection
-  const handleFormSelect = (formId: string) => {
-    setSelectedFormId(Number(formId));
-    setFormValues({});
-    setErrors({});
-    setMessage({ type: "", text: "" });
+  const handleFormClick = (form: DynamicForm) => {
+    setSelectedForm(form);
+    setFormResponses({});
+    setIsDialogOpen(true);
   };
 
-  // Handle input change
-  const handleInputChange = (fieldLabel: string, value: string) => {
-    setFormValues((prev) => ({
+  const handleInputChange = (fieldId: number, value: any) => {
+    setFormResponses((prev) => ({
       ...prev,
-      [fieldLabel]: value,
+      [fieldId]: value,
     }));
-    // Clear error for this field
-    if (errors[fieldLabel]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[fieldLabel];
-        return newErrors;
-      });
-    }
   };
 
-  // Validate form
   const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-    
-    selectedForm?.fields?.forEach((field: any) => {
-      if (field.is_required && !formValues[field.field_label]?.trim()) {
-        newErrors[field.field_label] = `${field.field_label} is required`;
-      }
-    });
+    if (!selectedForm) return false;
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    for (const field of selectedForm.fields) {
+      if (field.is_required) {
+        const value = formResponses[field.id];
+        if (
+          value === undefined ||
+          value === null ||
+          value === "" ||
+          (field.field_type === "checkbox" && !value)
+        ) {
+          toast.error(`${field.field_label} is required`);
+          return false;
+        }
+      }
+    }
+    return true;
   };
 
-  // Handle form submission
   const handleSubmit = async () => {
-    if (!validateForm()) {
-      setMessage({ type: "error", text: "Please fill all required fields" });
-      return;
-    }
+    if (!validateForm()) return;
 
-    // Format responses array
-    const responses = selectedForm?.fields?.map((field: any) => ({
-      field_label: field.field_label,
-      value: formValues[field.field_label] || "",
-    }));
+    const data = selectedForm?.fields.reduce((acc, field) => {
+      acc[field.field_label] = formResponses[field.id] || "";
+      return acc;
+    }, {} as Record<string, any>);
 
-    const submissionData = {
-      form: selectedFormId,
-      employee: 1, // Replace with actual employee ID from auth
-      responses,
+    const payload = {
+      form: selectedForm?.id,
+      response_user: user?.id,
+      data,
     };
 
-    console.log(
-      "%c📤 Submitting Form:",
-      "color: #00bfff; font-weight: bold;",
-      submissionData
-    );
-
     try {
-      const response = await submitForm(submissionData).unwrap();
-
-      console.log(
-        "%c✅ Submission Success:",
-        "color: #22c55e; font-weight: bold;",
-        response
-      );
-
-      setMessage({ type: "success", text: "Form submitted successfully!" });
-      setFormValues({});
-      setSelectedFormId(null);
-    } catch (err: any) {
-      console.error(
-        "%c❌ Submission Error:",
-        "color: #ef4444; font-weight: bold;",
-        err
-      );
-      setMessage({
-        type: "error",
-        text: err?.data?.message || "Failed to submit form. Please try again.",
+      await toast.promise(addResponse(payload).unwrap(), {
+        loading: "Submitting form...",
+        success: "Form submitted successfully!",
+        error: "Failed to submit form",
       });
+
+      console.log("Form submission payload:", JSON.stringify(payload, null, 2));
+
+      // Reset and close
+      setFormResponses({});
+      setIsDialogOpen(false);
+      setSelectedForm(null);
+    } catch (error) {
+      console.error("Form submission failed:", error);
     }
   };
 
-  // Render field based on type
-  const renderField = (field: any, index: number) => {
-    const fieldValue = formValues[field.field_label] || "";
-    const hasError = !!errors[field.field_label];
+  const renderFormField = (field: FormField) => {
+    const value = formResponses[field.id] || "";
 
     switch (field.field_type) {
       case "text":
+        return (
+          <Input
+            placeholder={`Enter ${field.field_label.toLowerCase()}`}
+            value={value}
+            onChange={(e) => handleInputChange(field.id, e.target.value)}
+          />
+        );
+
       case "email":
+        return (
+          <Input
+            type="email"
+            placeholder={`Enter ${field.field_label.toLowerCase()}`}
+            value={value}
+            onChange={(e) => handleInputChange(field.id, e.target.value)}
+          />
+        );
+
       case "number":
         return (
-          <div key={index} className="space-y-2">
-            <Label className="text-gray-700 font-medium">
-              {field.field_label}
-              {field.is_required && <span className="text-red-500 ml-1">*</span>}
-            </Label>
-            <Input
-              type={field.field_type}
-              placeholder={`Enter ${field.field_label.toLowerCase()}`}
-              value={fieldValue}
-              onChange={(e) => handleInputChange(field.field_label, e.target.value)}
-              className={hasError ? "border-red-500" : ""}
-            />
-            {hasError && (
-              <p className="text-red-500 text-sm">{errors[field.field_label]}</p>
-            )}
-          </div>
+          <Input
+            type="number"
+            placeholder={`Enter ${field.field_label.toLowerCase()}`}
+            value={value}
+            onChange={(e) => handleInputChange(field.id, e.target.value)}
+          />
+        );
+
+      case "date":
+        return (
+          <Input
+            type="date"
+            value={value}
+            onChange={(e) => handleInputChange(field.id, e.target.value)}
+          />
         );
 
       case "textarea":
         return (
-          <div key={index} className="space-y-2">
-            <Label className="text-gray-700 font-medium">
-              {field.field_label}
-              {field.is_required && <span className="text-red-500 ml-1">*</span>}
-            </Label>
-            <Textarea
-              placeholder={`Enter ${field.field_label.toLowerCase()}`}
-              value={fieldValue}
-              onChange={(e) => handleInputChange(field.field_label, e.target.value)}
-              className={hasError ? "border-red-500" : ""}
-              rows={4}
-            />
-            {hasError && (
-              <p className="text-red-500 text-sm">{errors[field.field_label]}</p>
-            )}
-          </div>
+          <Textarea
+            placeholder={`Enter ${field.field_label.toLowerCase()}`}
+            value={value}
+            onChange={(e) => handleInputChange(field.id, e.target.value)}
+            className="min-h-[100px]"
+          />
         );
 
       case "select":
-        const options = field.options?.split(",").map((opt: string) => opt.trim()) || [];
+        const options = field.options.split(",").map((opt) => opt.trim());
         return (
-          <div key={index} className="space-y-2">
-            <Label className="text-gray-700 font-medium">
-              {field.field_label}
-              {field.is_required && <span className="text-red-500 ml-1">*</span>}
-            </Label>
-            <Select
-              value={fieldValue}
-              onValueChange={(value) => handleInputChange(field.field_label, value)}
+          <Select
+            value={value}
+            onValueChange={(val) => handleInputChange(field.id, val)}
+          >
+            <SelectTrigger>
+              <SelectValue
+                placeholder={`Select ${field.field_label.toLowerCase()}`}
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {options.map((option, index) => (
+                <SelectItem key={index} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+
+      case "checkbox":
+        return (
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id={`checkbox-${field.id}`}
+              checked={value || false}
+              onCheckedChange={(checked) =>
+                handleInputChange(field.id, checked)
+              }
+            />
+            <label
+              htmlFor={`checkbox-${field.id}`}
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              <SelectTrigger className={hasError ? "border-red-500" : ""}>
-                <SelectValue placeholder={`Select ${field.field_label.toLowerCase()}`} />
-              </SelectTrigger>
-              <SelectContent>
-                {options.map((option: string, idx: number) => (
-                  <SelectItem key={idx} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {hasError && (
-              <p className="text-red-500 text-sm">{errors[field.field_label]}</p>
-            )}
+              I agree
+            </label>
           </div>
         );
 
       default:
-        return null;
+        return (
+          <Input
+            placeholder={`Enter ${field.field_label.toLowerCase()}`}
+            value={value}
+            onChange={(e) => handleInputChange(field.id, e.target.value)}
+          />
+        );
     }
   };
 
-  // Handle loading state
-  if (loadingForms) {
-    return (
-      <div className="max-w-4xl mx-auto py-10 px-4">
-        <div className="text-center">
-          <p className="text-gray-500">Loading forms...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Handle error state
-  if (error) {
-    return (
-      <div className="max-w-4xl mx-auto py-10 px-4">
-        <div className="text-center">
-          <div className="bg-red-100 text-red-700 border border-red-300 px-4 py-3 rounded-md">
-            <p className="font-medium">Error loading forms</p>
-            <p className="text-sm mt-1">{(error as any)?.data?.message || "Please try again later"}</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
 
   return (
-    <div className="max-w-4xl mx-auto py-10 px-4 space-y-8">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold text-gray-900">📋 Fill Dynamic Form</h1>
-        <p className="text-gray-500 text-sm">
-          Select a form and complete all required fields
+    <div className="p-6">
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold">Available Forms</h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Select a form to fill out and submit
         </p>
       </div>
 
-      {/* Message Display */}
-      {message.text && (
-        <div
-          className={`text-center px-4 py-2 rounded-md font-medium ${
-            message.type === "success"
-              ? "bg-green-100 text-green-700 border border-green-300"
-              : "bg-red-100 text-red-700 border border-red-300"
-          }`}
-        >
-          {message.text}
+      {/* Loading State */}
+      {formLoading && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="animate-spin text-gray-400" size={32} />
+          <span className="ml-3 text-gray-500">Loading forms...</span>
         </div>
       )}
 
-      {/* Form Selection */}
-      <Card className="shadow-md border rounded-2xl">
-        <CardHeader>
-          <CardTitle>Select Form</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <Label className="text-gray-600 font-medium">Available Forms</Label>
-            <Select
-              value={selectedFormId?.toString() || ""}
-              onValueChange={handleFormSelect}
+      {/* Error State */}
+      {formError && (
+        <div className="text-center py-12">
+          <FileText className="mx-auto text-red-300 mb-4" size={64} />
+          <p className="text-red-500">Failed to load forms</p>
+        </div>
+      )}
+
+      {/* Forms Grid */}
+      {!formLoading && !formError && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {forms.map((form) => (
+            <Card
+              key={form.id}
+              className="hover:shadow-lg transition-shadow cursor-pointer"
+              onClick={() => handleFormClick(form)}
             >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Choose a form to fill" />
-              </SelectTrigger>
-              <SelectContent>
-                {formsData?.length > 0 ? (
-                  formsData.map((form: any) => (
-                    <SelectItem key={form.id} value={form.id.toString()}>
-                      {form.form_name}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="no-forms" disabled>
-                    No forms available
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Dynamic Form Fields */}
-      {selectedForm && (
-        <Card className="shadow-md border rounded-2xl">
-          <CardHeader>
-            <CardTitle>{selectedForm.form_name}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {selectedForm.fields?.map((field: any, index: number) =>
-              renderField(field, index)
-            )}
-
-            <div className="flex justify-center pt-4">
-              <Button
-                onClick={handleSubmit}
-                disabled={submitting}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded-xl shadow"
-              >
-                {submitting ? "Submitting..." : "Submit Form"}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {!selectedForm && formsData?.length === 0 && (
-        <div className="text-center py-10">
-          <p className="text-gray-500">No forms available at the moment.</p>
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 bg-blue-100 rounded-lg">
+                      <FileText className="text-blue-600" size={20} />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">
+                        {form.form_name}
+                      </CardTitle>
+                      <CardDescription className="flex items-center gap-1 mt-1">
+                        <Calendar size={12} />
+                        {formatDate(form.created_at)}
+                      </CardDescription>
+                    </div>
+                  </div>
+                  <ChevronRight className="text-gray-400" size={20} />
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500">Total Fields:</span>
+                    <Badge variant="outline">{form.fields.length}</Badge>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-500">Required Fields:</span>
+                    <Badge variant="outline">
+                      {form.fields.filter((f) => f.is_required).length}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-1 text-sm text-gray-500">
+                    <User size={12} />
+                    <span>Admin ID: {form.admin}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       )}
+
+      {!formLoading && !formError && forms.length === 0 && (
+        <div className="text-center py-12">
+          <FileText className="mx-auto text-gray-300 mb-4" size={64} />
+          <p className="text-gray-500">No forms available</p>
+        </div>
+      )}
+
+      {/* Form Submission Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FileText size={20} />
+              {selectedForm?.form_name}
+            </DialogTitle>
+            <DialogDescription>
+              Please fill out all required fields marked with *
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedForm && (
+            <div className="space-y-6 py-4">
+              {selectedForm.fields.map((field, index) => (
+                <div key={field.id} className="space-y-2">
+                  <Label htmlFor={`field-${field.id}`} className="text-sm">
+                    {field.field_label}
+                    {field.is_required && (
+                      <span className="text-red-500 ml-1">*</span>
+                    )}
+                  </Label>
+                  <div id={`field-${field.id}`}>{renderFormField(field)}</div>
+                  {field.is_required && !formResponses[field.id] && (
+                    <p className="text-xs text-gray-500">
+                      This field is required
+                    </p>
+                  )}
+                </div>
+              ))}
+
+              {/* Action Buttons */}
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsDialogOpen(false);
+                    setFormResponses({});
+                  }}
+                  disabled={isSubmitting}
+                >
+                  Cancel
+                </Button>
+                <Button onClick={handleSubmit} disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="animate-spin mr-2" size={16} />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="mr-2" size={16} />
+                      Submit Form
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -1,5 +1,8 @@
 import { useGetInvoicesQuery, useGetSearchAllInvoiceQuery } from "@/redux/features/admin/invoice/invoice.api";
 import { useEffect, useState } from "react";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import { assets } from "@/assets/assets";
 
 interface Invoice {
   id: number;
@@ -87,6 +90,27 @@ const InvoicesList = () => {
     setFilteredInvoices(result);
   }, [search, status, paymentMethod, sort, invoices, searchInvoice]);
 
+  const handleDownload = (invoice: Invoice) => {
+    const doc = new jsPDF();
+    doc.text("Invoice", 20, 10);
+    (doc as any).autoTable({
+      head: [["Field", "Value"]],
+      body: [
+        ["Invoice ID", invoice.invoice_id],
+        ["Building", invoice.building_name],
+        ["Region", invoice.region_name],
+        ["Apartment(s)", invoice.apartment_name?.join(", ") || "N/A"],
+        ["Client", invoice.client_name ?? "N/A"],
+        ["Type", invoice.type],
+        ["Date Issued", new Date(invoice.date_issued).toLocaleDateString()],
+        ["Due Date", invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : "—"],
+        ["Total Amount", `${invoice.total_amount.toFixed(2)} SAR`],
+        ["Status", invoice.status],
+      ],
+    });
+    doc.save(`invoice-${invoice.invoice_id}.pdf`);
+  };
+
   // Handle loading and error states
   if (isLoading || isSearchLoading) return <p>Loading...</p>;
   if (isError || isSearchError) return <p>Error fetching invoices.</p>;
@@ -155,7 +179,7 @@ const InvoicesList = () => {
                   <th className="p-3 text-left">Due Date</th>
                   <th className="p-3 text-left">Total Amount</th>
                   <th className="p-3 text-left">Status</th>
-                  <th className="p-3 text-left">View</th>
+                  <th className="p-3 text-left">Download</th>
                 </tr>
               </thead>
               <tbody>
@@ -199,11 +223,12 @@ const InvoicesList = () => {
                       </span>
                     </td>
                     <td className="p-3">
-                      <span
-                        className={`px-2 py-1 cursor-pointer rounded-full text-blue-600 text-[16px]`}
-                      >
-                        View
-                      </span>
+                      <img
+                        src={assets.Download}
+                        alt="download"
+                        className="cursor-pointer"
+                        onClick={() => handleDownload(invoice)}
+                      />
                     </td>
                   </tr>
                 ))}
