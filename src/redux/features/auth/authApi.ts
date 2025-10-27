@@ -41,28 +41,6 @@ export const authApi = baseApi.injectEndpoints({
         method: "POST",
         body: credentials,
       }),
-      // Transform response to ensure all fields are present
-      transformResponse: (response: LoginResponse) => {
-        console.log("Raw API Response:", response);
-
-        // Validate response structure
-        if (!response.user) {
-          throw new Error("Invalid response: user object missing");
-        }
-
-        // Ensure username exists, fallback to email if not present
-        if (!response.user.username) {
-          console.warn("Username missing in response, using email as fallback");
-          response.user.username = response.user.email.split("@")[0];
-        }
-
-        console.log("Transformed User:", response.user);
-        return response;
-      },
-      transformErrorResponse: (response) => {
-        console.error("Login Error:", response);
-        return response;
-      },
     }),
 
     signUp: builder.mutation<any, SignUpData>({
@@ -71,10 +49,6 @@ export const authApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      transformErrorResponse: (response) => {
-        console.error("Sign Up Error:", response);
-        return response;
-      },
     }),
 
     verifyOtp: builder.mutation<any, OtpVerificationData>({
@@ -83,10 +57,6 @@ export const authApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      transformErrorResponse: (response) => {
-        console.error("OTP Verification Error:", response);
-        return response;
-      },
     }),
 
     refreshToken: builder.mutation<{ access: string }, { refresh: string }>({
@@ -103,6 +73,20 @@ export const authApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    forgetPassword: builder.mutation<any, { email: string }>({
+      query: (data) => ({
+        url: "/users/forget-password/",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    resetPassword: builder.mutation({
+      query: (data) => ({
+        url: "/users/reset-password/",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -112,4 +96,6 @@ export const {
   useVerifyOtpMutation,
   useRefreshTokenMutation,
   useGetCurrentUserQuery,
+  useForgetPasswordMutation,
+  useResetPasswordMutation,
 } = authApi;

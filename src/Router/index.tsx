@@ -13,7 +13,7 @@ import NotFound from "@/Page/NotFound";
 import { clientSidebarItems } from "./sidebar-items/client-items";
 import { supervisorSidebarItems } from "./sidebar-items/supervisor-items";
 import UpdatePlanForm from "@/Page/admin-dashboard/UpdatePlan";
-import BuildingDetails from "@/Components/Region/building-details";
+import SetPassword from "@/Components/Auth/SetPassword";
 
 export const router = createBrowserRouter([
   {
@@ -74,7 +74,11 @@ export const router = createBrowserRouter([
   },
   {
     Component: Verifyotp,
-    path: "/verifyotp",
+    path: "/verifyotp/:email",
+  },
+  {
+    Component: SetPassword,
+    path: "/set-password/:email"
   },
   {
     Component: NotFound,

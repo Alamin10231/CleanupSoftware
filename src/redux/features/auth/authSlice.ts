@@ -16,6 +16,7 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
+  otp: string | null;
 }
 
 interface LoginResponse {
@@ -57,6 +58,7 @@ const initialState: AuthState = {
   accessToken: getFromLocalStorage<string | null>("access", null),
   refreshToken: getFromLocalStorage<string | null>("refresh", null),
   isAuthenticated: !!getFromLocalStorage<string | null>("access", null),
+  otp: null,
 };
 
 const authSlice = createSlice({
@@ -105,6 +107,10 @@ const authSlice = createSlice({
       removeFromLocalStorage("refresh");
     },
 
+    setOtp: (state, action: PayloadAction<string>) => {
+      state.otp = action.payload;
+    },
+
     // Helper action to rehydrate state from localStorage
     rehydrateAuth: (state) => {
       state.user = getFromLocalStorage<User | null>("user", null);
@@ -120,12 +126,14 @@ export const {
   updateUser,
   updateAccessToken,
   logout,
-  rehydrateAuth
+  rehydrateAuth,
+  setOtp,
 } = authSlice.actions;
 
 // Selectors
 export const selectCurrentUser = (state: { auth: AuthState }) => state.auth.user;
 export const selectAccessToken = (state: { auth: AuthState }) => state.auth.accessToken;
-export const selectIsAuthenticated = (state: { auth: AuthState }) => state.auth.isAuthenticated;
-
-export default authSlice.reducer;
+export const selectIsAuthenticated = (state: { auth: AuthState }) =>
+  state.auth.isAuthenticated;
+export const selectOtp = (state: { auth: AuthState }) => state.auth.otp;
+export default authSlice.reducer

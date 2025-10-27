@@ -10,9 +10,11 @@ export const clientApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["GetAllClientsAdmin"],
     }),
+    getClientTasks: builder.query({
+      query: (page = 1) => `task/task_assign_client/?page=${page}&page_size=10`,
+      providesTags: ["task"],
+    }),
   }),
 });
 
-export const {
-  useAddClientMutation,
-} = clientApi;
+export const { useAddClientMutation, useGetClientTasksQuery } = clientApi;
