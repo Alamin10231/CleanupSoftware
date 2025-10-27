@@ -4,12 +4,12 @@ export const employeeDashboardApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getEmployeeDashboard: builder.query<any, void>({
       query: () => "task/task_assign_employee/",
-      providesTags: ["EmployeeDashboard"], // This tag is provided for caching
+      providesTags: ["EmployeeDashboard"], 
     }),
 
     getEmployeeChart: builder.query<any, string>({
       query: (employeeId) => `task/report/employee/${employeeId}/`,
-      providesTags: ["EmployeeDashboard"], // This tag is provided for caching
+      providesTags: ["EmployeeDashboard"], 
     }),
 
     createAdminNewPlan: builder.mutation<any, any>({
@@ -18,7 +18,7 @@ export const employeeDashboardApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
-      invalidatesTags: ["EmployeeDashboard"], // Invalidate the dashboard data if a new plan is created
+      invalidatesTags: ["EmployeeDashboard"], 
     }),
 
     updateTaskAssignEmployeeById: builder.mutation<
@@ -30,7 +30,7 @@ export const employeeDashboardApi = baseApi.injectEndpoints({
         method: "PATCH",
         body,
       }),
-      invalidatesTags: ["EmployeeDashboard"], // Invalidate the dashboard data if a task is updated
+      invalidatesTags: ["EmployeeDashboard"],
     }),
   }),
 });

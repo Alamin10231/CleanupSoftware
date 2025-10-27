@@ -3,11 +3,12 @@ import React, { useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setCredentials } from "@/redux/features/auth/authSlice";
 import { useUpdateEmployeeProfileMutation } from "@/redux/features/employee/setting/profilesetting.api";
-import { Button } from "@/Components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/Components/ui/label";
-import { Input } from "@/Components/ui/input";
+
 import { Camera } from "lucide-react";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 
 type RootState = {
   auth: {
@@ -71,10 +72,10 @@ const EmployeeProfileSettingsPage: React.FC = () => {
 
   const EMPLOYEE_ID = user?.id as number | undefined;
 
-  const handleProfileChange = (
-    field: keyof typeof profileData,
-    value: string
-  ) => setProfileData((prev) => ({ ...prev, [field]: value }));
+  // const handleProfileChange = (
+  //   field: keyof typeof profileData,
+  //   value: string
+  // ) => setProfileData((prev) => ({ ...prev, [field]: value }));
 
   const handlePickAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -96,7 +97,7 @@ const EmployeeProfileSettingsPage: React.FC = () => {
         const fd = new FormData();
         fd.append("name", profileData.name);
         fd.append("email", profileData.email);
-        fd.append("avatar", avatarFile); // match backend field
+        fd.append("employee_profile.avatar", avatarFile);
         payload = fd;
       } else {
         payload = { name: profileData.name, email: profileData.email };
@@ -132,11 +133,12 @@ const EmployeeProfileSettingsPage: React.FC = () => {
       dispatch(setCredentials({ user: updatedUser }));
       localStorage.setItem("user", JSON.stringify(updatedUser));
 
-      // optional: free preview blob
       try {
         if (avatarPreview?.startsWith("blob:"))
           URL.revokeObjectURL(avatarPreview);
-      } catch {}
+      } catch(err:any){
+        console.log(err)
+      }
 
       toast.success("Profile updated successfully.");
     } catch (err: any) {
@@ -231,10 +233,7 @@ const EmployeeProfileSettingsPage: React.FC = () => {
               id="email"
               type="email"
               value={profileData.email}
-              onChange={(e) =>
-                setProfileData((p) => ({ ...p, email: e.target.value }))
-              }
-              disabled={isLoading}
+              disabled={true}
             />
           </div>
         </div>

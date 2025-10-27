@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import profilepic from "../assets/Image/Profilepic/Profile photo.png";
 import manicon from "../assets/Image/manicon.svg";
 import setting from "../assets/Image/setting.svg";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,11 +6,11 @@ import { logout } from "@/redux/features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
 import { Button } from "./ui/button";
-import { useGetMeQuery } from "@/redux/features/employee/setting/profilesetting.api";
 
 export type RootState = {
   auth: {
     user: {
+      id?: number;
       user_type?: string;
       name?: string;
       email?: string;
@@ -35,21 +34,12 @@ const Navbar = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
 
-  // ✅ Fetch latest profile from API
-  const { data: meData, isSuccess } = useGetMeQuery();
-
-  // ✅ Update Redux user automatically when API returns
-  useEffect(() => {
-    if (isSuccess && meData) {
-      dispatch(setUser(meData)); // keeps Redux in sync
-    }
-  }, [isSuccess, meData, dispatch]);
-
-  // ✅ Read from normalized fields (updated after avatar upload)
-const avatarSrc =
- (user?.avatar && !/^blob:/.test(user.avatar) && user.avatar) ||
- (user?.avatarUrl && !/^blob:/.test(user.avatarUrl) && user.avatarUrl) ||
- defaultAvatar;
+  // ✅ Get avatar from Redux (which is synced with localStorage)
+  const avatarSrc =
+    user?.avatar ||
+    user?.avatarUrl ||
+    user?.employee_profile?.avatar ||
+    defaultAvatar;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -94,25 +84,24 @@ const avatarSrc =
           aria-haspopup="menu"
           aria-expanded={open}
         >
-          {/* ✅ Dynamic Avatar */}
-          {/* <img
-            src={avatarSrc || profilepic}
+          <img
+            src={avatarSrc}
             className="w-10 h-10 rounded object-cover border"
             alt="profile"
-          /> */}
+            onError={(e) => {
+              e.currentTarget.src = defaultAvatar;
+            }}
+          />
           <div className="flex flex-col">
             <h1 className="font-semibold text-sm">{displayName}</h1>
             <p className="text-[#8E8E8E] text-xs">{displayEmail}</p>
           </div>
         </div>
 
-        {/* Logout button */}
-
         <Button variant="outline" onClick={handleLogout} aria-label="Log out">
           <LogOut color="gray" />
         </Button>
 
-        {/* Dropdown Menu */}
         {open && (
           <div
             role="menu"
@@ -120,9 +109,12 @@ const avatarSrc =
           >
             <div className="flex items-center gap-4 w-full text-left px-4 py-3 hover:bg-gray-100 border-b">
               <img
-                src={avatarSrc || profilepic}
+                src={avatarSrc}
                 className="w-12 h-12 rounded object-cover border"
                 alt="profile"
+                onError={(e) => {
+                  e.currentTarget.src = defaultAvatar;
+                }}
               />
               <div className="flex flex-col justify-center min-w-0">
                 <h1 className="font-semibold text-sm leading-tight truncate">
@@ -148,23 +140,22 @@ const avatarSrc =
               <p>Profile</p>
             </button>
 
-          <button
-  className="w-full flex items-center gap-3 text-left px-4 py-4 hover:bg-gray-100 border-b"
-  onClick={() => {
-    setOpen(false);
-    if (user?.user_type === "employee") {
-      navigate(`/employee/setting`);
-    } else if (user?.user_type === "admin") {
-      navigate(`/admin/settings`);
-    } else {
-      navigate(`/setting`); // fallback for others
-    }
-  }}
->
-  <img src={setting} alt="" />
-  <p>Setting</p>
-</button>
-
+            <button
+              className="w-full flex items-center gap-3 text-left px-4 py-4 hover:bg-gray-100 border-b"
+              onClick={() => {
+                setOpen(false);
+                if (user?.user_type === "employee") {
+                  navigate(`/employee/setting`);
+                } else if (user?.user_type === "admin") {
+                  navigate(`/admin/settings`);
+                } else {
+                  navigate(`/setting`);
+                }
+              }}
+            >
+              <img src={setting} alt="" />
+              <p>Setting</p>
+            </button>
 
             <button
               className="w-full flex items-center gap-3 text-left px-4 py-4 hover:bg-gray-100"

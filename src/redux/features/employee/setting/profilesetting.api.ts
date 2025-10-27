@@ -17,11 +17,11 @@ const safeParse = (x: any) => {
   return x;
 };
 
-// normalize helper so we can always access avatar/avatarUrl
 const normalizeAvatar = (raw: any) => {
   const data = safeParse(raw);
   const avatar =
     data?.avatar ||
+    data?.employee?.avatar ||
     data?.avatarUrl ||
     data?.employee_profile?.avatar ||
     "";
@@ -30,26 +30,28 @@ const normalizeAvatar = (raw: any) => {
 
 export const profileSettingApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    // GET current user
-    getMe: builder.query<any, void>({
-      query: ({id}) => ({ url: `/employees/${id}/`, method: "GET" }),
-      providesTags: ["UpdateProfile"],
-      transformResponse: normalizeAvatar,
-    }),
 
     // PATCH: update any profile field (name, email, etc.)
     updateEmployeeProfile: builder.mutation<any, UpdateEmployeeArgs>({
       query: ({ id, data }) => {
-        const isForm = typeof FormData !== "undefined" && data instanceof FormData;
+        const isForm =
+          typeof FormData !== "undefined" && data instanceof FormData;
         return {
           url: `/employees/${id}/`,
           method: "PATCH",
           headers: isForm
             ? undefined
-            : { "Content-Type": "application/json", Accept: "application/json" },
+            : {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
           body: isForm ? data : JSON.stringify(data),
           responseHandler: async (r) => {
-            try { return await r.json(); } catch { return {}; }
+            try {
+              return await r.json();
+            } catch {
+              return {};
+            }
           },
         };
       },
@@ -67,25 +69,11 @@ export const profileSettingApi = baseApi.injectEndpoints({
       transformResponse: normalizeAvatar,
       invalidatesTags: ["UpdateProfile"],
     }),
-
-    // PATCH: clear avatar
-    clearEmployeeAvatar: builder.mutation<any, { id: number }>({
-      query: ({ id }) => ({
-        url: `/employees/${id}/`,
-        method: "PATCH",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({ avatar: null }),
-      }),
-      transformResponse: normalizeAvatar,
-      invalidatesTags: ["UpdateProfile"],
-    }),
   }),
   overrideExisting: true,
 });
 
 export const {
-  useGetMeQuery,
   useUpdateEmployeeProfileMutation,
   useUpdateEmployeeAvatarMutation,
-  useClearEmployeeAvatarMutation,
 } = profileSettingApi;
