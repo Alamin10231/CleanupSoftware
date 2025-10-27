@@ -3,33 +3,26 @@ import type { ISidebarItems } from "@/Types/Types";
 import {
   LayoutDashboard,
   Building,
-  ClipboardList,
   MessageSquare,
   Settings,
   FileText,
   CreditCard,
-} from "lucide-react"; // Import necessary icons
-
-const RegionDashboard = lazy(
-  () => import("@/Page/employee-dashboard/RegionDashboard")
-);
-const TaskEmployee = lazy(
-  () => import("@/Page/employee-dashboard/TaskEmployee")
+} from "lucide-react";
+import ServiceTable from "@/Page/employee-dashboard/communication";
+const EmployeeTaskDashboard = lazy(
+  () => import("@/Page/employee-dashboard/employee-task")
 );
 const EmployeeDashboard = lazy(
   () => import("@/Page/employee-dashboard/EmployeeDashboard")
 );
-const EmployeeCommunication = lazy(
-  () => import("@/Page/employee-dashboard/EmployeeCommunication")
-);
+// const EmployeeCommunication = lazy(
+//   () => import("@/Page/employee-dashboard/EmployeeCommunication")
+// );
 const EmployeeSetting = lazy(
   () => import("@/Page/employee-dashboard/EmployeeSetting")
 );
 const EmployeeForms = lazy(
   () => import("@/Page/employee-dashboard/EmployeeForms")
-);
-const EmployeeReports = lazy(
-  () => import("@/Page/employee-dashboard/EmployeeReports")
 );
 const EmployeeInvoicees = lazy(
   () => import("@/Page/employee-dashboard/invoice/EmployeeInvoicees")
@@ -52,14 +45,14 @@ export const employeeSidebarItems: ISidebarItems[] = [
       {
         title: "Building",
         url: "building", // Changed from /employee-building
-        component: RegionDashboard,
+        component: EmployeeTaskDashboard,
         isActive: false,
         icon: Building,
       },
       {
         title: "Communication",
         url: "communication", // Changed from /employee-communication
-        component: EmployeeCommunication,
+        component: ServiceTable,
         isActive: false,
         icon: MessageSquare,
       },

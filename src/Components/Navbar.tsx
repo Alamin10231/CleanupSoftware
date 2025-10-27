@@ -8,6 +8,7 @@ import { logout } from "@/redux/features/auth/authSlice";
 import { useNavigate } from "react-router-dom"; // Import useLocation and Link
 import { LogOut } from "lucide-react";
 import { Button } from "./ui/button";
+import Notifications from "./notification-bell";
 
 export type RootState = {
   auth: {
@@ -62,7 +63,8 @@ const Navbar = () => {
       : "Viewer";
 
   return (
-      <div className="flex items-center gap-4 mx-4">
+      <div className="flex items-center gap-6 mx-4">
+        { user?.user_type === "admin" && <Notifications /> }
         {/* Profile + Dropdown */}
         <div
           className="relative flex items-center gap-3 cursor-pointer rounded-md"

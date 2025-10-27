@@ -48,7 +48,10 @@ export const baseApi = createApi({
     "notification",
     "reports",
     "form",
-    "task"
+    "task",
+    "GetSupervisorReports",
+    "GetEmployeeTasks",
+    "Employee"
   ],
 
   endpoints: () => ({}),

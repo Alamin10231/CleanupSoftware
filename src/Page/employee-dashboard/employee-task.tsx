@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/Components/u
 import { useGetEmployeeTasksQuery } from "@/redux/features/employee/task/task.api";
 import EmployeeMap from "./employee-map";
 
-export default function RegionDashboard() {
+export default function EmployeeTaskDashboard() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [selectedTask, setSelectedTask] = useState<any>(null); // For dialog
@@ -63,7 +63,7 @@ export default function RegionDashboard() {
         </div>
 
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600">
+          <thead className="bg-gray-50 text-gray-700">
             <tr>
               <th className="text-left p-3">Task Name</th>
               <th className="text-left p-3">Worker</th>
@@ -127,7 +127,7 @@ export default function RegionDashboard() {
         </table>
 
         {/* Pagination */}
-        <div className="flex justify-between items-center p-3 bg-gray-50">
+        <div className="flex justify-between items-center p-3 bg-gray-50 border-t">
           <button
             onClick={() => setPage((p) => Math.max(p - 1, 1))}
             disabled={!taskData?.previous}
@@ -138,6 +138,7 @@ export default function RegionDashboard() {
           <p className="text-sm">
             Page {page} of {Math.ceil(totalTasks / 10) || 1}
           </p>
+
           <button
             onClick={() => setPage((p) => p + 1)}
             disabled={!taskData?.next}

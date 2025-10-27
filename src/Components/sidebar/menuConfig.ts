@@ -26,6 +26,7 @@ export const MENU_CONFIG: Record<UserRole, MenuSection[]> = {
       items: [
         { icon: assets.map, label: "Map", path: "/map" },
         { icon: assets.report, label: "Reports", path: "/reports" },
+        { icon: assets.report, label: "Dynamic Form", path: "/dynamicForm" },
         { icon: assets.notification, label: "Notifications", path: "/notifications" },
       ],
     },

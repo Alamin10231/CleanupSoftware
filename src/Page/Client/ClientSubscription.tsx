@@ -1,5 +1,8 @@
-import { useGetSubscriptionClientQuery } from "@/redux/features/Client/subscription.api";
+import type { RootState } from "@/Components/Navbar";
+import { useGetSubscriptionClientQuery, useLazyGetEmployeeDetailsQuery } from "@/redux/features/Client/subscription.api";
 import React, { useRef, useState } from "react";
+import { useSelector } from "react-redux";
+
 
 interface Employee {
   id: number;
@@ -27,18 +30,20 @@ interface Message {
 
 const ClientSubscription = () => {
   const { data, isLoading, error } = useGetSubscriptionClientQuery();
-  console.log(data);
-//   const[getEmployeeDetails] = useLazyGetEmployeeDetailsQuery();
+  const[getEmployeeDetails] = useLazyGetEmployeeDetailsQuery();
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const ws = useRef<WebSocket | null>(null);
+  const { user } = useSelector((state: RootState) => state.auth);
 
 
 
   if (isLoading) return <p className="text-center mt-10">Loading subscriptions...</p>;
   if (error) return <p className="text-center mt-10">Error loading subscriptions</p>;
+
+  console.log("Fetched subscription data:", data);
 
   console.log("Fetched subscription data:", data);
 
@@ -58,9 +63,9 @@ const ClientSubscription = () => {
 
   const handleOpenChat = async (employee: Employee) => {
     setSelectedEmployee(employee);
-    console.log("Opening chat with:", employee);
     const empDetails = await getEmployeeDetails(employee.id).unwrap();
     console.log("Fetched employee details:", empDetails);
+    console.log("Opening chat with:", employee);
     // TODO: Fetch chat history from API
     // Example API call structure:
     // const response = await fetch(`/api/chat/history/${employee.id}`);
@@ -79,7 +84,7 @@ const ClientSubscription = () => {
     }
 
 
-    const webSocket = new WebSocket(`ws://10.10.13.61:8015/ws/chat/one-to-one/${empDetails.email}/?token=${localStorage.getItem("access")}`);
+    const webSocket = new WebSocket(`ws://10.10.13.61:8015/ws/chat/one-to-one/${empDetails.email}/?token=${localStorage.getItem("access")?.replace(/"/g, "")}`);
 
     ws.current = webSocket;
 
@@ -87,12 +92,35 @@ const ClientSubscription = () => {
       console.log('WebSocket connection established');
     };
 
-    setMessages([]);
+    webSocket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("Received WebSocket message:", data);
+
+      console.log("Message content:", data);
+
+      if((data as any).sender_email === user?.email) return;
+      
+
+      if(data.message.trim() === "") return;
+
+      setMessages((prev) => [...prev, {
+        id: Date.now(),
+        text: data.message,
+        sender: "employee",
+        timestamp: new Date(),
+      }]);
+    };
+    
+
+    // setMessages([]);
   };
 
   const handleCloseChat = () => {
     setSelectedEmployee(null);
     setMessages([]);
+    ws.current?.close();
+    ws.current = null;
+    console.log("Websocket connection closed");
     ws.current?.close();
     ws.current = null;
     console.log("Websocket connection closed");
@@ -119,6 +147,7 @@ const ClientSubscription = () => {
       };
 
       ws.current.send(JSON.stringify(payload));
+
     }
 
     try {
