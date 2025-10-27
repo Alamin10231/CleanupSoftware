@@ -7,8 +7,6 @@ import {
   MessageSquare,
   Settings,
   FileText,
-  MapPin,
-  BarChart,
   CreditCard,
 } from "lucide-react"; // Import necessary icons
 
@@ -17,9 +15,6 @@ const RegionDashboard = lazy(
 );
 const TaskEmployee = lazy(
   () => import("@/Page/employee-dashboard/TaskEmployee")
-);
-const Buildingregions = lazy(
-  () => import("@/Page/employee-dashboard/Buildingregions")
 );
 const EmployeeDashboard = lazy(
   () => import("@/Page/employee-dashboard/EmployeeDashboard")
@@ -60,13 +55,6 @@ export const employeeSidebarItems: ISidebarItems[] = [
         component: RegionDashboard,
         isActive: false,
         icon: Building,
-      },
-      {
-        title: "Building Tasks",
-        url: "building/:buildingName", // Changed from /employee-building/:buildingName
-        component: TaskEmployee,
-        isActive: false,
-        icon: ClipboardList,
       },
       {
         title: "Communication",

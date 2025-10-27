@@ -40,6 +40,8 @@ import ClientProfile from "@/Page/Client/ClientProfile";
 import ClientChat from "@/Page/Client/ClientChat";
 import ClientSubscription from "@/Page/Client/ClientSubscription";
 import ExpenseAdmin from "@/Page/admin-dashboard/ExpenseAdmin";
+import AddSubscription from "@/Page/admin-dashboard/add-subscription";
+import FormSubmitted from "@/Page/admin-dashboard/form-submitted";
 
 const Router = () => {
   return (
@@ -62,7 +64,8 @@ const Router = () => {
         <Route path="services" element={<Services />} />
         <Route path="settings" element={<Settings />} />
         <Route path="subscription" element={<Subscriptions />} />
-
+        <Route path="add-subscription" element={<AddSubscription />} />
+        <Route path="form-submitted" element={<FormSubmitted />} />
         <Route path="subscriptionplan" element={<SubscriptionPlan />} />
         <Route path="add-new-plan" element={<AddNewPlanForm />} />
         <Route path="update-plan/:id" element={<UpdatePlan />} />

@@ -8,7 +8,6 @@ import {
   TableRow,
 } from "@/Components/ui/table";
 import { Button } from "@/Components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useGetFormSubmissionsQuery } from "@/redux/features/admin/custom-form/custome-form.api";
 
 const FormSubmitted = () => {

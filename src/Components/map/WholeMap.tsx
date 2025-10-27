@@ -22,19 +22,25 @@ interface Building {
   active_apartments_in_building: number;
 }
 
-export default function WholeMap() {
+export default function WholeMap({ building }: { building?: Building }) {
     const riyadh = { lat: 24.7136, lng: 46.6753 };
 
     // Fetch all regions
     const { data: regionsData } = useGetregionsQuery(undefined);
     const regions = regionsData?.results || [];
 
+    const defaultCenter = building
+        ? { lat: parseFloat(building.latitude), lng: parseFloat(building.longitude) }
+        : riyadh;
+
+    const defaultZoom = building ? 15 : 12;
+
     return (
         <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
             <div className="h-full" style={{ position: "relative" }}>
                 <Map
-                    defaultZoom={12}
-                    defaultCenter={riyadh}
+                    defaultZoom={defaultZoom}
+                    defaultCenter={defaultCenter}
                     mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
                     gestureHandling={'greedy'}
                     disableDefaultUI
@@ -42,10 +48,18 @@ export default function WholeMap() {
                         console.log(e.detail.latLng);
                     }}
                 >
-                    {/* Render markers for each region's buildings */}
-                    {regions.map((region: { id: number; name: string }) => (
-                        <RegionBuildingMarkers key={region.id} regionId={region.id} />
-                    ))}
+                    {building ? (
+                        <AdvancedMarker
+                            position={{ lat: parseFloat(building.latitude), lng: parseFloat(building.longitude) }}
+                            title={building.name}
+                        >
+                            <CustomMarker building={building} />
+                        </AdvancedMarker>
+                    ) : (
+                        regions.map((region: { id: number; name: string }) => (
+                            <RegionBuildingMarkers key={region.id} regionId={region.id} />
+                        ))
+                    )}
                 </Map>
             </div>
         </APIProvider>

@@ -26,7 +26,6 @@ const Navbar = () => {
   const profileWrapRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
-  console.log(user)
   const navigate = useNavigate();
 
   // Outside click - dropdown close
@@ -75,7 +74,6 @@ const Navbar = () => {
             aria-haspopup="menu"
             aria-expanded={open}
           >
-            {/* Avatar (only show employee photo if present; otherwise fallback) */}
             {(user?.user_type === "employee" || !user) && (
               <img
                 src={user?.avatarUrl ?? profilepic}
