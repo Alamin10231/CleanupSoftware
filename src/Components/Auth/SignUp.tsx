@@ -7,6 +7,7 @@ import { assets } from "../../assets/assets";
 import { useDispatch } from "react-redux";
 import { useSignUpMutation } from "@/redux/features/auth/authApi";
 import { setCredentials } from "@/redux/features/auth/authSlice";
+import { toast } from "sonner";
 
 export default function SignUp() {
   // ✅ State variables
@@ -30,6 +31,7 @@ export default function SignUp() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    toast.loading("Creating account...", { id: "signup" });
     const payload = {
       name: firstName,
       email: email,
@@ -41,22 +43,28 @@ export default function SignUp() {
     // Simple validation
     if (password !== cpassword) {
       setError("Passwords do not match!");
+      toast.error("Passwords do not match!", { id: "signup" });
       return;
     }
 
     if (!remember) {
       setError("You must agree to the Terms and Privacy Policies.");
+      toast.error("You must agree to the Terms and Privacy Policies.", {
+        id: "signup",
+      });
       return;
     }
 
     try {
       const response = await signUp(payload).unwrap();
       dispatch(setCredentials(response));
-      // alert("Account created successfully!");
-      navigate("/verifyotp");
+      toast.success("Account created successfully!", { id: "signup" });
+      navigate(`/verifyotp/${encodeURIComponent(email)}`);
     } catch (err: any) {
       console.error("Error:", err);
-      setError(err.data?.message || "Something went wrong, please try again.");
+      const message = err.data?.message || "Something went wrong, please try again.";
+      setError(message);
+      toast.error(message, { id: "signup" });
     }
   };
 

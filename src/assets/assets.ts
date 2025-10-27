@@ -63,6 +63,7 @@ import complete from "./Complete.svg"
 import in_Progress from "./Inprogress.svg"
 import pending from "./Pending.svg"
 import Dollar from "./Dollar.svg"
+import Download from "./Image/Download.svg"
 
 
 export const assets = {
@@ -74,6 +75,7 @@ export const assets = {
   pending,
   Dollar,
   in_Progress,
+  Download,
   subscriptionss,
   eye,
   Communication,

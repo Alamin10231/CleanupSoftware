@@ -1,4 +1,4 @@
-import SubscriptionsDashboard from "@/Components/Subscription/SubscriptionsDashboard"
+import SubscriptionsDashboard from "@/Components/Subscription/subscibers"
 
 const Subscriptions = () => {
   return (

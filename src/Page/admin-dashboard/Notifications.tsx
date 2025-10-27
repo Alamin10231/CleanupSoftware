@@ -33,7 +33,7 @@ const Notifications = () => {
     if(isLoading) return <div>Loading...</div>;
     if(isError) return <div>Error loading notifications.</div>;
 
-    const notifications = data?.map((n: any) => ({ ...n, status: 'new' })) || [];
+    const notifications = data.results?.map((n: any) => ({ ...n, status: 'new' })) || [];
 
   const markAllAsRead = () => {
   };

@@ -18,8 +18,12 @@ import {
   FilePlus,
   ListPlus,
   Pencil,
+  FilePenLine,
+  FileCheck2,
 } from "lucide-react"; // Import necessary icons
-
+const DynamicFormBuilder = lazy(
+  () => import("@/Page/admin-dashboard/custom-form")
+);
 const Clients = lazy(() => import("@/Page/admin-dashboard/Clients"));
 const Dashboard = lazy(() => import("@/Page/admin-dashboard/Dashboard"));
 const Invoices = lazy(() => import("@/Page/admin-dashboard/Invoices"));
@@ -49,7 +53,13 @@ const AddNewPlanForm = lazy(
 const AddNewServiceForm = lazy(
   () => import("@/Page/admin-dashboard/add-services")
 );
-const ChatPage = lazy(() => import("@/Page/employee-dashboard/ChatPage"));
+const AddSubscription = lazy(
+  () => import("@/Page/admin-dashboard/add-subscription")
+);
+const FormSubmitted = lazy(
+  () => import("@/Page/admin-dashboard/form-submitted")
+);
+const ChatPage = lazy(() => import("@/Page/admin-dashboard/ChatPage"));
 const MapRegionOverview = lazy(() => import("@/Page/admin-dashboard/Map"));
 
 export const adminSidebarItems: ISidebarItems[] = [
@@ -90,8 +100,8 @@ export const adminSidebarItems: ISidebarItems[] = [
     title: "Business",
     item: [
       {
-        title: "Subscriptions",
-        url: "/admin/subscription",
+        title: "Subscibers",
+        url: "/admin/subscibers",
         component: Subscriptions,
         isActive: false,
         icon: CreditCard, // Added icon
@@ -118,18 +128,18 @@ export const adminSidebarItems: ISidebarItems[] = [
         icon: DollarSign, // Added icon
       },
       {
-        title: "Create Invoice",
-        url: "/admin/create-invoice",
-        component: CreateInvoiceForm,
-        isActive: false,
-        icon: FilePlus, // Added icon
-      },
-      {
         title: "Subscription Plan",
         url: "/admin/subscriptionplan",
         component: SubscriptionPlan,
         isActive: false,
         icon: ListPlus, // Added icon
+      },
+      {
+        title: "Create Invoice",
+        url: "/admin/create-invoice",
+        component: CreateInvoiceForm,
+        isActive: false,
+        icon: FilePlus, // Added icon
       },
       {
         title: "Add New Plan",
@@ -144,6 +154,13 @@ export const adminSidebarItems: ISidebarItems[] = [
         component: AddNewServiceForm,
         isActive: false,
         icon: CalendarPlus, // Added icon
+      },
+      {
+        title: "Add Subscription",
+        url: "/admin/add-subscription",
+        component: AddSubscription,
+        isActive: false,
+        icon: PlusCircle, // Added icon
       },
     ],
   },
@@ -170,6 +187,20 @@ export const adminSidebarItems: ISidebarItems[] = [
         component: ReportsPage,
         isActive: false,
         icon: BarChart, // Added icon
+      },
+      {
+        title: "Create form",
+        url: "/admin/create-form",
+        component: DynamicFormBuilder,
+        isActive: false,
+        icon: FilePenLine, // Added icon
+      },
+      {
+        title: "submission form",
+        url: "/admin/submission-form",
+        component: FormSubmitted,
+        isActive: false,
+        icon: FileCheck2, // Added icon
       },
     ],
   },

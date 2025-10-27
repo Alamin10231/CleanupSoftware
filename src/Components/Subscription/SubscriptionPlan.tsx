@@ -70,9 +70,8 @@ export default function SubscriptionPlan() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between py-10">
+      <div className="flex items-center justify-between mb-4">
         <div></div>
-
         <div className="flex items-center gap-2">
           <select
             value={statusFilter}
@@ -91,25 +90,25 @@ export default function SubscriptionPlan() {
         <table className="min-w-full text-base">
           <thead className="bg-gray-50 text-gray-600 text-left">
             <tr>
-              <th className="px-4 py-3 text-lg">Plan Name</th>
-              <th className="px-4 py-3 text-lg">Price</th>
-              <th className="px-4 py-3 text-lg">Billing Cycle</th>
-              <th className="px-4 py-3 text-lg">Features</th>
-              <th className="px-4 py-3 text-lg">Status</th>
-              <th className="px-4 py-3 text-lg">Actions</th>
+              <th className="p-4">Plan Name</th>
+              <th className="px-4">Price</th>
+              <th className="px-4">Billing Cycle</th>
+              <th className="px-4">Features</th>
+              <th className="px-4">Status</th>
+              <th className="px-4">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {filteredPlans?.map((plan: any) => (
               <tr key={plan.id}>
                 <td className="px-4 py-3">
-                  <div className="font-medium text-gray-900 text-lg">
+                  <div className="text-gray-900">
                     {plan.name}
                   </div>
                   <div className="text-gray-500 text-sm">{plan.subtitle}</div>
                 </td>
 
-                <td className="px-4 py-3 font-semibold">{plan.price}</td>
+                <td className="px-4 py-3">{plan.price}</td>
 
                 <td className="px-4 py-3">
                   <span

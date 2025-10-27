@@ -11,18 +11,44 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "./ui/sidebar";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import { getSidebarItems } from "@/Router/routes.config";
 import { useSelector } from "react-redux";
 import type { RootState } from "./Navbar";
 import Logo from "./Logo";
+import { useLocation } from "react-router";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useSelector((state: RootState) => state.auth);
+  const location = useLocation(); // Get current location
   const data = {
     navMain: getSidebarItems(user?.user_type),
-   //  navMain: getSidebarItems("supervisor"),
   };
+
+  // Function to check if a sidebar item is active
+  const isMenuItemActive = (itemUrl: string) => {
+    // Handle dynamic routes
+    const currentPathSegments = location.pathname.split('/').filter(Boolean);
+    const itemUrlSegments = itemUrl.split('/').filter(Boolean);
+
+    if (currentPathSegments.length !== itemUrlSegments.length) {
+      return false;
+    }
+
+    let match = true;
+    for (let i = 0; i < itemUrlSegments.length; i++) {
+      if (itemUrlSegments[i].startsWith(':')) {
+        // Dynamic segment, always matches
+        continue;
+      }
+      if (itemUrlSegments[i] !== currentPathSegments[i]) {
+        match = false;
+        break;
+      }
+    }
+    return match;
+  };
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -37,15 +63,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {item.item.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={item.isActive}>
+                {item.item.map((subItem) => ( // Renamed item to subItem to avoid conflict
+                  <SidebarMenuItem key={subItem.title}>
+                    <SidebarMenuButton asChild isActive={isMenuItemActive(subItem.url)}>
                       <Link
-                        to={item.url}
+                        to={subItem.url}
                         className="flex items-center gap-2 text-lg text-gray-600"
                       >
-                        {item.icon && <item.icon />}
-                        {item.title}
+                        {subItem.icon && <subItem.icon className="size-4" />}
+                        {subItem.title}
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
