@@ -132,7 +132,7 @@ export default function SubscriptionPlan() {
                 </td>
 
                 <td className="px-4 py-3 space-x-3">
-                  <Link to={`admin/update-plan/${plan.id}`}>
+                  <Link to={`/admin/update-plan/${plan.id}`}>
                     <Button variant={"outline"}>Edit</Button>
                   </Link>
                 </td>

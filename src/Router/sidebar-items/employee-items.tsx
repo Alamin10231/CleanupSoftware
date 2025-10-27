@@ -83,20 +83,6 @@ export const employeeSidebarItems: ISidebarItems[] = [
          icon: FileText,
       },
       {
-         title: "Region",
-         url: "region", // Changed from /employee-region
-         component: Buildingregions,
-         isActive: false,
-         icon: MapPin,
-      },
-      {
-        title: "Reports",
-        url: "report", // Changed from /employee-report
-        component: EmployeeReports,
-        isActive: false,
-        icon: BarChart,
-      },
-      {
         title: "Invoices",
         url: "invoice", // Changed from /employee-invoice
         component: EmployeeInvoicees,

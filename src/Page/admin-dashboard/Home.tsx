@@ -57,11 +57,11 @@ const Home = () => {
       >
         {/* Nav */}
         <div className="container mx-auto px-10 py-6 flex justify-between items-center">
-          <Link to="/home">
+          <Link to="/">
             <img src={assets.logo} alt="logo" />
           </Link>
           <div className="flex gap-10 items-center">
-            <NavLink to="/home">Home</NavLink>
+            <NavLink to="/">Home</NavLink>
             <a href="#section">Service</a>
             {/* <NavLink to="#">Contact Us</NavLink> */}
             <a href="#price">Price</a>
