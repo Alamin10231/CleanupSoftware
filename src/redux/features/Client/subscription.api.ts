@@ -6,9 +6,15 @@ export const SubscriptionApi = baseApi.injectEndpoints({
       query: () => "/plan/subscription/",
       providesTags: ["ClientSubscription"],
     }),
+    getEmployeeDetails: builder.query<any, number>({
+
+      query: (employeeId) => `/employees/${employeeId}/`,
+      providesTags: (result, error, employeeId) => [{ type: "Employee", id: employeeId }],
+    }),
   }),
 });
 
 export const {
   useGetSubscriptionClientQuery,
+  useLazyGetEmployeeDetailsQuery,
 } = SubscriptionApi;
