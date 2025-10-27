@@ -8,12 +8,16 @@ type UpdateAvatarArgs = { id: number; file: File };
 const safeParse = (x: any) => {
   if (!x) return {};
   if (typeof x === "string") {
-    try { return x ? JSON.parse(x) : {}; } catch { return {}; }
+    try {
+      return x ? JSON.parse(x) : {};
+    } catch {
+      return {};
+    }
   }
   return x;
 };
 
-// normalize helper so Navbar can use user.avatar / user.avatarUrl directly
+// normalize helper so we can always access avatar/avatarUrl
 const normalizeAvatar = (raw: any) => {
   const data = safeParse(raw);
   const avatar =
@@ -26,54 +30,53 @@ const normalizeAvatar = (raw: any) => {
 
 export const profileSettingApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
+    // GET current user
     getMe: builder.query<any, void>({
-      query: () => ({ url: "/employees/me/", method: "GET" }),
+      query: ({id}) => ({ url: `/employees/${id}/`, method: "GET" }),
       providesTags: ["UpdateProfile"],
       transformResponse: normalizeAvatar,
     }),
 
+    // PATCH: update any profile field (name, email, etc.)
     updateEmployeeProfile: builder.mutation<any, UpdateEmployeeArgs>({
       query: ({ id, data }) => {
         const isForm = typeof FormData !== "undefined" && data instanceof FormData;
         return {
           url: `/employees/${id}/`,
           method: "PATCH",
-          headers: isForm ? undefined : {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
+          headers: isForm
+            ? undefined
+            : { "Content-Type": "application/json", Accept: "application/json" },
           body: isForm ? data : JSON.stringify(data),
-          responseHandler: (r) => r.text(), // keep tolerant
+          responseHandler: async (r) => {
+            try { return await r.json(); } catch { return {}; }
+          },
         };
       },
-      transformResponse: normalizeAvatar,   // ✅ parsed + normalized
+      transformResponse: normalizeAvatar,
       invalidatesTags: ["UpdateProfile"],
     }),
 
+    // PATCH: update avatar only
     updateEmployeeAvatar: builder.mutation<any, UpdateAvatarArgs>({
       query: ({ id, file }) => {
         const fd = new FormData();
         fd.append("avatar", file);
-        return {
-          url: `/employees/${id}/`,
-          method: "PATCH",
-          body: fd,
-          responseHandler: (r) => r.text(),
-        };
+        return { url: `/employees/${id}/`, method: "PATCH", body: fd };
       },
-      transformResponse: normalizeAvatar,   // ✅ parsed + normalized
+      transformResponse: normalizeAvatar,
       invalidatesTags: ["UpdateProfile"],
     }),
 
+    // PATCH: clear avatar
     clearEmployeeAvatar: builder.mutation<any, { id: number }>({
       query: ({ id }) => ({
         url: `/employees/${id}/`,
         method: "PATCH",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({ avatar: null }),
-        responseHandler: (r) => r.text(),
       }),
-      transformResponse: normalizeAvatar,   // ✅ parsed + normalized (avatar becomes "")
+      transformResponse: normalizeAvatar,
       invalidatesTags: ["UpdateProfile"],
     }),
   }),

@@ -78,10 +78,10 @@ const Router = () => {
           path="employee-building/:buildingName"
           element={<TaskEmployee />}
         />
-        <Route
+        {/* <Route
           path="employee-communication"
           element={<EmployeeCommunication />}
-        />
+        /> */}
         <Route path="employee-setting" element={<EmployeeSetting />} />
         <Route path="employee-forms" element={<EmployeeForms />} />
         <Route path="employee-region" element={<Buildingregions />} />
@@ -97,8 +97,8 @@ const Router = () => {
         />
         {/* Client */}
         <Route path="client-profile" element={<ClientProfile />} />
-        <Route path="client-chat" element={<ClientChat/>}/>
-        <Route path="client-subscription" element={<ClientSubscription/>}/>
+        <Route path="client-chat" element={<ClientChat />} />
+        <Route path="client-subscription" element={<ClientSubscription />} />
       </Route>
 
       {/* Auth routes */}
