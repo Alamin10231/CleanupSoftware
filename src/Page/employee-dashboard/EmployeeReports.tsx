@@ -1,7 +1,12 @@
 
+import { EmployeeTable } from "@/Components/EmployeeReports/EmployeeTable"
+
 const EmployeeReports = () => {
   return (
-    <div>EmployeeReports</div>
+    <div>
+      {/* <Employeereporting></Employeereporting> */}
+      <EmployeeTable></EmployeeTable>
+    </div>
   )
 }
 

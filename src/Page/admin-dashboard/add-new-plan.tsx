@@ -155,7 +155,7 @@ const AddNewPlanForm = () => {
   };
 
   return (
-    <div>
+    <form onSubmit={onSubmit}>
       <h1 className="text-2xl font-semibold mb-6">Add New Plan</h1>
       <div className="grid grid-cols-2 gap-4">
         {/* Basic Plan Information */}
@@ -313,6 +313,8 @@ const AddNewPlanForm = () => {
                   handleInputChange("amount", Number(e.target.value))
                 }
                 className="flex-1"
+                min="0"
+                required
               />
             </div>
           </div>
@@ -489,7 +491,7 @@ const AddNewPlanForm = () => {
           </Button>
         </div>
       </div>
-    </div>
+    </form>
   );
 };
 

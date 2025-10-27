@@ -1,18 +1,43 @@
+// src/redux/features/admin/users/clients.api.ts
 import { baseApi } from "@/redux/api/baseApi";
 
-export const usersApi = baseApi.injectEndpoints({
+type ClientProfileInput = {
+  avatar?: string | null;
+  location?: string;
+  birth_date?: string; // ISO
+};
+
+type CreateClientBody = {
+  name: string;
+  email: string;
+  prime_phone: string;
+  client_profile?: ClientProfileInput;
+};
+
+export const clientsApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getSearchClients: builder.query({
-      query: (searchTerm = "") => `clients/?search=${searchTerm}`,
+    getSearchClients: builder.query<any, string | undefined>({
+      query: (searchTerm = "") => `/clients/?search=${searchTerm}`,
       providesTags: ["SearchClients"],
     }),
-    getAllClientsAdmin: builder.query({
+
+    getAllClientsAdmin: builder.query<any, number | undefined>({
       query: (page = 1) => `/clients/?page=${page}`,
       providesTags: ["GetAllClientsAdmin"],
     }),
-    getClientOverviewAdmin: builder.query({
-      query: () => "clients/overview/",
+
+    getClientOverviewAdmin: builder.query<any, void>({
+      query: () => `/clients/overview/`,
       providesTags: ["GetClientOverviewAdmin"],
+    }),
+
+    createAdminClient: builder.mutation<any, CreateClientBody>({
+      query: (body) => ({
+        url: `/clients/`,
+        method: "POST",
+        body,
+      }),
+      invalidatesTags: ["GetAllClientsAdmin", "SearchClients", "GetClientOverviewAdmin"],
     }),
   }),
 });
@@ -21,4 +46,5 @@ export const {
   useGetSearchClientsQuery,
   useGetAllClientsAdminQuery,
   useGetClientOverviewAdminQuery,
-} = usersApi;
+  useCreateAdminClientMutation,
+} = clientsApi;

@@ -1,11 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import profilepic from "../assets/Image/Profilepic/Profile photo.png";
 import manicon from "../assets/Image/manicon.svg";
 import setting from "../assets/Image/setting.svg";
-import admininstritor from "../assets/Image/administritor.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/redux/features/auth/authSlice";
-import { useNavigate } from "react-router-dom"; // Import useLocation and Link
+import { useNavigate } from "react-router-dom";
 import { LogOut } from "lucide-react";
 import { Button } from "./ui/button";
 import Notifications from "./notification-bell";
@@ -13,14 +11,22 @@ import Notifications from "./notification-bell";
 export type RootState = {
   auth: {
     user: {
+      id?: number;
       user_type?: string;
       name?: string;
       email?: string;
+      avatar?: string;
       avatarUrl?: string;
       role?: string;
+      employee_profile?: {
+        avatar?: string | null;
+        [k: string]: any;
+      };
     } | null;
   };
 };
+
+const defaultAvatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=User";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -29,7 +35,13 @@ const Navbar = () => {
   const { user } = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
 
-  // Outside click - dropdown close
+  // ✅ Get avatar from Redux (which is synced with localStorage)
+  const avatarSrc =
+    user?.avatar ||
+    user?.avatarUrl ||
+    user?.employee_profile?.avatar ||
+    defaultAvatar;
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -46,7 +58,6 @@ const Navbar = () => {
   function handleLogout() {
     try {
       dispatch(logout());
-      console.log("User logged out");
       navigate("/login");
     } catch (error) {
       console.log(error);
@@ -89,81 +100,76 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Logout button */}
-          <Button
-            variant={'outline'}
-            onClick={handleLogout}
-            aria-label="Log out"
+        <Button variant="outline" onClick={handleLogout} aria-label="Log out">
+          <LogOut color="gray" />
+        </Button>
+
+        {open && (
+          <div
+            role="menu"
+            className="absolute top-full right-0 mt-2 w-64 shadow-lg z-50 bg-white border border-gray-300 rounded-xl"
           >
-            <LogOut color="gray" />
-          </Button>
-
-          {/* Dropdown */}
-          {open && (
-            <div
-              role="menu"
-              className="absolute top-full right-0 mt-2 w-64 shadow-lg z-50 bg-white border border-gray-300 rounded-xl"
-            >
-              <div className="flex items-center gap-4 w-full text-left px-4 py-3 hover:bg-gray-100 border-b">
-                {/* Profile Image */}
-                <img
-                  src={user?.avatarUrl ?? profilepic}
-                  className="w-12 h-12 rounded object-cover"
-                  alt="profile"
-                />
-
-                {/* Profile Text */}
-                <div className="flex flex-col justify-center">
-                  <h1 className="font-semibold text-sm leading-tight">
-                    {displayName}
-                  </h1>
-                  <p className="text-gray-500 text-xs py-1">{displayEmail}</p>
-
-                  {/* Role Badge */}
-                  <p className="bg-[rgba(36,99,234,0.1)] text-sm text-[#2463EA] inline-flex items-center gap-2 px-3 py-1 rounded-full">
-                    <img
-                      src={admininstritor}
-                      className="w-4 h-4"
-                      alt="role icon"
-                    />
-                    {displayRole}
-                  </p>
-                </div>
+            <div className="flex items-center gap-4 w-full text-left px-4 py-3 hover:bg-gray-100 border-b">
+              <img
+                src={avatarSrc}
+                className="w-12 h-12 rounded object-cover border"
+                alt="profile"
+                onError={(e) => {
+                  e.currentTarget.src = defaultAvatar;
+                }}
+              />
+              <div className="flex flex-col justify-center min-w-0">
+                <h1 className="font-semibold text-sm leading-tight truncate">
+                  {displayName}
+                </h1>
+                <p className="text-gray-500 text-xs py-1 truncate">
+                  {displayEmail}
+                </p>
+                <p className="bg-[rgba(36,99,234,0.1)] text-sm text-[#2463EA] inline-flex items-center gap-2 px-3 py-1 rounded-full">
+                  {displayRole}
+                </p>
               </div>
-
-              <button
-                className="w-full flex items-center gap-3 text-left px-4 py-4 hover:bg-gray-100"
-                onClick={() => {
-                  setOpen(false);
-                  navigate("/profile");
-                }}
-              >
-                <img src={manicon} alt="" />
-                <p>Profile</p>
-              </button>
-
-              <button
-                className="w-full flex items-center gap-3 text-left px-4 py-4 hover:bg-gray-100 border-b"
-                onClick={() => {
-                  setOpen(false);
-                  navigate("/settings");
-                }}
-              >
-                <img src={setting} alt="" />
-                <p>Setting</p>
-              </button>
-
-              <button
-                className="w-full flex items-center gap-3 text-left px-4 py-4 hover:bg-gray-100"
-                onClick={handleLogout}
-              >
-                <LogOut color="red" size={18}/>
-                <p className="text-red-600 font-medium">Logout</p>
-              </button>
             </div>
-          )}
-        </div>
+
+            <button
+              className="w-full flex items-center gap-3 text-left px-4 py-4 hover:bg-gray-100"
+              onClick={() => {
+                setOpen(false);
+                navigate("/profile");
+              }}
+            >
+              <img src={manicon} alt="" />
+              <p>Profile</p>
+            </button>
+
+            <button
+              className="w-full flex items-center gap-3 text-left px-4 py-4 hover:bg-gray-100 border-b"
+              onClick={() => {
+                setOpen(false);
+                if (user?.user_type === "employee") {
+                  navigate(`/employee/setting`);
+                } else if (user?.user_type === "admin") {
+                  navigate(`/admin/settings`);
+                } else {
+                  navigate(`/setting`);
+                }
+              }}
+            >
+              <img src={setting} alt="" />
+              <p>Setting</p>
+            </button>
+
+            <button
+              className="w-full flex items-center gap-3 text-left px-4 py-4 hover:bg-gray-100"
+              onClick={handleLogout}
+            >
+              <LogOut color="red" size={18} />
+              <p className="text-red-600 font-medium">Logout</p>
+            </button>
+          </div>
+        )}
       </div>
+    </div>
   );
 };
 

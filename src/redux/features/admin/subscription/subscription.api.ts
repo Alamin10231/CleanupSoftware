@@ -1,3 +1,4 @@
+// src/redux/features/admin/users/subscription.api.ts
 import { baseApi } from "@/redux/api/baseApi";
 
 export const subscriptionApi = baseApi.injectEndpoints({
@@ -6,6 +7,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
       query: () => "/plan/subscription/status_details/",
       providesTags: ["Subscription"],
     }),
+
     getSubscriptionPage: builder.query<
       SubsPage,
       { page: number; page_size: number; status?: string }
@@ -17,18 +19,18 @@ export const subscriptionApi = baseApi.injectEndpoints({
           page_size: String(page_size),
           ...(s ? { status: s } : {}),
         }).toString();
-        return `/plan/subscription/?page${qs}`;
+        return `/plan/subscription/?${qs}`;
       },
       providesTags: ["Subscription"],
     }),
     getCollectionNewPlans: builder.query<any, void>({
-      query: () => "plan/subscription/",
+      query: () => "/plan/subscription/",
       providesTags: ["Subscription"],
     }),
 
     getAdminStatus: builder.query<any, { status?: string; page?: number }>({
       query: ({ status = "", page = 1 }) =>
-        `plan/subscription/?page=${page}&status=${encodeURIComponent(status)}`,
+        `/plan/subscription/?page=${page}&status=${encodeURIComponent(status)}`,
       providesTags: ["Subscription"],
     }),
 
@@ -51,6 +53,7 @@ export const subscriptionApi = baseApi.injectEndpoints({
     })
   }),
 });
+
 
 export const {
   useGetCalculationSubscriptionsQuery,

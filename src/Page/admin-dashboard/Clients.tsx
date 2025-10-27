@@ -11,18 +11,18 @@ const Clients = () => {
   const [page, setPage] = useState<number>(1);
 
   useEffect(() => {
-    const handler = setTimeout(() => setDebouncedSearch(searchTerm), 500);
-    return () => clearTimeout(handler);
+    const t = setTimeout(() => setDebouncedSearch(searchTerm), 500);
+    return () => clearTimeout(t);
   }, [searchTerm]);
 
-  // Normal paginated clients
+  // queries
   const {
     data: all_Client,
     isLoading: all_Client_Loading,
     error: all_Client_error,
+    refetch: refetchAll,
   } = useGetAllClientsAdminQuery(page);
 
-  // Search clients (only when search input is not empty)
   const {
     data: searchResults,
     isLoading: searchLoading,
@@ -31,14 +31,16 @@ const Clients = () => {
     skip: debouncedSearch.trim() === "",
   });
 
-  // Overview data
   const {
     data: Overview,
     isLoading: overviewLoading,
     error: overviewError,
-  } = useGetClientOverviewAdminQuery(undefined);
+  } = useGetClientOverviewAdminQuery();
 
-  // Decide which data to display
+  // mutation
+  const [createClient, { isLoading: creating }] =
+    useCreateAdminClientMutation();
+
   const clientsToDisplay = debouncedSearch.trim()
     ? searchResults?.results || []
     : all_Client?.results || [];
@@ -53,6 +55,50 @@ const Clients = () => {
   const totalPages = debouncedSearch.trim()
     ? 1
     : Math.ceil(all_Client?.count / 10 || 1);
+
+  const resetForm = () => {
+    setName("");
+    setEmail("");
+    setPhone("");
+    setAddress("");
+    setFormError(null);
+  };
+
+  const validate = () => {
+    if (!name.trim() || !email.trim() || !phone.trim() || !address.trim()) {
+      return "All fields are required.";
+    }
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!emailOk) return "Please enter a valid email address.";
+    return null;
+  };
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const v = validate();
+    if (v) {
+      setFormError(v);
+      return;
+    }
+    setFormError(null);
+    toast.promise(
+      createClient({
+        name,
+        email,
+        prime_phone: phone,
+        client_profile: {
+          location: address,
+        },
+      }).unwrap(),
+      {
+        success: "successfully created a new client",
+        error: "Failed to create a new client",
+      }
+    );
+    refetchAll();
+    resetForm();
+    setOpen(false);
+  };
 
   return (
     <div className="flex flex-col h-screen mt-6">
@@ -109,7 +155,7 @@ const Clients = () => {
               value={searchTerm}
               onChange={(e) => {
                 setSearchTerm(e.target.value);
-                setPage(1); // Reset to first page when searching
+                setPage(1);
               }}
             />
           </div>
@@ -188,7 +234,6 @@ const Clients = () => {
           <p className="text-gray-500 text-center p-5">No users found.</p>
         )}
 
-        {/* ===== Pagination ===== */}
         {!debouncedSearch && (
           <div className="flex justify-between items-center mt-4">
             <button
@@ -202,11 +247,9 @@ const Clients = () => {
             >
               Previous
             </button>
-
             <span className="text-sm text-gray-600">
               Page {page} of {totalPages}
             </span>
-
             <button
               disabled={page >= totalPages}
               onClick={() => setPage((prev) => prev + 1)}
