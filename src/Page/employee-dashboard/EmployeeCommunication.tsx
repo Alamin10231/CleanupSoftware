@@ -1,3 +1,4 @@
+import { useGetEmployeeTasksQuery } from "@/redux/features/employee/EmployeeTask.api";
 import type { RootState } from "@/redux/store";
 import { useState, useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
@@ -14,7 +15,8 @@ const EmployeeCommunication = () => {
   const ws = useRef<WebSocket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-
+  const { data: employeeTasks } = useGetEmployeeTasksQuery(user?.email || "");
+  console.log(employeeTasks.results)
   const handleSend = async () => {
     if (!newMessage.trim()) return;
 
@@ -70,9 +72,7 @@ const EmployeeCommunication = () => {
     ws.current?.close();
 
     const webSocket = new WebSocket(
-      `ws://10.10.13.61:8015/ws/chat/one-to-one/osmangani3osm@gmail.com/?token=${localStorage.getItem(
-        "access"
-      )}`
+      `ws://10.10.13.61:8015/ws/chat/one-to-one/osmangani3osm@gmail.com/?token=${localStorage.getItem("access")?.replace(/"/g, "")}`
     );
     ws.current = webSocket;
 

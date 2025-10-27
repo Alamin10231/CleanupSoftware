@@ -15,7 +15,6 @@ import {
   BreadcrumbSeparator,
 } from "./Components/ui/breadcrumb";
 import { SearchForm } from "./Components/search-form";
-import Notifications from "./Components/notification-bell";
 import Navbar from "./Components/Navbar";
 import { Toaster } from "sonner";
 

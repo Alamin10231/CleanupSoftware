@@ -1,13 +1,11 @@
 import type { RootState } from "@/Components/Navbar";
 import { useGetSubscriptionClientQuery, useLazyGetEmployeeDetailsQuery } from "@/redux/features/Client/subscription.api";
-import { set } from "date-fns";
 import React, { useRef, useState } from "react";
 import { useSelector } from "react-redux";
 
 
 interface Employee {
   id: number;
-  username: string;
   username: string;
   name?: string;
   role?: string;
@@ -65,12 +63,9 @@ const ClientSubscription = () => {
 
   const handleOpenChat = async (employee: Employee) => {
     setSelectedEmployee(employee);
-    console.log("Opening chat with:", employee);
     const empDetails = await getEmployeeDetails(employee.id).unwrap();
     console.log("Fetched employee details:", empDetails);
     console.log("Opening chat with:", employee);
-    const empDetails = await getEmployeeDetails(employee.id).unwrap();
-    console.log("Fetched employee details:", empDetails);
     // TODO: Fetch chat history from API
     // Example API call structure:
     // const response = await fetch(`/api/chat/history/${employee.id}`);
@@ -89,7 +84,7 @@ const ClientSubscription = () => {
     }
 
 
-    const webSocket = new WebSocket(`ws://10.10.13.61:8015/ws/chat/one-to-one/${empDetails.email}/?token=${localStorage.getItem("access")}`);
+    const webSocket = new WebSocket(`ws://10.10.13.61:8015/ws/chat/one-to-one/${empDetails.email}/?token=${localStorage.getItem("access")?.replace(/"/g, "")}`);
 
     ws.current = webSocket;
 
