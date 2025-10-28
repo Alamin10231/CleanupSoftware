@@ -25,7 +25,7 @@ import { useAddInvoiceMutation } from "@/redux/features/admin/invoice/invoice.ap
 import { toast } from "sonner";
 
 // Types
-type InvoiceType = "outgoing" | "incoming";
+type InvoiceType = "outgoing";
 type InvoiceStatus = "paid" | "unpaid";
 
 interface ApartmentOption {
@@ -83,7 +83,6 @@ const INITIAL_LINE_ITEM: LineItem = {
 
 const INVOICE_TYPES: { value: InvoiceType; label: string }[] = [
   { value: "outgoing", label: "Outgoing" },
-  { value: "incoming", label: "Incoming" },
 ];
 
 // Utility Functions
@@ -339,6 +338,7 @@ export default function CreateInvoiceForm() {
               onValueChange={(value) =>
                 handleInputChange("type", value as InvoiceType)
               }
+              disabled={true}
               value={formData.type}
             >
               <SelectTrigger>

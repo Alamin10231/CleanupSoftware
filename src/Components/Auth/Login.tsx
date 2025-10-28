@@ -25,10 +25,11 @@ export default function Login() {
     try {
       const res = await login({ email, password }).unwrap();
       dispatch(setCredentials(res));
-      toast.success("Login successful!");
+      // toast.success("Login successful!");
       navigate("/");
     } catch (err: any) {
-      const message = err.data?.message || "An error occurred";
+      // console.log(err);
+      const message = err.data?.error || "An error occurred";
       setError(message);
       toast.error(message);
     }

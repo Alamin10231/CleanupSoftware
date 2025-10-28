@@ -216,7 +216,7 @@ const EmployeeInvoicees = () => {
                   <td className="px-4 py-2">
                     <Button
                       variant="outline"
-                      disabled={invoice.status !== "Pending"}
+                      disabled={invoice.status !== "Submitted"}
                       onClick={() => openEditDialog(invoice)}
                     >
                       Edit
