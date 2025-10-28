@@ -100,23 +100,6 @@ export default function Login() {
                     {/* Error Message */}
                     {error && <p className="text-red-500 text-sm">{error}</p>}
 
-                    {/* Remember + Forgot */}
-                    <div className="flex items-center justify-between text-sm">
-                        <label className="flex items-center space-x-2">
-                            <input
-                                type="checkbox"
-                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                            />
-                            <span>Remember me</span>
-                        </label>
-                        <Link
-                            to="/forget-password"
-                            className="text-blue-500 hover:underline"
-                        >
-                            Forgot Password
-                        </Link>
-                    </div>
-
                     {/* Login Button */}
                     <Button
                         type="submit"
@@ -139,32 +122,6 @@ export default function Login() {
                         <Link to="/signup">Sign up</Link>
                     </span>
                 </p>
-
-                {/* Social login */}
-                <div className="flex items-center my-6 w-full max-w-sm">
-                    <div className="flex-grow border-t border-gray-300" />
-                    <span className="mx-4 text-gray-500 text-sm">
-                        Or login with
-                    </span>
-                    <div className="flex-grow border-t border-gray-300" />
-                </div>
-
-                <div className="flex gap-4">
-                    <button
-                        type="button"
-                        className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50"
-                    >
-                        <FaFacebook className="text-blue-600 mr-2" />
-                        Facebook
-                    </button>
-                    <button
-                        type="button"
-                        className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50"
-                    >
-                        <FcGoogle className="mr-2" />
-                        Google
-                    </button>
-                </div>
             </div>
 
             {/* Right Panel */}
