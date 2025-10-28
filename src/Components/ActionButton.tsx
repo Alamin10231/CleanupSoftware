@@ -130,7 +130,6 @@ const ActionButton = () => {
       idExpiry: "",
       baseSalary: "",
       salaryDay: "27",
-      contractStart: "",
       contractEnd: "",
       group: "",
     })
@@ -139,7 +138,7 @@ const ActionButton = () => {
   return (
     <div>
       <div className="flex gap-4">
-        <BulkSalaryPayment />
+        {/* <BulkSalaryPayment /> */}
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>

@@ -115,7 +115,7 @@ const EmployeeInvoicees = () => {
   // Open modal for creating a new expense
   const openNewExpenseDialog = () => {
     setSelectedInvoice(null);
-    
+
     setDescription("");
     setReceiptFile(null);
     setModalMode("new");
@@ -163,7 +163,7 @@ const EmployeeInvoicees = () => {
 
   return (
     <div>
-     
+
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Invoices</h1>
@@ -216,7 +216,7 @@ const EmployeeInvoicees = () => {
                   <td className="px-4 py-2">
                     <Button
                       variant="outline"
-                      
+                      disabled={invoice.status !== "Pending"}
                       onClick={() => openEditDialog(invoice)}
                     >
                       Edit

@@ -46,7 +46,6 @@ export default function DashboardLayout() {
           </Breadcrumb>
           <SearchForm className="w-full sm:ml-auto sm:w-auto" />
           <Navbar />
-          <Toaster position="top-right" className="z-[99]" />
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4">
           <Outlet />

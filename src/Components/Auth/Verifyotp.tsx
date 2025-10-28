@@ -80,7 +80,7 @@ export default function Verifyotp() {
           <IoIosArrowBack />
           <span>
             Back to{" "}
-            <Link to="/adminlogin" className="text-blue-600 underline">
+            <Link to="/login" className="text-blue-600 underline">
               login
             </Link>
           </span>

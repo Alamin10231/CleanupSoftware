@@ -39,10 +39,10 @@ const ProgressBar: React.FC = () => {
                             <span className="font-medium">Remaining</span>
                             <span className="text-base font-semibold">{remaining}</span>
                         </div>
-                        <div className="flex flex-col items-center">
+                        {/* <div className="flex flex-col items-center">
                             <span className="font-medium">Unpaid</span>
                             <span className="text-base font-semibold">{unpaid}</span>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
 

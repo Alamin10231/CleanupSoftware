@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { FcGoogle } from "react-icons/fc";
-import { FaApple, FaEye, FaEyeSlash, FaFacebook } from "react-icons/fa";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import loginpicture from "../../assets/Image/loginpicture.jpg";
 import { Link, useNavigate } from "react-router-dom";
-import { assets } from "../../assets/assets";
 import { IoIosArrowBack } from "react-icons/io";
 import { toast } from "sonner";
 import { useForgetPasswordMutation } from "@/redux/features/auth/authApi";
+import Logo from "../Logo";
 
 export default function ForgetPassword() {
   const [email, setEmail] = useState<string>("");
@@ -37,11 +36,7 @@ export default function ForgetPassword() {
         {/* Logo */}
         <div className="flex items-center self-end space-x-2 mb-8">
           <div className="p-6">
-            <img
-              src={assets.logo}
-              alt="CleanUp Pro Logo"
-              className="w-[140px] mx-auto"
-            />
+            <Logo />
           </div>
         </div>
 
@@ -50,7 +45,7 @@ export default function ForgetPassword() {
           <IoIosArrowBack />
           <span>
             Back to{" "}
-            <Link to="/adminlogin" className="text-blue-600 underline">
+            <Link to="/login" className="text-blue-600 underline">
               login
             </Link>
           </span>
@@ -71,7 +66,7 @@ export default function ForgetPassword() {
               <legend className="text-sm px-1 text-[#1C1B1F]">Email</legend>
               <input
                 type="email"
-                placeholder="****"
+                placeholder="user@example.com"
                 className="w-full outline-none border-none pb-2 focus:ring-0 text-[#1C1B1F]"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -91,42 +86,11 @@ export default function ForgetPassword() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition cursor-pointer"
           >
             Submit
           </button>
         </form>
-
-        {/* Social login */}
-        <div className="flex items-center my-6 w-full max-w-sm">
-          <div className="flex-grow border-t border-gray-300" />
-          <span className="mx-4 text-gray-500 text-sm">Or login with</span>
-          <div className="flex-grow border-t border-gray-300" />
-        </div>
-
-        <div className="flex gap-4">
-          <button
-            type="button"
-            className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50"
-          >
-            <FaFacebook className="text-blue-600 mr-2" />
-            Facebook
-          </button>
-          <button
-            type="button"
-            className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50"
-          >
-            <FcGoogle className="mr-2" />
-            Google
-          </button>
-          <button
-            type="button"
-            className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50"
-          >
-            <FaApple className="text-black mr-2" />
-            Apple
-          </button>
-        </div>
       </div>
 
       {/* Right Panel */}

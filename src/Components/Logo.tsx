@@ -1,8 +1,8 @@
-import logo from "/src/assets/Clean_Up_logo.png"
+import logo from "/src/assets/logo/logo.svg"
 export default function Logo() {
   return (
     <div className="flex items-center justify-center mt-2">
-      <img src={logo} />
+      <img src={logo} alt="logo" />
     </div>
   )
 }
