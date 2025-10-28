@@ -208,20 +208,13 @@ export const adminSidebarItems: ISidebarItems[] = [
   {
     title: "",
     item: [
-      {
-        title: "Chat",
-        url: "/admin/chat",
-        component: ChatPage,
-        isActive: false,
-        icon: MessageSquare, // Added icon
-      },
-      {
-        title: "Settings",
-        url: "/admin/settings",
-        component: ProfileSettingsPage,
-        isActive: false,
-        icon: Settings, // Added icon
-      },
+      // {
+      //   title: "Settings",
+      //   url: "/admin/settings",
+      //   component: ProfileSettingsPage,
+      //   isActive: false,
+      //   icon: Settings, // Added icon
+      // },
     ],
   },
 ];

@@ -14,7 +14,7 @@ import {
 import { Link } from "react-router-dom";
 import { getSidebarItems } from "@/Router/routes.config";
 import { useSelector } from "react-redux";
-import type { RootState } from "./Navbar";
+import type { RootState } from "@/redux/store";
 import Logo from "./Logo";
 import { useLocation } from "react-router";
 

@@ -9,6 +9,7 @@ interface User {
   username: string;
   user_type: "admin" | "supervisor" | "client" | string;
   is_active: boolean;
+  avatar_url?: string;
 }
 
 interface AuthState {

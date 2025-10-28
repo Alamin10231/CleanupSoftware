@@ -2,7 +2,7 @@ import { assets } from "@/assets/assets";
 import Card from "@/Components/Card";
 import { useEffect, useState } from "react";
 import { IoIosSearch } from "react-icons/io";
-import { useGetAllClientsAdminQuery, useGetClientOverviewAdminQuery, useGetSearchClientsQuery } from "@/redux/features/admin/users/clients.api";
+import { useCreateAdminClientMutation, useGetAllClientsAdminQuery, useGetClientOverviewAdminQuery, useGetSearchClientsQuery } from "@/redux/features/admin/users/clients.api";
 import { AddClient } from "./add-client";
 
 const Clients = () => {

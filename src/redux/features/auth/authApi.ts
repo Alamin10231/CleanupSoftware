@@ -66,7 +66,13 @@ export const authApi = baseApi.injectEndpoints({
         body: data,
       }),
     }),
-
+    resendOtp: builder.mutation({
+      query: (body) => ({
+        url: "users/resend-otp/",
+        method: "POST",
+        body
+      })
+    }),
     getCurrentUser: builder.query<LoginResponse["user"], void>({
       query: () => ({
         url: "/users/me/",
@@ -98,4 +104,5 @@ export const {
   useGetCurrentUserQuery,
   useForgetPasswordMutation,
   useResetPasswordMutation,
+  useResendOtpMutation
 } = authApi;

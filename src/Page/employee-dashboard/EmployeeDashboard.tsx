@@ -45,8 +45,7 @@ import {
   useUpdateTaskAssignEmployeeByIdMutation,
 } from "@/redux/features/employee/dashboard/dashboard.api";
 import { useGetCurrentTaskQuery } from "@/redux/features/employee/subscription/subscription.api";
-
-
+import type { RootState } from "@/redux/store";
 
 type TaskItem = {
   id: number;
@@ -76,7 +75,7 @@ const EmployeeDashboard = () => {
     const employeeId = useSelector((state: any) => state.auth.user?.id);
  const employeeName = useSelector((state: any) => state.auth.user?.name);
   // API queries
-  const { data, isLoading, isError, refetch } = useGetEmployeeDashboardQuery();
+  const { data, isLoading, isError, refetch } = useGetEmployeeDashboardQuery(undefined);
   const { data: chartApiData, isLoading: chartLoading } =
     useGetEmployeeChartQuery(employeeId);
     console.log("id",employeeId)
@@ -85,6 +84,12 @@ const EmployeeDashboard = () => {
     isLoading: tasksLoading,
     isError: tasksError,
   } = useGetCurrentTaskQuery();
+
+  const { refetch: refetchDashboard } = useSelector((state: RootState) => state.dashboard);
+
+  useEffect(() => {
+    refetch();
+  }, [refetchDashboard, refetch]);
 
   const items: TaskItem[] = (data?.results ?? []) as TaskItem[];
 
@@ -143,7 +148,7 @@ const EmployeeDashboard = () => {
   const [page, setPage] = useState(1);
   const totalPages = Math.max(1, Math.ceil(localTasks.length / PAGE_SIZE));
   useEffect(() => {
-    setPage(1); 
+    setPage(1);
   }, [localTasks.length]);
 
   const pagedTasks = useMemo(() => {
@@ -260,7 +265,7 @@ const EmployeeDashboard = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3"> <h1> {employeeName || "Employee"}</h1>
-          
+
         </div>
         <Button className="gap-2">
           <Share2 size={16} />

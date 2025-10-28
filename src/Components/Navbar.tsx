@@ -1,32 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import manicon from "../assets/Image/manicon.svg";
-import setting from "../assets/Image/setting.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "@/redux/features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
-import { LogOut } from "lucide-react";
+import { Crown, LogOut, User } from "lucide-react";
 import { Button } from "./ui/button";
 import Notifications from "./notification-bell";
-
-export type RootState = {
-  auth: {
-    user: {
-      id?: number;
-      user_type?: string;
-      name?: string;
-      email?: string;
-      avatar?: string;
-      avatarUrl?: string;
-      role?: string;
-      employee_profile?: {
-        avatar?: string | null;
-        [k: string]: any;
-      };
-    } | null;
-  };
-};
-
-const defaultAvatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=User";
+import type { RootState } from "@/redux/store";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -34,14 +13,9 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const { user } = useSelector((state: RootState) => state.auth);
   const navigate = useNavigate();
-
-  // ✅ Get avatar from Redux (which is synced with localStorage)
-  const avatarSrc =
-    user?.avatar ||
-    user?.avatarUrl ||
-    user?.employee_profile?.avatar ||
-    defaultAvatar;
-
+  const avatarPreview = user?.avatar_url
+    ? `${user.avatar_url}`
+    : "";
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -74,31 +48,44 @@ const Navbar = () => {
       : "Viewer";
 
   return (
-      <div className="flex items-center gap-6 mx-4">
-        { user?.user_type === "admin" && <Notifications /> }
-        {/* Profile + Dropdown */}
+    <div className="flex items-center gap-6 mx-4">
+      {user?.user_type === "admin" && <Notifications />}
+      {/* Profile + Dropdown */}
+      <div
+        className="relative flex items-center gap-3 cursor-pointer rounded-md"
+        ref={profileWrapRef}
+      >
         <div
-          className="relative flex items-center gap-3 cursor-pointer rounded-md"
-          ref={profileWrapRef}
+          className="flex items-center gap-2"
+          onClick={() => setOpen((v) => !v)}
+          aria-haspopup="menu"
+          aria-expanded={open}
         >
-          <div
-            className="flex items-center gap-2"
-            onClick={() => setOpen((v) => !v)}
-            aria-haspopup="menu"
-            aria-expanded={open}
-          >
-            {(user?.user_type === "employee" || !user) && (
+          {(user?.user_type === "employee" || user?.user_type === "client") &&
+            (user?.avatar_url ? (
               <img
-                src={user?.avatarUrl ?? profilepic}
+                src={avatarPreview}
                 className="w-10 h-10 rounded"
                 alt="profile"
               />
-            )}
-            <div className="flex flex-col">
-              <h1 className="font-semibold text-sm">{displayName}</h1>
-              <p className="text-[#8E8E8E] text-xs">{displayEmail}</p>
-            </div>
+            ) : (
+              <User size={24} />
+            ))}
+          {(user?.user_type === "admin" || !user) &&
+            (user?.avatar ? (
+              <img
+                src={user?.avatar}
+                className="w-10 h-10 rounded"
+                alt="profile"
+              />
+            ) : (
+              <Crown size={24} />
+            ))}
+          <div className="flex flex-col">
+            <h1 className="font-semibold text-sm">{displayName}</h1>
+            <p className="text-[#8E8E8E] text-xs">{displayEmail}</p>
           </div>
+        </div>
 
         <Button variant="outline" onClick={handleLogout} aria-label="Log out">
           <LogOut color="gray" />
@@ -110,14 +97,9 @@ const Navbar = () => {
             className="absolute top-full right-0 mt-2 w-64 shadow-lg z-50 bg-white border border-gray-300 rounded-xl"
           >
             <div className="flex items-center gap-4 w-full text-left px-4 py-3 hover:bg-gray-100 border-b">
-              <img
-                src={avatarSrc}
-                className="w-12 h-12 rounded object-cover border"
-                alt="profile"
-                onError={(e) => {
-                  e.currentTarget.src = defaultAvatar;
-                }}
-              />
+              <div className="flex items-center justify-center bg-gray-200 w-10 h-10 rounded-full">
+                <Crown size={24} />
+              </div>
               <div className="flex flex-col justify-center min-w-0">
                 <h1 className="font-semibold text-sm leading-tight truncate">
                   {displayName}
@@ -130,35 +112,6 @@ const Navbar = () => {
                 </p>
               </div>
             </div>
-
-            <button
-              className="w-full flex items-center gap-3 text-left px-4 py-4 hover:bg-gray-100"
-              onClick={() => {
-                setOpen(false);
-                navigate("/profile");
-              }}
-            >
-              <img src={manicon} alt="" />
-              <p>Profile</p>
-            </button>
-
-            <button
-              className="w-full flex items-center gap-3 text-left px-4 py-4 hover:bg-gray-100 border-b"
-              onClick={() => {
-                setOpen(false);
-                if (user?.user_type === "employee") {
-                  navigate(`/employee/setting`);
-                } else if (user?.user_type === "admin") {
-                  navigate(`/admin/settings`);
-                } else {
-                  navigate(`/setting`);
-                }
-              }}
-            >
-              <img src={setting} alt="" />
-              <p>Setting</p>
-            </button>
-
             <button
               className="w-full flex items-center gap-3 text-left px-4 py-4 hover:bg-gray-100"
               onClick={handleLogout}

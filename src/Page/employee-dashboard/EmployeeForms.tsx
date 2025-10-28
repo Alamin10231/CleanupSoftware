@@ -41,7 +41,7 @@ import {
   useSubmitFormMutation,
 } from "@/redux/features/admin/custom-form/custome-form.api";
 import { useSelector } from "react-redux";
-import type { RootState } from "@/Components/Navbar";
+import type { RootState } from "@/redux/store";
 
 interface FormField {
   id: number;

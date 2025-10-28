@@ -14,6 +14,7 @@ import { clientSidebarItems } from "./sidebar-items/client-items";
 import { supervisorSidebarItems } from "./sidebar-items/supervisor-items";
 import UpdatePlanForm from "@/Page/admin-dashboard/UpdatePlan";
 import SetPassword from "@/Components/Auth/SetPassword";
+import VerifyotpActivation from "@/Components/Auth/verifyotp-activation";
 
 export const router = createBrowserRouter([
   {
@@ -75,6 +76,10 @@ export const router = createBrowserRouter([
   {
     Component: Verifyotp,
     path: "/verifyotp/:email",
+  },
+  {
+    Component: VerifyotpActivation,
+    path: "/verifyotp-activation/:email",
   },
   {
     Component: SetPassword,

@@ -1,4 +1,4 @@
-import type { RootState } from "@/Components/Navbar";
+import type { RootState } from "@/redux/store";
 import { useGetSubscriptionClientQuery, useLazyGetEmployeeDetailsQuery } from "@/redux/features/Client/subscription.api";
 import React, { useRef, useState } from "react";
 import { useSelector } from "react-redux";

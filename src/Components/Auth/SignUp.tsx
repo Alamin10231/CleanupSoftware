@@ -37,10 +37,8 @@ export default function SignUp() {
       email: email,
       prime_phone: number,
       password: password,
-      // role: "client", // add role here
     };
 
-    // Simple validation
     if (password !== cpassword) {
       setError("Passwords do not match!");
       toast.error("Passwords do not match!", { id: "signup" });
@@ -59,7 +57,7 @@ export default function SignUp() {
       const response = await signUp(payload).unwrap();
       dispatch(setCredentials(response));
       toast.success("Account created successfully!", { id: "signup" });
-      navigate(`/verifyotp/${encodeURIComponent(email)}`);
+      navigate(`/verifyotp-activation/${encodeURIComponent(email)}`);
     } catch (err: any) {
       console.error("Error:", err);
       const message = err.data?.message || "Something went wrong, please try again.";

@@ -155,7 +155,7 @@ const AddNewPlanForm = () => {
   };
 
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={handleSubmit}>
       <h1 className="text-2xl font-semibold mb-6">Add New Plan</h1>
       <div className="grid grid-cols-2 gap-4">
         {/* Basic Plan Information */}
@@ -294,7 +294,6 @@ const AddNewPlanForm = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="month">Monthly</SelectItem>
-                  <SelectItem value="quarter">Quarterly</SelectItem>
                   <SelectItem value="year">Yearly</SelectItem>
                 </SelectContent>
               </Select>
@@ -371,7 +370,7 @@ const AddNewPlanForm = () => {
       <div className="border rounded-lg p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-base font-semibold">Service Line Items</h2>
-          <Button onClick={addService} size="sm">
+          <Button onClick={addService} type="button" size="sm">
             <Plus size={16} className="mr-1" />
             Add Service
           </Button>

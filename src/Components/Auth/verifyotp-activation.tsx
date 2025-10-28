@@ -5,18 +5,18 @@ import loginpicture from "../../assets/Image/loginpicture.jpg";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { assets } from "../../assets/assets";
 import { IoIosArrowBack } from "react-icons/io";
-import { useVerifyOtpMutation } from "@/redux/features/auth/authApi";
+import { useResendOtpMutation, useVerifyOtpMutation } from "@/redux/features/auth/authApi";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 import { setOtp } from "@/redux/features/auth/authSlice";
 
-export default function Verifyotp() {
+export default function VerifyotpActivation() {
   const [otp, setOtpState] = useState("");
   const navigate = useNavigate();
   const [verifyOtp, { isLoading }] = useVerifyOtpMutation();
   const dispatch = useDispatch();
   const { email } = useParams();
-
+  const [resendOtp] = useResendOtpMutation()
   const [resendDisabled, setResendDisabled] = useState(true);
   const [countdown, setCountdown] = useState(60);
 
@@ -56,7 +56,8 @@ export default function Verifyotp() {
   const handleResendOtp = async () => {
     setResendDisabled(true);
     setCountdown(60);
-    // Implement resend OTP logic here
+    resendOtp({email})
+
     toast.success("OTP has been resent");
   };
 
