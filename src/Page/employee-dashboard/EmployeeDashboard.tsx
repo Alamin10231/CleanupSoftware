@@ -79,7 +79,7 @@ const EmployeeDashboard = () => {
     useGetEmployeeDashboardQuery(undefined);
   const { data: chartApiData, isLoading: chartLoading } =
     useGetEmployeeChartQuery(employeeId);
-  console.log("id", employeeId);
+//   console.log("id", employeeId);
   const {
     data: tasksData,
     isLoading: tasksLoading,
@@ -257,7 +257,7 @@ const EmployeeDashboard = () => {
       );
 
       setUpdateOpen(false);
-      console.log("Status updated successfully");
+      // console.log("Status updated successfully");
     } catch (err: any) {
       console.error("Failed to update task:", err?.data || err);
     }
@@ -277,7 +277,7 @@ const EmployeeDashboard = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         {[
           {
             label: "Total Task",

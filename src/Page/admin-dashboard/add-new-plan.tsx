@@ -61,11 +61,13 @@ const AddNewPlanForm = () => {
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
+
   const { data: categories, isLoading: isCategoriesLoading } =
     useGetServiceCategoriesQuery(undefined);
   const [addCategory, { isLoading: isAddingCategory }] =
     useAddServiceCategoryMutation();
   const [addPlan, { isLoading: addingPlan }] = useAddPlanMutation();
+
   const addService = () => {
     const newService = {
       id: Date.now(),
@@ -73,14 +75,16 @@ const AddNewPlanForm = () => {
       description: "",
       unit_price: 0,
       quantity: 1,
-      total: 0, // Calculated for display
+      total: 0,
     };
     setServices([...services, newService]);
   };
+
   const [newCategory, setNewCategory] = useState({
     name: "",
     description: "",
   });
+
   const addNewCategory = async () => {
     try {
       await toast.promise(addCategory({ name: newCategory.name }).unwrap(), {
@@ -95,6 +99,7 @@ const AddNewPlanForm = () => {
       console.error("Category creation failed:", error);
     }
   };
+
   const removeService = (id) => {
     setServices(services.filter((s) => s.id !== id));
   };
@@ -116,10 +121,12 @@ const AddNewPlanForm = () => {
 
   const handleCancel = () => {
     setFormData(initialFormState);
-    setServices([]); // Reset services to empty array
+    setServices([]);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault(); // Prevent default form submission
+
     const payload = {
       name: formData.name,
       plan_code: formData.plan_code,
@@ -144,20 +151,20 @@ const AddNewPlanForm = () => {
               if (err.data[keys[0]][0] === "This field may not be blank.")
                 return `Failed to add plan: ${keys[0]} can't be blank`;
             }
-            return `Failed to add server.`;
+            return `Failed to add plan.`;
           }
         },
       });
       handleCancel();
     } catch (error) {
-      console.error("Service creation failed:", error);
+      console.error("Plan creation failed:", error);
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <h1 className="text-2xl font-semibold mb-6">Add New Plan</h1>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid md:grid-cols-2 gap-4">
         {/* Basic Plan Information */}
         <div className="border rounded-lg p-6 mb-6">
           <h2 className="text-base font-semibold mb-4">
@@ -232,11 +239,12 @@ const AddNewPlanForm = () => {
                   </SelectContent>
                 </Select>
                 <Button
-                  size={"sm"}
+                  type="button"
+                  size="sm"
                   variant="outline"
                   onClick={() => setAddCategoryButton(true)}
                 >
-                  <Plus size={8} />
+                  <Plus size={16} />
                 </Button>
               </div>
               {addCategoryButton && (
@@ -253,13 +261,15 @@ const AddNewPlanForm = () => {
                     className="flex-1"
                   />
                   <Button
-                    onClick={() => addNewCategory()}
+                    type="button"
+                    onClick={addNewCategory}
                     disabled={isAddingCategory}
                     size="sm"
                   >
                     {isAddingCategory ? "Adding..." : "Add"}
                   </Button>
                   <Button
+                    type="button"
                     variant="outline"
                     size="sm"
                     onClick={() => {
@@ -350,7 +360,7 @@ const AddNewPlanForm = () => {
             </div>
           </div>
           <div className="space-y-2 mt-4">
-            <Label className="text-sm"> Status</Label>
+            <Label className="text-sm">Status</Label>
             <div className="flex items-center w-fit gap-2">
               <Switch
                 id="is_active"
@@ -383,7 +393,7 @@ const AddNewPlanForm = () => {
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b">
+                <tr className="border-b grid grid-cols-2 md:grid-cols-7 gap-2">
                   <th className="text-left py-2 px-2 font-medium text-gray-700">
                     Service Name
                   </th>
@@ -406,7 +416,7 @@ const AddNewPlanForm = () => {
               </thead>
               <tbody>
                 {services.map((service) => (
-                  <tr key={service.id} className="border-b">
+                  <tr key={service.id} className="border-b grid grid-cols-2 md:grid-cols-7 gap-2">
                     <td className="py-2 px-2">
                       <Input
                         placeholder="Name"
@@ -465,6 +475,7 @@ const AddNewPlanForm = () => {
                     </td>
                     <td className="py-2 px-2">
                       <button
+                        type="button"
                         onClick={() => removeService(service.id)}
                         className="text-red-500 hover:text-red-700"
                       >
@@ -482,10 +493,10 @@ const AddNewPlanForm = () => {
       <div className="flex items-center justify-between">
         <div></div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleCancel}>
+          <Button type="button" variant="outline" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button disabled={addingPlan} onClick={handleSubmit}>
+          <Button type="submit" disabled={addingPlan}>
             Create Plan
           </Button>
         </div>

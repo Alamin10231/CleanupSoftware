@@ -156,7 +156,7 @@ const AddSubscriptionForm = () => {
       </div>
 
       {/* User & Plan Selection */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid md:grid-cols-2 gap-4 mb-4">
         <div className="bg-white border rounded-lg p-6">
           <h2 className="text-base font-semibold mb-4">User Information</h2>
           <div className="space-y-4">
@@ -398,7 +398,7 @@ const AddSubscriptionForm = () => {
       </div>
 
       {/* Subscription Details */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid md:grid-cols-2 gap-4 mb-4">
         <div className="bg-white border rounded-lg p-6">
           <h2 className="text-base font-semibold mb-4">
             Subscription Details

@@ -4,7 +4,6 @@ import {
   useGetSearchAllInvoiceQuery,
 } from "@/redux/features/admin/invoice/invoice.api";
 import { useEffect, useState } from "react";
-import { assets } from "@/assets/assets";
 import { toast } from "sonner";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import InvoicePDF from "./InvoicePDF";
@@ -19,7 +18,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../../../Components/ui/alert-dialog";
-import { Trash } from "lucide-react";
+import { Download, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Invoice {
@@ -56,11 +55,15 @@ const InvoicesList = () => {
     isError,
     isFetching,
   } = useGetInvoicesQuery(`?page=${page}`);
+
+  // Only use search API when there's actual search text
+  const shouldSearch = search.trim().length > 0;
   const {
     data: searchInvoice,
     isLoading: isSearchLoading,
     isError: isSearchError,
-  } = useGetSearchAllInvoiceQuery(search ? `${search}` : "");
+  } = useGetSearchAllInvoiceQuery(search, { skip: !shouldSearch });
+
   const [deleteInvoice] = useDeleteInvoiceMutation();
   const invoices = invoicesData?.results || [];
   const totalCount = invoicesData?.count || 0;
@@ -72,28 +75,9 @@ const InvoicesList = () => {
   useEffect(() => {
     let result: Invoice[] = [];
 
-    if (search.trim() !== "") {
-      result = searchInvoice?.results || invoices || [];
-      result = result.filter(
-        (inv) =>
-          (inv.building_name?.toLowerCase() || "").includes(
-            search.toLowerCase()
-          ) ||
-          (inv.region_name?.toLowerCase() || "").includes(
-            search.toLowerCase()
-          ) ||
-          (inv.apartment_name?.join(" ").toLowerCase() || "").includes(
-            search.toLowerCase()
-          ) ||
-          (inv.client_name?.toString() || "").includes(search) ||
-          (inv.invoice_id?.toLowerCase() || "").includes(
-            search.toLowerCase()
-          ) ||
-          (inv.vendor_name?.toLowerCase() || "").includes(
-            search.toLowerCase()
-          ) ||
-          (inv.note?.toLowerCase() || "").includes(search.toLowerCase())
-      );
+    // Use search results if searching, otherwise use paginated results
+    if (shouldSearch) {
+      result = searchInvoice?.results || [];
     } else {
       result = [...invoices];
     }
@@ -119,25 +103,30 @@ const InvoicesList = () => {
     }
 
     setFilteredInvoices(result);
-  }, [search, status, sort, invoices, searchInvoice]);
+  }, [search, status, sort, invoices, searchInvoice, shouldSearch]);
 
   const handleDelete = async (invoice: Invoice) => {
     try {
       await deleteInvoice(invoice.id).unwrap();
-      toast.success(`Invoice ${invoice.invoice_id} deleted`);
+      toast.success(`Invoice ${invoice.invoice_id} deleted successfully`);
     } catch (error) {
-      toast.error(`Failed to delete invoice ${invoice}`);
-      // console.error(error);
+      toast.error(`Failed to delete invoice ${invoice.invoice_id}`);
+      console.error("Delete error:", error);
     }
   };
 
-  if (isLoading || isSearchLoading) return <p>Loading...</p>;
-  if (isError || isSearchError) return <p>Error fetching invoices.</p>;
+  if (isLoading || (shouldSearch && isSearchLoading)) {
+    return <p>Loading...</p>;
+  }
+
+  if (isError || (shouldSearch && isSearchError)) {
+    return <p>Error fetching invoices.</p>;
+  }
 
   return (
     <>
       {/* Filters */}
-      <div className="flex items-center justify-between gap-4 mt-8">
+      <div className="flex flex-wrap items-center justify-between gap-4 mt-8">
         <div className="flex items-center gap-4">
           <input
             type="text"
@@ -151,7 +140,7 @@ const InvoicesList = () => {
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer"
+            className="border border-gray-300 rounded-md px-2 py-2 text-sm text-gray-600 cursor-pointer"
           >
             <option>All Status</option>
             <option>Paid</option>
@@ -163,7 +152,7 @@ const InvoicesList = () => {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value)}
-            className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer"
+            className="border border-gray-300 rounded-md px-2 py-2 text-sm text-gray-600 cursor-pointer"
           >
             <option>Default</option>
             <option>Oldest to New</option>
@@ -229,43 +218,34 @@ const InvoicesList = () => {
                       </span>
                     </td>
                     <td className="p-3 flex items-center gap-3">
-                      <div
-                        className="p-2 bg-gray-100 rounded-lg cursor-pointer"
-                        onClick={() =>
-                          toast.promise(
-                            new Promise((resolve) => resolve(null)),
-                            {
-                              loading: "Downloading Invoice...",
-                              success: () => {
-                                return `Invoice downloaded successfully`;
-                              },
-                              error: "Failed to download invoice",
-                            }
-                          )
-                        }
+                      {/* Download Button */}
+                      <PDFDownloadLink
+                        document={<InvoicePDF invoice={invoice} />}
+                        fileName={`invoice-${invoice.invoice_id}.pdf`}
                       >
-                        <PDFDownloadLink
-                          document={<InvoicePDF invoice={invoice} />}
-                          fileName={`invoice-${invoice.invoice_id}.pdf`}
-                        >
-                          {({ loading }) =>
-                            loading ? (
-                              <p className="text-sm">Loading...</p>
+                        {({ loading }) => (
+                          <div
+                            className={`p-2 bg-gray-100 rounded-lg ${
+                              loading ? "cursor-wait" : "cursor-pointer"
+                            }`}
+                          >
+                            {loading ? (
+                              <p className="text-xs text-gray-500">Loading...</p>
                             ) : (
-                              <img
-                                src={assets.Download}
-                                alt="download"
-                                className="w-5 h-5"
-                              />
-                            )
-                          }
-                        </PDFDownloadLink>
-                      </div>
+                              <Download className="w-5 h-5"/>
+                            )}
+                          </div>
+                        )}
+                      </PDFDownloadLink>
 
                       {/* Delete Alert Dialog */}
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button className="bg-white text-red-600 hover:bg-red-50 transition">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                          >
                             <Trash className="w-4 h-4" />
                           </Button>
                         </AlertDialogTrigger>
@@ -282,13 +262,11 @@ const InvoicesList = () => {
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction>
-                              <Button
-                                variant="destructive"
-                                onClick={() => handleDelete(invoice)}
-                              >
-                                Delete
-                              </Button>
+                            <AlertDialogAction
+                              onClick={() => handleDelete(invoice)}
+                              className="bg-red-600 hover:bg-red-700"
+                            >
+                              Delete
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
@@ -299,36 +277,38 @@ const InvoicesList = () => {
               </tbody>
             </table>
 
-            {/* Pagination Controls */}
-            <div className="flex justify-between items-center mt-4 px-2">
-              <button
-                onClick={() => prevPage && setPage((p) => Math.max(p - 1, 1))}
-                disabled={!prevPage || isFetching}
-                className={`px-4 py-2 cursor-pointer rounded-md text-sm font-medium ${
-                  prevPage
-                    ? "bg-blue-500 text-white hover:bg-blue-600"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
-              >
-                Previous
-              </button>
+            {/* Pagination Controls - Only show when not searching */}
+            {!shouldSearch && (
+              <div className="flex justify-between items-center mt-4 px-2">
+                <button
+                  onClick={() => prevPage && setPage((p) => Math.max(p - 1, 1))}
+                  disabled={!prevPage || isFetching}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition ${
+                    prevPage && !isFetching
+                      ? "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
+                >
+                  Previous
+                </button>
 
-              <span className="text-sm text-gray-600">
-                Page {page} of {Math.ceil(totalCount / 10)}
-              </span>
+                <span className="text-sm text-gray-600">
+                  Page {page} of {Math.ceil(totalCount / 10)}
+                </span>
 
-              <button
-                onClick={() => nextPage && setPage((p) => p + 1)}
-                disabled={!nextPage || isFetching}
-                className={`px-4 py-2 cursor-pointer rounded-md text-sm font-medium ${
-                  nextPage
-                    ? "bg-blue-500 text-white hover:bg-blue-600"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
-              >
-                Next
-              </button>
-            </div>
+                <button
+                  onClick={() => nextPage && setPage((p) => p + 1)}
+                  disabled={!nextPage || isFetching}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition ${
+                    nextPage && !isFetching
+                      ? "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </>
         ) : (
           <p className="text-center text-gray-500 mt-6">No invoices found</p>

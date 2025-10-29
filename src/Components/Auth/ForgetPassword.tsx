@@ -12,7 +12,7 @@ export default function ForgetPassword() {
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
 
-  const [forgetPassword, { isLoading }] = useForgetPasswordMutation();
+  const [forgetPassword] = useForgetPasswordMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,8 +22,8 @@ export default function ForgetPassword() {
       toast.success("OTP sent successfully!", { id: "forget-password" });
       navigate(`/set-password/${encodeURIComponent(email)}`);
     } catch (err: any) {
-      console.log(err);
-      toast.error(err.data?.message || "Something went wrong", {
+      // console.log(err);
+      toast.error(err.data?.error || "Something went wrong", {
         id: "forget-password",
       });
     }
