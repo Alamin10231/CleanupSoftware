@@ -143,7 +143,7 @@ const Employees = () => {
          <h1 className="text-2xl font-semibold">Employees</h1>
          <p>Manage your employees here</p>
         {/* Cards */}
-        <div className="grid grid-cols-5 gap-4 mt-2">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
           {cardData.map((card, index) => (
             <Card
               key={index}
@@ -162,7 +162,7 @@ const Employees = () => {
         <ProgressBar />
 
         {/* Search + Filters */}
-        <div className="flex items-center gap-4 mt-8 bg-white rounded-xl">
+        <div className="flex flex-wrap items-center gap-4 mt-8 bg-white rounded-xl">
           <input
             type="text"
             placeholder="Search employees..."
