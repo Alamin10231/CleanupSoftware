@@ -20,7 +20,6 @@ export const buildingApi = baseApi.injectEndpoints({
       providesTags: ["Building"],
     }),
 
-    // GET single building details
     getBuildingById: builder.query({
       query: (id) => `/buildings/${id}`,
       providesTags: (id) => [{ type: "Building", id }],
@@ -30,7 +29,11 @@ export const buildingApi = baseApi.injectEndpoints({
       providesTags: ["Building"],
     }),
 
-    // POST create new building
+    getApartments: builder.query({
+      query: (buildingId) => `/apartments/?building_id=${buildingId}`,
+      providesTags: ["Apartment"],
+    }),
+
     createBuilding: builder.mutation({
       query: (data) => ({
         url: "/buildings/",
@@ -40,14 +43,13 @@ export const buildingApi = baseApi.injectEndpoints({
       invalidatesTags: ["Building"],
     }),
 
-    // PATCH update existing building
     updateBuilding: builder.mutation({
-      query: ({ id, ...data }) => ({
+      query: ({ id, data }) => ({
         url: `/buildings/${id}/`,
         method: "PATCH",
         body: data,
       }),
-      invalidatesTags: ({ id }) => [{ type: "Building", id }],
+      invalidatesTags: ["Building", "Apartment"],
     }),
 
     deleteBuilding: builder.mutation({
@@ -65,9 +67,6 @@ export const buildingApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Apartment"],
     }),
-   //  getLocations: builder.query({
-   //    query: ({ lat, lng }) => `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}`,
-   //    }),
   }),
 });
 
@@ -81,4 +80,5 @@ export const {
   useGetStatsQuery,
   useGetBuilidingBySearchQuery,
   useGetBuildingsByRegionQuery,
+  useGetApartmentsQuery,
 } = buildingApi;

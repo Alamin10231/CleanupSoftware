@@ -8,7 +8,7 @@ import { useResetPasswordMutation } from "@/redux/features/auth/authApi";
 import { toast } from "sonner";
 
 export default function SetPassword() {
-   const { email } = useParams()
+  const { email } = useParams();
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [cpassword, setCPassword] = useState("");
@@ -19,24 +19,23 @@ export default function SetPassword() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-      console.log('submitting password reset...', { email, code, new_password: password})
+
     if (password !== cpassword) {
       toast.error("Passwords do not match");
       return;
     }
-    toast.loading("Resetting password...", { id: "reset-password" });
+   //  toast.loading("Resetting password...", { id: "reset-password" });
     try {
       await resetPassword({
         email,
         code,
         new_password: password,
       }).unwrap();
-      toast.success("Password reset successful!", { id: "reset-password" });
+      toast.success("Password reset successful");
       navigate("/login");
     } catch (err: any) {
-      toast.error(err.data?.message || "Something went wrong", {
-        id: "reset-password",
-      });
+      toast.error(err.data?.error);
+      // console.log(err);
     }
   };
 
@@ -60,7 +59,7 @@ export default function SetPassword() {
           <IoIosArrowBack />
           <span>
             Back to{" "}
-            <Link to="/adminlogin" className="text-blue-600 underline">
+            <Link to="/login" className="text-blue-600 underline">
               login
             </Link>
           </span>
@@ -122,15 +121,18 @@ export default function SetPassword() {
                 {showConfirm ? <FaEyeSlash /> : <FaEye />}
               </button>
             </fieldset>
+            {password !== cpassword && (
+              <p className="text-red-500 text-xs mt-1">
+                Passwords do not match
+              </p>
+            )}
           </div>
           {/* otp */}
           <div className="relative w-full">
             <fieldset className="border border-gray-400 rounded px-3 pt-1 relative">
-              <legend className="text-sm px-1 text-[#1C1B1F]">
-                OTP
-              </legend>
+              <legend className="text-sm px-1 text-[#1C1B1F]">OTP</legend>
               <input
-                type={"text"}
+                type={"number"}
                 placeholder="••••••••"
                 className="w-full outline-none border-none pb-2 focus:ring-0 text-[#1C1B1F] pr-10"
                 value={code}
@@ -144,7 +146,7 @@ export default function SetPassword() {
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full bg-blue-600 text-white py-2 rounded-md transition ${
+            className={`w-full bg-blue-600 text-white py-2 rounded-md transition cursor-pointer ${
               isLoading ? "opacity-70 cursor-not-allowed" : "hover:bg-blue-700"
             }`}
           >

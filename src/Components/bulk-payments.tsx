@@ -11,7 +11,6 @@ import { assets } from "@/assets/assets";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Checkbox } from "./ui/checkbox";
-import { Outlet } from "react-router";
 
 const BulkSalaryPayment = () => {
     const [selectedEmployees, setSelectedEmployees] = useState(new Set());

@@ -146,7 +146,7 @@ const EmployeeProfileSettingsPage: React.FC = () => {
             </Label>
             <Input
               id="phone"
-              type="text"
+              type="number"
               placeholder="+966 5X XXX XXXX."
               value={profileData.phone}
               disabled={isLoading}

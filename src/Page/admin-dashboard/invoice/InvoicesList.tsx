@@ -1,14 +1,32 @@
-import { useGetInvoicesQuery, useGetSearchAllInvoiceQuery } from "@/redux/features/admin/invoice/invoice.api";
+import {
+  useDeleteInvoiceMutation,
+  useGetInvoicesQuery,
+  useGetSearchAllInvoiceQuery,
+} from "@/redux/features/admin/invoice/invoice.api";
 import { useEffect, useState } from "react";
-import jsPDF from "jspdf";
-import "jspdf-autotable";
 import { assets } from "@/assets/assets";
+import { toast } from "sonner";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import InvoicePDF from "./InvoicePDF";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../../../Components/ui/alert-dialog";
+import { Trash } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Invoice {
   id: number;
   invoice_id: string;
   vendor_name: string | null;
-  type: "incoming" | "outgoing";
+  type: "outgoing";
   date_issued: string;
   due_date: string | null;
   client_name: string | null;
@@ -30,40 +48,50 @@ const InvoicesList = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("All Status");
-  const [paymentMethod, setPaymentMethod] = useState("All");
   const [sort, setSort] = useState("Default");
 
-  // Fetch paginated invoices
-  const { data: invoicesData, isLoading, isError, isFetching } = useGetInvoicesQuery(`?page=${page}`);
-  // Fetch search results dynamically based on search input
-  const { data: searchInvoice, isLoading: isSearchLoading, isError: isSearchError } = useGetSearchAllInvoiceQuery(
-    search ? `${search}` : ""
-  );
-
+  const {
+    data: invoicesData,
+    isLoading,
+    isError,
+    isFetching,
+  } = useGetInvoicesQuery(`?page=${page}`);
+  const {
+    data: searchInvoice,
+    isLoading: isSearchLoading,
+    isError: isSearchError,
+  } = useGetSearchAllInvoiceQuery(search ? `${search}` : "");
+  const [deleteInvoice] = useDeleteInvoiceMutation();
   const invoices = invoicesData?.results || [];
   const totalCount = invoicesData?.count || 0;
   const nextPage = invoicesData?.next;
   const prevPage = invoicesData?.previous;
-
-  console.log("Invoices Data:", searchInvoice);
 
   const [filteredInvoices, setFilteredInvoices] = useState<Invoice[]>([]);
 
   useEffect(() => {
     let result: Invoice[] = [];
 
-    // Use search results if search term exists, otherwise use paginated invoices
     if (search.trim() !== "") {
       result = searchInvoice?.results || invoices || [];
-      // Fallback filtering in case backend search is incomplete
       result = result.filter(
         (inv) =>
-          (inv.building_name?.toLowerCase() || "").includes(search.toLowerCase()) ||
-          (inv.region_name?.toLowerCase() || "").includes(search.toLowerCase()) ||
-          (inv.apartment_name?.join(" ").toLowerCase() || "").includes(search.toLowerCase()) ||
+          (inv.building_name?.toLowerCase() || "").includes(
+            search.toLowerCase()
+          ) ||
+          (inv.region_name?.toLowerCase() || "").includes(
+            search.toLowerCase()
+          ) ||
+          (inv.apartment_name?.join(" ").toLowerCase() || "").includes(
+            search.toLowerCase()
+          ) ||
           (inv.client_name?.toString() || "").includes(search) ||
-          (inv.invoice_id?.toLowerCase() || "").includes(search.toLowerCase()) ||
-          (inv.vendor_name?.toLowerCase() || "").includes(search.toLowerCase()) ||
+          (inv.invoice_id?.toLowerCase() || "").includes(
+            search.toLowerCase()
+          ) ||
+          (inv.vendor_name?.toLowerCase() || "").includes(
+            search.toLowerCase()
+          ) ||
           (inv.note?.toLowerCase() || "").includes(search.toLowerCase())
       );
     } else {
@@ -72,46 +100,37 @@ const InvoicesList = () => {
 
     // Apply status filter
     if (status !== "All Status") {
-      result = result.filter((inv) => inv.status.toLowerCase() === status.toLowerCase());
-    }
-
-    // Apply payment method filter
-    if (paymentMethod !== "All") {
-      result = result.filter((inv) => inv.type.toLowerCase() === paymentMethod.toLowerCase());
+      result = result.filter(
+        (inv) => inv.status.toLowerCase() === status.toLowerCase()
+      );
     }
 
     // Apply sorting
     if (sort === "Oldest to New") {
-      result.sort((a, b) => new Date(a.date_issued).getTime() - new Date(b.date_issued).getTime());
+      result.sort(
+        (a, b) =>
+          new Date(a.date_issued).getTime() - new Date(b.date_issued).getTime()
+      );
     } else if (sort === "New to Oldest") {
-      result.sort((a, b) => new Date(b.date_issued).getTime() - new Date(a.date_issued).getTime());
+      result.sort(
+        (a, b) =>
+          new Date(b.date_issued).getTime() - new Date(a.date_issued).getTime()
+      );
     }
 
     setFilteredInvoices(result);
-  }, [search, status, paymentMethod, sort, invoices, searchInvoice]);
+  }, [search, status, sort, invoices, searchInvoice]);
 
-  const handleDownload = (invoice: Invoice) => {
-    const doc = new jsPDF();
-    doc.text("Invoice", 20, 10);
-    (doc as any).autoTable({
-      head: [["Field", "Value"]],
-      body: [
-        ["Invoice ID", invoice.invoice_id],
-        ["Building", invoice.building_name],
-        ["Region", invoice.region_name],
-        ["Apartment(s)", invoice.apartment_name?.join(", ") || "N/A"],
-        ["Client", invoice.client_name ?? "N/A"],
-        ["Type", invoice.type],
-        ["Date Issued", new Date(invoice.date_issued).toLocaleDateString()],
-        ["Due Date", invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : "—"],
-        ["Total Amount", `${invoice.total_amount.toFixed(2)} SAR`],
-        ["Status", invoice.status],
-      ],
-    });
-    doc.save(`invoice-${invoice.invoice_id}.pdf`);
+  const handleDelete = async (invoice: Invoice) => {
+    try {
+      await deleteInvoice(invoice.id).unwrap();
+      toast.success(`Invoice ${invoice.invoice_id} deleted`);
+    } catch (error) {
+      toast.error(`Failed to delete invoice ${invoice}`);
+      // console.error(error);
+    }
   };
 
-  // Handle loading and error states
   if (isLoading || isSearchLoading) return <p>Loading...</p>;
   if (isError || isSearchError) return <p>Error fetching invoices.</p>;
 
@@ -128,6 +147,7 @@ const InvoicesList = () => {
             className="border border-gray-300 rounded-md px-4 py-2 w-64 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
           />
 
+          {/* Status Filter */}
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
@@ -136,16 +156,6 @@ const InvoicesList = () => {
             <option>All Status</option>
             <option>Paid</option>
             <option>Unpaid</option>
-          </select>
-
-          <select
-            value={paymentMethod}
-            onChange={(e) => setPaymentMethod(e.target.value)}
-            className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer"
-          >
-            <option>All</option>
-            <option value="incoming">Incoming</option>
-            <option value="outgoing">Outgoing</option>
           </select>
         </div>
 
@@ -174,12 +184,11 @@ const InvoicesList = () => {
                   <th className="p-3 text-left">Region</th>
                   <th className="p-3 text-left">Apartment(s)</th>
                   <th className="p-3 text-left">Client</th>
-                  <th className="p-3 text-left">Type</th>
                   <th className="p-3 text-left">Date Issued</th>
                   <th className="p-3 text-left">Due Date</th>
                   <th className="p-3 text-left">Total Amount</th>
                   <th className="p-3 text-left">Status</th>
-                  <th className="p-3 text-left">Download</th>
+                  <th className="p-3 text-left">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -188,25 +197,22 @@ const InvoicesList = () => {
                     key={invoice.id}
                     className="border-b border-gray-200 hover:bg-gray-50 transition"
                   >
-                    <td className="p-3 font-semibold text-gray-700">{invoice.invoice_id}</td>
+                    <td className="p-3 font-semibold text-gray-700">
+                      {invoice.invoice_id}
+                    </td>
                     <td className="p-3">{invoice.building_name}</td>
                     <td className="p-3">{invoice.region_name}</td>
-                    <td className="p-3">{invoice.apartment_name?.join(", ") || "N/A"}</td>
-                    <td className="p-3">{invoice.client_name ?? "N/A"}</td>
-                    <td className="p-3 capitalize">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          invoice.type === "incoming"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-blue-100 text-blue-700"
-                        }`}
-                      >
-                        {invoice.type}
-                      </span>
-                    </td>
-                    <td className="p-3">{new Date(invoice.date_issued).toLocaleDateString()}</td>
                     <td className="p-3">
-                      {invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : "—"}
+                      {invoice.apartment_name?.join(", ") || "N/A"}
+                    </td>
+                    <td className="p-3">{invoice.client_name ?? "N/A"}</td>
+                    <td className="p-3">
+                      {new Date(invoice.date_issued).toLocaleDateString()}
+                    </td>
+                    <td className="p-3">
+                      {invoice.due_date
+                        ? new Date(invoice.due_date).toLocaleDateString()
+                        : "—"}
                     </td>
                     <td className="p-3 font-semibold text-gray-800">
                       {invoice.total_amount.toFixed(2)} SAR
@@ -222,13 +228,71 @@ const InvoicesList = () => {
                         {invoice.status}
                       </span>
                     </td>
-                    <td className="p-3">
-                      <img
-                        src={assets.Download}
-                        alt="download"
-                        className="cursor-pointer"
-                        onClick={() => handleDownload(invoice)}
-                      />
+                    <td className="p-3 flex items-center gap-3">
+                      <div
+                        className="p-2 bg-gray-100 rounded-lg cursor-pointer"
+                        onClick={() =>
+                          toast.promise(
+                            new Promise((resolve) => resolve(null)),
+                            {
+                              loading: "Downloading Invoice...",
+                              success: () => {
+                                return `Invoice downloaded successfully`;
+                              },
+                              error: "Failed to download invoice",
+                            }
+                          )
+                        }
+                      >
+                        <PDFDownloadLink
+                          document={<InvoicePDF invoice={invoice} />}
+                          fileName={`invoice-${invoice.invoice_id}.pdf`}
+                        >
+                          {({ loading }) =>
+                            loading ? (
+                              <p className="text-sm">Loading...</p>
+                            ) : (
+                              <img
+                                src={assets.Download}
+                                alt="download"
+                                className="w-5 h-5"
+                              />
+                            )
+                          }
+                        </PDFDownloadLink>
+                      </div>
+
+                      {/* Delete Alert Dialog */}
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button className="bg-white text-red-600 hover:bg-red-50 transition">
+                            <Trash className="w-4 h-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Invoice</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete invoice{" "}
+                              <span className="font-semibold">
+                                {invoice.invoice_id}
+                              </span>
+                              ? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction>
+                              <Button
+                                variant="destructive"
+                                onClick={() => handleDelete(invoice)}
+                              >
+                                Delete
+                              </Button>
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </td>
                   </tr>
                 ))}

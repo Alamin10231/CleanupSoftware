@@ -41,7 +41,7 @@ export default function EmployeeTaskDashboard() {
   return (
     <div>
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-5">
         <Card title="Total Tasks" number={totalTasks} iconSrc={assets.region} />
         <Card title="Active Tasks" number={totalActive} iconSrc={assets.Active} />
         <Card title="Completed Tasks" number={totalCompleted} iconSrc={assets.totalEmployee} />
@@ -49,7 +49,7 @@ export default function EmployeeTaskDashboard() {
 
       {/* Table */}
       <div className="bg-white shadow rounded-lg overflow-hidden">
-        <div className="p-3 bg-gray-100 flex justify-between items-center">
+        <div className="p-3 flex justify-between items-center">
           <input
             type="text"
             placeholder="Search tasks by name, building, or worker"
@@ -63,7 +63,7 @@ export default function EmployeeTaskDashboard() {
         </div>
 
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-700">
+          <thead className="text-gray-700">
             <tr>
               <th className="text-left p-3">Task Name</th>
               <th className="text-left p-3">Worker</th>
@@ -127,7 +127,7 @@ export default function EmployeeTaskDashboard() {
         </table>
 
         {/* Pagination */}
-        <div className="flex justify-between items-center p-3 bg-gray-50 border-t">
+        <div className="flex justify-between items-center p-3 border-t">
           <button
             onClick={() => setPage((p) => Math.max(p - 1, 1))}
             disabled={!taskData?.previous}

@@ -31,11 +31,12 @@ export const invoiceApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Invoice"],
     }),
-    downloadInvoicePdf: builder.query<Blob, number>({
+    deleteInvoice: builder.mutation({
       query: (id) => ({
-        url: `/plan/invoice/${id}/download_pdf/`,
-        responseHandler: (response) => response.blob(),
+        url: `/plan/invoice/list/${id}/`,
+        method: "DELETE",
       }),
+      invalidatesTags: ["Invoice"],
     }),
   }),
 });
@@ -46,5 +47,5 @@ export const {
   useGetCalculationInvoiceQuery,
   useGetSearchAllInvoiceQuery,
   useAddAdminInvoiceMutation,
-  useDownloadInvoicePdfQuery,
+  useDeleteInvoiceMutation,
 } = invoiceApi;

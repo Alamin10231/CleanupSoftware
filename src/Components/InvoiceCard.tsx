@@ -1,7 +1,7 @@
 import React from "react";
 import { assets } from "@/assets/assets"; // adjust path if needed
 
-interface Invoice {
+export interface Invoice {
   invoice_id: string;
   type: string;
   date_issued: string;

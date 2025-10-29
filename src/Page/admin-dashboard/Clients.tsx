@@ -2,7 +2,7 @@ import { assets } from "@/assets/assets";
 import Card from "@/Components/Card";
 import { useEffect, useState } from "react";
 import { IoIosSearch } from "react-icons/io";
-import { useCreateAdminClientMutation, useGetAllClientsAdminQuery, useGetClientOverviewAdminQuery, useGetSearchClientsQuery } from "@/redux/features/admin/users/clients.api";
+import { useGetAllClientsAdminQuery, useGetClientOverviewAdminQuery, useGetSearchClientsQuery } from "@/redux/features/admin/users/clients.api";
 import { AddClient } from "./add-client";
 
 const Clients = () => {
@@ -37,10 +37,6 @@ const Clients = () => {
     error: overviewError,
   } = useGetClientOverviewAdminQuery();
 
-  // mutation
-  const [createClient, { isLoading: creating }] =
-    useCreateAdminClientMutation();
-
   const clientsToDisplay = debouncedSearch.trim()
     ? searchResults?.results || []
     : all_Client?.results || [];
@@ -56,52 +52,8 @@ const Clients = () => {
     ? 1
     : Math.ceil(all_Client?.count / 10 || 1);
 
-  const resetForm = () => {
-    setName("");
-    setEmail("");
-    setPhone("");
-    setAddress("");
-    setFormError(null);
-  };
-
-  const validate = () => {
-    if (!name.trim() || !email.trim() || !phone.trim() || !address.trim()) {
-      return "All fields are required.";
-    }
-    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    if (!emailOk) return "Please enter a valid email address.";
-    return null;
-  };
-
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const v = validate();
-    if (v) {
-      setFormError(v);
-      return;
-    }
-    setFormError(null);
-    toast.promise(
-      createClient({
-        name,
-        email,
-        prime_phone: phone,
-        client_profile: {
-          location: address,
-        },
-      }).unwrap(),
-      {
-        success: "successfully created a new client",
-        error: "Failed to create a new client",
-      }
-    );
-    refetchAll();
-    resetForm();
-    setOpen(false);
-  };
-
   return (
-    <div className="flex flex-col h-screen mt-6">
+    <div className="flex flex-col h-screen">
       {/* ===== Top Section ===== */}
       <div className="flex-shrink-0">
         {/* Title */}
@@ -116,7 +68,7 @@ const Clients = () => {
         </div>
 
         {/* ===== Top Cards ===== */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mt-6">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4 mt-6">
           <Card
             title="Total Client"
             number={Overview?.total_client ?? 0}

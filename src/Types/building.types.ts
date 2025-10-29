@@ -23,8 +23,8 @@ export interface Building {
   type: "residential" | "commercial";
   city: string;
   location: string;
-  latitude: string;
-  longitude: string;
+  latitude: number;
+  longitude: number;
   created_at: string;
   region: number;
 }

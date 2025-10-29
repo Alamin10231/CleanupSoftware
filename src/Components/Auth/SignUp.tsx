@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { FcGoogle } from "react-icons/fc";
-import { FaApple, FaEye, FaEyeSlash, FaFacebook } from "react-icons/fa";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import loginpicture from "../../assets/Image/loginpicture.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { assets } from "../../assets/assets";
@@ -8,9 +7,9 @@ import { useDispatch } from "react-redux";
 import { useSignUpMutation } from "@/redux/features/auth/authApi";
 import { setCredentials } from "@/redux/features/auth/authSlice";
 import { toast } from "sonner";
+import logo from "/src/assets/logo/logo.svg"
 
 export default function SignUp() {
-  // ✅ State variables
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -27,7 +26,6 @@ export default function SignUp() {
 
   const [signUp, { isLoading }] = useSignUpMutation();
 
-  // ✅ Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -66,7 +64,6 @@ export default function SignUp() {
     }
   };
 
-  // ✅ UI
   return (
     <div className="min-h-screen flex">
       {/* Left Panel */}
@@ -83,9 +80,9 @@ export default function SignUp() {
         {/* Logo */}
         <div className="flex self-end items-center space-x-2 mb-8">
           <img
-            src={assets.logo}
+            src={logo}
             alt="CleanUp Pro Logo"
-            className="w-[140px] mx-auto"
+            className="mx-auto"
           />
         </div>
 
@@ -94,7 +91,6 @@ export default function SignUp() {
           Let’s get you all set up so you can access your personal account
         </p>
 
-        {/* ✅ Signup Form */}
         <form onSubmit={handleSubmit} className="w-full max-w-full space-y-5">
           {/* First & Last Name */}
           <div className="flex items-center gap-3">
@@ -231,32 +227,10 @@ export default function SignUp() {
         {/* Already have an account */}
         <p className="py-2">
           Already have an account?{" "}
-          <Link to="/adminlogin">
+          <Link to="/login">
             <span className="text-[#FF8682]">Login</span>
           </Link>
         </p>
-
-        {/* Social login */}
-        <div className="flex items-center my-6 w-full max-w-sm">
-          <div className="flex-grow border-t border-gray-300" />
-          <span className="mx-4 text-gray-500 text-sm">Or sign up with</span>
-          <div className="flex-grow border-t border-gray-300" />
-        </div>
-
-        <div className="flex gap-4">
-          <button className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50">
-            <FaFacebook className="text-blue-600 mr-2" />
-            Facebook
-          </button>
-          <button className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50">
-            <FcGoogle className="mr-2" />
-            Google
-          </button>
-          <button className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50">
-            <FaApple className="text-black mr-2" />
-            Apple
-          </button>
-        </div>
       </div>
     </div>
   );

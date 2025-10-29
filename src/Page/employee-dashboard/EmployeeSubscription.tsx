@@ -158,41 +158,6 @@ export default function EmployeeSubscription() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Subscriptions</h1>
-        <div className="flex gap-2">
-          <button
-            className="px-3 py-2 border rounded-md text-sm"
-            onClick={() => {
-              // simple CSV export
-              const header = Object.keys(filtered[0] ?? {}).join(",");
-              const body = filtered
-                .map((r) =>
-                  [
-                    r.id,
-                    `"${r.property}"`,
-                    `"${r.owner}"`,
-                    `"${r.region}"`,
-                    `"${r.building}"`,
-                    r.status,
-                    r.daysRemaining,
-                    r.totalDays,
-                    r.autoRenew,
-                  ].join(",")
-                )
-                .join("\n");
-              const blob = new Blob([header + "\n" + body], {
-                type: "text/csv;charset=utf-8;",
-              });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = "subscriptions.csv";
-              a.click();
-              URL.revokeObjectURL(url);
-            }}
-          >
-            Export
-          </button>
-        </div>
       </div>
       <p className="text-gray-500">
         Manage all property subscriptions and billing cycles
@@ -232,12 +197,6 @@ export default function EmployeeSubscription() {
           <thead className="bg-gray-100 text-left">
             <tr>
               <th className="p-3">
-                <Checkbox
-                  checked={
-                    selected.length === filtered.length && filtered.length > 0
-                  }
-                  onCheckedChange={(val) => handleSelectAll(val as boolean)}
-                />
               </th>
               <th className="p-3">Property & Owner</th>
               <th className="p-3">Timeline</th>

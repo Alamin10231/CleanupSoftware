@@ -29,8 +29,6 @@ const formatRevenueShort = (num: number) => {
 
 const ServiceCard: React.FC = () => {
   const { data: all_serviceData } = useGetAllServiceDataAdminQuery(undefined);
-  console.log(all_serviceData);
-
   const services: Service[] = useMemo(
     () => all_serviceData?.results || [],
     [all_serviceData]
@@ -69,52 +67,33 @@ const ServiceCard: React.FC = () => {
   return (
     <>
       {/* 🔍 Filters */}
-      <div className="flex items-center justify-between gap-4 mt-8">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mt-8">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
           <input
             type="text"
             placeholder="Search services..."
-            className="border border-gray-300 rounded-md px-4 py-2 w-64 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
+            className="border border-gray-300 rounded-md px-4 py-2 w-full sm:w-64 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          {/* <select
-            className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-          >
-            <option>All Category</option>
-            {[...new Set(services?.map((s) => s?.category?.name))]?.map((cat) => (
-              <option key={cat}>{cat}</option>
-            ))}
-          </select> */}
-          {/* <select
-            className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            <option>All Status</option>
-            <option>started</option>
-            <option>completed</option>
-            <option>pending</option>
-          </select> */}
         </div>
 
-        <select
-          className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer"
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-        >
-          <option>Sort By Revenue (High to Low)</option>
-          <option>Sort By Name</option>
-          <option>Sort By Bookings</option>
-        </select>
+        <div className="flex justify-end">
+          <select
+            className="border border-gray-300 rounded-md px-4 py-2 text-sm text-gray-600 cursor-pointer w-full sm:w-auto"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
+            <option>Sort By Revenue (High to Low)</option>
+            <option>Sort By Name</option>
+            <option>Sort By Bookings</option>
+          </select>
+        </div>
       </div>
 
       {/* 📦 Services Grid */}
-      <div className="grid grid-cols-2 gap-6 mt-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
         {filtered?.map((service) => {
-          // ✅ Safely calculate discounted price
           const discounted =
             service.discounted_price ??
             (service.base_price && service.discount
@@ -132,81 +111,39 @@ const ServiceCard: React.FC = () => {
           return (
             <div
               key={service.id}
-              className="bg-white border border-gray-300 rounded-xl shadow-sm p-6"
+              className="bg-white border border-gray-200 rounded-xl shadow-sm p-5 hover:shadow-md transition-all duration-200"
             >
               {/* Header */}
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center">
-                    <FiHome className="text-2xl text-blue-600" />
+              <div className="flex items-start justify-between gap-3 flex-wrap">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-blue-50 flex items-center justify-center flex-shrink-0">
+                    <FiHome className="text-xl sm:text-2xl text-blue-600" />
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
-                      <h2 className="text-lg font-semibold text-[#0b1220]">
-                        {service.name}
-                      </h2>
-                      {/* <span
-                        className={`text-xs px-2 py-0.5 rounded-md ${
-                          service.status === "completed"
-                            ? "bg-green-100 text-green-600"
-                            : service.status === "started"
-                            ? "bg-blue-100 text-blue-600"
-                            : "bg-yellow-100 text-yellow-600"
-                        }`}
-                      >
-                        {service.status}
-                      </span> */}
-                    </div>
-                    <p className="text-sm text-gray-500 mt-1">
+                    <h2 className="text-base sm:text-lg font-semibold text-[#0b1220]">
+                      {service.name}
+                    </h2>
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1 line-clamp-2">
                       {service.description}
                     </p>
-                    {/* <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
-                      <span className="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-md">
-                        {service?.category?.name}
-                      </span>
-                      <span>🏢 {service.building.name}</span>
-                      <span>📍 {service.building.city}</span>
-                    </div> */}
                   </div>
                 </div>
 
-                {/* Actions + Price */}
-                <div className="flex flex-col items-end gap-2">
-                  {/* <div className="flex items-center gap-2">
-                    <button
-                      title="View"
-                      className="p-1 rounded-md hover:bg-gray-100"
-                    >
-                      <FiEye className="text-gray-500" />
-                    </button>
-                    <button
-                      title="Edit"
-                      className="p-1 rounded-md hover:bg-gray-100"
-                    >
-                      <FiEdit2 className="text-gray-500" />
-                    </button>
-                    <button
-                      title="Delete"
-                      className="p-1 rounded-md hover:bg-gray-100"
-                    >
-                      <FiTrash2 className="text-red-500" />
-                    </button>
-                  </div> */}
-                  <div className="text-right font-bold text-xl text-gray-800">
-                    SAR {discounted.toLocaleString()}
-                  </div>
+                {/* Price */}
+                <div className="text-right font-semibold text-lg sm:text-xl text-gray-800 w-full sm:w-auto mt-2 sm:mt-0">
+                  SAR {discounted.toLocaleString()}
                 </div>
               </div>
 
               {/* Bookings */}
-              <div className="flex items-center gap-4 mt-4 text-sm text-gray-600">
+              <div className="flex flex-wrap items-center gap-3 mt-4 text-xs sm:text-sm text-gray-600">
                 <span>👥 {service.total_booking} bookings</span>
-                <span>💰 Revenue: {formatRevenueShort(service.revenue)}</span>
+                <span>💰 {formatRevenueShort(service.revenue)}</span>
               </div>
 
-              {/* Completion Progress */}
-              <div className="mt-4">
-                <div className="flex justify-between text-sm text-gray-600">
+              {/* Progress Bar */}
+              <div className="mt-3">
+                <div className="flex justify-between text-xs sm:text-sm text-gray-600">
                   <p>Completion:</p>
                   <p>
                     {service.completed} / {completionTotal}
@@ -221,7 +158,7 @@ const ServiceCard: React.FC = () => {
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-4 gap-4 mt-4 text-center text-sm">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4 text-center text-xs sm:text-sm">
                 <div>
                   <p className="font-semibold">{service.active}</p>
                   <p className="text-gray-500">Active</p>
