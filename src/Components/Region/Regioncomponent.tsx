@@ -14,6 +14,7 @@ import {
 import type { Building } from "@/Types/building.types";
 import AddBuilding from "../map/AddBuilding";
 import AddRegion from "./add-region";
+import UpdateBuilding from "./update-building";
 
 export default function RegionComponent() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -160,7 +161,10 @@ export default function RegionComponent() {
                 </div>
               </div>
             </div>
-            <BuildingDetails buildingData={b} />
+            <div className="flex items-center gap-2">
+              <UpdateBuilding building={b} refetch={refetch} />
+              <BuildingDetails buildingData={b} />
+            </div>
           </div>
         ))}
       </div>
