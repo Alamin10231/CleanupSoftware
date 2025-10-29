@@ -1,4 +1,4 @@
-import { Outlet, useLocation } from "react-router";
+import { Outlet, useLocation, useNavigate } from "react-router";
 import { AppSidebar } from "./Components/app-sidebar";
 import { Separator } from "./components/ui/separator";
 import {
@@ -16,11 +16,23 @@ import {
 } from "./Components/ui/breadcrumb";
 import { SearchForm } from "./Components/search-form";
 import Navbar from "./Components/Navbar";
-import { Toaster } from "sonner";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "./redux/store";
 
 export default function DashboardLayout() {
-   const { pathname } = useLocation()
-   const path = (pathname.split('/').pop())
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+
+  const path = pathname.split("/").pop();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login");
+    }
+  }, [isAuthenticated, navigate]);
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -34,9 +46,7 @@ export default function DashboardLayout() {
           <Breadcrumb className="hidden sm:block">
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/">
-                  Home
-                </BreadcrumbLink>
+                <BreadcrumbLink href="/">Home</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
