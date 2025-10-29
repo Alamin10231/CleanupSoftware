@@ -26,7 +26,7 @@ const DynamicFormBuilder = lazy(
 );
 const Clients = lazy(() => import("@/Page/admin-dashboard/Clients"));
 const Dashboard = lazy(() => import("@/Page/admin-dashboard/Dashboard"));
-const Invoices = lazy(() => import("@/Page/admin-dashboard/Invoices"));
+const Invoices = lazy(() => import("@/Page/admin-dashboard/invoice/Invoices"));
 const ExpenseAdmin = lazy(() => import("@/Page/admin-dashboard/ExpenseAdmin"));
 const CreateInvoiceForm = lazy(
   () => import("@/Page/admin-dashboard/create-invoice")

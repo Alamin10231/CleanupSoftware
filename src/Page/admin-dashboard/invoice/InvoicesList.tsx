@@ -1,11 +1,13 @@
 import {
-   useDeleteInvoiceMutation,
+  useDeleteInvoiceMutation,
   useGetInvoicesQuery,
   useGetSearchAllInvoiceQuery,
 } from "@/redux/features/admin/invoice/invoice.api";
 import { useEffect, useState } from "react";
 import { assets } from "@/assets/assets";
 import { toast } from "sonner";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import InvoicePDF from "./InvoicePDF";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,15 +18,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "./ui/alert-dialog";
-import { Button } from "./ui/button";
+} from "../../../Components/ui/alert-dialog";
 import { Trash } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Invoice {
   id: number;
   invoice_id: string;
   vendor_name: string | null;
-  type: "incoming" | "outgoing";
+  type: "outgoing";
   date_issued: string;
   due_date: string | null;
   client_name: string | null;
@@ -59,7 +61,7 @@ const InvoicesList = () => {
     isLoading: isSearchLoading,
     isError: isSearchError,
   } = useGetSearchAllInvoiceQuery(search ? `${search}` : "");
-  const [deleteInvoice] = useDeleteInvoiceMutation()
+  const [deleteInvoice] = useDeleteInvoiceMutation();
   const invoices = invoicesData?.results || [];
   const totalCount = invoicesData?.count || 0;
   const nextPage = invoicesData?.next;
@@ -119,18 +121,14 @@ const InvoicesList = () => {
     setFilteredInvoices(result);
   }, [search, status, sort, invoices, searchInvoice]);
 
-  const handleDownload = (invoice: Invoice) => {
-   //  toast.loading("Dowloading Invoice...")
-  };
-
   const handleDelete = async (invoice: Invoice) => {
-   try {
+    try {
       await deleteInvoice(invoice.id).unwrap();
       toast.success(`Invoice ${invoice.invoice_id} deleted`);
-   } catch (error) {
+    } catch (error) {
       toast.error(`Failed to delete invoice ${invoice}`);
       // console.error(error);
-   }
+    }
   };
 
   if (isLoading || isSearchLoading) return <p>Loading...</p>;
@@ -186,7 +184,6 @@ const InvoicesList = () => {
                   <th className="p-3 text-left">Region</th>
                   <th className="p-3 text-left">Apartment(s)</th>
                   <th className="p-3 text-left">Client</th>
-                  <th className="p-3 text-left">Type</th>
                   <th className="p-3 text-left">Date Issued</th>
                   <th className="p-3 text-left">Due Date</th>
                   <th className="p-3 text-left">Total Amount</th>
@@ -209,17 +206,6 @@ const InvoicesList = () => {
                       {invoice.apartment_name?.join(", ") || "N/A"}
                     </td>
                     <td className="p-3">{invoice.client_name ?? "N/A"}</td>
-                    <td className="p-3 capitalize">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          invoice.type === "incoming"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-blue-100 text-blue-700"
-                        }`}
-                      >
-                        {invoice.type}
-                      </span>
-                    </td>
                     <td className="p-3">
                       {new Date(invoice.date_issued).toLocaleDateString()}
                     </td>
@@ -243,12 +229,38 @@ const InvoicesList = () => {
                       </span>
                     </td>
                     <td className="p-3 flex items-center gap-3">
-                      <img
-                        src={assets.Download}
-                        alt="download"
-                        className="cursor-pointer w-5 h-5"
-                        onClick={() => handleDownload(invoice)}
-                      />
+                      <div
+                        className="p-2 bg-gray-100 rounded-lg cursor-pointer"
+                        onClick={() =>
+                          toast.promise(
+                            new Promise((resolve) => resolve(null)),
+                            {
+                              loading: "Downloading Invoice...",
+                              success: () => {
+                                return `Invoice downloaded successfully`;
+                              },
+                              error: "Failed to download invoice",
+                            }
+                          )
+                        }
+                      >
+                        <PDFDownloadLink
+                          document={<InvoicePDF invoice={invoice} />}
+                          fileName={`invoice-${invoice.invoice_id}.pdf`}
+                        >
+                          {({ loading }) =>
+                            loading ? (
+                              <p className="text-sm">Loading...</p>
+                            ) : (
+                              <img
+                                src={assets.Download}
+                                alt="download"
+                                className="w-5 h-5"
+                              />
+                            )
+                          }
+                        </PDFDownloadLink>
+                      </div>
 
                       {/* Delete Alert Dialog */}
                       <AlertDialog>
