@@ -2,6 +2,7 @@ import {
   useDeleteInvoiceMutation,
   useGetInvoicesQuery,
   useGetSearchAllInvoiceQuery,
+  useUpdateInvoiceStatusMutation,
 } from "@/redux/features/admin/invoice/invoice.api";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -65,6 +66,7 @@ const InvoicesList = () => {
   } = useGetSearchAllInvoiceQuery(search, { skip: !shouldSearch });
 
   const [deleteInvoice] = useDeleteInvoiceMutation();
+  const [updateInvoiceStatus] = useUpdateInvoiceStatusMutation();
   const invoices = invoicesData?.results || [];
   const totalCount = invoicesData?.count || 0;
   const nextPage = invoicesData?.next;
@@ -112,6 +114,16 @@ const InvoicesList = () => {
     } catch (error) {
       toast.error(`Failed to delete invoice ${invoice.invoice_id}`);
       console.error("Delete error:", error);
+    }
+  };
+
+  const handleStatusChange = async (invoiceId: number, newStatus: string) => {
+    try {
+      await updateInvoiceStatus({ id: invoiceId, status: newStatus }).unwrap();
+      toast.success(`Invoice status updated to ${newStatus}`);
+    } catch (error) {
+      toast.error("Failed to update invoice status");
+      console.error("Update error:", error);
     }
   };
 
@@ -218,6 +230,16 @@ const InvoicesList = () => {
                       </span>
                     </td>
                     <td className="p-3 flex items-center gap-3">
+                      <select
+                        value={invoice.status.toLowerCase()}
+                        onChange={(e) =>
+                          handleStatusChange(invoice.id, e.target.value)
+                        }
+                        className="border border-gray-300 rounded-md px-2 py-1 text-sm text-gray-600 cursor-pointer"
+                      >
+                        <option value="paid">Paid</option>
+                        <option value="unpaid">Unpaid</option>
+                      </select>
                       {/* Download Button */}
                       <PDFDownloadLink
                         document={<InvoicePDF invoice={invoice} />}
@@ -264,9 +286,8 @@ const InvoicesList = () => {
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction
                               onClick={() => handleDelete(invoice)}
-                              className="bg-red-600 hover:bg-red-700"
                             >
-                              Delete
+                              <Button variant="destructive">Delete</Button>
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>

@@ -126,18 +126,12 @@ const AddSubscriptionForm = () => {
     };
 
     try {
-      await toast.promise(
-        addSubscription(payload),
-        {
-          loading: "Creating subscription...",
-          success: "Subscription created successfully",
-          error: "Failed to create subscription",
-        }
-      );
-      console.log("Payload:", payload);
+      await addSubscription(payload)
+      toast.success("Subscription created successfully");
       handleCancel();
     } catch (error) {
       console.error("Subscription creation failed:", error);
+      toast.error("Subscription creation failed");
     }
   };
 
@@ -606,7 +600,7 @@ const AddSubscriptionForm = () => {
         <Button onClick={handleCancel} variant="outline">
           Cancel
         </Button>
-        <Button onClick={handleSave}>Save Subscription</Button>
+        <Button onClick={handleSave}>Create Subscription</Button>
       </div>
     </div>
   );

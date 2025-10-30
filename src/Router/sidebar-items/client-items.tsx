@@ -3,7 +3,9 @@ const ClientProfile = lazy(() => import("@/Page/Client/ClientProfile"));
 const ClientSubscription = lazy(
   () => import("@/Page/Client/ClientSubscription")
 );
-import { CreditCard, User } from "lucide-react";
+const SendRequest = lazy(() => import("@/Page/Client/SendRequest"));
+const Requests = lazy(() => import("@/Page/Client/Requests"));
+import { CreditCard, User, Send, List } from "lucide-react";
 
 export const clientSidebarItems = [
   {
@@ -21,6 +23,20 @@ export const clientSidebarItems = [
         url: "/client/subscription",
         component: ClientSubscription,
         icon: CreditCard,
+        isActive: false,
+      },
+      {
+        title: "Send Request",
+        url: "/client/send-request",
+        component: SendRequest,
+        icon: Send,
+        isActive: false,
+      },
+      {
+        title: "My Requests",
+        url: "/client/requests",
+        component: Requests,
+        icon: List,
         isActive: false,
       },
     ],

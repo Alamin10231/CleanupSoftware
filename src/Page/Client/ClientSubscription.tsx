@@ -99,7 +99,7 @@ const ClientSubscription = () => {
       console.log("Message content:", data);
 
       if((data as any).sender_email === user?.email) return;
-      
+
 
       if(data.message.trim() === "") return;
 
@@ -110,7 +110,7 @@ const ClientSubscription = () => {
         timestamp: new Date(),
       }]);
     };
-    
+
 
     // setMessages([]);
   };
@@ -197,7 +197,7 @@ const ClientSubscription = () => {
       .toUpperCase();
 
   return (
-    <div className="min-h-screen bg-gray-100 py-10">
+    <div>
       <div className="max-w-7xl mx-auto px-4">
         <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">
           Your Subscriptions

@@ -61,6 +61,7 @@ const FormSubmitted = lazy(
 );
 const ChatPage = lazy(() => import("@/Page/admin-dashboard/ChatPage"));
 const MapRegionOverview = lazy(() => import("@/Page/admin-dashboard/Map"));
+const AllRequests = lazy(() => import("@/Page/admin-dashboard/AllRequests"));
 
 export const adminSidebarItems: ISidebarItems[] = [
   {
@@ -110,6 +111,13 @@ export const adminSidebarItems: ISidebarItems[] = [
         title: "Services",
         url: "/admin/services",
         component: Services,
+        isActive: false,
+        icon: ClipboardList, // Added icon
+      },
+       {
+        title: "All Requests",
+        url: "/admin/all-requests",
+        component: AllRequests,
         isActive: false,
         icon: ClipboardList, // Added icon
       },
