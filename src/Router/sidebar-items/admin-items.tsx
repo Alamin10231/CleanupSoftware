@@ -24,7 +24,7 @@ import {
 const DynamicFormBuilder = lazy(
   () => import("@/Page/admin-dashboard/custom-form")
 );
-const Clients = lazy(() => import("@/Page/admin-dashboard/Clients"));
+const Clients = lazy(() => import("@/Page/admin-dashboard/Client/Clients"));
 const Dashboard = lazy(() => import("@/Page/admin-dashboard/Dashboard"));
 const Invoices = lazy(() => import("@/Page/admin-dashboard/invoice/Invoices"));
 const ExpenseAdmin = lazy(() => import("@/Page/admin-dashboard/ExpenseAdmin"));
@@ -114,7 +114,7 @@ export const adminSidebarItems: ISidebarItems[] = [
         isActive: false,
         icon: ClipboardList, // Added icon
       },
-       {
+      {
         title: "All Requests",
         url: "/admin/all-requests",
         component: AllRequests,

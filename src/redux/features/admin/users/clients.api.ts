@@ -39,6 +39,27 @@ export const clientsApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["GetAllClientsAdmin", "SearchClients", "GetClientOverviewAdmin"],
     }),
+
+    updateClient: builder.mutation<any, { id: number; body: Partial<CreateClientBody> }>({
+      query: ({ id, body }) => ({
+        url: `/clients/${id}/`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["GetAllClientsAdmin", "SearchClients", "GetClientOverviewAdmin"],
+    }),
+
+    deleteClient: builder.mutation<any, number>({
+      query: (id) => ({
+        url: `/clients/${id}/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["GetAllClientsAdmin", "SearchClients", "GetClientOverviewAdmin"],
+    }),
+    getClientDetails: builder.query({
+    query: (id) => `/adminViewClientData/${id}/`,
+      providesTags: ["GetAllClientsAdmin"],
+    }),
   }),
 });
 
@@ -47,4 +68,7 @@ export const {
   useGetAllClientsAdminQuery,
   useGetClientOverviewAdminQuery,
   useCreateAdminClientMutation,
+  useUpdateClientMutation,
+  useDeleteClientMutation,
+  useGetClientDetailsQuery,
 } = clientsApi;

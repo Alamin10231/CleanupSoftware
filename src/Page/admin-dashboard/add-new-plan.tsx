@@ -304,13 +304,13 @@ const AddNewPlanForm = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="month">Monthly</SelectItem>
-                  <SelectItem value="year">Yearly</SelectItem>
+                  {/* <SelectItem value="year">Yearly</SelectItem> */}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="amount" className="text-sm">
-                Amount
+                Price
               </Label>
               <Input
                 id="amount"

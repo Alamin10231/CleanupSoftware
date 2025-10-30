@@ -16,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/Components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface Employee {
   id: number;
@@ -250,17 +251,17 @@ const Employees = () => {
                         {emp.employee_profile?.base_salary || "0"} SAR
                       </td>
                       <td className="px-4 py-3">
-                        <button
+                        <Button
+                           variant={"outline"}
                           onClick={() => setSelectedEmployee(emp)}
-                          className="text-blue-500 hover:text-blue-700"
                           title="View Details"
                         >
                           <FaEye size={16} />
-                        </button>
+                        </Button>
                       </td>
                     </tr>
                   ))}
-                </tbody>
+                </tbody>                                                          
               </table>
             </div>
 

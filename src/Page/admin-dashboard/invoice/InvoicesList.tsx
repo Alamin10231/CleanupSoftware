@@ -21,6 +21,14 @@ import {
 } from "../../../Components/ui/alert-dialog";
 import { Download, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/Components/ui/table";
 
 interface Invoice {
   id: number;
@@ -177,48 +185,52 @@ const InvoicesList = () => {
       <div className="overflow-x-auto mt-6">
         {filteredInvoices.length > 0 ? (
           <>
-            <table className="min-w-full border border-gray-200 bg-white rounded-lg shadow-sm">
-              <thead className="bg-gray-100 border-b border-gray-300 text-gray-700 text-sm">
-                <tr>
-                  <th className="p-3 text-left">Invoice ID</th>
-                  <th className="p-3 text-left">Building</th>
-                  <th className="p-3 text-left">Region</th>
-                  <th className="p-3 text-left">Apartment(s)</th>
-                  <th className="p-3 text-left">Client</th>
-                  <th className="p-3 text-left">Date Issued</th>
-                  <th className="p-3 text-left">Due Date</th>
-                  <th className="p-3 text-left">Total Amount</th>
-                  <th className="p-3 text-left">Status</th>
-                  <th className="p-3 text-left">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table className="min-w-full border border-gray-200 bg-white rounded-lg shadow-sm">
+              <TableHeader className="bg-gray-100 border-b border-gray-300 text-gray-700 text-sm">
+                <TableRow>
+                  <TableHead className="p-3 text-left">Invoice ID</TableHead>
+                  <TableHead className="p-3 text-left">Building</TableHead>
+                  <TableHead className="p-3 text-left">Region</TableHead>
+                  <TableHead className="p-3 text-left">Apartment(s)</TableHead>
+                  <TableHead className="p-3 text-left">Client</TableHead>
+                  <TableHead className="p-3 text-left">Date Issued</TableHead>
+                  <TableHead className="p-3 text-left">Due Date</TableHead>
+                  <TableHead className="p-3 text-left">Total Amount</TableHead>
+                  <TableHead className="p-3 text-left">Status</TableHead>
+                  <TableHead className="p-3 text-left">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {filteredInvoices.map((invoice) => (
-                  <tr
+                  <TableRow
                     key={invoice.id}
                     className="border-b border-gray-200 hover:bg-gray-50 transition"
                   >
-                    <td className="p-3 font-semibold text-gray-700">
+                    <TableCell className="p-3 font-semibold text-gray-700">
                       {invoice.invoice_id}
-                    </td>
-                    <td className="p-3">{invoice.building_name}</td>
-                    <td className="p-3">{invoice.region_name}</td>
-                    <td className="p-3">
+                    </TableCell>
+                    <TableCell className="p-3">
+                      {invoice.building_name}
+                    </TableCell>
+                    <TableCell className="p-3">{invoice.region_name}</TableCell>
+                    <TableCell className="p-3">
                       {invoice.apartment_name?.join(", ") || "N/A"}
-                    </td>
-                    <td className="p-3">{invoice.client_name ?? "N/A"}</td>
-                    <td className="p-3">
+                    </TableCell>
+                    <TableCell className="p-3">
+                      {invoice.client_name ?? "N/A"}
+                    </TableCell>
+                    <TableCell className="p-3">
                       {new Date(invoice.date_issued).toLocaleDateString()}
-                    </td>
-                    <td className="p-3">
+                    </TableCell>
+                    <TableCell className="p-3">
                       {invoice.due_date
                         ? new Date(invoice.due_date).toLocaleDateString()
                         : "—"}
-                    </td>
-                    <td className="p-3 font-semibold text-gray-800">
+                    </TableCell>
+                    <TableCell className="p-3 font-semibold text-gray-800">
                       {invoice.total_amount.toFixed(2)} SAR
-                    </td>
-                    <td className="p-3">
+                    </TableCell>
+                    <TableCell className="p-3">
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
                           invoice.status.toLowerCase() === "paid"
@@ -228,8 +240,8 @@ const InvoicesList = () => {
                       >
                         {invoice.status}
                       </span>
-                    </td>
-                    <td className="p-3 flex items-center gap-3">
+                    </TableCell>
+                    <TableCell className="p-3 flex items-center gap-3">
                       <select
                         value={invoice.status.toLowerCase()}
                         onChange={(e) =>
@@ -252,9 +264,11 @@ const InvoicesList = () => {
                             }`}
                           >
                             {loading ? (
-                              <p className="text-xs text-gray-500">Loading...</p>
+                              <p className="text-xs text-gray-500">
+                                Loading...
+                              </p>
                             ) : (
-                              <Download className="w-5 h-5"/>
+                              <Download className="w-5 h-5" />
                             )}
                           </div>
                         )}
@@ -292,16 +306,16 @@ const InvoicesList = () => {
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
 
             {/* Pagination Controls - Only show when not searching */}
             {!shouldSearch && (
               <div className="flex justify-between items-center mt-4 px-2">
-                <button
+                <Button
                   onClick={() => prevPage && setPage((p) => Math.max(p - 1, 1))}
                   disabled={!prevPage || isFetching}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition ${
@@ -311,13 +325,13 @@ const InvoicesList = () => {
                   }`}
                 >
                   Previous
-                </button>
+                </Button>
 
                 <span className="text-sm text-gray-600">
                   Page {page} of {Math.ceil(totalCount / 10)}
                 </span>
 
-                <button
+                <Button
                   onClick={() => nextPage && setPage((p) => p + 1)}
                   disabled={!nextPage || isFetching}
                   className={`px-4 py-2 rounded-md text-sm font-medium transition ${
@@ -327,7 +341,7 @@ const InvoicesList = () => {
                   }`}
                 >
                   Next
-                </button>
+                </Button>
               </div>
             )}
           </>

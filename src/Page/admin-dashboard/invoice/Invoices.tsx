@@ -33,13 +33,13 @@ const Invoices = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card
           title={`Total`}
-          number={data.total}
+          number={` ${data.total} SAR`}
           iconSrc={assets.total_service}
           iconAlt="Total Service"
         />
         <Card
           title={`Sales`}
-          number={data.sales}
+          number={` ${data.sales} SAR`}
           iconSrc={assets.overDue}
           iconAlt="Total Sales"
         />
