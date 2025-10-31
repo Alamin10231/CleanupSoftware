@@ -45,8 +45,7 @@ import {
   useUpdateTaskAssignEmployeeByIdMutation,
 } from "@/redux/features/employee/dashboard/dashboard.api";
 import { useGetCurrentTaskQuery } from "@/redux/features/employee/subscription/subscription.api";
-
-
+import type { RootState } from "@/redux/store";
 
 type TaskItem = {
   id: number;
@@ -73,18 +72,27 @@ const PAGE_SIZE = 5;
 
 const EmployeeDashboard = () => {
   // const employeeId = "126";
-    const employeeId = useSelector((state: any) => state.auth.user?.id);
- const employeeName = useSelector((state: any) => state.auth.user?.name);
+  const employeeId = useSelector((state: any) => state.auth.user?.id);
+  const employeeName = useSelector((state: any) => state.auth.user?.name);
   // API queries
-  const { data, isLoading, isError, refetch } = useGetEmployeeDashboardQuery();
+  const { data, isLoading, isError, refetch } =
+    useGetEmployeeDashboardQuery(undefined);
   const { data: chartApiData, isLoading: chartLoading } =
     useGetEmployeeChartQuery(employeeId);
-    console.log("id",employeeId)
+//   console.log("id", employeeId);
   const {
     data: tasksData,
     isLoading: tasksLoading,
     isError: tasksError,
   } = useGetCurrentTaskQuery();
+
+  const { refetch: refetchDashboard } = useSelector(
+    (state: RootState) => state.dashboard
+  );
+
+  useEffect(() => {
+    refetch();
+  }, [refetchDashboard, refetch]);
 
   const items: TaskItem[] = (data?.results ?? []) as TaskItem[];
 
@@ -139,11 +147,10 @@ const EmployeeDashboard = () => {
     setLocalTasks(currentTasks);
   }, [currentTasks]);
 
-
   const [page, setPage] = useState(1);
   const totalPages = Math.max(1, Math.ceil(localTasks.length / PAGE_SIZE));
   useEffect(() => {
-    setPage(1); 
+    setPage(1);
   }, [localTasks.length]);
 
   const pagedTasks = useMemo(() => {
@@ -160,7 +167,6 @@ const EmployeeDashboard = () => {
   const [updateOpen, setUpdateOpen] = useState(false);
   const [updateTask, setUpdateTask] = useState<TaskRow | null>(null);
   const [newStatus, setNewStatus] = useState<string>("canceled");
-
 
   const [updateTaskAssignEmployeeById, { isLoading: updating }] =
     useUpdateTaskAssignEmployeeByIdMutation();
@@ -235,21 +241,23 @@ const EmployeeDashboard = () => {
     try {
       // body contains only the fields you want to change
       await updateTaskAssignEmployeeById({
-        id: updateTask.id,        // <- goes in URL
-        status: newStatus,        // <- request body (adjust to backend contract)
+        id: updateTask.id, // <- goes in URL
+        status: newStatus, // <- request body (adjust to backend contract)
       }).unwrap();
 
       // Optimistic UI update (title-cased for display)
       const display = titleCaseStatus(newStatus);
       setLocalTasks((rows) =>
-        rows.map((r) => (r.id === updateTask.id ? { ...r, status: display } : r))
+        rows.map((r) =>
+          r.id === updateTask.id ? { ...r, status: display } : r
+        )
       );
       setSelectedTask((prev) =>
         prev && prev.id === updateTask.id ? { ...prev, status: display } : prev
       );
 
       setUpdateOpen(false);
-      console.log("Status updated successfully");
+      // console.log("Status updated successfully");
     } catch (err: any) {
       console.error("Failed to update task:", err?.data || err);
     }
@@ -259,17 +267,17 @@ const EmployeeDashboard = () => {
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3"> <h1> {employeeName || "Employee"}</h1>
-          
+        <div className="flex items-center">
+          <h1 className="text-2xl font-bold">
+            Welcome,{" "}
+            {employeeName.charAt(0).toUpperCase() + employeeName.slice(1) ||
+              "Employee"}
+          </h1>
         </div>
-        <Button className="gap-2">
-          <Share2 size={16} />
-          Share
-        </Button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         {[
           {
             label: "Total Task",

@@ -1,22 +1,20 @@
 import { useEffect, useState } from "react";
-import { FcGoogle } from "react-icons/fc";
-import { FaApple, FaFacebook } from "react-icons/fa";
 import loginpicture from "../../assets/Image/loginpicture.jpg";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { assets } from "../../assets/assets";
+import logo from "/src/assets/logo/logo.svg"
 import { IoIosArrowBack } from "react-icons/io";
-import { useVerifyOtpMutation } from "@/redux/features/auth/authApi";
+import { useResendOtpMutation, useVerifyOtpMutation } from "@/redux/features/auth/authApi";
 import { toast } from "sonner";
 import { useDispatch } from "react-redux";
 import { setOtp } from "@/redux/features/auth/authSlice";
 
-export default function Verifyotp() {
+export default function VerifyotpActivation() {
   const [otp, setOtpState] = useState("");
   const navigate = useNavigate();
   const [verifyOtp, { isLoading }] = useVerifyOtpMutation();
   const dispatch = useDispatch();
   const { email } = useParams();
-
+  const [resendOtp] = useResendOtpMutation()
   const [resendDisabled, setResendDisabled] = useState(true);
   const [countdown, setCountdown] = useState(60);
 
@@ -56,7 +54,8 @@ export default function Verifyotp() {
   const handleResendOtp = async () => {
     setResendDisabled(true);
     setCountdown(60);
-    // Implement resend OTP logic here
+    resendOtp({email})
+
     toast.success("OTP has been resent");
   };
 
@@ -68,7 +67,7 @@ export default function Verifyotp() {
         <div className="flex items-center self-end space-x-2 mb-8">
           <div className="p-6">
             <img
-              src={assets.logo}
+              src={logo}
               alt="CleanUp Pro Logo"
               className="w-[140px] mx-auto"
             />
@@ -80,7 +79,7 @@ export default function Verifyotp() {
           <IoIosArrowBack />
           <span>
             Back to{" "}
-            <Link to="/adminlogin" className="text-blue-600 underline">
+            <Link to="/login" className="text-blue-600 underline">
               login
             </Link>
           </span>
@@ -131,37 +130,6 @@ export default function Verifyotp() {
             }`}
           >
             {resendDisabled ? `Resend in ${countdown}s` : "Resend OTP"}
-          </button>
-        </div>
-
-        {/* Social login */}
-        <div className="flex items-center my-6 w-full max-w-sm">
-          <div className="flex-grow border-t border-gray-300" />
-          <span className="mx-4 text-gray-500 text-sm">Or login with</span>
-          <div className="flex-grow border-t border-gray-300" />
-        </div>
-
-        <div className="flex gap-4">
-          <button
-            type="button"
-            className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50"
-          >
-            <FaFacebook className="text-blue-600 mr-2" />
-            Facebook
-          </button>
-          <button
-            type="button"
-            className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50"
-          >
-            <FcGoogle className="mr-2" />
-            Google
-          </button>
-          <button
-            type="button"
-            className="flex items-center justify-center border border-gray-300 rounded-md px-4 py-2 hover:bg-gray-50"
-          >
-            <FaApple className="text-black mr-2" />
-            Apple
           </button>
         </div>
       </div>

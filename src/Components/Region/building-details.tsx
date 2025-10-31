@@ -21,7 +21,7 @@ export default function BuildingDetails({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Eye size={20} className="cursor-pointer absolute top-4 right-4" />
+        <Eye size={20} className="cursor-pointer" />
       </DialogTrigger>
 
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">

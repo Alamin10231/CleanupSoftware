@@ -1,199 +1,105 @@
-// src/pages/EmployeeProfileSettingsPage.tsx
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { setCredentials } from "@/redux/features/auth/authSlice";
-import { useUpdateEmployeeProfileMutation } from "@/redux/features/employee/setting/profilesetting.api";
+import { updateUser } from "@/redux/features/auth/authSlice";
+import {
+  useUpdateEmployeeAvatarMutation,
+  useUpdateEmployeeProfileMutation,
+} from "@/redux/features/employee/setting/profilesetting.api";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/Components/ui/label";
-
-import { Camera } from "lucide-react";
-import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
-
-type RootState = {
-  auth: {
-    user: {
-      id?: number;
-      name?: string;
-      email?: string;
-      phone?: string;
-      role?: string;
-      avatar?: string;
-      avatarUrl?: string;
-      user_type?: string;
-      employee_profile?: {
-        id?: number;
-        department?: string;
-        role?: string;
-        shift?: string;
-        avatar?: string | null;
-        [k: string]: any;
-      };
-    } | null;
-  };
-};
-
-const fallbackAvatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=User";
-const safeParse = (x: any) => {
-  if (!x) return {};
-  if (typeof x === "string") {
-    try {
-      return x ? JSON.parse(x) : {};
-    } catch {
-      return {};
-    }
-  }
-  return x;
-};
+import { Camera, User } from "lucide-react";
+import { toast } from "sonner";
+import type { RootState } from "@/redux/store";
 
 const EmployeeProfileSettingsPage: React.FC = () => {
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.auth.user);
-
-  const [updateEmployeeProfile, { isLoading, isSuccess, isError, error }] =
+  const [updateEmployeeProfile, { isLoading }] =
     useUpdateEmployeeProfileMutation();
+  const [updateAvatar] =
+    useUpdateEmployeeAvatarMutation();
 
-  // ---- Form state
   const [profileData, setProfileData] = useState({
     name: user?.name || "",
     email: user?.email || "",
-    phone: user?.phone || "",
-    role: user?.role || "",
+    phone: user?.prime_phone || "",
   });
 
-  // ---- Avatar preview (LOCAL ONLY)
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>(
-    user?.avatar ||
-      user?.avatarUrl ||
-      user?.employee_profile?.avatar ||
-      fallbackAvatar
+    user?.avatar_url
+      ? `${user.avatar_url}`
+      : ""
   );
 
-  const EMPLOYEE_ID = user?.id as number | undefined;
+  let resAvatar: string = "";
+  const handlePickAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  // const handleProfileChange = (
-  //   field: keyof typeof profileData,
-  //   value: string
-  // ) => setProfileData((prev) => ({ ...prev, [field]: value }));
-
-  const handlePickAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    setAvatarFile(f);
-    setAvatarPreview(URL.createObjectURL(f)); // preview only (do NOT persist)
+    setAvatarPreview(URL.createObjectURL(file));
+    await updateAvatar({ id: user?.id, file })
+      .unwrap()
+      .then((result) => {
+        console.log(result);
+        resAvatar = result.employee_profile.avatar;
+        toast.success("Avatar updated successfully.");
+      })
+      .catch(() => toast.error("Failed to update avatar."));
+    dispatch(updateUser({ avatar_url: resAvatar }));
   };
 
   const handleSaveProfile = async () => {
-    if (!EMPLOYEE_ID) {
+    if (!user?.id) {
       toast.error("Missing employee ID.");
       return;
     }
 
     try {
-      let payload: FormData | { name: string; email: string };
-
-      if (avatarFile) {
-        const fd = new FormData();
-        fd.append("name", profileData.name);
-        fd.append("email", profileData.email);
-        fd.append("employee_profile.avatar", avatarFile);
-        payload = fd;
-      } else {
-        payload = { name: profileData.name, email: profileData.email };
-      }
-
-      const raw = await updateEmployeeProfile({
-        id: EMPLOYEE_ID,
-        data: payload,
+      const response = await updateEmployeeProfile({
+        id: user.id,
+        name: profileData.name,
+        phone: profileData.phone,
       }).unwrap();
+      console.log(response);
 
-      const data = safeParse(raw);
+      dispatch(updateUser({ name: response.name, prime_phone: response.prime_phone }))
 
-      // ✅ Normalize avatar from any of these spots:
-      const serverAvatar: string =
-        data?.avatar ||
-        data?.avatarUrl ||
-        data?.employee_profile?.avatar ||
-        user?.avatar ||
-        user?.avatarUrl ||
-        user?.employee_profile?.avatar ||
-        "";
-
-      // Update Redux exactly like you do for name
-      const updatedUser = {
-        ...user,
-        name: data?.name ?? profileData.name,
-        email: data?.email ?? profileData.email,
-        employee_profile: data?.employee_profile ?? user?.employee_profile,
-        avatar: serverAvatar,
-        avatarUrl: serverAvatar,
-      };
-
-      dispatch(setCredentials({ user: updatedUser }));
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-
-      try {
-        if (avatarPreview?.startsWith("blob:"))
-          URL.revokeObjectURL(avatarPreview);
-      } catch(err:any){
-        console.log(err)
+      if (avatarPreview?.startsWith("blob:")) {
+        URL.revokeObjectURL(avatarPreview);
       }
-
       toast.success("Profile updated successfully.");
     } catch (err: any) {
-      const status = err?.status ?? err?.originalStatus;
-      const msg =
-        typeof err?.data === "string"
-          ? err.data
-          : err?.data?.detail ||
-            "Update failed. Please check your inputs and try again.";
-      toast.error(`(${status || "Error"}) ${msg}`);
-      console.error("❌ Update failed:", err);
+      const errorMessage =
+        err?.data?.detail || err?.data || "Update failed. Please try again.";
+      toast.error(errorMessage);
+      console.error("Update failed:", err);
     }
   };
-
-  const statusText = useMemo(() => {
-    if (isLoading) return "Saving...";
-    if (isSuccess) return "Saved ✔";
-    if (isError) return "Save failed";
-    return "";
-  }, [isLoading, isSuccess, isError]);
-
   return (
     <div className="space-y-6">
-      {/* Profile Settings */}
       <div className="bg-white rounded-lg border p-6">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-semibold">Profile Settings</h1>
-            <p className="text-sm text-gray-500 mt-1">
-              Update your name, email, and profile picture.
-            </p>
-          </div>
-
-          {statusText && (
-            <span className="text-sm">
-              {statusText}{" "}
-              {isError && (
-                <span className="text-red-600">
-                  {typeof (error as any)?.data === "string"
-                    ? (error as any).data
-                    : (error as any)?.data?.detail || "Please try again."}
-                </span>
-              )}
-            </span>
-          )}
+        <div className="mb-6">
+          <h1 className="text-xl font-semibold">Profile Settings</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Update your name, email, and profile picture.
+          </p>
         </div>
 
         {/* Profile Picture */}
         <div className="flex items-center gap-4 mb-6">
           <div className="relative">
-            <img
-              src={avatarPreview}
-              alt="Profile"
-              className="w-16 h-16 rounded-full object-cover border"
-            />
+            {avatarPreview ? (
+              <img
+                src={avatarPreview}
+                alt="Profile"
+                className="w-16 h-16 rounded-full object-cover border"
+              />
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center border">
+                <User size={24} className="text-gray-400" />
+              </div>
+            )}
             <label className="absolute bottom-0 right-0 bg-blue-600 text-white p-1.5 rounded-full hover:bg-blue-700 cursor-pointer">
               <Camera size={14} />
               <input
@@ -204,12 +110,10 @@ const EmployeeProfileSettingsPage: React.FC = () => {
               />
             </label>
           </div>
-          <div className="text-xs text-gray-500">
-            JPG/PNG/GIF • ~1MB max (server-dependent)
-          </div>
+          <div className="text-xs text-gray-500">JPG/PNG • ~1MB max</div>
         </div>
 
-        {/* Full Name & Email */}
+        {/* Form Fields */}
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div className="space-y-2">
             <Label htmlFor="fullName" className="text-sm">
@@ -219,7 +123,7 @@ const EmployeeProfileSettingsPage: React.FC = () => {
               id="fullName"
               value={profileData.name}
               onChange={(e) =>
-                setProfileData((p) => ({ ...p, name: e.target.value }))
+                setProfileData((prev) => ({ ...prev, name: e.target.value }))
               }
               disabled={isLoading}
             />
@@ -236,12 +140,25 @@ const EmployeeProfileSettingsPage: React.FC = () => {
               disabled={true}
             />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-sm">
+              Phone Number
+            </Label>
+            <Input
+              id="phone"
+              type="number"
+              placeholder="+966 5X XXX XXXX."
+              value={profileData.phone}
+              disabled={isLoading}
+              onChange={(e) =>
+                setProfileData((prev) => ({ ...prev, phone: e.target.value }))
+              }
+            />
+          </div>
         </div>
 
+        {/* Action Buttons */}
         <div className="flex justify-end gap-2 mt-6">
-          <Button variant="outline" disabled={isLoading}>
-            Cancel
-          </Button>
           <Button onClick={handleSaveProfile} disabled={isLoading}>
             {isLoading ? "Saving…" : "Save Changes"}
           </Button>

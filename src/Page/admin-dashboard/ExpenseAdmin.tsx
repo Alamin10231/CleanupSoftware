@@ -114,7 +114,7 @@ function ExpenseActions({
       <Button
         size="sm"
         variant="outline"
-        disabled={isUpdating || expense.status === "Approved"}
+        disabled={isUpdating || expense.status !== "Submitted"}
         className="text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700 transition disabled:opacity-50"
         onClick={() => onStatusChange(expense.id, "Approved")}
       >
@@ -123,7 +123,7 @@ function ExpenseActions({
       <Button
         size="sm"
         variant="outline"
-        disabled={isUpdating || expense.status === "Cancel"}
+        disabled={isUpdating || expense.status !== "Submitted"}
         className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700 transition disabled:opacity-50"
         onClick={() => onStatusChange(expense.id, "Cancel")}
       >

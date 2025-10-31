@@ -5,7 +5,7 @@ import { Button } from "@/Components/ui/button";
 import { Input } from "@/Components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Alert, AlertDescription } from "@/Components/ui/alert";
-import type { RootState } from "../Navbar";
+import type { RootState } from "@/redux/store";
 
 // Types
 interface ChatMessage {

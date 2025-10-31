@@ -1,4 +1,4 @@
-import type { RootState } from "@/Components/Navbar";
+import type { RootState } from "@/redux/store";
 import type { UserRole } from "@/Types/Types";
 import type { ComponentType } from "react";
 import { useSelector } from "react-redux";

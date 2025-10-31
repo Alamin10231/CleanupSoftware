@@ -9,6 +9,7 @@ interface User {
   username: string;
   user_type: "admin" | "supervisor" | "client" | string;
   is_active: boolean;
+  avatar_url?: string;
 }
 
 interface AuthState {
@@ -79,7 +80,7 @@ const authSlice = createSlice({
       saveToLocalStorage("refresh", refresh);
 
       // Debug: Log what we're storing
-      console.log("Storing user:", user);
+      // console.log("Storing user:", user);
     },
 
     updateUser: (state, action: PayloadAction<Partial<User>>) => {

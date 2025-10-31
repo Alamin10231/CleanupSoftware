@@ -1,14 +1,5 @@
 import { useState } from "react";
-
-interface Building {
-  id: number;
-  name: string;
-  type: string;
-  city: string;
-  location: string;
-  total_apartments: number;
-  active_apartments_in_building: number;
-}
+import type { Building } from "@/Types/building.types";
 
 interface CustomMarkerProps {
   building?: Building;

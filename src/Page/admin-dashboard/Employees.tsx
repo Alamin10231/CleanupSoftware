@@ -4,8 +4,19 @@ import ActionButton from "@/Components/ActionButton";
 import Card from "@/Components/Card";
 import ProgressBar from "@/Components/ProgressBar";
 import { FaEye } from "react-icons/fa";
-import { useEmployeeOverviewQuery, useGetAllemployeeAdminQuery, useGetSearchAllEmpoloyeesQuery } from "@/redux/features/admin/users/employee.api";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/Components/ui/dialog";
+import {
+  useEmployeeOverviewQuery,
+  useGetAllemployeeAdminQuery,
+  useGetSearchAllEmpoloyeesQuery,
+} from "@/redux/features/admin/users/employee.api";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/Components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface Employee {
   id: number;
@@ -16,6 +27,7 @@ interface Employee {
   date_joined: string;
   employee_profile: {
     id: number;
+    avatar: string;
     department: string;
     role: string;
     shift: string;
@@ -38,28 +50,20 @@ const Employees = () => {
     null
   );
 
-  // Overview
-  const {
-    data: overviewData,
-  } = useEmployeeOverviewQuery();
-
-  // Normal employee list (paginated)
+  const { data: overviewData } = useEmployeeOverviewQuery();
   const {
     data: employeeResponse,
     isLoading: employeesLoading,
     error: employeesError,
   } = useGetAllemployeeAdminQuery(page);
-
-  // Search employees (backend)
   const {
     data: searchResponse,
     isLoading: searchLoading,
     error: searchError,
   } = useGetSearchAllEmpoloyeesQuery(searchTerm, {
-    skip: searchTerm.trim() === "", // don’t call API if search is empty
+    skip: searchTerm.trim() === "",
   });
 
-  // Extract pagination
   const getPageNumber = (url: string | null) => {
     if (!url) return null;
     const match = url.match(/page=(\d+)/);
@@ -68,7 +72,6 @@ const Employees = () => {
   const nextPage = getPageNumber(employeeResponse?.next);
   const prevPage = getPageNumber(employeeResponse?.previous);
 
-  // Choose which list to show
   const employees: Employee[] = useMemo(() => {
     const baseList = searchTerm.trim()
       ? searchResponse?.results || []
@@ -76,7 +79,6 @@ const Employees = () => {
     return baseList;
   }, [searchTerm, employeeResponse, searchResponse]);
 
-  // Apply filters (department & shift)
   const filteredEmployees = employees.filter((emp) => {
     const matchesDepartment =
       departmentFilter === "All Departments" ||
@@ -128,23 +130,13 @@ const Employees = () => {
   ];
 
   return (
-    <div className="h-screen flex flex-col mt-4 overflow-hidden">
+    <div className="flex flex-col mt-4 min-h-screen">
       {/* Header */}
       <div className="flex-shrink-0">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold text-[#030229]">Employees</h1>
-            <p className="text-gray-500 mt-2">
-              Manage your workforce and track performance
-            </p>
-          </div>
-          <ActionButton />
-        </div>
-
-        <ProgressBar />
-
+         <h1 className="text-2xl font-semibold">Employees</h1>
+         <p>Manage your employees here</p>
         {/* Cards */}
-        <div className="grid grid-cols-5 gap-4 mt-6">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-2">
           {cardData.map((card, index) => (
             <Card
               key={index}
@@ -155,9 +147,15 @@ const Employees = () => {
             />
           ))}
         </div>
+        <div className="flex justify-between my-6 items-center">
+         <div></div>
+          <ActionButton />
+        </div>
+
+        <ProgressBar />
 
         {/* Search + Filters */}
-        <div className="flex items-center gap-4 mt-8 bg-white rounded-xl">
+        <div className="flex flex-wrap items-center gap-4 mt-8 bg-white rounded-xl">
           <input
             type="text"
             placeholder="Search employees..."
@@ -197,7 +195,7 @@ const Employees = () => {
       </div>
 
       {/* Table Section */}
-      <div className="flex-1 overflow-y-auto mt-6 pr-2 scrollbar-hide">
+      <div className="flex-1 overflow-visible mt-6 h-auto">
         {loading ? (
           <p className="text-gray-500 text-center">Loading employees...</p>
         ) : error ? (
@@ -208,6 +206,7 @@ const Employees = () => {
               <table className="min-w-full border-collapse text-sm text-gray-600">
                 <thead className="bg-gray-100 text-gray-700 uppercase text-xs sticky top-0">
                   <tr>
+                    <th className="px-4 py-3 text-left">Avatar</th>
                     <th className="px-4 py-3 text-left">Name</th>
                     <th className="px-4 py-3 text-left">Role</th>
                     <th className="px-4 py-3 text-left">Department</th>
@@ -226,6 +225,16 @@ const Employees = () => {
                       key={emp.id}
                       className="border-t hover:bg-gray-50 transition"
                     >
+                      <td className="p-3">
+                        <img
+                          src={
+                            emp.employee_profile?.avatar ??
+                            "/default-avatar.png"
+                          }
+                          alt={emp.name}
+                          className="w-12 h-12 rounded-full object-cover border border-gray-300"
+                        />
+                      </td>
                       <td className="px-4 py-3">{emp.name}</td>
                       <td className="px-4 py-3">
                         {emp.employee_profile?.role || "N/A"}
@@ -242,17 +251,17 @@ const Employees = () => {
                         {emp.employee_profile?.base_salary || "0"} SAR
                       </td>
                       <td className="px-4 py-3">
-                        <button
+                        <Button
+                           variant={"outline"}
                           onClick={() => setSelectedEmployee(emp)}
-                          className="text-blue-500 hover:text-blue-700"
                           title="View Details"
                         >
                           <FaEye size={16} />
-                        </button>
+                        </Button>
                       </td>
                     </tr>
                   ))}
-                </tbody>
+                </tbody>                                                          
               </table>
             </div>
 
@@ -310,26 +319,38 @@ const Employees = () => {
           </DialogHeader>
           {selectedEmployee && (
             <div className="mt-4 space-y-2 text-sm text-gray-700">
-              <p>
-                <strong>ID:</strong> {selectedEmployee.id}
-              </p>
-              <p>
-                <strong>Name:</strong> {selectedEmployee.name}
-              </p>
-              <p>
-                <strong>Email:</strong> {selectedEmployee.email}
-              </p>
-              <p>
-                <strong>Phone:</strong> {selectedEmployee.prime_phone}
-              </p>
-              <p>
-                <strong>Status:</strong>{" "}
-                {selectedEmployee.is_active ? "Active" : "Inactive"}
-              </p>
-              <p>
-                <strong>Date Joined:</strong>{" "}
-                {new Date(selectedEmployee.date_joined).toLocaleDateString()}
-              </p>
+              <div className="flex items-center justify-between">
+               <div>
+                <p>
+                  <strong>ID:</strong> {selectedEmployee.id}
+                </p>
+                <p>
+                  <strong>Name:</strong> {selectedEmployee.name}
+                </p>
+                <p>
+                  <strong>Email:</strong> {selectedEmployee.email}
+                </p>
+                <p>
+                  <strong>Phone:</strong> {selectedEmployee.prime_phone}
+                </p>
+                <p>
+                  <strong>Status:</strong>{" "}
+                  {selectedEmployee.is_active ? "Active" : "Inactive"}
+                </p>
+                <p>
+                  <strong>Date Joined:</strong>{" "}
+                  {new Date(selectedEmployee.date_joined).toLocaleDateString()}
+                </p>
+                </div>
+                <img
+                  src={
+                    selectedEmployee.employee_profile?.avatar ??
+                    "/default-avatar.png"
+                  }
+                  alt={selectedEmployee.name}
+                  className="w-36 h-36 rounded-full object-cover border border-gray-300"
+                />
+              </div>
               <hr className="my-2" />
               <p>
                 <strong>Department:</strong>{" "}
