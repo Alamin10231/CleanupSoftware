@@ -89,7 +89,7 @@ const Navbar = () => {
           >
             {(user?.user_type === "employee" || !user) && (
               <img
-                src={user?.avatarUrl ?? profilepic}
+                src={user?.avatarUrl ?? ""}
                 className="w-10 h-10 rounded"
                 alt="profile"
               />
