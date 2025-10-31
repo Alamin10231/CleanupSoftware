@@ -16,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/Components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface Employee {
   id: number;
@@ -49,26 +50,20 @@ const Employees = () => {
     null
   );
 
-  // Overview
   const { data: overviewData } = useEmployeeOverviewQuery();
-
-  // Normal employee list (paginated)
   const {
     data: employeeResponse,
     isLoading: employeesLoading,
     error: employeesError,
   } = useGetAllemployeeAdminQuery(page);
-
-  // Search employees (backend)
   const {
     data: searchResponse,
     isLoading: searchLoading,
     error: searchError,
   } = useGetSearchAllEmpoloyeesQuery(searchTerm, {
-    skip: searchTerm.trim() === "", // don’t call API if search is empty
+    skip: searchTerm.trim() === "",
   });
 
-  // Extract pagination
   const getPageNumber = (url: string | null) => {
     if (!url) return null;
     const match = url.match(/page=(\d+)/);
@@ -77,7 +72,6 @@ const Employees = () => {
   const nextPage = getPageNumber(employeeResponse?.next);
   const prevPage = getPageNumber(employeeResponse?.previous);
 
-  // Choose which list to show
   const employees: Employee[] = useMemo(() => {
     const baseList = searchTerm.trim()
       ? searchResponse?.results || []
@@ -85,7 +79,6 @@ const Employees = () => {
     return baseList;
   }, [searchTerm, employeeResponse, searchResponse]);
 
-  // Apply filters (department & shift)
   const filteredEmployees = employees.filter((emp) => {
     const matchesDepartment =
       departmentFilter === "All Departments" ||
@@ -143,7 +136,7 @@ const Employees = () => {
          <h1 className="text-2xl font-semibold">Employees</h1>
          <p>Manage your employees here</p>
         {/* Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-2">
           {cardData.map((card, index) => (
             <Card
               key={index}
@@ -258,17 +251,17 @@ const Employees = () => {
                         {emp.employee_profile?.base_salary || "0"} SAR
                       </td>
                       <td className="px-4 py-3">
-                        <button
+                        <Button
+                           variant={"outline"}
                           onClick={() => setSelectedEmployee(emp)}
-                          className="text-blue-500 hover:text-blue-700"
                           title="View Details"
                         >
                           <FaEye size={16} />
-                        </button>
+                        </Button>
                       </td>
                     </tr>
                   ))}
-                </tbody>
+                </tbody>                                                          
               </table>
             </div>
 

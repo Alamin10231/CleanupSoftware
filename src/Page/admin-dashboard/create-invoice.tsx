@@ -135,7 +135,7 @@ function LineItemRow({
   onRemove,
 }: LineItemRowProps) {
   return (
-    <tr className="border-b">
+    <tr className="border-b grid grid-cols-2 md:grid-cols-7 gap-2">
       <td className="p-2">
         <Input
           value={item.description}
@@ -420,7 +420,7 @@ export default function CreateInvoiceForm() {
           </FormField>
         </div>
 
-        <div className="grid grid-cols-3 gap-4 mb-4">
+        <div className="grid md:grid-cols-3 gap-4 mb-4">
           <FormField label="Region">
             <Select
               onValueChange={(value) => {
@@ -516,7 +516,7 @@ export default function CreateInvoiceForm() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b bg-gray-50">
+                <tr className="border-b grid grid-cols-2 md:grid-cols-7 gap-2bg-gray-50">
                   <th className="p-2 text-left">Description</th>
                   <th className="p-2 text-left">Service</th>
                   <th className="p-2 text-left">Quantity</th>

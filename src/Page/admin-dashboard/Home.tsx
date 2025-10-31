@@ -62,7 +62,7 @@ const Home = () => {
           </Link>
           <div className="flex gap-10 items-center">
             <NavLink to="/">Home</NavLink>
-            <a href="#section">Service</a>
+            <a href="#services">Service</a>
             {/* <NavLink to="#">Contact Us</NavLink> */}
             <a href="#price">Price</a>
           </div>
@@ -143,7 +143,7 @@ const Home = () => {
       </div>
 
       {/* Services Section */}
-      <div>
+      <div id="services">
         <p className="text-center text-2xl py-5 text-blue-500">Service</p>
         <h2 className="text-center text-5xl font-bold">
           Choose the Service You Need

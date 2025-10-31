@@ -97,7 +97,7 @@ const AdminDynamicForm = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-10 px-4 space-y-8">
+    <div>
       <div className="text-center space-y-2">
         <h1 className="text-3xl font-bold text-gray-900">🧩 Dynamic Form Builder</h1>
         <p className="text-gray-500 text-sm">

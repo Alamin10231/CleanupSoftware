@@ -49,7 +49,7 @@ const FormSubmitted = () => {
     );
 
   return (
-    <div className="p-6">
+    <div>
       <h1 className="text-3xl font-bold mb-6"> Submitted Forms</h1>
 
       <div className="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">

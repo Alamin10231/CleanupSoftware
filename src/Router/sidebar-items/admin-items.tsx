@@ -21,10 +21,11 @@ import {
   FilePenLine,
   FileCheck2,
 } from "lucide-react"; // Import necessary icons
+import RegionsHierarchy from "@/Page/admin-dashboard/region/region-dummy";
 const DynamicFormBuilder = lazy(
   () => import("@/Page/admin-dashboard/custom-form")
 );
-const Clients = lazy(() => import("@/Page/admin-dashboard/Clients"));
+const Clients = lazy(() => import("@/Page/admin-dashboard/Client/Clients"));
 const Dashboard = lazy(() => import("@/Page/admin-dashboard/Dashboard"));
 const Invoices = lazy(() => import("@/Page/admin-dashboard/invoice/Invoices"));
 const ExpenseAdmin = lazy(() => import("@/Page/admin-dashboard/ExpenseAdmin"));
@@ -61,6 +62,7 @@ const FormSubmitted = lazy(
 );
 const ChatPage = lazy(() => import("@/Page/admin-dashboard/ChatPage"));
 const MapRegionOverview = lazy(() => import("@/Page/admin-dashboard/Map"));
+const AllRequests = lazy(() => import("@/Page/admin-dashboard/AllRequests"));
 
 export const adminSidebarItems: ISidebarItems[] = [
   {
@@ -88,6 +90,13 @@ export const adminSidebarItems: ISidebarItems[] = [
         icon: MapPin, // Added icon
       },
       {
+        title: "Region",
+        url: "/admin/region-dummy",
+        component: RegionsHierarchy,
+        isActive: false,
+        icon: MapPin, // Added icon
+      },
+      {
         title: "Employees",
         url: "/admin/employees",
         component: Employees,
@@ -110,6 +119,13 @@ export const adminSidebarItems: ISidebarItems[] = [
         title: "Services",
         url: "/admin/services",
         component: Services,
+        isActive: false,
+        icon: ClipboardList, // Added icon
+      },
+      {
+        title: "All Requests",
+        url: "/admin/all-requests",
+        component: AllRequests,
         isActive: false,
         icon: ClipboardList, // Added icon
       },

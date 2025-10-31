@@ -7,6 +7,7 @@ import {
   Settings,
   FileText,
   CreditCard,
+  ClipboardList,
 } from "lucide-react";
 import ServiceTable from "@/Page/employee-dashboard/communication";
 const EmployeeTaskDashboard = lazy(
@@ -29,6 +30,9 @@ const EmployeeInvoicees = lazy(
 );
 const EmployeeSubscription = lazy(
   () => import("@/Page/employee-dashboard/EmployeeSubscription")
+);
+const AssignedRequests = lazy(
+  () => import("@/Page/employee-dashboard/AssignedRequests")
 );
 
 export const employeeSidebarItems: ISidebarItems[] = [
@@ -76,6 +80,13 @@ export const employeeSidebarItems: ISidebarItems[] = [
         component: EmployeeSubscription,
         isActive: false,
         icon: CreditCard,
+      },
+      {
+        title: "Assigned Requests",
+        url: "assigned-requests",
+        component: AssignedRequests,
+        isActive: false,
+        icon: ClipboardList,
       },
       {
         title: "Settings",
