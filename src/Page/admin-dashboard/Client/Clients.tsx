@@ -28,6 +28,7 @@ import { Switch } from "@/Components/ui/switch";
 import { Button } from "@/components/ui/button";
 import ClientDetails from "./client-detail";
 import EditClient from "./update-client";
+import ErrorComponent from "@/Components/Error";
 
 const Clients = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -35,7 +36,6 @@ const Clients = () => {
   const [page, setPage] = useState<number>(1);
   const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false);
-  const [editClientId, setEditClientId] = useState<number | null>(null);
   const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
 
   useEffect(() => {
@@ -43,7 +43,6 @@ const Clients = () => {
     return () => clearTimeout(t);
   }, [searchTerm]);
 
-  // queries
   const {
     data: all_Client,
     isLoading: all_Client_Loading,
@@ -64,8 +63,7 @@ const Clients = () => {
     error: overviewError,
   } = useGetClientOverviewAdminQuery();
 
-  // Fetch detailed client data when a client is selected
-  const { data: clientDetail, isLoading: clientDetailLoading } =
+  const { data: clientDetail } =
     useGetClientDetailsQuery(selectedClientId, {
       skip: selectedClientId === null,
     });
@@ -119,7 +117,7 @@ const Clients = () => {
   };
 
   if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error loading clients.</p>;
+  if (error) return <ErrorComponent />;
 
   const totalPages = debouncedSearch.trim()
     ? 1
@@ -250,7 +248,7 @@ const Clients = () => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => setEditClientId(client.id)}
+                      onClick={() => setIsEditOpen(client.id)}
                     >
                       <Edit className="h-4 w-4" />
                     </Button>

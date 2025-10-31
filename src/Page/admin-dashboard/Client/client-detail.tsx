@@ -1,4 +1,4 @@
-import { X, MapPin, Phone, Mail, Calendar, Building2, CreditCard, FileText } from 'lucide-react';
+import { MapPin, Phone, Mail, Calendar, Building2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -26,13 +26,11 @@ import {
 } from "@/Components/ui/table";
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import EditClient from './update-client';
 
 interface ClientDetailsProps {
   client: any;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onEdit?: (clientId: number) => void;
 }
 
 const ClientDetails = ({ client, open, onOpenChange }: ClientDetailsProps) => {
@@ -354,9 +352,6 @@ const ClientDetails = ({ client, open, onOpenChange }: ClientDetailsProps) => {
             <div className="p-4 flex justify-end gap-3">
               <Button variant="outline" onClick={() => onOpenChange(false)}>
                 Close
-              </Button>
-              <Button>
-                Edit Client
               </Button>
             </div>
           </div>

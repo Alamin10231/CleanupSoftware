@@ -21,6 +21,7 @@ import {
   FilePenLine,
   FileCheck2,
 } from "lucide-react"; // Import necessary icons
+import RegionsHierarchy from "@/Page/admin-dashboard/region/region-dummy";
 const DynamicFormBuilder = lazy(
   () => import("@/Page/admin-dashboard/custom-form")
 );
@@ -85,6 +86,13 @@ export const adminSidebarItems: ISidebarItems[] = [
         title: "Region",
         url: "/admin/region",
         component: Region,
+        isActive: false,
+        icon: MapPin, // Added icon
+      },
+      {
+        title: "Region",
+        url: "/admin/region-dummy",
+        component: RegionsHierarchy,
         isActive: false,
         icon: MapPin, // Added icon
       },

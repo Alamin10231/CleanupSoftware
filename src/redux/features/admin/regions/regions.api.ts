@@ -27,6 +27,10 @@ export const regionsApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["region"],
     }),
+    getRegions: builder.query<any, void>({
+      query: () => "/regionlist/",
+      providesTags: ["region"],
+    }),
   }),
 });
 
@@ -35,4 +39,5 @@ export const {
   useSearchRegionQuery,
   useGetcalculationregionQuery,
   useAddregionMutation,
+  useGetRegionsQuery
 } = regionsApi;

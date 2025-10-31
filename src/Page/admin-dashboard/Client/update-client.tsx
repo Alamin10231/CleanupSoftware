@@ -7,13 +7,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/Components/ui/dialog";
-import { Switch } from "@/Components/ui/switch";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/Components/ui/form";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { useUpdateClientMutation } from "@/redux/features/admin/users/clients.api";
 import { Loader2 } from 'lucide-react';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/Components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/Components/ui/switch';
 import { Button } from '@/components/ui/button';
 
 interface EditClientProps {
@@ -172,7 +180,7 @@ const EditClient = ({ client, open, onOpenChange }: EditClientProps) => {
             </div>
 
             {/* Avatar URL */}
-            <FormField
+            {/* <FormField
               control={form.control}
               name="avatar"
               render={({ field }) => (
@@ -187,7 +195,7 @@ const EditClient = ({ client, open, onOpenChange }: EditClientProps) => {
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
 
             {/* Active Status */}
             <FormField

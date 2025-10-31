@@ -41,7 +41,6 @@ const AddNewPlanForm = () => {
     is_active: boolean;
     category: number | null;
     discount: number;
-    auto_renewal: boolean;
   };
 
   const initialFormState: FormState = {
@@ -53,7 +52,6 @@ const AddNewPlanForm = () => {
     is_active: true,
     category: null,
     discount: 0,
-    auto_renewal: true,
   };
 
   const [formData, setFormData] = useState<FormState>(initialFormState);
@@ -136,7 +134,6 @@ const AddNewPlanForm = () => {
       is_active: formData.is_active,
       category: formData.category ? Number(formData.category) : null,
       discount: Number(formData.discount),
-      auto_renewal: formData.auto_renewal,
       service_line_items: services.map(({ id, total, ...rest }) => rest),
     };
 
@@ -343,22 +340,6 @@ const AddNewPlanForm = () => {
                 }
               />
             </div>
-            <div className="grid grid-cols-1 gap-2 items-center">
-              <Label className="text-sm">Auto-renewal</Label>
-              <div className="flex items-center w-fit gap-2">
-                <Switch
-                  id="auto_renewal"
-                  checked={formData.auto_renewal}
-                  onCheckedChange={(checked) =>
-                    handleInputChange("auto_renewal", checked)
-                  }
-                />
-                <span className="text-sm text-gray-600">
-                  {formData.auto_renewal ? "ON" : "OFF"}
-                </span>
-              </div>
-            </div>
-          </div>
           <div className="space-y-2 mt-4">
             <Label className="text-sm">Status</Label>
             <div className="flex items-center w-fit gap-2">
@@ -373,6 +354,7 @@ const AddNewPlanForm = () => {
                 {formData.is_active ? "Active" : "Inactive"}
               </span>
             </div>
+          </div>
           </div>
         </div>
       </div>
