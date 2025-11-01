@@ -34,11 +34,12 @@ export const clientSidebarItems = [
       },
       {
         title: "My Requests",
-        url: "/client/requests",
+        url: "/client/Requests",
         component: Requests,
         icon: List,
         isActive: false,
       },
+   
     ],
   },
 ];
