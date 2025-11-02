@@ -134,6 +134,54 @@ export const assets = {
 
 };
 
+export const subscriptionsData = [
+  {
+    id: 1,
+    property: "Apt 304, Sunset Tower",
+    owner: "John Smith",
+    region: "North Region",
+    status: "Active & Paid",
+    statusColor: "bg-green-500",
+    days: "23 days remaining",
+    barColor: "bg-green-400",
+    barWidth: "w-[75%]"
+  },
+  {
+    id: 2,
+    property: "Apt 102, Ocean View",
+    owner: "Sarah Johnson",
+    region: "South Region",
+    status: "Payment Due — Action Needed",
+    statusColor: "bg-yellow-500",
+    days: "2 days overdue",
+    barColor: "bg-orange-500",
+    barWidth: "w-[90%]"
+  },
+  {
+    id: 3,
+    property: "Apt 507, Metro Plaza",
+    owner: "Mike Davis",
+    region: "East Region",
+    status: "Paused — 15 days Left",
+    statusColor: "bg-blue-500",
+    days: "15 days remaining",
+    barColor: "bg-blue-500",
+    barWidth: "w-[50%]"
+  },
+  {
+    id: 4,
+    property: "Apt 201, Sunset Tower",
+    owner: "Emma Wilson",
+    region: "North Region",
+    status: "Stopped Permanently",
+    statusColor: "bg-red-500",
+    days: "Subscription ended",
+    barColor: "bg-red-400",
+    barWidth: "w-[100%]"
+  }
+];
+
+
 export const ServiceTopCard = [
   {
     title: "Total Service",

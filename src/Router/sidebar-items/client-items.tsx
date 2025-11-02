@@ -1,11 +1,13 @@
 import { lazy } from "react";
 const ClientProfile = lazy(() => import("@/Page/client-dashboard/ClientProfile"));
+const ClientInvoice = lazy(() => import("@/Page/Client/ClientInvoice"));
 const ClientSubscription = lazy(
   () => import("@/Page/client-dashboard/ClientSubscription")
 );
 const SendRequest = lazy(() => import("@/Page/client-dashboard/SendRequest"));
 const Requests = lazy(() => import("@/Page/client-dashboard/Requests"));
-import { CreditCard, User, Send, List } from "lucide-react";
+import { CreditCard, User, Send, List, Receipt  } from "lucide-react";
+
 
 export const clientSidebarItems = [
   {
@@ -40,6 +42,13 @@ export const clientSidebarItems = [
         isActive: false,
       },
    
+      {
+        title: "Invoice",
+        url: "/client/invoice",
+        component: ClientInvoice,
+        icon: Receipt,
+        isActive: false,
+      },
     ],
   },
 ];
