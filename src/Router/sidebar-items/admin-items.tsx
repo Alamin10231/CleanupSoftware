@@ -6,10 +6,8 @@ import {
   MapPin,
   Briefcase,
   CreditCard,
-  Settings,
   Bell,
   BarChart,
-  MessageSquare,
   FileText,
   PlusCircle,
   ClipboardList,
@@ -17,14 +15,17 @@ import {
   CalendarPlus,
   FilePlus,
   ListPlus,
-  Pencil,
   FilePenLine,
   FileCheck2,
 } from "lucide-react"; // Import necessary icons
+import RegionsHierarchy from "@/Page/admin-dashboard/region/region-dummy";
+const ReceiveRequest = lazy(
+  () => import("@/Page/admin-dashboard/ReceiveRequest")
+);
 const DynamicFormBuilder = lazy(
   () => import("@/Page/admin-dashboard/custom-form")
 );
-const Clients = lazy(() => import("@/Page/admin-dashboard/Clients"));
+const Clients = lazy(() => import("@/Page/admin-dashboard/Client/Clients"));
 const Dashboard = lazy(() => import("@/Page/admin-dashboard/Dashboard"));
 const Invoices = lazy(() => import("@/Page/admin-dashboard/invoice/Invoices"));
 const ExpenseAdmin = lazy(() => import("@/Page/admin-dashboard/ExpenseAdmin"));
@@ -38,9 +39,9 @@ const Notifications = lazy(
 const Region = lazy(() => import("@/Page/admin-dashboard/Region"));
 const ReportsPage = lazy(() => import("@/Page/admin-dashboard/Reports"));
 const Services = lazy(() => import("@/Page/admin-dashboard/Services"));
-const ProfileSettingsPage = lazy(
-  () => import("@/Page/admin-dashboard/Settings")
-);
+// const ProfileSettingsPage = lazy(
+//   () => import("@/Page/admin-dashboard/Settings")
+// );
 const Subscriptions = lazy(
   () => import("@/Page/admin-dashboard/Subscriptions")
 );
@@ -59,8 +60,9 @@ const AddSubscription = lazy(
 const FormSubmitted = lazy(
   () => import("@/Page/admin-dashboard/form-submitted")
 );
-const ChatPage = lazy(() => import("@/Page/admin-dashboard/ChatPage"));
+// const ChatPage = lazy(() => import("@/Page/admin-dashboard/ChatPage"));
 const MapRegionOverview = lazy(() => import("@/Page/admin-dashboard/Map"));
+const AllRequests = lazy(() => import("@/Page/admin-dashboard/AllRequests"));
 
 export const adminSidebarItems: ISidebarItems[] = [
   {
@@ -88,6 +90,13 @@ export const adminSidebarItems: ISidebarItems[] = [
         icon: MapPin, // Added icon
       },
       {
+        title: "Region",
+        url: "/admin/region-dummy",
+        component: RegionsHierarchy,
+        isActive: false,
+        icon: MapPin, // Added icon
+      },
+      {
         title: "Employees",
         url: "/admin/employees",
         component: Employees,
@@ -110,6 +119,13 @@ export const adminSidebarItems: ISidebarItems[] = [
         title: "Services",
         url: "/admin/services",
         component: Services,
+        isActive: false,
+        icon: ClipboardList, // Added icon
+      },
+      {
+        title: "All Requests",
+        url: "/admin/all-requests",
+        component: AllRequests,
         isActive: false,
         icon: ClipboardList, // Added icon
       },
@@ -202,6 +218,20 @@ export const adminSidebarItems: ISidebarItems[] = [
         isActive: false,
         icon: FileCheck2, // Added icon
       },
+      {
+        title: "Receive Request",
+        url: "/admin/ReceiveRequest",
+        component: ReceiveRequest,
+        isActive: false,
+        icon: Bell,
+      },
+      // {
+      //         title: "Send Request",
+      //         url: "/client/send-request",
+      //         component: SendRequest,
+      //         icon: Send,
+      //         isActive: false,
+      //       },
     ],
   },
 

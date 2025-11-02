@@ -18,6 +18,14 @@ export const invoiceApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Invoice"],
     }),
+    updateInvoiceStatus: builder.mutation({
+      query: ({ id, status }) => ({
+        url: `/plan/invoice/list/${id}/`,
+        method: "PATCH",
+        body: { status },
+      }),
+      invalidatesTags: ["Invoice"],
+    }),
     getSearchAllInvoice: builder.query({
       query: (searchInvoice = "") =>
         `plan/invoice/list/?search=${searchInvoice}`,
@@ -44,6 +52,7 @@ export const invoiceApi = baseApi.injectEndpoints({
 export const {
   useGetInvoicesQuery,
   useAddInvoiceMutation,
+  useUpdateInvoiceStatusMutation,
   useGetCalculationInvoiceQuery,
   useGetSearchAllInvoiceQuery,
   useAddAdminInvoiceMutation,

@@ -2,25 +2,51 @@ import { assets } from "@/assets/assets";
 import Card from "@/Components/Card";
 import { useEffect, useState } from "react";
 import { IoIosSearch } from "react-icons/io";
-import { useGetAllClientsAdminQuery, useGetClientOverviewAdminQuery, useGetSearchClientsQuery } from "@/redux/features/admin/users/clients.api";
+import {
+  useGetAllClientsAdminQuery,
+  useGetClientOverviewAdminQuery,
+  useGetSearchClientsQuery,
+  useDeleteClientMutation,
+  useUpdateClientMutation,
+  useGetClientDetailsQuery,
+} from "@/redux/features/admin/users/clients.api";
 import { AddClient } from "./add-client";
+import { Eye, Edit, Trash } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/Components/ui/alert-dialog";
+import { toast } from "sonner";
+import { Switch } from "@/Components/ui/switch";
+import { Button } from "@/components/ui/button";
+import ClientDetails from "./client-detail";
+import EditClient from "./update-client";
+import ErrorComponent from "@/Components/Error";
 
 const Clients = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [debouncedSearch, setDebouncedSearch] = useState<string>("");
   const [page, setPage] = useState<number>(1);
+  const [selectedClientId, setSelectedClientId] = useState<number | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false);
+  const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(searchTerm), 500);
     return () => clearTimeout(t);
   }, [searchTerm]);
 
-  // queries
   const {
     data: all_Client,
     isLoading: all_Client_Loading,
     error: all_Client_error,
-    refetch: refetchAll,
   } = useGetAllClientsAdminQuery(page);
 
   const {
@@ -37,6 +63,14 @@ const Clients = () => {
     error: overviewError,
   } = useGetClientOverviewAdminQuery();
 
+  const { data: clientDetail } =
+    useGetClientDetailsQuery(selectedClientId, {
+      skip: selectedClientId === null,
+    });
+
+  const [deleteClient] = useDeleteClientMutation();
+  const [updateClient] = useUpdateClientMutation();
+
   const clientsToDisplay = debouncedSearch.trim()
     ? searchResults?.results || []
     : all_Client?.results || [];
@@ -45,8 +79,45 @@ const Clients = () => {
     all_Client_Loading || overviewLoading || (debouncedSearch && searchLoading);
   const error = all_Client_error || overviewError || searchError;
 
+  const handleDelete = async (clientId: number) => {
+    try {
+      await deleteClient(clientId).unwrap();
+      toast.success("Client deleted successfully");
+    } catch (error) {
+      toast.error("Failed to delete client");
+    }
+  };
+
+  const handleStatusToggle = async (
+    clientId: number,
+    currentStatus: boolean
+  ) => {
+    try {
+      await updateClient({
+        id: clientId,
+        body: { is_active: !currentStatus },
+      }).unwrap();
+      toast.success("Client status updated successfully");
+    } catch (error) {
+      toast.error("Failed to update client status");
+    }
+  };
+
+  const handleViewClient = (clientId: number) => {
+    setSelectedClientId(clientId);
+    setIsDetailsOpen(true);
+  };
+
+  const handleCloseDetails = (open: boolean) => {
+    setIsDetailsOpen(open);
+    if (!open) {
+      // Delay clearing the selected client to allow the dialog to close smoothly
+      setTimeout(() => setSelectedClientId(null), 300);
+    }
+  };
+
   if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error loading clients.</p>;
+  if (error) return <ErrorComponent />;
 
   const totalPages = debouncedSearch.trim()
     ? 1
@@ -128,10 +199,8 @@ const Clients = () => {
                 <th className="p-3">Location</th>
                 <th className="p-3">Status</th>
                 <th className="p-3">Services</th>
-                <th className="p-3">Pay</th>
-                <th className="p-3">Building</th>
                 <th className="p-3">Joined</th>
-                {/* <th className="p-3">Actions</th> */}
+                <th className="p-3">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -157,27 +226,61 @@ const Clients = () => {
                     {client.client_profile?.location ?? "N/A"}
                   </td>
                   <td className="p-3">
-                    {client.is_active ? (
-                      <span className="bg-green-100 text-green-600 p-1 rounded-full">
-                        Active
-                      </span>
-                    ) : (
-                      <span className="bg-yellow-100 text-yellow-600 p-1 rounded-full">
-                        Inactive
-                      </span>
-                    )}
+                    <Switch
+                      checked={client.is_active}
+                      onCheckedChange={() =>
+                        handleStatusToggle(client.id, client.is_active)
+                      }
+                    />
                   </td>
                   <td className="p-3">{client.each_client_services}</td>
-                  <td className="p-3">{client.each_client_pay}</td>
-                  <td className="p-3">{client.each_client_building}</td>
                   <td className="p-3">
                     {new Date(client.date_joined).toLocaleDateString()}
                   </td>
-                  {/* <td className="p-3 flex gap-3 text-gray-600">
-                    <button className="hover:text-green-500 cursor-pointer">
-                      <FaEdit />
-                    </button>
-                  </td> */}
+                  <td className="p-3 flex gap-2 items-center">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleViewClient(client.id)}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setIsEditOpen(client.id)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently
+                            delete the client.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(client.id)}
+                          >
+                            <Button variant="destructive">Delete</Button>
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -216,6 +319,19 @@ const Clients = () => {
           </div>
         )}
       </div>
+
+      {/* Client Details Modal */}
+      <ClientDetails
+        client={clientDetail}
+        open={isDetailsOpen}
+        onOpenChange={handleCloseDetails}
+      />
+
+      <EditClient
+        client={clientDetail}
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+      />
     </div>
   );
 };

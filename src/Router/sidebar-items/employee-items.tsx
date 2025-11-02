@@ -7,6 +7,8 @@ import {
   Settings,
   FileText,
   CreditCard,
+  ClipboardList,
+  Bell
 } from "lucide-react";
 import ServiceTable from "@/Page/employee-dashboard/communication";
 const EmployeeTaskDashboard = lazy(
@@ -29,6 +31,12 @@ const EmployeeInvoicees = lazy(
 );
 const EmployeeSubscription = lazy(
   () => import("@/Page/employee-dashboard/EmployeeSubscription")
+);
+const AssignedRequests = lazy(
+  () => import("@/Page/employee-dashboard/AssignedRequests")
+);
+const ReceiveRequest = lazy(
+  () => import("@/Page/admin-dashboard/ReceiveRequest")
 );
 
 export const employeeSidebarItems: ISidebarItems[] = [
@@ -78,12 +86,33 @@ export const employeeSidebarItems: ISidebarItems[] = [
         icon: CreditCard,
       },
       {
+        title: "Assigned Requests",
+        url: "assigned-requests",
+        component: AssignedRequests,
+        isActive: false,
+        icon: ClipboardList,
+      },
+      {
         title: "Settings",
         url: "setting", // Changed from /employee-setting
         component: EmployeeSetting,
         isActive: false,
         icon: Settings,
       },
+      {
+        title: "Receive Request",
+        url: "receive-request",
+        component: ReceiveRequest,
+        isActive: false,
+        icon: Bell,
+      },
+    //  {
+    //     title: "Receive Request",
+    //     url: "/admin/ReceiveRequest",
+    //     component: ReceiveRequest,
+    //     isActive: false,
+    //     icon: Bell,
+    //   },
     ],
   },
 ];

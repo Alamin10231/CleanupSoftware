@@ -30,16 +30,16 @@ const Invoices = () => {
         </div>
       </div>
       {/* stats */}
-      <div className="grid grid-cols-4 gap-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card
           title={`Total`}
-          number={data.total}
+          number={` ${data.total} SAR`}
           iconSrc={assets.total_service}
           iconAlt="Total Service"
         />
         <Card
           title={`Sales`}
-          number={data.sales}
+          number={` ${data.sales} SAR`}
           iconSrc={assets.overDue}
           iconAlt="Total Sales"
         />
@@ -56,8 +56,8 @@ const Invoices = () => {
           iconAlt="blueInvoice"
         />
       </div>
-      {/*  Invoice table */}
 
+      {/*  Invoice table */}
       <InvoicesList />
     </div>
   );

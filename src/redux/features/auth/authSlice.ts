@@ -80,7 +80,7 @@ const authSlice = createSlice({
       saveToLocalStorage("refresh", refresh);
 
       // Debug: Log what we're storing
-      console.log("Storing user:", user);
+      // console.log("Storing user:", user);
     },
 
     updateUser: (state, action: PayloadAction<Partial<User>>) => {

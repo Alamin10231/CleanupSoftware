@@ -158,14 +158,11 @@ const AddNewServiceForm = () => {
       region: formData.region,
     };
     try {
-      await toast.promise(addService(payload).unwrap(), {
-        loading: "Adding service...",
-        success: "Service added successfully",
-        error: (err) =>
-          `Failed to add service: ${err?.message || "Unknown error"}`,
-      });
+      await addService(payload).unwrap()
+      toast.success("Service created successfully");
       handleCancel();
     } catch (error) {
+      toast.error(`${Object.keys(error.data)[0]}: ${error.data[Object.keys(error.data)[0]][0]}`);
       console.error("Service creation failed:", error);
     }
   };
@@ -179,7 +176,7 @@ const AddNewServiceForm = () => {
         </p>
       </div>
       {/* Basic Service Information */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid md:grid-cols-2 gap-4 mb-4">
         <div className="bg-white border rounded-lg p-6 mb-4">
           <h2 className="text-base font-semibold mb-4">
             Basic Service Information
@@ -637,7 +634,7 @@ const AddNewServiceForm = () => {
           Cancel
         </Button>
         <Button disabled={addServiceLoading} onClick={handleSave}>
-          {addServiceLoading ? "Saving..." : "Save"}
+          {addServiceLoading ? "Creating..." : "Create Service"}
         </Button>
       </div>
     </div>

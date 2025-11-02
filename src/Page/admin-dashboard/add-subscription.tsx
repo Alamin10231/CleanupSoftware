@@ -5,7 +5,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { Label } from "@/Components/ui/label";
-import { Input } from "@/Components/ui/input";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -39,12 +39,9 @@ const AddSubscriptionForm = () => {
     region: number | null;
     status: "active" | "inactive" | "paused" | "cancelled" | "past_due";
     start_date: string;
-    current_period_end: string;
-    pause_until: string | null;
     payment: "prepaid" | "postpaid";
     employee: number[];
   }
-
   const initialFormState: FormState = {
     user: null,
     plan: null,
@@ -53,8 +50,6 @@ const AddSubscriptionForm = () => {
     region: null,
     status: "active",
     start_date: "",
-    current_period_end: "",
-    pause_until: null,
     payment: "prepaid",
     employee: [],
   };
@@ -81,8 +76,8 @@ const AddSubscriptionForm = () => {
     useGetSearchClientsQuery(userSearch ? `${userSearch}` : "");
   const { data: employeesData, isLoading: isEmployeesLoading } =
     useGetSearchAllEmpoloyeesQuery(employeeSearch ? `${employeeSearch}` : "");
-  const { data: plansData, isLoading: isPlansLoading } = useGetPlansQuery(undefined)
-  const [addSubscription, { isLoading: addingSubscription }] = useAddSubscriptionMutation()
+  const { data: plansData } = useGetPlansQuery(undefined)
+  const [addSubscription] = useAddSubscriptionMutation()
 
   const apartments = apartmentsData?.apartments || [];
 
@@ -119,25 +114,17 @@ const AddSubscriptionForm = () => {
       region: formData.region,
       status: formData.status,
       start_date: formData.start_date,
-      current_period_end: formData.current_period_end,
-      pause_until: formData.pause_until || null,
       payment: formData.payment,
       employee: formData.employee,
     };
 
     try {
-      await toast.promise(
-        addSubscription(payload),
-        {
-          loading: "Creating subscription...",
-          success: "Subscription created successfully",
-          error: "Failed to create subscription",
-        }
-      );
-      console.log("Payload:", payload);
+      await addSubscription(payload)
+      toast.success("Subscription created successfully");
       handleCancel();
     } catch (error) {
       console.error("Subscription creation failed:", error);
+      toast.error("Subscription creation failed");
     }
   };
 
@@ -156,7 +143,7 @@ const AddSubscriptionForm = () => {
       </div>
 
       {/* User & Plan Selection */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid md:grid-cols-2 gap-4 mb-4">
         <div className="bg-white border rounded-lg p-6">
           <h2 className="text-base font-semibold mb-4">User Information</h2>
           <div className="space-y-4">
@@ -398,7 +385,7 @@ const AddSubscriptionForm = () => {
       </div>
 
       {/* Subscription Details */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid md:grid-cols-2 gap-4 mb-4">
         <div className="bg-white border rounded-lg p-6">
           <h2 className="text-base font-semibold mb-4">
             Subscription Details
@@ -471,7 +458,7 @@ const AddSubscriptionForm = () => {
             </div>
 
             {/* Current Period End */}
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="current_period_end" className="text-sm">
                 Current Period End *
               </Label>
@@ -483,10 +470,10 @@ const AddSubscriptionForm = () => {
                   handleInputChange("current_period_end", e.target.value)
                 }
               />
-            </div>
+            </div> */}
 
             {/* Pause Until */}
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="pause_until" className="text-sm">
                 Pause Until (optional)
               </Label>
@@ -501,7 +488,7 @@ const AddSubscriptionForm = () => {
                   )
                 }
               />
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
@@ -606,7 +593,7 @@ const AddSubscriptionForm = () => {
         <Button onClick={handleCancel} variant="outline">
           Cancel
         </Button>
-        <Button onClick={handleSave}>Save Subscription</Button>
+        <Button onClick={handleSave}>Create Subscription</Button>
       </div>
     </div>
   );
