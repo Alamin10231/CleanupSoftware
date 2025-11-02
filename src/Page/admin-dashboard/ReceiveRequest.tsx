@@ -6,6 +6,8 @@ import {
 import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useDeleteClientMutation } from "@/redux/features/admin/users/clients.api";
+import { toast } from "sonner";
 
 const ReceiveRequest: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -24,7 +26,17 @@ const ReceiveRequest: React.FC = () => {
   });
 
   const [updateClientRequest] = useUpdateClientRequestMutation();
-
+const [deleteClientRequest] = useDeleteClientMutation();
+const deleteitem = async(id:number)=>{
+  try{
+    await deleteClientRequest(id).unwrap()
+    toast.success("delete successfully")
+  }
+  catch (error){
+     toast.error("delete successfully")
+console.log(error)
+  }
+}
   const handleEditClick = (item: any) => {
     if (!isAdmin) return;
     setEditRowId(item.id);
@@ -118,6 +130,12 @@ const ReceiveRequest: React.FC = () => {
                         Edit
                       </Button>
                     )}
+                      <Button
+                        variant="secondary"
+                        onClick={() => deleteitem(item.id)}
+                      >
+                        Delete
+                      </Button>
                   </td>
                 )}
               </tr>
