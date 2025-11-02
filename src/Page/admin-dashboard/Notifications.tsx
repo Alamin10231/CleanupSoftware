@@ -42,7 +42,7 @@ const Notifications = () => {
   };
 
   return (
-    <>
+    <div className="w-8/12 mx-auto">
       {/* Header */}
       <div className="flex justify-between items-center my-5">
         <div>
@@ -77,7 +77,7 @@ const Notifications = () => {
           </TableBody>
         </Table>
       </div>
-    </>
+    </div>
   );
 };
 

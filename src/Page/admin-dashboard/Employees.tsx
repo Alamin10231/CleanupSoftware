@@ -215,7 +215,7 @@ const Employees = () => {
                     <th className="px-4 py-3 text-left">Phone</th>
                     <th className="px-4 py-3 text-left">Salary</th>
                     <th className="px-4 py-3 text-left cursor-pointer">
-                      Details
+                      Actions
                     </th>
                   </tr>
                 </thead>
@@ -250,6 +250,7 @@ const Employees = () => {
                       <td className="px-4 py-3">
                         {emp.employee_profile?.base_salary || "0"} SAR
                       </td>
+
                       <td className="px-4 py-3">
                         <Button
                            variant={"outline"}
@@ -261,7 +262,7 @@ const Employees = () => {
                       </td>
                     </tr>
                   ))}
-                </tbody>                                                          
+                </tbody>
               </table>
             </div>
 
