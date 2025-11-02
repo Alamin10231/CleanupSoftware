@@ -1,41 +1,30 @@
 import React, { useState } from "react";
-import {
-  useSendClientRequestMutation,
-} from "@/redux/features/Client/Request.api";
+import { useSendClientRequestMutation } from "@/redux/features/Client/Request.api";
 import { useSelector } from "react-redux";
 import { useGetSubscriptionClientQuery } from "@/redux/features/Client/subscription.api";
+import { useGetEmployeeTasksQuery } from "@/redux/features/employee/task/task.api";
 
 // Define types
 interface FormState {
   form_name: string;
   subscription: string;
   special_service: string;
+  client_set_date: string;
   start_time: string;
-  end_time: string;
   form_type: "makeup" | "checkout" | "other";
   description: string;
 }
 
-interface Subscription {
+interface SubscriptionItem {
   id: number;
   status: string;
-  plan: {
-    name: string;
-  };
-  building: {
-    name: string;
-  };
-  apartment: {
-    apartment_number: string;
-  };
+  plan: { name: string };
+  building: { name: string };
+  apartment: { apartment_number: string };
 }
 
 interface RootState {
-  auth: {
-    user?: {
-      id: number;
-    };
-  };
+  auth: { user?: { id: number } };
 }
 
 const SendRequest: React.FC = () => {
@@ -43,71 +32,71 @@ const SendRequest: React.FC = () => {
     form_name: "",
     subscription: "",
     special_service: "",
+    client_set_date: "",
     start_time: "",
-    end_time: "",
     form_type: "makeup",
     description: "",
   });
 
   const clientId = useSelector((state: RootState) => state.auth.user?.id);
 
-  // Using the correct query hook
-  const { data, isLoading: subsLoading, error } = useGetSubscriptionClientQuery();
-  
-  const [sendClientRequest, { isLoading, isSuccess, isError }] = useSendClientRequestMutation();
+  const {
+    data: subscriptionList,
+    isLoading: subsLoading,
+    
+  } = useGetSubscriptionClientQuery();
+
+  const { data: singleService, isLoading: serviceLoading } =
+    useGetEmployeeTasksQuery();
+
+  const [sendClientRequest, { isLoading, isSuccess, isError }] =
+    useSendClientRequestMutation();
+
+  const activeSubscriptions: SubscriptionItem[] =
+    subscriptionList?.filter(
+      (sub: SubscriptionItem) => sub.status === "active"
+    ) || [];
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
-    const { name, value } = e.target;
-    setForm({
-      ...form,
-      [name]: value,
-    });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    const payload: any = {
+      form_name: form.form_name,
+      subscription: Number(form.subscription),
+      time_range: form.start_time,
+      client_set_date: form.client_set_date,
+      form_type: form.form_type,
+      description: form.description,
+      client: clientId,
+    };
+
+    if (form.special_service) {
+      payload.special_service = Number(form.special_service);
+    }
+
     try {
-      // Format time range as "HH:MM-HH:MM"
-      const time_range = `${form.start_time}-${form.end_time}`;
-      
-      const payload: any = {
-        form_name: form.form_name,
-        subscription: Number(form.subscription),
-        time_range: time_range,
-        form_type: form.form_type,
-        description: form.description,
-        client: clientId,
-      };
-
-      // Add special_service only if selected
-      if (form.special_service) {
-        payload.special_service = Number(form.special_service);
-      }
-
-      const res = await sendClientRequest(payload).unwrap();
-      console.log("✅ Request sent:", res);
-      
-      // Reset form on success
+      await sendClientRequest(payload).unwrap();
       setForm({
         form_name: "",
         subscription: "",
         special_service: "",
+        client_set_date: "",
         start_time: "",
-        end_time: "",
         form_type: "makeup",
         description: "",
       });
-    } catch (error: any) {
-      console.error("❌ Error:", error);
+    } catch (e) {
+      console.error("Error submitting form:", e);
     }
   };
-
-  // Get active subscriptions from the API response
-  const activeSubscriptions: Subscription[] = 
-    data?.filter((sub: Subscription) => sub.status === "active") || [];
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
@@ -117,10 +106,10 @@ const SendRequest: React.FC = () => {
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Form Name */}
+          {/* Request Name */}
           <div>
             <label className="block text-gray-700 font-semibold mb-1">
-              Request
+              Request Name
             </label>
             <input
               type="text"
@@ -128,7 +117,7 @@ const SendRequest: React.FC = () => {
               value={form.form_name}
               onChange={handleChange}
               placeholder="Enter Your Request"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2"
               required
             />
           </div>
@@ -140,30 +129,76 @@ const SendRequest: React.FC = () => {
             </label>
             {subsLoading ? (
               <p className="text-gray-500 py-2">Loading subscriptions...</p>
-            ) : error ? (
-              <p className="text-red-500 py-2">Failed to load subscriptions.</p>
             ) : activeSubscriptions.length === 0 ? (
-              <p className="text-yellow-600 py-2">No active subscriptions found.</p>
+              <p className="text-yellow-600 py-2">No active subscriptions</p>
             ) : (
               <select
                 name="subscription"
                 value={form.subscription}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2"
                 required
               >
                 <option value="">Select Subscription</option>
                 {activeSubscriptions.map((sub) => (
                   <option key={sub.id} value={sub.id}>
-                    {sub.plan.name} - {sub.building.name} ({sub.apartment.apartment_number})
+                    {sub.plan.name} - {sub.building.name} (
+                    {sub.apartment.apartment_number})
                   </option>
                 ))}
               </select>
             )}
           </div>
 
-          {/* Time Range */}
+          {/* Special Service Dropdown */}
+          {/* Special Service Dropdown */}
+          <div>
+            <label className="block text-gray-700 font-semibold mb-1">
+              Special Service
+            </label>
+
+            {serviceLoading ? (
+              <p className="text-gray-500 py-2">Loading services...</p>
+            ) : singleService?.results?.filter(
+                (task: any) => task.status !== "completed"
+              ).length === 0 ? (
+              <p className="text-yellow-600 py-2">No active tasks available</p>
+            ) : (
+              <select
+                name="special_service"
+                value={form.special_service}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2"
+              >
+                <option value="">Select Special Service</option>
+                {singleService?.results
+                  ?.filter((task: any) => task.status !== "completed")
+                  .map((task: any) => (
+                    <option key={task.id} value={task.id}>
+                      {task.name} - {task.building_name} (
+                      {task.aprtment_number?.[0]})
+                    </option>
+                  ))}
+              </select>
+            )}
+          </div>
+
+          {/* Date & Time */}
           <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-gray-700 font-semibold mb-1">
+                Date
+              </label>
+              <input
+                type="date"
+                name="client_set_date"
+                value={form.client_set_date}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                required
+              />
+            </div>
+
             <div>
               <label className="block text-gray-700 font-semibold mb-1">
                 Start Time
@@ -173,20 +208,7 @@ const SendRequest: React.FC = () => {
                 name="start_time"
                 value={form.start_time}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 font-semibold mb-1">
-                End Time
-              </label>
-              <input
-                type="time"
-                name="end_time"
-                value={form.end_time}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2"
                 required
               />
             </div>
@@ -201,7 +223,7 @@ const SendRequest: React.FC = () => {
               name="form_type"
               value={form.form_type}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2"
             >
               <option value="makeup">Makeup</option>
               <option value="checkout">Checkout</option>
@@ -219,32 +241,26 @@ const SendRequest: React.FC = () => {
               value={form.description}
               onChange={handleChange}
               rows={3}
-              placeholder="Give us in details"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2"
               required
             />
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-3 rounded-lg text-white font-bold transition-colors ${
-              isLoading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 hover:bg-blue-600"
+            className={`w-full py-3 rounded-lg text-white font-bold ${
+              isLoading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
             {isLoading ? "Sending..." : "Send Request"}
           </button>
 
           {isSuccess && (
-            <p className="text-green-600 text-center font-semibold mt-2">
-              ✅ Request sent successfully!
-            </p>
+            <p className="text-green-600 text-center mt-2">✅ Request sent!</p>
           )}
           {isError && (
-            <p className="text-red-600 text-center font-semibold mt-2">
-              ❌ Failed to send request.
-            </p>
+            <p className="text-red-600 text-center mt-2">❌ Failed to send.</p>
           )}
         </form>
       </div>
