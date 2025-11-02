@@ -22,7 +22,7 @@ import {
   DialogTitle,
 } from "@/Components/ui/dialog";
 import { Badge } from "@/Components/ui/badge";
-import { Loader2, Search } from "lucide-react";
+import { Eye, Loader2, Search } from "lucide-react";
 import { FaEye } from "react-icons/fa";
 import { toast } from "sonner";
 
@@ -106,25 +106,21 @@ function ExpenseActions({
       <Button
         size="sm"
         variant="outline"
-        className="text-blue-600 border-blue-600 hover:bg-blue-50 hover:text-blue-700 transition"
         onClick={() => onView(expense)}
       >
-        <FaEye className="w-4 h-4" />
+        <Eye />
       </Button>
       <Button
         size="sm"
-        variant="outline"
         disabled={isUpdating || expense.status !== "Submitted"}
-        className="text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700 transition disabled:opacity-50"
         onClick={() => onStatusChange(expense.id, "Approved")}
       >
         Approve
       </Button>
       <Button
         size="sm"
-        variant="outline"
+        variant="destructive"
         disabled={isUpdating || expense.status !== "Submitted"}
-        className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700 transition disabled:opacity-50"
         onClick={() => onStatusChange(expense.id, "Cancel")}
       >
         Cancel
@@ -345,7 +341,6 @@ export default function ExpenseAdmin() {
       {/* Table */}
       <div className="rounded-xl border border-gray-200 shadow-sm overflow-hidden bg-white">
         <Table>
-          <TableCaption>A list of submitted expense requests</TableCaption>
           <TableHeader className="bg-gray-50">
             <TableRow>
               <TableHead className="w-[60px]">ID</TableHead>

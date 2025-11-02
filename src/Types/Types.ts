@@ -82,6 +82,29 @@ export enum Permission {
   VIEW_SERVICE_HISTORY = "view_service_history",
 }
 
+export interface Employee {
+  id: number;
+  name: string;
+  email: string;
+  prime_phone: string;
+  is_active: boolean;
+  date_joined: string;
+  employee_profile: {
+    id: number;
+    avatar: string;
+    department: string;
+    role: string;
+    shift: string;
+    is_on_leave: boolean;
+    location: string | null;
+    national_id: string;
+    contact_number: string | null;
+    contract_start: string;
+    contract_end: string;
+    base_salary: string;
+  };
+}
+
 export const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
   admin: [
     Permission.VIEW_DASHBOARD,

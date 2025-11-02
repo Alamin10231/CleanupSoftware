@@ -245,7 +245,7 @@ export default function AddApartment() {
       client: selectedClient.id,
       building_id: selectedBuilding.id,
       apartment_number: formData.apartment_number,
-      floor: Number(formData.floor),
+      floor: formData.floor,
       living_rooms: Number(formData.living_rooms),
       bathrooms: Number(formData.bathrooms),
       outdoor_area: formData.outdoor_area,
@@ -344,13 +344,12 @@ export default function AddApartment() {
                   onChange={handleChange}
                   placeholder="e.g. A-203"
                 />
-                <FormInput
+                  <FormInput
                   label="Floor"
                   name="floor"
-                  type="number"
                   value={formData.floor}
                   onChange={handleChange}
-                  placeholder="e.g. 2"
+                  placeholder="e.g. 1"
                 />
               </div>
 

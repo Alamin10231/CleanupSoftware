@@ -1,5 +1,5 @@
 import { Button } from "@/Components/ui/button";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   useGetNotificationsQuery,
   useMarkAllReadMutation,
@@ -92,7 +92,6 @@ const Notifications = () => {
       <div className="flex justify-between items-center my-5">
         <div>
           <h1 className="text-2xl font-bold">Notifications</h1>
-          <p className="mt-2">Stay updated with your latest activities and tasks</p>
         </div>
 
         <Button onClick={handleMarkAll} disabled={markAllLoading}>

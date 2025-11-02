@@ -1,6 +1,6 @@
 import { lazy } from "react";
 const ClientProfile = lazy(() => import("@/Page/client-dashboard/ClientProfile"));
-const ClientInvoice = lazy(() => import("@/Page/Client/ClientInvoice"));
+const ClientInvoice = lazy(() => import("@/Page/client-dashboard/ClientInvoice"));
 const ClientSubscription = lazy(
   () => import("@/Page/client-dashboard/ClientSubscription")
 );
@@ -41,7 +41,7 @@ export const clientSidebarItems = [
         icon: List,
         isActive: false,
       },
-   
+
       {
         title: "Invoice",
         url: "/client/invoice",
