@@ -1,8 +1,6 @@
 // src/redux/features/Client/Request.api.ts
 import { baseApi } from "@/redux/api/baseApi";
 
-
-
 export const requestApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // Get all subscriptions with pagination
@@ -33,6 +31,22 @@ export const requestApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["ClientSubscriptions"], // optional: refetch after update
     }),
+
+    // deleteClientRequest:builder.mutation<any,{id:number,body:any}>({
+    //   query:(id,body)=>({
+    //     url:`client_dashboard/client-checkout-forms/${id}/`,
+    //     method:"DELETE",
+    //     body,
+    //   }),
+    //   invalidatesTags: ["ClientSubscriptions"],
+    // })
+    deleteClientRequest: builder.mutation<any,void, { id: number }>({
+      query: ({ id }) => ({
+        url: `client_dashboard/client-checkout-forms/${id}/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["ClientSubscriptions"],
+    }),
   }),
 });
 
@@ -40,4 +54,5 @@ export const {
   useSendClientRequestMutation,
   useGetClientSubscriptionsQuery,
   useUpdateClientRequestMutation,
+  useDeleteClientRequestMutation,
 } = requestApi;

@@ -1,9 +1,11 @@
 // src/Page/client-dashboard/Requests.tsx
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { useGetClientSubscriptionsQuery } from "@/redux/features/Client/Request.api";
+import { useDeleteClientRequestMutation, useGetClientSubscriptionsQuery } from "@/redux/features/Client/Request.api";
 import { Loader2, FileText, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+
 
 const Requests: React.FC = () => {
   const clientId = useSelector((state: any) => state.auth.user?.id) || 148;
@@ -15,7 +17,19 @@ const Requests: React.FC = () => {
   });
 
   const requests = data?.results?.filter((item: any) => item.client === clientId) || [];
-
+const [deleteClientRequest] = useDeleteClientRequestMutation();
+const deleteitem = async (id:number)=>{
+  if(window.confirm("Are Your sure to delete this item?"))
+try{
+await deleteClientRequest(id).unwrap()
+toast.success("delete successfully")
+console.log("object");
+}
+catch (error){
+toast.error("delete failed")
+console.log(error);
+}
+}
   return (
     <div className="p-6 min-h-screen bg-gray-50">
       <div className="flex items-center gap-2 mb-6">
@@ -77,6 +91,10 @@ const Requests: React.FC = () => {
                         >
                           {req.status || "Pending"}
                         </span>
+                         <Button 
+                         onClick={deleteitem}>
+            delete
+          </Button>
                       </td>
                     </tr>
                   ))}
@@ -111,6 +129,8 @@ const Requests: React.FC = () => {
           >
             Next
           </Button>
+
+         
         </div>
       )}
     </div>
