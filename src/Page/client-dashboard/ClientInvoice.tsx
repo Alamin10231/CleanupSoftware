@@ -170,7 +170,7 @@ const InvoicesList = () => {
                   <th className="p-3 text-left">Building</th>
                   <th className="p-3 text-left">Region</th>
                   <th className="p-3 text-left">Apartment(s)</th>
-                  <th className="p-3 text-left">Client</th>
+                  {/* <th className="p-3 text-left">Client</th> */}
                   <th className="p-3 text-left">Date Issued</th>
                   <th className="p-3 text-left">Due Date</th>
                   <th className="p-3 text-left">Total Amount</th>
@@ -192,7 +192,7 @@ const InvoicesList = () => {
                     <td className="p-3">
                       {invoice.apartment_name?.join(", ") || "N/A"}
                     </td>
-                    <td className="p-3">{invoice.client_name ?? "N/A"}</td>
+                    {/* <td className="p-3">{invoice.client_name ?? "N/A"}</td> */}
                     <td className="p-3">
                       {new Date(invoice.date_issued).toLocaleDateString()}
                     </td>
