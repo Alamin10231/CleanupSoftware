@@ -8,7 +8,7 @@ import {
   FileText,
   CreditCard,
   ClipboardList,
-  Bell
+  Bell,
 } from "lucide-react";
 import ServiceTable from "@/Page/employee-dashboard/communication";
 const EmployeeTaskDashboard = lazy(
@@ -35,8 +35,8 @@ const EmployeeSubscription = lazy(
 const AssignedRequests = lazy(
   () => import("@/Page/employee-dashboard/AssignedRequests")
 );
-const ReceiveRequest = lazy(
-  () => import("@/Page/admin-dashboard/ReceiveRequest")
+const EmployeeReceiveRequest = lazy(
+  () => import("@/Page/employee-dashboard/EmployeeReceiveRequest")
 );
 
 export const employeeSidebarItems: ISidebarItems[] = [
@@ -65,11 +65,11 @@ export const employeeSidebarItems: ISidebarItems[] = [
         icon: MessageSquare,
       },
       {
-         title: "Forms",
-         url: "forms", // Changed from /employee-forms
-         component: EmployeeForms,
-         isActive: false,
-         icon: FileText,
+        title: "Forms",
+        url: "forms", // Changed from /employee-forms
+        component: EmployeeForms,
+        isActive: false,
+        icon: FileText,
       },
       {
         title: "Invoices",
@@ -102,17 +102,10 @@ export const employeeSidebarItems: ISidebarItems[] = [
       {
         title: "Receive Request",
         url: "receive-request",
-        component: ReceiveRequest,
+        component: EmployeeReceiveRequest,
         isActive: false,
         icon: Bell,
       },
-    //  {
-    //     title: "Receive Request",
-    //     url: "/admin/ReceiveRequest",
-    //     component: ReceiveRequest,
-    //     isActive: false,
-    //     icon: Bell,
-    //   },
     ],
   },
 ];

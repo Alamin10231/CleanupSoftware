@@ -6,6 +6,7 @@ import {
 } from "@/redux/features/Client/Request.api";
 import { useSelector } from "react-redux";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -25,9 +26,8 @@ import {
   DialogTrigger,
 } from "@/Components/ui/dialog";
 import { Label } from "@/Components/ui/label";
-import { Textarea } from "@/Components/ui/textarea";
 
-const ReceiveRequest: React.FC = () => {
+const EmployeeReceiveRequest: React.FC = () => {
   const [page, setPage] = useState(1);
   const [editRowId, setEditRowId] = useState<number | null>(null);
   const [editDescription, setEditDescription] = useState("");
@@ -49,8 +49,7 @@ const ReceiveRequest: React.FC = () => {
     Array.from(new Set(data?.results?.map((item: any) => item.time_range))) ||
     [];
   const allFormTypes =
-    Array.from(new Set(data?.results?.map((item: any) => item.form_type))) ||
-    [];
+    Array.from(new Set(data?.results?.map((item: any) => item.form_type))) || [];
 
   const handleUpdateClick = async (id: number) => {
     if (!isAdmin) return alert("Only admin can update!");
@@ -72,8 +71,7 @@ const ReceiveRequest: React.FC = () => {
 
   const handleDeleteClick = async (id: number) => {
     if (!isAdmin) return alert("Only admin can delete!");
-    if (!window.confirm("Are you sure you want to delete this request?"))
-      return;
+    if (!window.confirm("Are you sure you want to delete this request?")) return;
 
     try {
       await deleteClientRequest(id).unwrap();
@@ -103,9 +101,7 @@ const ReceiveRequest: React.FC = () => {
           <thead className="bg-gray-100">
             <tr>
               <th className="p-3 text-left">ID</th>
-              {data?.results?.some(
-                (item: any) => item.form_type === "subscription"
-              ) ? (
+              {data?.results?.some((item: any) => item.form_type === "subscription") ? (
                 <>
                   <th className="p-3 text-left">Service Building Name</th>
                   <th className="p-3 text-left">Service Apartment Number</th>
@@ -113,9 +109,7 @@ const ReceiveRequest: React.FC = () => {
               ) : (
                 <>
                   <th className="p-3 text-left">Subscription Building Name</th>
-                  <th className="p-3 text-left">
-                    Subscription Apartment Number
-                  </th>
+                  <th className="p-3 text-left">Subscription Apartment Number</th>
                 </>
               )}
               <th className="p-3 text-left">Time Range</th>
@@ -137,18 +131,12 @@ const ReceiveRequest: React.FC = () => {
                 {item.subscription && item.form_type === "subscription" ? (
                   <>
                     <td className="p-3">{item.service_building_name || "-"}</td>
-                    <td className="p-3">
-                      {item.service_apartment_number || "-"}
-                    </td>
+                    <td className="p-3">{item.service_apartment_number || "-"}</td>
                   </>
                 ) : (
                   <>
-                    <td className="p-3">
-                      {item.subscription_building_name || "-"}
-                    </td>
-                    <td className="p-3">
-                      {item.subscription_apartment_number || "-"}
-                    </td>
+                    <td className="p-3">{item.subscription_building_name || "-"}</td>
+                    <td className="p-3">{item.subscription_apartment_number || "-"}</td>
                   </>
                 )}
 
@@ -179,11 +167,9 @@ const ReceiveRequest: React.FC = () => {
                         </DialogHeader>
 
                         {/* Description */}
-                        <div className="my-2 overflow-y-auto max-h-60">
-                          <Label htmlFor={`description-${item.id}`}>
-                            Description
-                          </Label>
-                          <Textarea
+                        <div className="my-2">
+                          <Label htmlFor={`description-${item.id}`}>Description</Label>
+                          <Input
                             id={`description-${item.id}`}
                             value={editDescription}
                             onChange={(e) => setEditDescription(e.target.value)}
@@ -192,9 +178,7 @@ const ReceiveRequest: React.FC = () => {
 
                         {/* Form Type */}
                         <div className="my-2">
-                          <Label htmlFor={`form_type-${item.id}`}>
-                            Form Type
-                          </Label>
+                          <Label htmlFor={`form_type-${item.id}`}>Form Type</Label>
                           <Select
                             value={editFormType}
                             onValueChange={setEditFormType}
@@ -206,7 +190,7 @@ const ReceiveRequest: React.FC = () => {
                               <SelectGroup>
                                 {allFormTypes.map((type, i) => (
                                   <SelectItem key={i} value={type}>
-                                    {type as string}
+                                    {type}
                                   </SelectItem>
                                 ))}
                               </SelectGroup>
@@ -216,9 +200,7 @@ const ReceiveRequest: React.FC = () => {
 
                         {/* Time Range */}
                         <div className="my-2">
-                          <Label htmlFor={`time_range-${item.id}`}>
-                            Time Range
-                          </Label>
+                          <Label htmlFor={`time_range-${item.id}`}>Time </Label>
                           <Select
                             value={editTimeRange}
                             onValueChange={setEditTimeRange}
@@ -230,7 +212,7 @@ const ReceiveRequest: React.FC = () => {
                               <SelectGroup>
                                 {allTimeRanges.map((range, i) => (
                                   <SelectItem key={i} value={range}>
-                                    {range as string}
+                                    {range}
                                   </SelectItem>
                                 ))}
                               </SelectGroup>
@@ -291,4 +273,4 @@ const ReceiveRequest: React.FC = () => {
   );
 };
 
-export default ReceiveRequest;
+export default EmployeeReceiveRequest;
