@@ -1,11 +1,10 @@
 import {
   useDeleteInvoiceMutation,
-  useGetInvoicesQuery,
+  useGetOutgoingInvoicesQuery,
   useGetSearchAllInvoiceQuery,
 } from "@/redux/features/admin/invoice/invoice.api";
 import { useEffect, useState } from "react";
 import { assets } from "@/assets/assets";
-import { toast } from "sonner";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import InvoicePDF from "../admin-dashboard/invoice/InvoicePDF";
 
@@ -31,24 +30,23 @@ interface Invoice {
   file: string | null;
 }
 
-const InvoicesList = () => {
+const ClientInvoicesList = () => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("All Status");
   const [sort, setSort] = useState("Default");
 
-  const {
-    data: invoicesData,
-    isLoading,
-    isError,
-    isFetching,
-  } = useGetInvoicesQuery(`?page=${page}`);
+  const { data: invoicesData, isLoading, isError, isFetching } =
+    useGetOutgoingInvoicesQuery(page);
+
   const {
     data: searchInvoice,
     isLoading: isSearchLoading,
     isError: isSearchError,
   } = useGetSearchAllInvoiceQuery(search ? `${search}` : "");
+
   const [deleteInvoice] = useDeleteInvoiceMutation();
+
   const invoices = invoicesData?.results || [];
   const totalCount = invoicesData?.count || 0;
   const nextPage = invoicesData?.next;
@@ -75,12 +73,10 @@ const InvoicesList = () => {
       result = [...invoices];
     }
 
-    // Apply status filter
     if (status !== "All Status") {
       result = result.filter((inv) => inv.status.toLowerCase() === status.toLowerCase());
     }
 
-    // Apply sorting
     if (sort === "Oldest to New") {
       result.sort(
         (a, b) => new Date(a.date_issued).getTime() - new Date(b.date_issued).getTime()
@@ -93,8 +89,6 @@ const InvoicesList = () => {
 
     setFilteredInvoices(result);
   }, [search, status, sort, invoices, searchInvoice]);
-
-
 
   if (isLoading || isSearchLoading) return <p>Loading...</p>;
   if (isError || isSearchError) return <p>Error fetching invoices.</p>;
@@ -109,14 +103,13 @@ const InvoicesList = () => {
             placeholder="Search Invoice..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border border-gray-300 rounded-md px-4 py-2 w-full sm:w-64 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
+            className="border border-gray-300 rounded-md px-4 py-2 w-full sm:w-64 text-sm"
           />
 
-          {/* Status Filter */}
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer"
+            className="border border-gray-300 rounded-md px-4 py-2 text-sm"
           >
             <option>All Status</option>
             <option>Paid</option>
@@ -124,119 +117,103 @@ const InvoicesList = () => {
           </select>
         </div>
 
-        <div>
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-            className="border border-gray-300 rounded-md px-6 py-2 text-sm text-gray-600 cursor-pointer"
-          >
-            <option>Default</option>
-            <option>Oldest to New</option>
-            <option>New to Oldest</option>
-          </select>
-        </div>
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+          className="border border-gray-300 rounded-md px-4 py-2 text-sm"
+        >
+          <option>Default</option>
+          <option>Oldest to New</option>
+          <option>New to Oldest</option>
+        </select>
       </div>
 
-      {/* Table + Mobile Card View */}
-      <div className="mt-6">
-        {/* Desktop / Tablet Table */}
-        <div className="overflow-x-auto hidden md:block">
-          <table className="min-w-full border border-gray-200 bg-white rounded-lg shadow-sm">
-            <thead className="bg-gray-100 border-b border-gray-300 text-gray-700 text-sm">
-              <tr>
-                <th className="p-3 text-left">Invoice ID</th>
-                <th className="p-3 text-left">Building</th>
-                <th className="p-3 text-left">Region</th>
-                <th className="p-3 text-left">Apartment(s)</th>
-                <th className="p-3 text-left">Date Issued</th>
-                <th className="p-3 text-left">Due Date</th>
-                <th className="p-3 text-left">Total Amount</th>
-                <th className="p-3 text-left">Status</th>
-                <th className="p-3 text-left">Actions</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {filteredInvoices.map((invoice) => (
-                <tr key={invoice.id} className="border-b border-gray-200 hover:bg-gray-50 transition">
-                  <td className="p-3 font-semibold text-gray-700">{invoice.invoice_id}</td>
-                  <td className="p-3">{invoice.building_name}</td>
-                  <td className="p-3">{invoice.region_name}</td>
-                  <td className="p-3">{invoice.apartment_name?.join(", ") || "N/A"}</td>
-                  <td className="p-3">{new Date(invoice.date_issued).toLocaleDateString()}</td>
-                  <td className="p-3">{invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : "—"}</td>
-                  <td className="p-3 font-semibold text-gray-800">{invoice.total_amount.toFixed(2)} SAR</td>
-                  <td className="p-3">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        invoice.status.toLowerCase() === "paid"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                    >
-                      {invoice.status}
-                    </span>
-                  </td>
-                  <td className="p-3 flex items-center gap-3">
-                    <PDFDownloadLink
-                      document={<InvoicePDF invoice={invoice} />}
-                      fileName={`invoice-${invoice.invoice_id}.pdf`}
-                    >
-                      <img src={assets.Download} alt="download" className="w-5 h-5 cursor-pointer" />
-                    </PDFDownloadLink>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Mobile Card View */}
-        <div className="grid gap-3 md:hidden">
-          {filteredInvoices.map((invoice) => (
-            <div key={invoice.id} className="p-4 border rounded-lg bg-white shadow-sm">
-              <p className="font-semibold text-gray-700">#{invoice.invoice_id}</p>
-              <p className="text-sm text-gray-600">{invoice.building_name} - {invoice.region_name}</p>
-              <p className="text-sm text-gray-600">Apts: {invoice.apartment_name?.join(", ")}</p>
-              <p className="text-sm text-gray-600">
-                Issued: {new Date(invoice.date_issued).toLocaleDateString()}
-              </p>
-              <p className="text-sm text-gray-600">
-                Due: {invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : "—"}
-              </p>
-
-              <div className="flex justify-between items-center mt-2">
-                <span
-                  className={`text-xs px-2 py-1 rounded-full font-medium ${
+      {/* Table */}
+      <div className="mt-6 overflow-x-auto hidden md:block">
+        <table className="min-w-full border bg-white rounded-lg shadow-sm">
+          <thead className="bg-gray-100 text-gray-700 text-sm">
+            <tr>
+              <th className="p-3 text-left">Invoice ID</th>
+              <th className="p-3 text-left">Building</th>
+              <th className="p-3 text-left">Region</th>
+              <th className="p-3 text-left">Apartment(s)</th>
+              <th className="p-3 text-left">Date Issued</th>
+              <th className="p-3 text-left">Due Date</th>
+              <th className="p-3 text-left">Total Amount</th>
+              <th className="p-3 text-left">Status</th>
+              <th className="p-3 text-left">Download</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredInvoices.map((invoice) => (
+              <tr key={invoice.id} className="border-b hover:bg-gray-50">
+                <td className="p-3">{invoice.invoice_id}</td>
+                <td className="p-3">{invoice.building_name}</td>
+                <td className="p-3">{invoice.region_name}</td>
+                <td className="p-3">{invoice.apartment_name?.join(", ")}</td>
+                <td className="p-3">{new Date(invoice.date_issued).toLocaleDateString()}</td>
+                <td className="p-3">{invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : "—"}</td>
+                <td className="p-3 font-semibold text-gray-800">{invoice.total_amount.toFixed(2)} SAR</td>
+                <td className="p-3">
+                  <span className={`px-2 py-1 text-xs rounded-full ${
                     invoice.status.toLowerCase() === "paid"
                       ? "bg-green-100 text-green-700"
                       : "bg-yellow-100 text-yellow-700"
-                  }`}
-                >
-                  {invoice.status}
-                </span>
-
-                <PDFDownloadLink
-                  document={<InvoicePDF invoice={invoice} />}
-                  fileName={`invoice-${invoice.invoice_id}.pdf`}
-                >
-                  <img src={assets.Download} alt="download" className="w-5 h-5 cursor-pointer" />
-                </PDFDownloadLink>
-              </div>
-            </div>
-          ))}
-        </div>
+                  }`}>
+                    {invoice.status}
+                  </span>
+                </td>
+                <td className="p-3">
+                  <PDFDownloadLink
+                    document={<InvoicePDF invoice={invoice} />}
+                    fileName={`invoice-${invoice.invoice_id}.pdf`}
+                  >
+                    <img src={assets.Download} alt="download" className="w-5 h-5 cursor-pointer" />
+                  </PDFDownloadLink>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      {/* Pagination Controls */}
+      {/* Mobile */}
+      <div className="grid gap-3 md:hidden mt-4">
+        {filteredInvoices.map((invoice) => (
+          <div key={invoice.id} className="p-4 border rounded-lg bg-white shadow-sm">
+            <p className="font-semibold">#{invoice.invoice_id}</p>
+            <p className="text-sm">{invoice.building_name} - {invoice.region_name}</p>
+            <p className="text-sm">Apts: {invoice.apartment_name?.join(", ")}</p>
+            <p className="text-sm">Issued: {new Date(invoice.date_issued).toLocaleDateString()}</p>
+            <p className="text-sm">Due: {invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : "—"}</p>
+
+            <div className="flex justify-between items-center mt-2">
+              <span className={`text-xs px-2 py-1 rounded ${
+                invoice.status.toLowerCase() === "paid"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-yellow-100 text-yellow-700"
+              }`}>
+                {invoice.status}
+              </span>
+
+              <PDFDownloadLink
+                document={<InvoicePDF invoice={invoice} />}
+                fileName={`invoice-${invoice.invoice_id}.pdf`}
+              >
+                <img src={assets.Download} className="w-5 h-5 cursor-pointer" />
+              </PDFDownloadLink>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Pagination */}
       <div className="flex justify-between items-center mt-4 px-2">
         <button
           onClick={() => prevPage && setPage((p) => Math.max(p - 1, 1))}
           disabled={!prevPage || isFetching}
-          className={`px-4 py-2 cursor-pointer rounded-md text-sm font-medium ${
-            prevPage
-              ? "bg-blue-500 text-white hover:bg-blue-600"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+          className={`px-4 py-2 rounded-md text-sm font-medium ${
+            prevPage ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-500"
           }`}
         >
           Previous
@@ -249,19 +226,19 @@ const InvoicesList = () => {
         <button
           onClick={() => nextPage && setPage((p) => p + 1)}
           disabled={!nextPage || isFetching}
-          className={`px-4 py-2 cursor-pointer rounded-md text-sm font-medium ${
-            nextPage
-              ? "bg-blue-500 text-white hover:bg-blue-600"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+          className={`px-4 py-2 rounded-md text-sm font-medium ${
+            nextPage ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-500"
           }`}
         >
           Next
         </button>
       </div>
 
-      {filteredInvoices.length === 0 && <p className="text-center text-gray-500 mt-6">No invoices found</p>}
+      {filteredInvoices.length === 0 && (
+        <p className="text-center text-gray-500 mt-6">No invoices found</p>
+      )}
     </>
   );
 };
 
-export default InvoicesList;
+export default ClientInvoicesList;
