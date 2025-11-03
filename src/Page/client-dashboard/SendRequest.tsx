@@ -16,9 +16,11 @@ const SendRequest: React.FC = () => {
     description: "",
   });
 
-  const clientId = useSelector((state: any) => state.auth.user?.id) || 148;
+  const clientId = useSelector((state: any) => state.auth.user?.id);
 
   const { data, isLoading: subsLoading, error } = useGetClientSubscriptionsQuery();
+  // console.log(data);
+  
   const [sendClientRequest, { isLoading, isSuccess, isError }] =
     useSendClientRequestMutation();
     const [deleteClientRequest] = useDeleteClientRequestMutation();
@@ -47,7 +49,6 @@ const SendRequest: React.FC = () => {
 
       const res = await sendClientRequest(payload).unwrap();
       console.log("✅ Request sent:", res);
-      alert("Request sent successfully!");
     } catch (error) {
       console.error("❌ Error:", error);
       alert("Failed to send request!");

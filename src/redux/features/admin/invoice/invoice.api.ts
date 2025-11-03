@@ -2,9 +2,13 @@ import { baseApi } from "@/redux/api/baseApi";
 
 export const invoiceApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getInvoices: builder.query({
-      query: (params = "") => `/plan/invoice/list/${params}`,
+    getOutgoingInvoices: builder.query({
+      query: () => `/plan/invoice/list/?type=outgoing`,
       providesTags: ["Invoice"],
+    }),
+    getIncomingInvoices: builder.query({
+      query: (page = 1) => `/plan/invoice/list/?type=incoming&page=${page}`,
+      providesTags: ["EmployeeExpense"],
     }),
     getCalculationInvoice: builder.query({
       query: () => "/plan/calculations/",
@@ -50,7 +54,8 @@ export const invoiceApi = baseApi.injectEndpoints({
 });
 
 export const {
-  useGetInvoicesQuery,
+  useGetOutgoingInvoicesQuery,
+  useGetIncomingInvoicesQuery,
   useAddInvoiceMutation,
   useUpdateInvoiceStatusMutation,
   useGetCalculationInvoiceQuery,

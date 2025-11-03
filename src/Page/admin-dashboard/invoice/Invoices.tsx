@@ -1,10 +1,12 @@
 import { assets } from "@/assets/assets";
 import Card from "@/Components/Card";
-import InvoicesList from "@/Page/admin-dashboard/invoice/InvoicesList";
+import InvoicesList from "@/Page/admin-dashboard/invoice/outgoin-invoice";
 import { Button } from "@/Components/ui/button";
 import { useGetCalculationInvoiceQuery } from "@/redux/features/admin/invoice/invoice.api";
 import { FaPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
+import IncomingInvoiceTable from "./incoming-invoice";
 
 const Invoices = () => {
   const { data, isLoading } = useGetCalculationInvoiceQuery(undefined);
@@ -58,7 +60,18 @@ const Invoices = () => {
       </div>
 
       {/*  Invoice table */}
-      <InvoicesList />
+      <Tabs defaultValue="incoming" className="w-full mt-4 ">
+        <TabsList className="rounded-t-lg border-b w-full">
+          <TabsTrigger value="outgoing">Outgoing</TabsTrigger>
+          <TabsTrigger value="incoming">Incoming</TabsTrigger>
+        </TabsList>
+        <TabsContent value="incoming">
+          <IncomingInvoiceTable />
+        </TabsContent>
+        <TabsContent value="outgoing">
+          <InvoicesList />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

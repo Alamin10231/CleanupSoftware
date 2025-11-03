@@ -22,6 +22,22 @@ export const usersApi = baseApi.injectEndpoints({
       query: (page = 1) => `employees/?page=${page}`,
       providesTags: ["GetAllEmployeeAdmin"],
     }),
+    updateEmployeeStatus: builder.mutation<any, { id: number; is_on_leave: boolean }>({
+      query: ({ id, ...body }) => ({
+        url: `/employees/${id}/`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: ["GetAllEmployeeAdmin", "AdminEmployeeOverview"],
+    }),
+    updateEmployee: builder.mutation<any, { id: number; data: any }>({
+      query: ({ id, data }) => ({
+        url: `/employees/${id}/`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["GetAllEmployeeAdmin", "AdminEmployeeOverview"],
+    }),
   }),
 });
 
@@ -30,4 +46,6 @@ export const {
   useAddEmployeeMutation,
   useEmployeeOverviewQuery,
   useGetAllemployeeAdminQuery,
+  useUpdateEmployeeStatusMutation,
+  useUpdateEmployeeMutation,
 } = usersApi;
