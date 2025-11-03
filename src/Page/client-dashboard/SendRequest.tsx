@@ -10,7 +10,7 @@ const SendRequest: React.FC = () => {
   const [form, setForm] = useState({
     form_name: "",
     subscription: "",
-    special_service: "",
+    special_service: "", // optional
     time_range: "",
     form_type: "makeup",
     description: "",
@@ -23,22 +23,27 @@ const SendRequest: React.FC = () => {
     useSendClientRequestMutation();
     const [deleteClientRequest] = useDeleteClientRequestMutation();
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({
       ...form,
       [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const payload = {
+      // prepare payload
+      const payload: any = {
         ...form,
         client: clientId,
         subscription: Number(form.subscription),
-        special_service: Number(form.special_service),
       };
+
+      // send special_service only if not empty
+      if (form.special_service) {
+        payload.special_service = Number(form.special_service);
+      }
 
       const res = await sendClientRequest(payload).unwrap();
       console.log("✅ Request sent:", res);
@@ -60,7 +65,9 @@ const SendRequest: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Form Name */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-1">Form Name</label>
+            <label className="block text-gray-700 font-semibold mb-1">
+              Form Name
+            </label>
             <input
               type="text"
               name="form_name"
@@ -74,7 +81,9 @@ const SendRequest: React.FC = () => {
 
           {/* Subscription */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-1">Subscription</label>
+            <label className="block text-gray-700 font-semibold mb-1">
+              Subscription
+            </label>
             {subsLoading ? (
               <p>Loading subscriptions...</p>
             ) : error ? (
@@ -104,20 +113,23 @@ const SendRequest: React.FC = () => {
             )}
           </div>
 
-          {/* Special Service */}
+          {/* Optional Special Service */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-1">Special Service</label>
+            <label className="block text-gray-700 font-semibold mb-1">
+              Special Service (Optional)
+            </label>
             <select
               name="special_service"
               value={form.special_service}
               onChange={handleChange}
               className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
             >
-              <option value="">Select Special Service</option>
+              <option value="">No special service</option>
               {Array.from(
                 new Set(
-                  data?.results?.map((item: any) => item.special_service).filter(Boolean)
+                  data?.results
+                    ?.map((item: any) => item.special_service)
+                    .filter(Boolean)
                 )
               ).map((serviceId: any) => (
                 <option key={serviceId} value={serviceId}>
@@ -129,7 +141,9 @@ const SendRequest: React.FC = () => {
 
           {/* Time Range */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-1">Time Range</label>
+            <label className="block text-gray-700 font-semibold mb-1">
+              Time Range
+            </label>
             <input
               type="text"
               name="time_range"
@@ -143,7 +157,9 @@ const SendRequest: React.FC = () => {
 
           {/* Form Type */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-1">Form Type</label>
+            <label className="block text-gray-700 font-semibold mb-1">
+              Form Type
+            </label>
             <select
               name="form_type"
               value={form.form_type}
@@ -158,7 +174,9 @@ const SendRequest: React.FC = () => {
 
           {/* Description */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-1">Description</label>
+            <label className="block text-gray-700 font-semibold mb-1">
+              Description
+            </label>
             <textarea
               name="description"
               value={form.description}
