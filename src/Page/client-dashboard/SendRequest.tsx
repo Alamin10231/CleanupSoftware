@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { useSendClientRequestMutation } from "@/redux/features/Client/Request.api";
 import { useSelector } from "react-redux";
+import { useSendClientRequestMutation } from "@/redux/features/Client/Request.api";
 import { useGetSubscriptionClientQuery } from "@/redux/features/Client/subscription.api";
-import { useGetEmployeeTasksQuery } from "@/redux/features/employee/task/task.api";
+import { useGetEmployeeTaskForClientQuery } from "@/redux/features/employee/task/task.api";
 
-// Define types
+// Types
 interface FormState {
   form_name: string;
   subscription: string;
@@ -27,40 +27,35 @@ interface RootState {
   auth: { user?: { id: number } };
 }
 
+const initialFormState: FormState = {
+  form_name: "",
+  subscription: "",
+  special_service: "",
+  client_set_date: "",
+  start_time: "",
+  form_type: "makeup",
+  description: "",
+};
+
 const SendRequest: React.FC = () => {
-  const [form, setForm] = useState<FormState>({
-    form_name: "",
-    subscription: "",
-    special_service: "",
-    client_set_date: "",
-    start_time: "",
-    form_type: "makeup",
-    description: "",
-  });
+  const [form, setForm] = useState<FormState>(initialFormState);
 
   const clientId = useSelector((state: RootState) => state.auth.user?.id);
 
-  const {
-    data: subscriptionList,
-    isLoading: subsLoading,
-    
-  } = useGetSubscriptionClientQuery();
+  const { data: subscriptionList, isLoading: subsLoading } =
+    useGetSubscriptionClientQuery();
 
   const { data: singleService, isLoading: serviceLoading } =
-    useGetEmployeeTasksQuery();
+    useGetEmployeeTaskForClientQuery();
 
   const [sendClientRequest, { isLoading, isSuccess, isError }] =
     useSendClientRequestMutation();
 
   const activeSubscriptions: SubscriptionItem[] =
-    subscriptionList?.filter(
-      (sub: SubscriptionItem) => sub.status === "active"
-    ) || [];
+    subscriptionList?.filter((sub:any) => sub.status === "active") || [];
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
@@ -84,15 +79,7 @@ const SendRequest: React.FC = () => {
 
     try {
       await sendClientRequest(payload).unwrap();
-      setForm({
-        form_name: "",
-        subscription: "",
-        special_service: "",
-        client_set_date: "",
-        start_time: "",
-        form_type: "makeup",
-        description: "",
-      });
+      setForm(initialFormState);
     } catch (e) {
       console.error("Error submitting form:", e);
     }
@@ -122,7 +109,7 @@ const SendRequest: React.FC = () => {
             />
           </div>
 
-          {/* Subscription */}
+          {/* Subscription Dropdown */}
           <div>
             <label className="block text-gray-700 font-semibold mb-1">
               Subscription
@@ -142,15 +129,13 @@ const SendRequest: React.FC = () => {
                 <option value="">Select Subscription</option>
                 {activeSubscriptions.map((sub) => (
                   <option key={sub.id} value={sub.id}>
-                    {sub.plan.name} - {sub.building.name} (
-                    {sub.apartment.apartment_number})
+                    {sub.plan.name} - {sub.building.name} ({sub.apartment.apartment_number})
                   </option>
                 ))}
               </select>
             )}
           </div>
 
-          {/* Special Service Dropdown */}
           {/* Special Service Dropdown */}
           <div>
             <label className="block text-gray-700 font-semibold mb-1">
@@ -159,36 +144,39 @@ const SendRequest: React.FC = () => {
 
             {serviceLoading ? (
               <p className="text-gray-500 py-2">Loading services...</p>
-            ) : singleService?.results?.filter(
-                (task: any) => task.status !== "completed"
-              ).length === 0 ? (
-              <p className="text-yellow-600 py-2">No active tasks available</p>
             ) : (
-              <select
-                name="special_service"
-                value={form.special_service}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2"
-              >
-                <option value="">Select Special Service</option>
-                {singleService?.results
-                  ?.filter((task: any) => task.status !== "completed")
-                  .map((task: any) => (
-                    <option key={task.id} value={task.id}>
-                      {task.name} - {task.building_name} (
-                      {task.aprtment_number?.[0]})
-                    </option>
-                  ))}
-              </select>
+              (() => {
+                const activeTasks = (singleService || []).filter(
+                  (task: any) => task.status !== "completed"
+                );
+
+                if (activeTasks.length === 0) {
+                  return <p className="text-yellow-600 py-2">No active tasks available</p>;
+                }
+
+                return (
+                  <select
+                    name="special_service"
+                    value={form.special_service}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                  >
+                    <option value="">Select Special Service</option>
+                    {activeTasks.map((task: any) => (
+                      <option key={task.id} value={task.id}>
+                        {task.name} - {task.building_name} ({task.aprtment_number?.[0]})
+                      </option>
+                    ))}
+                  </select>
+                );
+              })()
             )}
           </div>
 
           {/* Date & Time */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-gray-700 font-semibold mb-1">
-                Date
-              </label>
+              <label className="block text-gray-700 font-semibold mb-1">Date</label>
               <input
                 type="date"
                 name="client_set_date"
@@ -200,9 +188,7 @@ const SendRequest: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-gray-700 font-semibold mb-1">
-                Start Time
-              </label>
+              <label className="block text-gray-700 font-semibold mb-1">Start Time</label>
               <input
                 type="time"
                 name="start_time"
@@ -216,9 +202,7 @@ const SendRequest: React.FC = () => {
 
           {/* Form Type */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-1">
-              Form Type
-            </label>
+            <label className="block text-gray-700 font-semibold mb-1">Form Type</label>
             <select
               name="form_type"
               value={form.form_type}
@@ -233,9 +217,7 @@ const SendRequest: React.FC = () => {
 
           {/* Description */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-1">
-              Description
-            </label>
+            <label className="block text-gray-700 font-semibold mb-1">Description</label>
             <textarea
               name="description"
               value={form.description}
@@ -246,6 +228,7 @@ const SendRequest: React.FC = () => {
             />
           </div>
 
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading}
@@ -256,12 +239,8 @@ const SendRequest: React.FC = () => {
             {isLoading ? "Sending..." : "Send Request"}
           </button>
 
-          {isSuccess && (
-            <p className="text-green-600 text-center mt-2">✅ Request sent!</p>
-          )}
-          {isError && (
-            <p className="text-red-600 text-center mt-2">❌ Failed to send.</p>
-          )}
+          {isSuccess && <p className="text-green-600 text-center mt-2">✅ Request sent!</p>}
+          {isError && <p className="text-red-600 text-center mt-2">❌ Failed to send.</p>}
         </form>
       </div>
     </div>
