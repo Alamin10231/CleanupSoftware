@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   useSendClientRequestMutation,
   useGetClientSubscriptionsQuery,
+  useDeleteClientRequestMutation,
 } from "@/redux/features/Client/Request.api";
 import { useSelector } from "react-redux";
 
@@ -20,6 +21,7 @@ const SendRequest: React.FC = () => {
   const { data, isLoading: subsLoading, error } = useGetClientSubscriptionsQuery();
   const [sendClientRequest, { isLoading, isSuccess, isError }] =
     useSendClientRequestMutation();
+    const [deleteClientRequest] = useDeleteClientRequestMutation();
 
   const handleChange = (e: any) => {
     setForm({
@@ -46,6 +48,7 @@ const SendRequest: React.FC = () => {
       alert("Failed to send request!");
     }
   };
+ 
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">

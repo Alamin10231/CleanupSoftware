@@ -27,7 +27,7 @@ import {
 } from "@/Components/ui/dialog";
 import { Label } from "@/Components/ui/label";
 
-const ReceiveRequest: React.FC = () => {
+const EmployeeReceiveRequest: React.FC = () => {
   const [page, setPage] = useState(1);
   const [editRowId, setEditRowId] = useState<number | null>(null);
   const [editDescription, setEditDescription] = useState("");
@@ -200,7 +200,7 @@ const ReceiveRequest: React.FC = () => {
 
                         {/* Time Range */}
                         <div className="my-2">
-                          <Label htmlFor={`time_range-${item.id}`}>Time Range</Label>
+                          <Label htmlFor={`time_range-${item.id}`}>Time </Label>
                           <Select
                             value={editTimeRange}
                             onValueChange={setEditTimeRange}
@@ -273,4 +273,4 @@ const ReceiveRequest: React.FC = () => {
   );
 };
 
-export default ReceiveRequest;
+export default EmployeeReceiveRequest;
