@@ -48,5 +48,5 @@ export const {
   useGetClientSubscriptionsQuery,
   useUpdateClientRequestMutation,
   useDeleteClientRequestMutation,
-  useDeleteClientRequestMutation,
+ 
 } = requestApi;

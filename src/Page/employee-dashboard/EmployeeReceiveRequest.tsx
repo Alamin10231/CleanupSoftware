@@ -143,7 +143,7 @@ const EmployeeReceiveRequest: React.FC = () => {
                 <td className="p-3">{item.time_range || "-"}</td>
                 <td className="p-3">{item.client_set_date || "-"}</td>
                 <td className="p-3">{item.form_type}</td>
-                <td className="p-3">{item.description.slice(0, 50)}</td>
+                <td className="p-3">{item.description.slice(0, 15)}</td>
 
                 {isAdmin && (
                   <td className="p-3 flex gap-2">
