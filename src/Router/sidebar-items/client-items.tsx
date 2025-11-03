@@ -40,7 +40,7 @@ export const clientSidebarItems = [
         icon: List,
         isActive: false,
       },
-   
+
       {
         title: "Invoice",
         url: "/client/invoice",

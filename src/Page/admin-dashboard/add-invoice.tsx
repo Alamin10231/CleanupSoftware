@@ -485,11 +485,12 @@ export default function CreateInvoiceForm() {
               }
               placeholder="Select Apartments"
               disabled={!formData.building}
+              emptyIndicator="No apartments available"
             />
           </FormField>
         </div>
 
-        <div className="flex items-center space-x-2">
+        {/* <div className="flex items-center space-x-2">
           <Checkbox
             id="status"
             checked={formData.status === "paid"}
@@ -498,7 +499,7 @@ export default function CreateInvoiceForm() {
             }
           />
           <Label htmlFor="status">Paid</Label>
-        </div>
+        </div> */}
       </FormSection>
 
       {/* Services & Items */}

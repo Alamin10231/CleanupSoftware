@@ -4,10 +4,12 @@ import ActionButton from "@/Components/ActionButton";
 import Card from "@/Components/Card";
 import ProgressBar from "@/Components/ProgressBar";
 import { FaEye } from "react-icons/fa";
+import { CiEdit } from "react-icons/ci";
 import {
   useEmployeeOverviewQuery,
   useGetAllemployeeAdminQuery,
   useGetSearchAllEmpoloyeesQuery,
+  useUpdateEmployeeStatusMutation,
 } from "@/redux/features/admin/users/employee.api";
 import {
   Dialog,
@@ -17,29 +19,9 @@ import {
   DialogTitle,
 } from "@/Components/ui/dialog";
 import { Button } from "@/components/ui/button";
-
-interface Employee {
-  id: number;
-  name: string;
-  email: string;
-  prime_phone: string;
-  is_active: boolean;
-  date_joined: string;
-  employee_profile: {
-    id: number;
-    avatar: string;
-    department: string;
-    role: string;
-    shift: string;
-    is_on_leave: boolean;
-    location: string | null;
-    national_id: string;
-    contact_number: string | null;
-    contract_start: string;
-    contract_end: string;
-    base_salary: string;
-  };
-}
+import UpdateEmployeeModal from "@/Components/UpdateEmployeeModal";
+import type { Employee } from "@/Types/Types";
+import { toast } from "sonner";
 
 const Employees = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -49,6 +31,19 @@ const Employees = () => {
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
     null
   );
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [updateEmployeeStatus] = useUpdateEmployeeStatusMutation();
+
+  const handleUpdateStatus = async (id: number, status: boolean) => {
+   try {
+      await updateEmployeeStatus({ id, employee_profile: { is_on_leave: status }});
+      toast.success("Employee status updated successfully");
+   } catch (error) {
+      toast.error("Failed to update employee status");
+    console.error(error);
+   }
+
+  };
 
   const { data: overviewData } = useEmployeeOverviewQuery();
   const {
@@ -176,9 +171,7 @@ const Employees = () => {
             <option>Cleaning</option>
             <option>Security</option>
             <option>Maintenance</option>
-            <option>HR</option>
-            <option>Finance</option>
-            <option>IT</option>
+            <option>Management</option>
           </select>
 
           <select
@@ -214,8 +207,9 @@ const Employees = () => {
                     <th className="px-4 py-3 text-left">Email</th>
                     <th className="px-4 py-3 text-left">Phone</th>
                     <th className="px-4 py-3 text-left">Salary</th>
+                    <th className="px-4 py-3 text-left">Status</th>
                     <th className="px-4 py-3 text-left cursor-pointer">
-                      Details
+                      Actions
                     </th>
                   </tr>
                 </thead>
@@ -251,17 +245,39 @@ const Employees = () => {
                         {emp.employee_profile?.base_salary || "0"} SAR
                       </td>
                       <td className="px-4 py-3">
+                        <select
+                          value={emp.employee_profile?.is_on_leave.toString()}
+                          onChange={(e) =>
+                            handleUpdateStatus(emp.id, e.target.value === "true")
+                          }
+                          className={`p-2 rounded-md text-xs ${emp.employee_profile?.is_on_leave ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                          <option value="false">Active</option>
+                          <option value="true">On Leave</option>
+                        </select>
+                      </td>
+
+                      <td className="px-4 py-3 flex gap-2">
                         <Button
-                           variant={"outline"}
+                          variant={"outline"}
                           onClick={() => setSelectedEmployee(emp)}
                           title="View Details"
                         >
                           <FaEye size={16} />
                         </Button>
+                        <Button
+                          variant={"outline"}
+                          onClick={() => {
+                            setSelectedEmployee(emp);
+                            setUpdateModalOpen(true);
+                          }}
+                          title="Update Details"
+                        >
+                          <CiEdit size={16} />
+                        </Button>
                       </td>
                     </tr>
                   ))}
-                </tbody>                                                          
+                </tbody>
               </table>
             </div>
 
@@ -307,7 +323,7 @@ const Employees = () => {
 
       {/* Employee Details Modal */}
       <Dialog
-        open={!!selectedEmployee}
+        open={!!selectedEmployee && !updateModalOpen}
         onOpenChange={() => setSelectedEmployee(null)}
       >
         <DialogContent className="max-w-lg">
@@ -392,6 +408,13 @@ const Employees = () => {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Update Employee Modal */}
+      <UpdateEmployeeModal
+        isOpen={updateModalOpen}
+        onClose={() => setUpdateModalOpen(false)}
+        employee={selectedEmployee}
+      />
     </div>
   );
 };

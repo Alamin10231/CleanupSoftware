@@ -1,6 +1,6 @@
 import {
   useDeleteInvoiceMutation,
-  useGetInvoicesQuery,
+  useGetOutgoingInvoicesQuery,
   useGetSearchAllInvoiceQuery,
   useUpdateInvoiceStatusMutation,
 } from "@/redux/features/admin/invoice/invoice.api";
@@ -63,7 +63,7 @@ const InvoicesList = () => {
     isLoading,
     isError,
     isFetching,
-  } = useGetInvoicesQuery(`?page=${page}`);
+  } = useGetOutgoingInvoicesQuery(`?page=${page}`);
 
   // Only use search API when there's actual search text
   const shouldSearch = search.trim().length > 0;
@@ -99,7 +99,6 @@ const InvoicesList = () => {
       );
     }
 
-    // Apply sorting
     if (sort === "Oldest to New") {
       result.sort(
         (a, b) =>

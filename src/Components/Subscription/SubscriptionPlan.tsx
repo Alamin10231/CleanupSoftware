@@ -46,7 +46,7 @@ export default function SubscriptionPlan() {
       id: item.id,
       name: item.name ?? "Unnamed Plan",
       subtitle: item.description ?? "—",
-      price: `$${item.amount ?? 0}`,
+      price: `$${Math.round(item.amount) ?? 0}`,
       cycle:
         item.interval === "month"
           ? "Monthly"
