@@ -29,6 +29,7 @@ type ApartmentFormData = {
   floor: string;
   living_rooms: string;
   bathrooms: string;
+  bedrooms: string;
   outdoor_area: boolean;
 };
 
@@ -37,6 +38,7 @@ const INITIAL_FORM_DATA: ApartmentFormData = {
   floor: "",
   living_rooms: "",
   bathrooms: "",
+  bedrooms: "",
   outdoor_area: false,
 };
 
@@ -169,7 +171,8 @@ export default function AddApartment() {
     formData.apartment_number.trim() !== "" &&
     formData.floor.trim() !== "" &&
     formData.living_rooms.trim() !== "" &&
-    formData.bathrooms.trim() !== "";
+    formData.bathrooms.trim() !== "" &&
+    formData.bedrooms.trim() !== "";
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -215,7 +218,7 @@ export default function AddApartment() {
   }, []);
 
   const handleChange = useCallback((
-    e: React.ChangeEvent<HTMLInputElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, type, value, checked } = e.target;
     setFormData((prev) => ({
@@ -248,6 +251,7 @@ export default function AddApartment() {
       floor: formData.floor,
       living_rooms: Number(formData.living_rooms),
       bathrooms: Number(formData.bathrooms),
+      bedrooms: Number(formData.bedrooms),
       outdoor_area: formData.outdoor_area,
       location: selectedBuilding.location || "Unknown",
     };
@@ -344,13 +348,24 @@ export default function AddApartment() {
                   onChange={handleChange}
                   placeholder="e.g. A-203"
                 />
-                  <FormInput
-                  label="Floor"
-                  name="floor"
-                  value={formData.floor}
-                  onChange={handleChange}
-                  placeholder="e.g. 1"
-                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Floor *
+                  </label>
+                  <select
+                    name="floor"
+                    value={formData.floor}
+                    onChange={handleChange}
+                    className="block w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">Select Floor</option>
+                    <option value="Basement">Basement</option>
+                    <option value="Ground Floor">Ground Floor</option>
+                    <option value="1st Floor">1st Floor</option>
+                    <option value="2nd Floor">2nd Floor</option>
+                    <option value="Top Floor">Top Floor</option>
+                  </select>
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -363,6 +378,15 @@ export default function AddApartment() {
                   placeholder="e.g. 2"
                 />
                 <FormInput
+                  label="Bedrooms"
+                  name="bedrooms"
+                  type="number"
+                  value={formData.bedrooms}
+                  onChange={handleChange}
+                  placeholder="e.g. 3"
+                />
+              </div>
+                <FormInput
                   label="Bathrooms"
                   name="bathrooms"
                   type="number"
@@ -370,9 +394,6 @@ export default function AddApartment() {
                   onChange={handleChange}
                   placeholder="e.g. 1"
                 />
-              </div>
-
-              {/* Outdoor Area */}
               <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -383,10 +404,9 @@ export default function AddApartment() {
                 />
                 <label className="text-sm text-gray-700">Outdoor area</label>
               </div>
-            </div>
-
+              </div>
             {/* Map */}
-            <div className="w-full h-[500px] rounded-md border border-gray-300 overflow-hidden">
+            <div className="w-full h-48 md:h-full rounded-md border border-gray-300 overflow-hidden">
               <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
                 <Map
                   defaultZoom={12}
@@ -403,7 +423,8 @@ export default function AddApartment() {
                 </Map>
               </APIProvider>
             </div>
-          </div>
+            </div>
+
 
           {/* Footer */}
           <div className="border-t border-gray-200 pt-4 px-6 flex justify-end gap-3">
@@ -414,5 +435,6 @@ export default function AddApartment() {
         </form>
       </DialogContent>
     </Dialog>
+
   );
 }

@@ -31,7 +31,7 @@ const Dashboard = lazy(() => import("@/Page/admin-dashboard/Dashboard"));
 const Invoices = lazy(() => import("@/Page/admin-dashboard/invoice/Invoices"));
 const ExpenseAdmin = lazy(() => import("@/Page/admin-dashboard/ExpenseAdmin"));
 const CreateInvoiceForm = lazy(
-  () => import("@/Page/admin-dashboard/create-invoice")
+  () => import("@/Page/admin-dashboard/add-invoice")
 );
 const Employees = lazy(() => import("@/Page/admin-dashboard/Employees"));
 const Notifications = lazy(
@@ -140,7 +140,7 @@ export const adminSidebarItems: ISidebarItems[] = [
         icon: ListPlus, // Added icon
       },
       {
-        title: "Create Invoice",
+        title: "Add Invoice",
         url: "/admin/create-invoice",
         component: CreateInvoiceForm,
         isActive: false,

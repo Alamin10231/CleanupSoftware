@@ -390,7 +390,7 @@ export default function AddBuilding() {
               <APIProvider apiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
                 <Map
                   defaultZoom={12}
-                  center={location}
+                  defaultCenter={location}
                   mapId={import.meta.env.VITE_GOOGLE_MAPS_ID}
                   gestureHandling="greedy"
                   disableDefaultUI
