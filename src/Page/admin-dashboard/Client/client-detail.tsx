@@ -34,6 +34,7 @@ interface ClientDetailsProps {
 }
 
 const ClientDetails = ({ client, open, onOpenChange }: ClientDetailsProps) => {
+   console.log('Client Data:', client);
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -46,7 +47,8 @@ const ClientDetails = ({ client, open, onOpenChange }: ClientDetailsProps) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden p-0">
-        {!client ? (
+        {
+        !client ? (
           <div className="flex items-center justify-center h-64">
             <p className="text-muted-foreground">Loading client details...</p>
           </div>
@@ -57,7 +59,7 @@ const ClientDetails = ({ client, open, onOpenChange }: ClientDetailsProps) => {
               <DialogHeader>
                 <div className="flex items-center gap-4">
                   <Avatar className="w-20 h-20 border-4 border-white">
-                    <AvatarImage src={client.client_profile?.avatar} alt={client.name} />
+                    <AvatarImage src={client.avatar_url} alt={client.name} />
                     <AvatarFallback className="text-2xl bg-blue-500">
                       {getInitials(client.name)}
                     </AvatarFallback>
@@ -91,7 +93,7 @@ const ClientDetails = ({ client, open, onOpenChange }: ClientDetailsProps) => {
 
                 {/* Overview Tab */}
                 <TabsContent value="overview" className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-96">
                     {/* Contact Information */}
                     <Card>
                       <CardHeader>
@@ -176,7 +178,7 @@ const ClientDetails = ({ client, open, onOpenChange }: ClientDetailsProps) => {
                 {/* Subscriptions Tab */}
                 <TabsContent value="subscriptions" className="space-y-4">
                   {client.subscription_set?.length > 0 ? (
-                    <div className="space-y-4">
+                    <div className="space-y-4 h-96">
                       {client.subscription_set.map((sub: any) => (
                         <Card key={sub.id}>
                           <CardHeader>
@@ -229,11 +231,7 @@ const ClientDetails = ({ client, open, onOpenChange }: ClientDetailsProps) => {
                 {/* Invoices Tab */}
                 <TabsContent value="invoices">
                   {client.invoice_client?.length > 0 ? (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Invoice History</CardTitle>
-                        <CardDescription>All invoices for this client</CardDescription>
-                      </CardHeader>
+                    <Card className="overflow-auto h-96">
                       <CardContent>
                         <Table>
                           <TableHeader>
@@ -279,7 +277,7 @@ const ClientDetails = ({ client, open, onOpenChange }: ClientDetailsProps) => {
                 {/* Buildings Tab */}
                 <TabsContent value="buildings" className="space-y-4">
                   {client.buildings?.length > 0 ? (
-                    <div className="space-y-4">
+                    <div className="space-y-4 h-96 grid grid-cols-1 md:grid-cols-2 gap-4 overflow-y-auto">
                       {client.buildings.map((building: any) => (
                         <Card key={building.id}>
                           <CardHeader>

@@ -31,7 +31,7 @@ export const requestApi = baseApi.injectEndpoints({
         url: `client_dashboard/client-checkout-forms/${id}/`,
         method: "DELETE",
       }),
-      invalidatesTags: ["ClientSubscriptions"],
+      invalidatesTags: ["ClientSubscriptions"], // optional: refetch after delete
     }),
   }),
 });
@@ -41,4 +41,5 @@ export const {
   useGetClientSubscriptionsQuery,
   useUpdateClientRequestMutation,
   useDeleteClientRequestMutation,
+ 
 } = requestApi;
