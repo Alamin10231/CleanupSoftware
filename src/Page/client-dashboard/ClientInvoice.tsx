@@ -63,22 +63,12 @@ const InvoicesList = () => {
       result = searchInvoice?.results || invoices || [];
       result = result.filter(
         (inv) =>
-          (inv.building_name?.toLowerCase() || "").includes(
-            search.toLowerCase()
-          ) ||
-          (inv.region_name?.toLowerCase() || "").includes(
-            search.toLowerCase()
-          ) ||
-          (inv.apartment_name?.join(" ").toLowerCase() || "").includes(
-            search.toLowerCase()
-          ) ||
+          (inv.building_name?.toLowerCase() || "").includes(search.toLowerCase()) ||
+          (inv.region_name?.toLowerCase() || "").includes(search.toLowerCase()) ||
+          (inv.apartment_name?.join(" ").toLowerCase() || "").includes(search.toLowerCase()) ||
           (inv.client_name?.toString() || "").includes(search) ||
-          (inv.invoice_id?.toLowerCase() || "").includes(
-            search.toLowerCase()
-          ) ||
-          (inv.vendor_name?.toLowerCase() || "").includes(
-            search.toLowerCase()
-          ) ||
+          (inv.invoice_id?.toLowerCase() || "").includes(search.toLowerCase()) ||
+          (inv.vendor_name?.toLowerCase() || "").includes(search.toLowerCase()) ||
           (inv.note?.toLowerCase() || "").includes(search.toLowerCase())
       );
     } else {
@@ -87,36 +77,24 @@ const InvoicesList = () => {
 
     // Apply status filter
     if (status !== "All Status") {
-      result = result.filter(
-        (inv) => inv.status.toLowerCase() === status.toLowerCase()
-      );
+      result = result.filter((inv) => inv.status.toLowerCase() === status.toLowerCase());
     }
 
     // Apply sorting
     if (sort === "Oldest to New") {
       result.sort(
-        (a, b) =>
-          new Date(a.date_issued).getTime() - new Date(b.date_issued).getTime()
+        (a, b) => new Date(a.date_issued).getTime() - new Date(b.date_issued).getTime()
       );
     } else if (sort === "New to Oldest") {
       result.sort(
-        (a, b) =>
-          new Date(b.date_issued).getTime() - new Date(a.date_issued).getTime()
+        (a, b) => new Date(b.date_issued).getTime() - new Date(a.date_issued).getTime()
       );
     }
 
     setFilteredInvoices(result);
   }, [search, status, sort, invoices, searchInvoice]);
 
-  const handleDelete = async (invoice: Invoice) => {
-    try {
-      await deleteInvoice(invoice.id).unwrap();
-      toast.success(`Invoice ${invoice.invoice_id} deleted`);
-    } catch (error) {
-      toast.error(`Failed to delete invoice ${invoice}`);
-      // console.error(error);
-    }
-  };
+
 
   if (isLoading || isSearchLoading) return <p>Loading...</p>;
   if (isError || isSearchError) return <p>Error fetching invoices.</p>;
@@ -124,14 +102,14 @@ const InvoicesList = () => {
   return (
     <>
       {/* Filters */}
-      <div className="flex items-center justify-between gap-4 mt-8">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mt-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
           <input
             type="text"
             placeholder="Search Invoice..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border border-gray-300 rounded-md px-4 py-2 w-64 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
+            className="border border-gray-300 rounded-md px-4 py-2 w-full sm:w-64 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
           />
 
           {/* Status Filter */}
@@ -159,139 +137,129 @@ const InvoicesList = () => {
         </div>
       </div>
 
-      {/* Table List */}
-      <div className="overflow-x-auto mt-6">
-        {filteredInvoices.length > 0 ? (
-          <>
-            <table className="min-w-full border border-gray-200 bg-white rounded-lg shadow-sm">
-              <thead className="bg-gray-100 border-b border-gray-300 text-gray-700 text-sm">
-                <tr>
-                  <th className="p-3 text-left">Invoice ID</th>
-                  <th className="p-3 text-left">Building</th>
-                  <th className="p-3 text-left">Region</th>
-                  <th className="p-3 text-left">Apartment(s)</th>
-                  {/* <th className="p-3 text-left">Client</th> */}
-                  <th className="p-3 text-left">Date Issued</th>
-                  <th className="p-3 text-left">Due Date</th>
-                  <th className="p-3 text-left">Total Amount</th>
-                  <th className="p-3 text-left">Status</th>
-                  <th className="p-3 text-left">Actions</th>
+      {/* Table + Mobile Card View */}
+      <div className="mt-6">
+        {/* Desktop / Tablet Table */}
+        <div className="overflow-x-auto hidden md:block">
+          <table className="min-w-full border border-gray-200 bg-white rounded-lg shadow-sm">
+            <thead className="bg-gray-100 border-b border-gray-300 text-gray-700 text-sm">
+              <tr>
+                <th className="p-3 text-left">Invoice ID</th>
+                <th className="p-3 text-left">Building</th>
+                <th className="p-3 text-left">Region</th>
+                <th className="p-3 text-left">Apartment(s)</th>
+                <th className="p-3 text-left">Date Issued</th>
+                <th className="p-3 text-left">Due Date</th>
+                <th className="p-3 text-left">Total Amount</th>
+                <th className="p-3 text-left">Status</th>
+                <th className="p-3 text-left">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {filteredInvoices.map((invoice) => (
+                <tr key={invoice.id} className="border-b border-gray-200 hover:bg-gray-50 transition">
+                  <td className="p-3 font-semibold text-gray-700">{invoice.invoice_id}</td>
+                  <td className="p-3">{invoice.building_name}</td>
+                  <td className="p-3">{invoice.region_name}</td>
+                  <td className="p-3">{invoice.apartment_name?.join(", ") || "N/A"}</td>
+                  <td className="p-3">{new Date(invoice.date_issued).toLocaleDateString()}</td>
+                  <td className="p-3">{invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : "—"}</td>
+                  <td className="p-3 font-semibold text-gray-800">{invoice.total_amount.toFixed(2)} SAR</td>
+                  <td className="p-3">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        invoice.status.toLowerCase() === "paid"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-yellow-100 text-yellow-700"
+                      }`}
+                    >
+                      {invoice.status}
+                    </span>
+                  </td>
+                  <td className="p-3 flex items-center gap-3">
+                    <PDFDownloadLink
+                      document={<InvoicePDF invoice={invoice} />}
+                      fileName={`invoice-${invoice.invoice_id}.pdf`}
+                    >
+                      <img src={assets.Download} alt="download" className="w-5 h-5 cursor-pointer" />
+                    </PDFDownloadLink>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredInvoices.map((invoice) => (
-                  <tr
-                    key={invoice.id}
-                    className="border-b border-gray-200 hover:bg-gray-50 transition"
-                  >
-                    <td className="p-3 font-semibold text-gray-700">
-                      {invoice.invoice_id}
-                    </td>
-                    <td className="p-3">{invoice.building_name}</td>
-                    <td className="p-3">{invoice.region_name}</td>
-                    <td className="p-3">
-                      {invoice.apartment_name?.join(", ") || "N/A"}
-                    </td>
-                    {/* <td className="p-3">{invoice.client_name ?? "N/A"}</td> */}
-                    <td className="p-3">
-                      {new Date(invoice.date_issued).toLocaleDateString()}
-                    </td>
-                    <td className="p-3">
-                      {invoice.due_date
-                        ? new Date(invoice.due_date).toLocaleDateString()
-                        : "—"}
-                    </td>
-                    <td className="p-3 font-semibold text-gray-800">
-                      {invoice.total_amount.toFixed(2)} SAR
-                    </td>
-                    <td className="p-3">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          invoice.status.toLowerCase() === "paid"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-yellow-100 text-yellow-700"
-                        }`}
-                      >
-                        {invoice.status}
-                      </span>
-                    </td>
-                    <td className="p-3 flex items-center gap-3">
-                      <div
-                        className="p-2 bg-gray-100 rounded-lg cursor-pointer"
-                        onClick={() =>
-                          toast.promise(
-                            new Promise((resolve) => resolve(null)),
-                            {
-                              loading: "Downloading Invoice...",
-                              success: () => {
-                                return `Invoice downloaded successfully`;
-                              },
-                              error: "Failed to download invoice",
-                            }
-                          )
-                        }
-                      >
-                        <PDFDownloadLink
-                          document={<InvoicePDF invoice={invoice} />}
-                          fileName={`invoice-${invoice.invoice_id}.pdf`}
-                        >
-                          {({ loading }) =>
-                            loading ? (
-                              <p className="text-sm">Loading...</p>
-                            ) : (
-                              <img
-                                src={assets.Download}
-                                alt="download"
-                                className="w-5 h-5"
-                              />
-                            )
-                          }
-                        </PDFDownloadLink>
-                      </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-                      {/* Delete Alert Dialog */}
+        {/* Mobile Card View */}
+        <div className="grid gap-3 md:hidden">
+          {filteredInvoices.map((invoice) => (
+            <div key={invoice.id} className="p-4 border rounded-lg bg-white shadow-sm">
+              <p className="font-semibold text-gray-700">#{invoice.invoice_id}</p>
+              <p className="text-sm text-gray-600">{invoice.building_name} - {invoice.region_name}</p>
+              <p className="text-sm text-gray-600">Apts: {invoice.apartment_name?.join(", ")}</p>
+              <p className="text-sm text-gray-600">
+                Issued: {new Date(invoice.date_issued).toLocaleDateString()}
+              </p>
+              <p className="text-sm text-gray-600">
+                Due: {invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : "—"}
+              </p>
 
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+              <div className="flex justify-between items-center mt-2">
+                <span
+                  className={`text-xs px-2 py-1 rounded-full font-medium ${
+                    invoice.status.toLowerCase() === "paid"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-yellow-100 text-yellow-700"
+                  }`}
+                >
+                  {invoice.status}
+                </span>
 
-            {/* Pagination Controls */}
-            <div className="flex justify-between items-center mt-4 px-2">
-              <button
-                onClick={() => prevPage && setPage((p) => Math.max(p - 1, 1))}
-                disabled={!prevPage || isFetching}
-                className={`px-4 py-2 cursor-pointer rounded-md text-sm font-medium ${
-                  prevPage
-                    ? "bg-blue-500 text-white hover:bg-blue-600"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
-              >
-                Previous
-              </button>
-
-              <span className="text-sm text-gray-600">
-                Page {page} of {Math.ceil(totalCount / 10)}
-              </span>
-
-              <button
-                onClick={() => nextPage && setPage((p) => p + 1)}
-                disabled={!nextPage || isFetching}
-                className={`px-4 py-2 cursor-pointer rounded-md text-sm font-medium ${
-                  nextPage
-                    ? "bg-blue-500 text-white hover:bg-blue-600"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
-              >
-                Next
-              </button>
+                <PDFDownloadLink
+                  document={<InvoicePDF invoice={invoice} />}
+                  fileName={`invoice-${invoice.invoice_id}.pdf`}
+                >
+                  <img src={assets.Download} alt="download" className="w-5 h-5 cursor-pointer" />
+                </PDFDownloadLink>
+              </div>
             </div>
-          </>
-        ) : (
-          <p className="text-center text-gray-500 mt-6">No invoices found</p>
-        )}
+          ))}
+        </div>
       </div>
+
+      {/* Pagination Controls */}
+      <div className="flex justify-between items-center mt-4 px-2">
+        <button
+          onClick={() => prevPage && setPage((p) => Math.max(p - 1, 1))}
+          disabled={!prevPage || isFetching}
+          className={`px-4 py-2 cursor-pointer rounded-md text-sm font-medium ${
+            prevPage
+              ? "bg-blue-500 text-white hover:bg-blue-600"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+          }`}
+        >
+          Previous
+        </button>
+
+        <span className="text-sm text-gray-600">
+          Page {page} of {Math.ceil(totalCount / 10)}
+        </span>
+
+        <button
+          onClick={() => nextPage && setPage((p) => p + 1)}
+          disabled={!nextPage || isFetching}
+          className={`px-4 py-2 cursor-pointer rounded-md text-sm font-medium ${
+            nextPage
+              ? "bg-blue-500 text-white hover:bg-blue-600"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+          }`}
+        >
+          Next
+        </button>
+      </div>
+
+      {filteredInvoices.length === 0 && <p className="text-center text-gray-500 mt-6">No invoices found</p>}
     </>
   );
 };

@@ -1,57 +1,87 @@
 import React, { useState } from "react";
-import {
-  useSendClientRequestMutation,
-  useGetClientSubscriptionsQuery,
-  useDeleteClientRequestMutation,
-} from "@/redux/features/Client/Request.api";
 import { useSelector } from "react-redux";
+import { useSendClientRequestMutation } from "@/redux/features/Client/Request.api";
+import { useGetSubscriptionClientQuery } from "@/redux/features/Client/subscription.api";
+import { useGetEmployeeTaskForClientQuery } from "@/redux/features/employee/task/task.api";
+
+// Types
+interface FormState {
+  form_name: string;
+  subscription: string;
+  special_service: string;
+  client_set_date: string;
+  start_time: string;
+  form_type: "makeup" | "checkout" | "other";
+  description: string;
+}
+
+interface SubscriptionItem {
+  id: number;
+  status: string;
+  plan: { name: string };
+  building: { name: string };
+  apartment: { apartment_number: string };
+}
+
+interface RootState {
+  auth: { user?: { id: number } };
+}
+
+const initialFormState: FormState = {
+  form_name: "",
+  subscription: "",
+  special_service: "",
+  client_set_date: "",
+  start_time: "",
+  form_type: "makeup",
+  description: "",
+};
 
 const SendRequest: React.FC = () => {
-  const [form, setForm] = useState({
-    form_name: "",
-    subscription: "",
-    special_service: "", // optional
-    time_range: "",
-    form_type: "makeup",
-    description: "",
-  });
+  const [form, setForm] = useState<FormState>(initialFormState);
 
-  const clientId = useSelector((state: any) => state.auth.user?.id);
+  const clientId = useSelector((state: RootState) => state.auth.user?.id);
 
-  const { data, isLoading: subsLoading, error } = useGetClientSubscriptionsQuery();
-  // console.log(data);
-  
+  const { data: subscriptionList, isLoading: subsLoading } =
+    useGetSubscriptionClientQuery();
+
+  const { data: singleService, isLoading: serviceLoading } =
+    useGetEmployeeTaskForClientQuery();
+
   const [sendClientRequest, { isLoading, isSuccess, isError }] =
     useSendClientRequestMutation();
-    const [deleteClientRequest] = useDeleteClientRequestMutation();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+  const activeSubscriptions: SubscriptionItem[] =
+    subscriptionList?.filter((sub:any) => sub.status === "active") || [];
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    const payload: any = {
+      form_name: form.form_name,
+      subscription: Number(form.subscription),
+      time_range: form.start_time,
+      client_set_date: form.client_set_date,
+      form_type: form.form_type,
+      description: form.description,
+      client: clientId,
+    };
+
+    if (form.special_service) {
+      payload.special_service = Number(form.special_service);
+    }
+
     try {
-      // prepare payload
-      const payload: any = {
-        ...form,
-        client: clientId,
-        subscription: Number(form.subscription),
-      };
-
-      // send special_service only if not empty
-      if (form.special_service) {
-        payload.special_service = Number(form.special_service);
-      }
-
-      const res = await sendClientRequest(payload).unwrap();
-      console.log("✅ Request sent:", res);
-    } catch (error) {
-      console.error("❌ Error:", error);
-      alert("Failed to send request!");
+      await sendClientRequest(payload).unwrap();
+      setForm(initialFormState);
+    } catch (e) {
+      console.error("Error submitting form:", e);
     }
   };
  
@@ -64,108 +94,121 @@ const SendRequest: React.FC = () => {
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Form Name */}
+          {/* Request Name */}
           <div>
             <label className="block text-gray-700 font-semibold mb-1">
-              Form Name
+              Request Name
             </label>
             <input
               type="text"
               name="form_name"
               value={form.form_name}
               onChange={handleChange}
-              placeholder="Haircut"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              placeholder="Enter Your Request"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2"
               required
             />
           </div>
 
-          {/* Subscription */}
+          {/* Subscription Dropdown */}
           <div>
             <label className="block text-gray-700 font-semibold mb-1">
               Subscription
             </label>
             {subsLoading ? (
-              <p>Loading subscriptions...</p>
-            ) : error ? (
-              <p className="text-red-500">Failed to load subscriptions.</p>
+              <p className="text-gray-500 py-2">Loading subscriptions...</p>
+            ) : activeSubscriptions.length === 0 ? (
+              <p className="text-yellow-600 py-2">No active subscriptions</p>
             ) : (
               <select
                 name="subscription"
                 value={form.subscription}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2"
                 required
               >
                 <option value="">Select Subscription</option>
-                {Array.from(
-                  new Set(
-                    data?.results?.map((item: any) => item.subscription).filter(Boolean)
-                  )
-                ).map((subId: any) => {
-                  const subItem = data.results.find((i: any) => i.subscription === subId);
-                  return (
-                    <option key={subId} value={subId}>
-                      Subscription #{subId} - {subItem?.form_name || "Unnamed"}
-                    </option>
-                  );
-                })}
+                {activeSubscriptions.map((sub) => (
+                  <option key={sub.id} value={sub.id}>
+                    {sub.plan.name} - {sub.building.name} ({sub.apartment.apartment_number})
+                  </option>
+                ))}
               </select>
             )}
           </div>
 
-          {/* Optional Special Service */}
+          {/* Special Service Dropdown */}
           <div>
             <label className="block text-gray-700 font-semibold mb-1">
-              Special Service (Optional)
+              Special Service
             </label>
-            <select
-              name="special_service"
-              value={form.special_service}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            >
-              <option value="">No special service</option>
-              {Array.from(
-                new Set(
-                  data?.results
-                    ?.map((item: any) => item.special_service)
-                    .filter(Boolean)
-                )
-              ).map((serviceId: any) => (
-                <option key={serviceId} value={serviceId}>
-                  Special Service #{serviceId}
-                </option>
-              ))}
-            </select>
+
+            {serviceLoading ? (
+              <p className="text-gray-500 py-2">Loading services...</p>
+            ) : (
+              (() => {
+                const activeTasks = (singleService || []).filter(
+                  (task: any) => task.status !== "completed"
+                );
+
+                if (activeTasks.length === 0) {
+                  return <p className="text-yellow-600 py-2">No active tasks available</p>;
+                }
+
+                return (
+                  <select
+                    name="special_service"
+                    value={form.special_service}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                  >
+                    <option value="">Select Special Service</option>
+                    {activeTasks.map((task: any) => (
+                      <option key={task.id} value={task.id}>
+                        {task.name} - {task.building_name} ({task.aprtment_number?.[0]})
+                      </option>
+                    ))}
+                  </select>
+                );
+              })()
+            )}
           </div>
 
-          {/* Time Range */}
-          <div>
-            <label className="block text-gray-700 font-semibold mb-1">
-              Time Range
-            </label>
-            <input
-              type="text"
-              name="time_range"
-              value={form.time_range}
-              onChange={handleChange}
-              placeholder="14:00-15:00"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
+          {/* Date & Time */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-gray-700 font-semibold mb-1">Date</label>
+              <input
+                type="date"
+                name="client_set_date"
+                value={form.client_set_date}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-1">Start Time</label>
+              <input
+                type="time"
+                name="start_time"
+                value={form.start_time}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2"
+                required
+              />
+            </div>
           </div>
 
           {/* Form Type */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-1">
-              Form Type
-            </label>
+            <label className="block text-gray-700 font-semibold mb-1">Form Type</label>
             <select
               name="form_type"
               value={form.form_type}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2"
             >
               <option value="makeup">Makeup</option>
               <option value="checkout">Checkout</option>
@@ -175,41 +218,30 @@ const SendRequest: React.FC = () => {
 
           {/* Description */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-1">
-              Description
-            </label>
+            <label className="block text-gray-700 font-semibold mb-1">Description</label>
             <textarea
               name="description"
               value={form.description}
               onChange={handleChange}
               rows={3}
-              placeholder="Regular haircut"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-gray-300 rounded-lg px-4 py-2"
               required
             />
           </div>
 
-          {/* Submit */}
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading}
-            className={`w-full py-3 rounded-lg text-white font-bold transition-colors ${
-              isLoading ? "bg-gray-400" : "bg-blue-500 hover:bg-blue-600"
+            className={`w-full py-3 rounded-lg text-white font-bold ${
+              isLoading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
             {isLoading ? "Sending..." : "Send Request"}
           </button>
 
-          {isSuccess && (
-            <p className="text-green-600 text-center font-semibold mt-2">
-              ✅ Request sent successfully!
-            </p>
-          )}
-          {isError && (
-            <p className="text-red-600 text-center font-semibold mt-2">
-              ❌ Failed to send request.
-            </p>
-          )}
+          {isSuccess && <p className="text-green-600 text-center mt-2">✅ Request sent!</p>}
+          {isError && <p className="text-red-600 text-center mt-2">❌ Failed to send.</p>}
         </form>
       </div>
     </div>
