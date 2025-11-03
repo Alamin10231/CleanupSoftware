@@ -116,7 +116,7 @@ export default function SubscriptionsDashboard() {
   return (
     <div className="p-4 md:p-6 space-y-6 md:space-y-8">
       {/* KPI cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
         {kpisLoading
           ? Array.from({ length: 4 }).map((_, i) => (
               <div
@@ -134,7 +134,7 @@ export default function SubscriptionsDashboard() {
               return (
                 <div
                   key={index}
-                  className="bg-white border border-gray-300 rounded-md p-5 py-8 flex items-center justify-between"
+                  className="bg-white flex  border border-gray-300 rounded-md p-5 py-8 items-center justify-between"
                 >
                   <div className="flex flex-col gap-1">
                     <p className="text-gray-500 text-sm md:text-base font-semibold">
@@ -177,15 +177,15 @@ export default function SubscriptionsDashboard() {
         </div>
       </div>
 
-      {/* Error message */}
+      {/* Error message
       {subsError && (
         <div className="p-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded mb-3">
           Failed to load subscriptions.
         </div>
-      )}
+      )} */}
 
       {/* Table */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto ">
         <SubscriptionsTable
           rows={rows}
           page={page}

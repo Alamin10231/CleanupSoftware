@@ -59,13 +59,13 @@ const Employees = () => {
     skip: searchTerm.trim() === "",
   });
 
-  const getPageNumber = (url: string | null) => {
-    if (!url) return null;
-    const match = url.match(/page=(\d+)/);
-    return match ? parseInt(match[1]) : null;
-  };
-  const nextPage = getPageNumber(employeeResponse?.next);
-  const prevPage = getPageNumber(employeeResponse?.previous);
+  // const getPageNumber = (url: string | null) => {
+  //   if (!url) return null;
+  //   const match = url.match(/page=(\d+)/);
+  //   return match ? parseInt(match[1]) : null;
+  // };
+  // const nextPage = getPageNumber(employeeResponse?.next);
+  // const prevPage = getPageNumber(employeeResponse?.previous);
 
   const employees: Employee[] = useMemo(() => {
     const baseList = searchTerm.trim()
@@ -284,35 +284,30 @@ const Employees = () => {
             {/* Pagination */}
             {!searchTerm && (
               <div className="flex justify-between items-center mt-4 px-2">
-                <button
-                  onClick={() => prevPage && setPage(prevPage)}
-                  disabled={!prevPage}
-                  className={`px-4 py-2 rounded-md text-sm font-medium ${
-                    prevPage
-                      ? "bg-blue-500 text-white hover:bg-blue-600"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
-                >
-                  Previous
-                </button>
+               <button
+  onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+  disabled={page === 1}
+  className={`px-4 py-2 rounded-md text-sm font-medium ${
+    page === 1
+      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+      : "bg-blue-500 text-white hover:bg-blue-600"
+  }`}
+>
+  Previous
+</button>
 
-                <p className="text-gray-600 text-sm">
-                  Showing page{" "}
-                  <span className="font-semibold text-gray-800">{page}</span> of{" "}
-                  {totalPages}
-                </p>
+<button
+  onClick={() => setPage((prev) => prev + 1)}
+  disabled={page >= totalPages}
+  className={`px-4 py-2 rounded-md text-sm font-medium ${
+    page >= totalPages
+      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+      : "bg-blue-500 text-white hover:bg-blue-600"
+  }`}
+>
+  Next
+</button>
 
-                <button
-                  onClick={() => nextPage && setPage(nextPage)}
-                  disabled={!nextPage}
-                  className={`px-4 py-2 rounded-md text-sm font-medium ${
-                    nextPage
-                      ? "bg-blue-500 text-white hover:bg-blue-600"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
-                >
-                  Next
-                </button>
               </div>
             )}
           </>

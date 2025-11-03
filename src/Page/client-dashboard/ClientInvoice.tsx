@@ -1,13 +1,12 @@
 import {
   useDeleteInvoiceMutation,
-  useGetInvoicesQuery,
   useGetSearchAllInvoiceQuery,
 } from "@/redux/features/admin/invoice/invoice.api";
 import { useEffect, useState } from "react";
 import { assets } from "@/assets/assets";
-import { toast } from "sonner";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import InvoicePDF from "../admin-dashboard/invoice/InvoicePDF";
+// import { useGetInvoicesQuery } from "@/lib/api";
 
 interface Invoice {
   id: number;
@@ -63,12 +62,22 @@ const InvoicesList = () => {
       result = searchInvoice?.results || invoices || [];
       result = result.filter(
         (inv) =>
-          (inv.building_name?.toLowerCase() || "").includes(search.toLowerCase()) ||
-          (inv.region_name?.toLowerCase() || "").includes(search.toLowerCase()) ||
-          (inv.apartment_name?.join(" ").toLowerCase() || "").includes(search.toLowerCase()) ||
+          (inv.building_name?.toLowerCase() || "").includes(
+            search.toLowerCase()
+          ) ||
+          (inv.region_name?.toLowerCase() || "").includes(
+            search.toLowerCase()
+          ) ||
+          (inv.apartment_name?.join(" ").toLowerCase() || "").includes(
+            search.toLowerCase()
+          ) ||
           (inv.client_name?.toString() || "").includes(search) ||
-          (inv.invoice_id?.toLowerCase() || "").includes(search.toLowerCase()) ||
-          (inv.vendor_name?.toLowerCase() || "").includes(search.toLowerCase()) ||
+          (inv.invoice_id?.toLowerCase() || "").includes(
+            search.toLowerCase()
+          ) ||
+          (inv.vendor_name?.toLowerCase() || "").includes(
+            search.toLowerCase()
+          ) ||
           (inv.note?.toLowerCase() || "").includes(search.toLowerCase())
       );
     } else {
@@ -77,24 +86,26 @@ const InvoicesList = () => {
 
     // Apply status filter
     if (status !== "All Status") {
-      result = result.filter((inv) => inv.status.toLowerCase() === status.toLowerCase());
+      result = result.filter(
+        (inv) => inv.status.toLowerCase() === status.toLowerCase()
+      );
     }
 
     // Apply sorting
     if (sort === "Oldest to New") {
       result.sort(
-        (a, b) => new Date(a.date_issued).getTime() - new Date(b.date_issued).getTime()
+        (a, b) =>
+          new Date(a.date_issued).getTime() - new Date(b.date_issued).getTime()
       );
     } else if (sort === "New to Oldest") {
       result.sort(
-        (a, b) => new Date(b.date_issued).getTime() - new Date(a.date_issued).getTime()
+        (a, b) =>
+          new Date(b.date_issued).getTime() - new Date(a.date_issued).getTime()
       );
     }
 
     setFilteredInvoices(result);
   }, [search, status, sort, invoices, searchInvoice]);
-
-
 
   if (isLoading || isSearchLoading) return <p>Loading...</p>;
   if (isError || isSearchError) return <p>Error fetching invoices.</p>;
@@ -158,14 +169,29 @@ const InvoicesList = () => {
 
             <tbody>
               {filteredInvoices.map((invoice) => (
-                <tr key={invoice.id} className="border-b border-gray-200 hover:bg-gray-50 transition">
-                  <td className="p-3 font-semibold text-gray-700">{invoice.invoice_id}</td>
+                <tr
+                  key={invoice.id}
+                  className="border-b border-gray-200 hover:bg-gray-50 transition"
+                >
+                  <td className="p-3 font-semibold text-gray-700">
+                    {invoice.invoice_id}
+                  </td>
                   <td className="p-3">{invoice.building_name}</td>
                   <td className="p-3">{invoice.region_name}</td>
-                  <td className="p-3">{invoice.apartment_name?.join(", ") || "N/A"}</td>
-                  <td className="p-3">{new Date(invoice.date_issued).toLocaleDateString()}</td>
-                  <td className="p-3">{invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : "—"}</td>
-                  <td className="p-3 font-semibold text-gray-800">{invoice.total_amount.toFixed(2)} SAR</td>
+                  <td className="p-3">
+                    {invoice.apartment_name?.join(", ") || "N/A"}
+                  </td>
+                  <td className="p-3">
+                    {new Date(invoice.date_issued).toLocaleDateString()}
+                  </td>
+                  <td className="p-3">
+                    {invoice.due_date
+                      ? new Date(invoice.due_date).toLocaleDateString()
+                      : "—"}
+                  </td>
+                  <td className="p-3 font-semibold text-gray-800">
+                    {invoice.total_amount.toFixed(2)} SAR
+                  </td>
                   <td className="p-3">
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -182,7 +208,11 @@ const InvoicesList = () => {
                       document={<InvoicePDF invoice={invoice} />}
                       fileName={`invoice-${invoice.invoice_id}.pdf`}
                     >
-                      <img src={assets.Download} alt="download" className="w-5 h-5 cursor-pointer" />
+                      <img
+                        src={assets.Download}
+                        alt="download"
+                        className="w-5 h-5 cursor-pointer"
+                      />
                     </PDFDownloadLink>
                   </td>
                 </tr>
@@ -194,15 +224,27 @@ const InvoicesList = () => {
         {/* Mobile Card View */}
         <div className="grid gap-3 md:hidden">
           {filteredInvoices.map((invoice) => (
-            <div key={invoice.id} className="p-4 border rounded-lg bg-white shadow-sm">
-              <p className="font-semibold text-gray-700">#{invoice.invoice_id}</p>
-              <p className="text-sm text-gray-600">{invoice.building_name} - {invoice.region_name}</p>
-              <p className="text-sm text-gray-600">Apts: {invoice.apartment_name?.join(", ")}</p>
+            <div
+              key={invoice.id}
+              className="p-4 border rounded-lg bg-white shadow-sm"
+            >
+              <p className="font-semibold text-gray-700">
+                #{invoice.invoice_id}
+              </p>
+              <p className="text-sm text-gray-600">
+                {invoice.building_name} - {invoice.region_name}
+              </p>
+              <p className="text-sm text-gray-600">
+                Apts: {invoice.apartment_name?.join(", ")}
+              </p>
               <p className="text-sm text-gray-600">
                 Issued: {new Date(invoice.date_issued).toLocaleDateString()}
               </p>
               <p className="text-sm text-gray-600">
-                Due: {invoice.due_date ? new Date(invoice.due_date).toLocaleDateString() : "—"}
+                Due:{" "}
+                {invoice.due_date
+                  ? new Date(invoice.due_date).toLocaleDateString()
+                  : "—"}
               </p>
 
               <div className="flex justify-between items-center mt-2">
@@ -220,7 +262,11 @@ const InvoicesList = () => {
                   document={<InvoicePDF invoice={invoice} />}
                   fileName={`invoice-${invoice.invoice_id}.pdf`}
                 >
-                  <img src={assets.Download} alt="download" className="w-5 h-5 cursor-pointer" />
+                  <img
+                    src={assets.Download}
+                    alt="download"
+                    className="w-5 h-5 cursor-pointer"
+                  />
                 </PDFDownloadLink>
               </div>
             </div>
@@ -259,7 +305,9 @@ const InvoicesList = () => {
         </button>
       </div>
 
-      {filteredInvoices.length === 0 && <p className="text-center text-gray-500 mt-6">No invoices found</p>}
+      {filteredInvoices.length === 0 && (
+        <p className="text-center text-gray-500 mt-6">No invoices found</p>
+      )}
     </>
   );
 };

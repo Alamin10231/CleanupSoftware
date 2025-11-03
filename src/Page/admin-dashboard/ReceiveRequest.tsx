@@ -102,22 +102,14 @@ const ReceiveRequest: React.FC = () => {
         <table className="w-full border-collapse">
           <thead className="bg-gray-100">
             <tr>
-              <th className="p-3 text-left">ID</th>
-              {data?.results?.some(
-                (item: any) => item.form_type === "subscription"
-              ) ? (
-                <>
-                  <th className="p-3 text-left">Service Building Name</th>
-                  <th className="p-3 text-left">Service Apartment Number</th>
-                </>
-              ) : (
-                <>
-                  <th className="p-3 text-left">Subscription Building Name</th>
-                  <th className="p-3 text-left">
-                    Subscription Apartment Number
-                  </th>
-                </>
-              )}
+              <h1 className="p-3 text-left">ID</h1>
+
+              <th className="p-3 text-left">Service Building Name</th>
+              <th className="p-3 text-left">Service Apartment Number</th>
+
+              <th className="p-3 text-left">Subscription Building Name</th>
+              <th className="p-3 text-left">Subscription Apartment Number</th>
+
               <th className="p-3 text-left">Time Range</th>
               <th className="p-3 text-left">Set Date</th>
               <th className="p-3 text-left">Form Type</th>
@@ -134,23 +126,21 @@ const ReceiveRequest: React.FC = () => {
               >
                 <td className="p-3">{item.id}</td>
 
-                {item.subscription && item.form_type === "subscription" ? (
-                  <>
-                    <td className="p-3">{item.service_building_name || "-"}</td>
-                    <td className="p-3">
-                      {item.service_apartment_number || "-"}
-                    </td>
-                  </>
+                {/* {item.subscription && item.form_type === "subscription" ? ( */}
+                {/* <> */}
+                <td className="p-3">{item.service_building_name || "-"}</td>
+                <td className="p-3">{item.service_apartment_number || "-"}</td>
+                {/* </>
                 ) : (
-                  <>
-                    <td className="p-3">
-                      {item.subscription_building_name || "-"}
-                    </td>
-                    <td className="p-3">
-                      {item.subscription_apartment_number || "-"}
-                    </td>
-                  </>
-                )}
+                  <> */}
+                <td className="p-3">
+                  {item.subscription_building_name || "-"}
+                </td>
+                <td className="p-3">
+                  {item.subscription_apartment_number || "-"}
+                </td>
+                {/* </>
+                )} */}
 
                 <td className="p-3">{item.time_range || "-"}</td>
                 <td className="p-3">{item.client_set_date || "-"}</td>
