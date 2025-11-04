@@ -1,9 +1,5 @@
 import { useState } from "react";
-import {
-  Loader2,
-  Search,
-  XCircle,
-} from "lucide-react";
+import { Loader2, Search, XCircle } from "lucide-react";
 import { Label } from "@/Components/ui/label";
 import { Input } from "@/components/ui/input";
 import {
@@ -37,7 +33,8 @@ const AddSubscriptionForm = () => {
     building: number | null;
     apartment: number | null;
     region: number | null;
-    status: "active" | "inactive" | "paused" | "cancelled" | "past_due";
+    status: "active" ;
+    // | "inactive" | "paused" | "cancelled" | "past_due";
     start_date: string;
     payment: "prepaid" | "postpaid";
     employee: number[];
@@ -60,7 +57,9 @@ const AddSubscriptionForm = () => {
   const [showUserDropdown, setShowUserDropdown] = useState(false);
 
   const [employeeSearch, setEmployeeSearch] = useState("");
-  const [selectedEmployees, setSelectedEmployees] = useState<Array<{id: number, name: string}>>([]);
+  const [selectedEmployees, setSelectedEmployees] = useState<
+    Array<{ id: number; name: string }>
+  >([]);
   const [showEmployeeDropdown, setShowEmployeeDropdown] = useState(false);
 
   // API Queries
@@ -76,8 +75,8 @@ const AddSubscriptionForm = () => {
     useGetSearchClientsQuery(userSearch ? `${userSearch}` : "");
   const { data: employeesData, isLoading: isEmployeesLoading } =
     useGetSearchAllEmpoloyeesQuery(employeeSearch ? `${employeeSearch}` : "");
-  const { data: plansData } = useGetPlansQuery(undefined)
-  const [addSubscription] = useAddSubscriptionMutation()
+  const { data: plansData } = useGetPlansQuery(undefined);
+  const [addSubscription] = useAddSubscriptionMutation();
 
   const apartments = apartmentsData?.apartments || [];
 
@@ -119,7 +118,7 @@ const AddSubscriptionForm = () => {
     };
 
     try {
-      await addSubscription(payload)
+      await addSubscription(payload);
       toast.success("Subscription created successfully");
       handleCancel();
     } catch (error) {
@@ -129,8 +128,11 @@ const AddSubscriptionForm = () => {
   };
 
   const removeEmployee = (employeeId: number) => {
-    setSelectedEmployees(prev => prev.filter(emp => emp.id !== employeeId));
-    handleInputChange("employee", formData.employee.filter(id => id !== employeeId));
+    setSelectedEmployees((prev) => prev.filter((emp) => emp.id !== employeeId));
+    handleInputChange(
+      "employee",
+      formData.employee.filter((id) => id !== employeeId)
+    );
   };
 
   return (
@@ -200,7 +202,7 @@ const AddSubscriptionForm = () => {
               {showUserDropdown &&
                 (usersData?.results?.length > 0 ? (
                   <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                    {usersData.results.map((user) => (
+                    {usersData.results.map((user: any) => (
                       <div
                         key={user.id}
                         className="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100"
@@ -242,7 +244,7 @@ const AddSubscriptionForm = () => {
                   <SelectValue placeholder="Select a plan" />
                 </SelectTrigger>
                 <SelectContent>
-                  {plansData?.results?.map((plan) => (
+                  {plansData?.results?.map((plan: any) => (
                     <SelectItem key={plan.id} value={plan.id.toString()}>
                       {plan.name}
                     </SelectItem>
@@ -316,7 +318,7 @@ const AddSubscriptionForm = () => {
                             Loading...
                           </SelectItem>
                         ) : buildings && buildings.length > 0 ? (
-                          buildings?.map((building) => (
+                          buildings?.map((building: any) => (
                             <SelectItem
                               key={building.id}
                               value={String(building.id)}
@@ -359,7 +361,7 @@ const AddSubscriptionForm = () => {
                       </SelectTrigger>
                       <SelectContent>
                         {apartments.length > 0 ? (
-                          apartments.map((apt) => (
+                          apartments.map((apt: any) => (
                             <SelectItem key={apt.id} value={String(apt.id)}>
                               {apt.apartment_number}
                             </SelectItem>
@@ -387,9 +389,7 @@ const AddSubscriptionForm = () => {
       {/* Subscription Details */}
       <div className="grid md:grid-cols-2 gap-4 mb-4">
         <div className="bg-white border rounded-lg p-6">
-          <h2 className="text-base font-semibold mb-4">
-            Subscription Details
-          </h2>
+          <h2 className="text-base font-semibold mb-4">Subscription Details</h2>
           <div className="space-y-4">
             {/* Status */}
             <div className="space-y-2">
@@ -407,10 +407,8 @@ const AddSubscriptionForm = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                  <SelectItem value="paused">Paused</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
-                  <SelectItem value="past_due">Expired</SelectItem>
+                  {/* <SelectItem value="paused">Paused</SelectItem>
+                  <SelectItem value="cancelled">stopped</SelectItem> */}
                 </SelectContent>
               </Select>
             </div>
@@ -533,15 +531,21 @@ const AddSubscriptionForm = () => {
               (employeesData?.results?.length > 0 ? (
                 <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
                   {employeesData.results
-                    .filter(emp => !formData.employee.includes(emp.id))
-                    .map((employee) => (
+                    .filter((emp: any) => !formData.employee.includes(emp.id))
+                    .map((employee: any) => (
                       <div
                         key={employee.id}
                         className="p-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100"
                         onClick={() => {
-                          const newEmployees = [...formData.employee, employee.id];
+                          const newEmployees = [
+                            ...formData.employee,
+                            employee.id,
+                          ];
                           handleInputChange("employee", newEmployees);
-                          setSelectedEmployees([...selectedEmployees, { id: employee.id, name: employee.name }]);
+                          setSelectedEmployees([
+                            ...selectedEmployees,
+                            { id: employee.id, name: employee.name },
+                          ]);
                           setEmployeeSearch("");
                           setShowEmployeeDropdown(false);
                         }}
