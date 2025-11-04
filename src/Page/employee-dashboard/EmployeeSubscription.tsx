@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaEye } from "react-icons/fa";
-import { MdDownload } from "react-icons/md";
+// import { MdDownload } from "react-icons/md";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +25,8 @@ const EmployeeSubscription: React.FC = () => {
   );
 
   const subscriptions: Subscription[] = data?.results || [];
+
+  console.log(subscriptions);
   const totalPages = data?.total_pages || 1;
 
   const handleView = (sub: Subscription) => {
@@ -200,7 +202,7 @@ const EmployeeSubscription: React.FC = () => {
                         onClick={() => handleView(sub)}
                         className="mt-3 ml-4 cursor-pointer text-base text-blue-600"
                       />
-                      <MdDownload className="mt-3 ml-2 cursor-pointer text-base text-blue-600" />
+                      {/* <MdDownload className="mt-3 ml-2 cursor-pointer text-base text-blue-600" /> */}
                     </td>
                   </tr>
                 );

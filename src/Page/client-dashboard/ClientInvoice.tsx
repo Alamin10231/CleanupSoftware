@@ -1,5 +1,4 @@
 import {
-  useDeleteInvoiceMutation,
   useGetOutgoingInvoicesQuery,
   useGetSearchAllInvoiceQuery,
 } from "@/redux/features/admin/invoice/invoice.api";
@@ -45,7 +44,6 @@ const ClientInvoicesList = () => {
     isError: isSearchError,
   } = useGetSearchAllInvoiceQuery(search ? `${search}` : "");
 
-  const [deleteInvoice] = useDeleteInvoiceMutation();
 
   const invoices = invoicesData?.results || [];
   const totalCount = invoicesData?.count || 0;
