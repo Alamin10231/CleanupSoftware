@@ -1,5 +1,8 @@
 import { FaPause } from "react-icons/fa";
-
+import jsPDF from "jspdf";
+import "jspdf-autotable"; // make sure you installed this
+import { MdOutlineFileDownload } from "react-icons/md";
+import autoTable from "jspdf-autotable";
 type Subscription = {
   id: number;
   name: string;
@@ -28,6 +31,40 @@ export default function SubscriptionsTable({
 }: Props) {
   const paged = rows.slice((page - 1) * pageSize, page * pageSize);
 
+  const handleDownload = (sub: Subscription) => {
+    const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+
+    // Header
+    doc.setFontSize(22);
+    doc.setTextColor("#1f2937");
+    doc.text("Invoice", 40, 50);
+
+    doc.setFontSize(12);
+    doc.setTextColor("#374151");
+    doc.text(`Subscription ID: ${sub.id}`, 40, 80);
+    doc.text(`Client Name: ${sub.name}`, 40, 100);
+    doc.text(`Email: ${sub.email}`, 40, 120);
+    doc.text(`Status: ${sub.status}`, 40, 140);
+    doc.text(`Location: ${sub.location}`, 40, 160);
+    doc.text(`Start Date: ${sub.startDate}`, 40, 180);
+    doc.text(`Next Payment: ${sub.nextPayment}`, 40, 200);
+    
+    // Table
+    autoTable(doc,{
+      startY: 230,
+      theme: "grid",
+      headStyles: {
+        fillColor: "#2563eb",
+        textColor: "#ffffff",
+        fontStyle: "bold",
+      },
+      head: [["Item", "Amount"]],
+      body: [[sub.package, "Check billing info"]],
+    });
+
+    doc.save(`invoice_subscription_${sub.id}.pdf`);
+  };
+
   return (
     <div className="overflow-x-auto rounded-lg shadow-lg">
       <table className="min-w-full divide-y divide-gray-300 text-sm font-sans">
@@ -52,9 +89,7 @@ export default function SubscriptionsTable({
             >
               <td className="px-6 py-4">
                 <div className="flex flex-col">
-                  <span className="font-semibold text-gray-900">
-                    {sub.name}
-                  </span>
+                  <span className="font-semibold text-gray-900">{sub.name}</span>
                   <span className="text-xs text-gray-500">{sub.email}</span>
                   <span
                     className={`mt-1 px-3 py-1 rounded-full text-xs font-medium ${
@@ -95,6 +130,19 @@ export default function SubscriptionsTable({
                   <span className="px-3 py-1 text-gray-400 border border-gray-300 rounded-full text-xs font-semibold">
                     Postpaid
                   </span>
+                )}
+              </td>
+
+              <td>
+                {sub.invoice ? (
+                  <button
+                    onClick={() => handleDownload(sub)}
+                    className="text-blue-600 hover:text-blue-800"
+                  >
+                    <MdOutlineFileDownload className="w-6 h-6" />
+                  </button>
+                ) : (
+                  "-"
                 )}
               </td>
             </tr>

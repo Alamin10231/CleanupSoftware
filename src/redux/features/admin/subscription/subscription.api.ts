@@ -10,39 +10,42 @@ export const subscriptionApi = baseApi.injectEndpoints({
 
     getSubscriptionPage: builder.query<
       SubsPage,
-      { page: number; page_size: number; status?: string }
+      { page: number; page_size: number; status?: string; search?: string }
     >({
-      query: ({ page, page_size, status }) => {
+      query: ({ page, page_size, status, search }) => {
         const s = status && status !== "All status" ? status : undefined;
         const qs = new URLSearchParams({
           page: String(page),
           page_size: String(page_size),
           ...(s ? { status: s } : {}),
+          ...(search ? { search: search } : {}),
         }).toString();
         return `/plan/subscription/?${qs}`;
       },
       providesTags: ["Subscription"],
     }),
+    
     getCollectionNewPlans: builder.query<any, void>({
       query: () => "/plan/subscription/",
       providesTags: ["Subscription"],
     }),
 
-    getAdminStatus: builder.query<any, { status?: string; page?: number }>({
-      query: ({ status = "", page = 1 }) =>
-        `/plan/subscription/?page=${page}&status=${encodeURIComponent(status)}`,
+    getAdminStatus: builder.query<any, { status?: string; page?: number; search?: string }>({
+      query: ({ status = "", page = 1, search = "" }) =>
+        `/plan/subscription/?page=${page}&status=${encodeURIComponent(status)}&search=${encodeURIComponent(search)}`,
       providesTags: ["Subscription"],
     }),
 
-    getCollectionStatus: builder.query<any, { status?: string; page?: number }>(
+    getCollectionStatus: builder.query<any, { status?: string; page?: number; search?: string }>(
       {
-        query: ({ status = "", page = 1 }) =>
+        query: ({ status = "", page = 1, search = "" }) =>
           `plan/subscription/?page=${page}&status=${encodeURIComponent(
             status
-          )}`,
+          )}&search=${encodeURIComponent(search)}`,
         providesTags: ["Subscription"],
       }
     ),
+    
     addSubscription: builder.mutation({
       query: (body) => ({
          url: 'plan/subscriptions-create/',
@@ -53,7 +56,6 @@ export const subscriptionApi = baseApi.injectEndpoints({
     })
   }),
 });
-
 
 export const {
   useGetCalculationSubscriptionsQuery,

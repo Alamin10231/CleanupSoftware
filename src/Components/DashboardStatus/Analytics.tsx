@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { useGetAdminDashboardQuery } from "@/redux/features/admin/dashboard/dashboard.api";
 
 type Slice = { name: string; value: number; color: string };
 
 // Helper: Convert slices to conic-gradient string
-function toConicGradient(slices: Slice[]) {
-  const total = slices.reduce((s, x) => s + x.value, 0) || 1;
+function toConicGradient(slices: Slice[], total: number) {
+  if (total === 0) return "conic-gradient(#e5e7eb 0deg 360deg)"; // neutral gray if no data
   let acc = 0;
   const parts = slices.map((s) => {
     const start = (acc / total) * 360;
@@ -15,22 +16,33 @@ function toConicGradient(slices: Slice[]) {
   return `conic-gradient(${parts.join(", ")})`;
 }
 
-// Helper: Calculate percentage
 function percent(n: number, total: number) {
   return total ? Math.round((n / total) * 100) : 0;
 }
 
-export default function Analytics() {
-  // 🔹 Fetch Admin Dashboard (replace year/month with dynamic if needed)
-  const { data, isLoading, isError } = useGetAdminDashboardQuery({
-    year: new Date().getFullYear(),
-    month: "october", // example: current month lowercase
-  });
+const MONTHS = [
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December"
+];
 
-  // 🔹 Extract analytics data or fallback to 0
+export default function Analytics() {
+  const [month, setMonth] = useState(
+    new Date().toLocaleString("default", { month: "long" })
+  );
+
+  // ✅ refetchOnMountOrArgChange is passed in the hook options (second argument)
+  const { data, isLoading, isError } = useGetAdminDashboardQuery(
+    {
+      year: new Date().getFullYear(),
+      month: month.toLowerCase(),
+    },
+    {
+      refetchOnMountOrArgChange: true,
+    }
+  );
+
   const analitycs = data?.analitycs || { stopped: 0, paused: 0, new_active: 0 };
 
-  // 🔹 Build slices dynamically
   const analyticsData: Slice[] = [
     { name: "Stopped", value: analitycs.stopped || 0, color: "#D32F2F" },
     { name: "Paused", value: analitycs.paused || 0, color: "#0288D1" },
@@ -38,7 +50,7 @@ export default function Analytics() {
   ];
 
   const total = analyticsData.reduce((s, x) => s + x.value, 0);
-  const bg = toConicGradient(analyticsData);
+  const bg = toConicGradient(analyticsData, total);
 
   if (isLoading) return <div>Loading analytics...</div>;
   if (isError)
@@ -46,28 +58,46 @@ export default function Analytics() {
 
   return (
     <div className="w-full rounded-xl border bg-white p-4 shadow-sm dark:bg-gray-900 dark:border-gray-700">
-      <h2 className="mb-2 text-lg font-semibold text-gray-800 dark:text-gray-100">
-        Subscription Analytics
-      </h2>
+      <div className="flex justify-between items-center mb-2">
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+          Subscription Analytics
+        </h2>
+        <select
+          className="border px-2 py-1 rounded text-sm"
+          value={month}
+          onChange={(e) => setMonth(e.target.value)}
+        >
+          {MONTHS.map((m) => (
+            <option key={m} value={m}>
+              {m}
+            </option>
+          ))}
+        </select>
+      </div>
 
       <div className="flex flex-col items-center gap-4">
         {/* Donut Chart */}
         <div className="flex items-center justify-center">
           <div
-            className="relative aspect-square w-[220px] rounded-full"
+            className="relative aspect-square w-[220px] rounded-full flex items-center justify-center"
             style={{ background: bg }}
             role="img"
             aria-label="Analytics distribution donut chart"
           >
-            {/* Inner white circle */}
             <div className="absolute inset-6 rounded-full bg-white shadow-inner dark:bg-gray-900" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <div className="text-4xl font-semibold">{total}</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  Total
+            <div className="absolute inset-0 flex items-center justify-center text-center">
+              {total > 0 ? (
+                <>
+                  <div className="text-4xl font-semibold">{total}</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Total
+                  </div>
+                </>
+              ) : (
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  No data available for {month}
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

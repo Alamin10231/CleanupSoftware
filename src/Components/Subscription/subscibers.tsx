@@ -93,6 +93,7 @@ export default function SubscriptionsDashboard() {
     page,
     page_size: pageSize,
     status: statusFilter,
+    
   });
 
   const rows: TableRow[] = useMemo(
@@ -112,6 +113,21 @@ export default function SubscriptionsDashboard() {
         0
     ),
   };
+
+  const [searchItem, setSearchItem] = useState("");
+
+  const filterrows = useMemo(() => {
+    if (!searchItem) return rows;
+
+    return rows.filter(
+      (row) =>
+        row.name.toLocaleLowerCase().includes(searchItem.toLocaleLowerCase()) ||
+        row.email
+          .toLocaleLowerCase()
+          .includes(searchItem.toLocaleLowerCase()) ||
+        row.package.toLocaleLowerCase().includes(searchItem.toLocaleLowerCase())
+    );
+  },[rows, searchItem]);
 
   return (
     <div className="p-4 md:p-6 space-y-6 md:space-y-8">
@@ -146,7 +162,11 @@ export default function SubscriptionsDashboard() {
                   </div>
                   {icon && (
                     <div className="p-3 bg-blue-100 rounded-xl w-10 h-10 md:w-12 md:h-12 flex items-center justify-center">
-                      <img src={icon} alt={a.iconAlt} className="w-6 h-6 md:w-8 md:h-8" />
+                      <img
+                        src={icon}
+                        alt={a.iconAlt}
+                        className="w-6 h-6 md:w-8 md:h-8"
+                      />
                     </div>
                   )}
                 </div>
@@ -174,6 +194,14 @@ export default function SubscriptionsDashboard() {
             <option value="inactive">Inactive</option>
             <option value="canceled">Canceled</option>
           </select>
+        <div className=" rounded-md">
+          <input type="text" 
+          value={searchItem}
+          onChange={(e)=>setSearchItem(e.target.value)}
+          name="search" placeholder="search" id="" 
+           className="border border-gray-300 rounded-md px-4 py-2 text-sm w-full sm:w-auto"
+          />
+        </div>
         </div>
       </div>
 
@@ -187,7 +215,8 @@ export default function SubscriptionsDashboard() {
       {/* Table */}
       <div className="overflow-x-auto ">
         <SubscriptionsTable
-          rows={rows}
+     
+          rows={filterrows}
           page={page}
           pageSize={pageSize}
           onPageChange={setPage}

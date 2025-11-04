@@ -59,13 +59,6 @@ const Employees = () => {
     skip: searchTerm.trim() === "",
   });
 
-  // const getPageNumber = (url: string | null) => {
-  //   if (!url) return null;
-  //   const match = url.match(/page=(\d+)/);
-  //   return match ? parseInt(match[1]) : null;
-  // };
-  // const nextPage = getPageNumber(employeeResponse?.next);
-  // const prevPage = getPageNumber(employeeResponse?.previous);
 
   const employees: Employee[] = useMemo(() => {
     const baseList = searchTerm.trim()
