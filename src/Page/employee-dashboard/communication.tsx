@@ -11,6 +11,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useGetChatHistoryQuery } from "@/redux/features/employee/chat/getchathistory.api";
+
+
+
+
 
 const dummyServices = [
   {
@@ -59,7 +64,9 @@ const ServiceTable = () => {
       },
     ]);
   };
-
+  const {data:ChatHistory} = useGetChatHistoryQuery();
+  console.log(ChatHistory);
+  
   const closeChat = () => {
     setSelectedService(null);
     setMessages([]);
@@ -102,7 +109,6 @@ const ServiceTable = () => {
           <TableHeader>
             <TableRow>
               <TableHead>Service</TableHead>
-              <TableHead>Status</TableHead>
               <TableHead>Region</TableHead>
               <TableHead>Building</TableHead>
               <TableHead>Location</TableHead>
@@ -116,19 +122,7 @@ const ServiceTable = () => {
             {dummyServices.map((s) => (
               <TableRow key={s.id}>
                 <TableCell>{s.name}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant={
-                      s.status === "completed"
-                        ? "default"
-                        : s.status === "pending"
-                        ? "secondary"
-                        : "destructive"
-                    }
-                  >
-                    {s.status}
-                  </Badge>
-                </TableCell>
+               
                 <TableCell>{s.region_name}</TableCell>
                 <TableCell>{s.building_name}</TableCell>
                 <TableCell>{s.building_located_at}</TableCell>

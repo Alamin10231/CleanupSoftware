@@ -9,7 +9,7 @@ import EmployeeMap from "./employee-map";
 export default function EmployeeTaskDashboard() {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [selectedTask, setSelectedTask] = useState<any>(null); // For dialog
+  const [selectedTask, setSelectedTask] = useState<any>(null);
   const { data: taskData, isLoading } = useGetEmployeeTasksQuery(page);
 
   const tasks =
@@ -25,18 +25,13 @@ export default function EmployeeTaskDashboard() {
   const totalActive = tasks.filter((t: any) => t.status === "active").length;
 
   function BuildingMap({ buildingId }: { buildingId: number }) {
-  const { data: building, isLoading } = useGetEmployeeTasksQuery(buildingId);
+    const { data: building, isLoading } = useGetEmployeeTasksQuery(buildingId);
 
-  if (isLoading) {
-    return <p>Loading map...</p>;
+    if (isLoading) return <p>Loading map...</p>;
+    if (!building) return <p>Building not found.</p>;
+
+    return <EmployeeMap building={selectedTask} />;
   }
-
-  if (!building) {
-    return <p>Building not found.</p>;
-  }
-
-  return <EmployeeMap building={selectedTask} />;
-}
 
   return (
     <div>
@@ -67,9 +62,10 @@ export default function EmployeeTaskDashboard() {
             <tr>
               <th className="text-left p-3">Task Name</th>
               <th className="text-left p-3">Worker</th>
-              <th className="text-left p-3">Client</th>
               <th className="text-left p-3">Building</th>
               <th className="text-left p-3">Region</th>
+              <th className="text-left p-3">Apartment</th>
+              <th className="text-left p-3">Client Email</th>
               <th className="text-left p-3">Status</th>
               <th className="p-3 text-center">Details</th>
             </tr>
@@ -77,7 +73,7 @@ export default function EmployeeTaskDashboard() {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={9} className="text-center py-6 text-gray-500">
+                <td colSpan={8} className="text-center py-6 text-gray-500">
                   Loading tasks...
                 </td>
               </tr>
@@ -86,9 +82,10 @@ export default function EmployeeTaskDashboard() {
                 <tr key={task.id} className="border-t hover:bg-gray-50 transition">
                   <td className="p-3 font-medium text-gray-700">{task.name}</td>
                   <td className="p-3">{task.worker_name}</td>
-                  <td className="p-3">{task.client_username?.join(", ")}</td>
                   <td className="p-3">{task.building_name}</td>
                   <td className="p-3">{task.region_name}</td>
+                  <td className="p-3">{task.apartment?.join(", ") || "N/A"}</td>
+                  <td className="p-3">{task.client_email?.join(", ")}</td>
                   <td className="p-3">
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -106,10 +103,7 @@ export default function EmployeeTaskDashboard() {
                     <button
                       className="text-blue-600 hover:text-blue-800 transition"
                       title="View Details"
-                      onClick={() => {
-                        console.log(task);
-                        setSelectedTask(task);
-                      }}
+                      onClick={() => setSelectedTask(task)}
                     >
                       <LuEye size={20} />
                     </button>
@@ -118,7 +112,7 @@ export default function EmployeeTaskDashboard() {
               ))
             ) : (
               <tr>
-                <td colSpan={9} className="text-center text-gray-500 py-6">
+                <td colSpan={8} className="text-center text-gray-500 py-6">
                   No tasks found.
                 </td>
               </tr>
@@ -138,7 +132,6 @@ export default function EmployeeTaskDashboard() {
           <p className="text-sm">
             Page {page} of {Math.ceil(totalTasks / 10) || 1}
           </p>
-
           <button
             onClick={() => setPage((p) => p + 1)}
             disabled={!taskData?.next}
@@ -153,18 +146,18 @@ export default function EmployeeTaskDashboard() {
       <Dialog open={!!selectedTask} onOpenChange={() => setSelectedTask(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>
-              {selectedTask?.name || "Task Details"}
-            </DialogTitle>
+            <DialogTitle>{selectedTask?.name || "Task Details"}</DialogTitle>
           </DialogHeader>
 
           {selectedTask ? (
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3 text-sm">
+                <p><span className="font-medium">Task Name:</span> {selectedTask.name}</p>
                 <p><span className="font-medium">Worker:</span> {selectedTask.worker_name}</p>
-                <p><span className="font-medium">Client:</span> {selectedTask.client_username?.join(", ")}</p>
                 <p><span className="font-medium">Building:</span> {selectedTask.building_name}</p>
                 <p><span className="font-medium">Region:</span> {selectedTask.region_name}</p>
+                <p><span className="font-medium">Apartment:</span> {selectedTask.apartment?.join(", ") || "N/A"}</p>
+                <p><span className="font-medium">Client Email:</span> {selectedTask.client_email?.join(", ")}</p>
                 <p><span className="font-medium">Status:</span> {selectedTask.status}</p>
               </div>
 
