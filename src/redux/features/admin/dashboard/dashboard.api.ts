@@ -9,6 +9,7 @@ export const dashboardApi = baseApi.injectEndpoints({
         body: { year: Number(year), month: String(month).toLowerCase() },
       }),
       providesTags: ["AdminDashboard"],
+      refetchOnMountOrArgChange: true, // ✅ hook-level option
     }),
    
   }),

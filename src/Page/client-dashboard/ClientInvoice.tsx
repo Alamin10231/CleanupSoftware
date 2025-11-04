@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { assets } from "@/assets/assets";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import InvoicePDF from "../admin-dashboard/invoice/InvoicePDF";
+// import { useGetInvoicesQuery } from "@/lib/api";
 
 interface Invoice {
   id: number;
@@ -59,12 +60,22 @@ const ClientInvoicesList = () => {
       result = searchInvoice?.results || invoices || [];
       result = result.filter(
         (inv) =>
-          (inv.building_name?.toLowerCase() || "").includes(search.toLowerCase()) ||
-          (inv.region_name?.toLowerCase() || "").includes(search.toLowerCase()) ||
-          (inv.apartment_name?.join(" ").toLowerCase() || "").includes(search.toLowerCase()) ||
+          (inv.building_name?.toLowerCase() || "").includes(
+            search.toLowerCase()
+          ) ||
+          (inv.region_name?.toLowerCase() || "").includes(
+            search.toLowerCase()
+          ) ||
+          (inv.apartment_name?.join(" ").toLowerCase() || "").includes(
+            search.toLowerCase()
+          ) ||
           (inv.client_name?.toString() || "").includes(search) ||
-          (inv.invoice_id?.toLowerCase() || "").includes(search.toLowerCase()) ||
-          (inv.vendor_name?.toLowerCase() || "").includes(search.toLowerCase()) ||
+          (inv.invoice_id?.toLowerCase() || "").includes(
+            search.toLowerCase()
+          ) ||
+          (inv.vendor_name?.toLowerCase() || "").includes(
+            search.toLowerCase()
+          ) ||
           (inv.note?.toLowerCase() || "").includes(search.toLowerCase())
       );
     } else {
@@ -72,16 +83,20 @@ const ClientInvoicesList = () => {
     }
 
     if (status !== "All Status") {
-      result = result.filter((inv) => inv.status.toLowerCase() === status.toLowerCase());
+      result = result.filter(
+        (inv) => inv.status.toLowerCase() === status.toLowerCase()
+      );
     }
 
     if (sort === "Oldest to New") {
       result.sort(
-        (a, b) => new Date(a.date_issued).getTime() - new Date(b.date_issued).getTime()
+        (a, b) =>
+          new Date(a.date_issued).getTime() - new Date(b.date_issued).getTime()
       );
     } else if (sort === "New to Oldest") {
       result.sort(
-        (a, b) => new Date(b.date_issued).getTime() - new Date(a.date_issued).getTime()
+        (a, b) =>
+          new Date(b.date_issued).getTime() - new Date(a.date_issued).getTime()
       );
     }
 
@@ -232,6 +247,9 @@ const ClientInvoicesList = () => {
         </button>
       </div>
 
+      {filteredInvoices.length === 0 && (
+        <p className="text-center text-gray-500 mt-6">No invoices found</p>
+      )}
       {filteredInvoices.length === 0 && (
         <p className="text-center text-gray-500 mt-6">No invoices found</p>
       )}
