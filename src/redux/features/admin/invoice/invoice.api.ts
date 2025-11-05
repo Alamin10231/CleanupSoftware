@@ -3,7 +3,7 @@ import { baseApi } from "@/redux/api/baseApi";
 export const invoiceApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getOutgoingInvoices: builder.query({
-      query: () => `/plan/invoice/list/?type=outgoing`,
+      query: (page = 1) => `/plan/invoice/list/?type=outgoing&page=${page}`,
       providesTags: ["Invoice"],
     }),
     getIncomingInvoices: builder.query({
