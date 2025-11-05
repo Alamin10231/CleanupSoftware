@@ -53,7 +53,7 @@ const ServiceTable = () => {
     ws.current?.close();
 
     ws.current = new WebSocket(
-      `ws://10.10.13.61:8015/ws/chat/one-to-one/${u.email}/?token=${localStorage
+      `wss://api.checkall.org/ws/chat/one-to-one/${u.email}/?token=${localStorage
         .getItem("access")
         ?.replace(/"/g, "")}`
     );

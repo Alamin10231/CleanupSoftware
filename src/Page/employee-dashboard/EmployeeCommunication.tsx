@@ -72,7 +72,7 @@ const EmployeeCommunication = () => {
     ws.current?.close();
 
     const webSocket = new WebSocket(
-      `ws://10.10.13.61:8015/ws/chat/one-to-one/osmangani3osm@gmail.com/?token=${localStorage.getItem("access")?.replace(/"/g, "")}`
+      `wss://api.checkall.org/ws/chat/one-to-one/osmangani3osm@gmail.com/?token=${localStorage.getItem("access")?.replace(/"/g, "")}`
     );
     ws.current = webSocket;
 
