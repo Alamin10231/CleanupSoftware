@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MessageCircle, X } from "lucide-react";
 import {
   Table,
@@ -8,65 +8,102 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useGetChatHistoryQuery } from "@/redux/features/employee/chat/getchathistory.api";
-
-
-
-
-
-const dummyServices = [
-  {
-    id: "1",
-    name: "AC Cleaning",
-    status: "pending",
-    region_name: "Dhaka",
-    building_name: "Sky Tower",
-    building_located_at: "Gulshan 2",
-    client_email: ["client1@example.com"],
-    created_at: "2025-11-05",
-  },
-  {
-    id: "2",
-    name: "Deep Cleaning",
-    status: "completed",
-    region_name: "Dhaka",
-    building_name: "Bashundhara Block C",
-    building_located_at: "Bashundhara",
-    client_email: ["client2@example.com"],
-    created_at: "2025-11-02",
-  },
-];
+import {
+  useGetChatHistoryQuery,
+  useLazyGetChatMessagesQuery,
+} from "@/redux/features/employee/chat/getchathistory.api";
+import type { RootState } from "@/redux/store";
+import { useSelector } from "react-redux";
 
 interface ChatMessage {
   id: number;
-  sender: "user" | "bot";
+  sender: string;
   text: string;
   timestamp: Date;
 }
 
 const ServiceTable = () => {
+  const { user } = useSelector((state: RootState) => state.auth);
+  const { data: ChatHistory } = useGetChatHistoryQuery();
+  const [fetch_chat_messages] = useLazyGetChatMessagesQuery();
+  const ws = useRef<WebSocket | null>(null);
+
   const [selectedService, setSelectedService] = useState<any>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
 
-  const openChat = (service: any) => {
-    setSelectedService(service);
-    setMessages([
-      {
-        id: 1,
-        sender: "bot",
-        text: `Hello 👋! How can we help you with "${service.name}"?`,
-        timestamp: new Date(),
-      },
-    ]);
+  // Get Service name (subscription or special service)
+  const getServiceName = (user: any) => {
+    if (user.subscription) return user.subscription.name;
+    if (user.special_service) return user.special_service.name;
+    return "No Service";
   };
-  const {data:ChatHistory} = useGetChatHistoryQuery();
-  console.log(ChatHistory);
-  
+
+  const openChat = async (user_params: any) => {
+    if (ws) {
+      ws.current?.close();
+    }
+
+    const webSocket = new WebSocket(
+      `ws://10.10.13.61:8015/ws/chat/one-to-one/${
+        user_params.email
+      }/?token=${localStorage.getItem("access")?.replace(/"/g, "")}`
+    );
+
+    console.log("Connected to websocket");
+
+    ws.current = webSocket;
+
+    webSocket.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("Received WebSocket message:", data);
+
+      console.log("Message content:", data);
+
+      if (!data.message) return;
+
+      if ((data as any).sender_email === user?.email) return;
+
+      if (data.message.trim() === "") return;
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          text: data.message,
+          sender: data.sender_email,
+          timestamp: new Date(),
+        },
+      ]);
+    };
+
+    setSelectedService(user_params);
+    setMessages([]);
+    console.log(user_params);
+
+    const response = await fetch_chat_messages(user_params.email);
+
+    if (response.data) {
+      if (response.data && response.data.messages.length > 0) {
+        const mappedMessages = response.data.messages.map((message: any) => {
+          return {
+            id: message.id,
+            sender: message.sender,
+            timestamp: new Date(message.timestamp),
+            text: message.content,
+          } as ChatMessage;
+        });
+
+        console.log(mappedMessages);
+
+        setMessages(mappedMessages);
+      }
+    }
+  };
+
   const closeChat = () => {
     setSelectedService(null);
     setMessages([]);
@@ -75,34 +112,40 @@ const ServiceTable = () => {
   const sendMessage = () => {
     if (!newMessage.trim()) return;
 
-    const msg = {
+    const msg: ChatMessage = {
       id: Date.now(),
-      sender: "user",
+      sender: user?.email ?? "",
       text: newMessage,
       timestamp: new Date(),
     };
 
+    // add message in UI
     setMessages((prev) => [...prev, msg]);
-    setNewMessage("");
-    setSending(true);
 
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now(),
-          sender: "bot",
-          text: "Thanks! Our support team will assist soon 😊",
-          timestamp: new Date(),
-        },
-      ]);
-      setSending(false);
-    }, 800);
+    // store and reset input
+    const outgoingText = newMessage;
+    setNewMessage("");
+
+    // Send to websocket
+    try {
+      if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+        ws.current.send(
+          JSON.stringify({
+            action: "send_message",
+            message: outgoingText,
+          })
+        );
+      } else {
+        console.warn("WebSocket not connected");
+      }
+    } catch (err) {
+      console.error("WebSocket send error:", err);
+    }
   };
 
   return (
-    <div className="w-full  px-6 py-8 space-y-6">
-      <h1 className="text-3xl font-bold">Assigned Tasks</h1>
+    <div className="w-full px-6 py-8 space-y-6">
+      <h1 className="text-3xl font-bold">Communication </h1>
 
       <Card className="p-4">
         <Table>
@@ -111,35 +154,46 @@ const ServiceTable = () => {
               <TableHead>Service</TableHead>
               <TableHead>Region</TableHead>
               <TableHead>Building</TableHead>
-              <TableHead>Location</TableHead>
+              {/* <TableHead>Location</TableHead> */}
               <TableHead>Email</TableHead>
-              <TableHead>Assigned</TableHead>
+              {/* <TableHead>Status</TableHead> */}
               <TableHead>Chat</TableHead>
             </TableRow>
           </TableHeader>
 
           <TableBody>
-            {dummyServices.map((s) => (
-              <TableRow key={s.id}>
-                <TableCell>{s.name}</TableCell>
-               
-                <TableCell>{s.region_name}</TableCell>
-                <TableCell>{s.building_name}</TableCell>
-                <TableCell>{s.building_located_at}</TableCell>
-                <TableCell>{s.client_email[0]}</TableCell>
-                <TableCell>{s.created_at}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-2"
-                    onClick={() => openChat(s)}
-                  >
-                    <MessageCircle size={16} /> Chat
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+            {ChatHistory?.users
+              ?.filter((user: any) => user.subscription || user.special_service) // only users with service
+              .map((user: any) => (
+                <TableRow key={user.email}>
+                  <TableCell>
+                    {user.subscription?.name || user.special_service?.name}
+                  </TableCell>
+                  <TableCell>
+                    {user.subscription?.region ||
+                      user.special_service?.region ||
+                      "-"}
+                  </TableCell>
+                  <TableCell>
+                    {user.subscription?.building ||
+                      user.special_service?.building ||
+                      "-"}
+                  </TableCell>
+                  {/* <TableCell>{user.subscription?.location || user.special_service?.location || "-"}</TableCell> */}
+                  <TableCell>{user.email}</TableCell>
+                  {/* <TableCell>{user.status}</TableCell> */}
+                  <TableCell>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex items-center gap-2"
+                      onClick={() => openChat(user)}
+                    >
+                      <MessageCircle size={16} /> Chat
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </Card>
@@ -148,13 +202,14 @@ const ServiceTable = () => {
       {selectedService && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center p-4 animate-in fade-in duration-300">
           <div className="bg-white w-full max-w-3xl h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-            
             {/* Header */}
             <div className="flex justify-between items-center px-6 py-4 bg-blue-600 text-white">
               <div>
-                <h2 className="font-semibold text-lg">{selectedService.name}</h2>
+                <h2 className="font-semibold text-lg">
+                  {getServiceName(selectedService)}
+                </h2>
                 <p className="text-xs opacity-80">
-                  Client: {selectedService.client_email[0]}
+                  Client: {selectedService.email}
                 </p>
               </div>
               <button
@@ -171,12 +226,12 @@ const ServiceTable = () => {
                 <div
                   key={msg.id}
                   className={`flex ${
-                    msg.sender === "user" ? "justify-end" : "justify-start"
+                    msg.sender === user?.email ? "justify-end" : "justify-start"
                   }`}
                 >
                   <div
                     className={`px-4 py-2 rounded-xl max-w-[75%] text-sm shadow-sm ${
-                      msg.sender === "user"
+                      msg.sender === user?.email
                         ? "bg-blue-600 text-white"
                         : "bg-white border text-gray-800"
                     }`}
