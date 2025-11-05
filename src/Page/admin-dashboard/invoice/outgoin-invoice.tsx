@@ -19,7 +19,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../../../Components/ui/alert-dialog";
-import { Download, Trash } from "lucide-react";
+import { Download, Trash, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -61,11 +61,13 @@ const InvoicesList = () => {
   const {
     data: invoicesData,
     isLoading,
-    isError,
     isFetching,
-  } = useGetOutgoingInvoicesQuery(`?page=${page}`);
+    isError,
+  } = useGetOutgoingInvoicesQuery(page, {
+    refetchOnMountOrArgChange: true,
+    keepPreviousData: true,
+  });
 
-  // Only use search API when there's actual search text
   const shouldSearch = search.trim().length > 0;
   const {
     data: searchInvoice,
@@ -75,6 +77,7 @@ const InvoicesList = () => {
 
   const [deleteInvoice] = useDeleteInvoiceMutation();
   const [updateInvoiceStatus] = useUpdateInvoiceStatusMutation();
+
   const invoices = invoicesData?.results || [];
   const totalCount = invoicesData?.count || 0;
   const nextPage = invoicesData?.next;
@@ -85,14 +88,12 @@ const InvoicesList = () => {
   useEffect(() => {
     let result: Invoice[] = [];
 
-    // Use search results if searching, otherwise use paginated results
     if (shouldSearch) {
       result = searchInvoice?.results || [];
     } else {
       result = [...invoices];
     }
 
-    // Apply status filter
     if (status !== "All Status") {
       result = result.filter(
         (inv) => inv.status.toLowerCase() === status.toLowerCase()
@@ -134,12 +135,29 @@ const InvoicesList = () => {
     }
   };
 
+  const handlePrev = () => {
+    if (prevPage && !isFetching) {
+      setPage((p) => Math.max(p - 1, 1));
+    }
+  };
+
+  const handleNext = () => {
+    if (nextPage && !isFetching) {
+      setPage((p) => p + 1);
+    }
+  };
+
+  // Show full-page loader only on initial load
   if (isLoading || (shouldSearch && isSearchLoading)) {
-    return <p>Loading...</p>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
   }
 
   if (isError || (shouldSearch && isSearchError)) {
-    return <p>Error fetching invoices.</p>;
+    return <p className="text-center text-red-600">Error fetching invoices.</p>;
   }
 
   return (
@@ -152,14 +170,13 @@ const InvoicesList = () => {
             placeholder="Search Invoice..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border border-gray-300 rounded-md px-4 py-2 w-64 focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
+            className="border border-gray-300 rounded-md px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm transition"
           />
 
-          {/* Status Filter */}
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="border border-gray-300 rounded-md px-2 py-2 text-sm text-gray-600 cursor-pointer"
+            className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option>All Status</option>
             <option>Paid</option>
@@ -167,57 +184,59 @@ const InvoicesList = () => {
           </select>
         </div>
 
-        <div>
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-            className="border border-gray-300 rounded-md px-2 py-2 text-sm text-gray-600 cursor-pointer"
-          >
-            <option>Default</option>
-            <option>Oldest to New</option>
-            <option>New to Oldest</option>
-          </select>
-        </div>
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+          className="border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option>Default</option>
+          <option>Oldest to New</option>
+          <option>New to Oldest</option>
+        </select>
       </div>
 
-      {/* Table List */}
-      <div className="overflow-x-auto mt-6">
-        {filteredInvoices.length > 0 ? (
-          <>
-            <Table className="min-w-full border border-gray-200 bg-white rounded-lg shadow-sm">
-              <TableHeader className="bg-gray-100 border-b border-gray-300 text-gray-700 text-sm">
+      {/* Table Container with Fixed Height & Overlay */}
+      <div className="relative mt-6 min-h-[500px] bg-white rounded-lg shadow-sm overflow-hidden">
+        {/* Overlay Spinner - Only during pagination/search fetch */}
+        {isFetching && (
+          <div className="absolute inset-0 bg-white/70 backdrop-blur-[1px] flex items-center justify-center z-20 pointer-events-none">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+          </div>
+        )}
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          {filteredInvoices.length > 0 ? (
+            <Table className="min-w-full border border-gray-200">
+              <TableHeader className="bg-gray-50 border-b">
                 <TableRow>
-                  <TableHead className="p-3 text-left">Invoice ID</TableHead>
-                  <TableHead className="p-3 text-left">Building</TableHead>
-                  <TableHead className="p-3 text-left">Region</TableHead>
-                  <TableHead className="p-3 text-left">Apartment(s)</TableHead>
-                  <TableHead className="p-3 text-left">Client</TableHead>
-                  <TableHead className="p-3 text-left">Date Issued</TableHead>
-                  <TableHead className="p-3 text-left">Due Date</TableHead>
-                  <TableHead className="p-3 text-left">Total Amount</TableHead>
-                  <TableHead className="p-3 text-left">Status</TableHead>
-                  <TableHead className="p-3 text-left">Actions</TableHead>
+                  <TableHead className="p-3 text-left font-medium text-gray-700">Invoice ID</TableHead>
+                  <TableHead className="p-3 text-left font-medium text-gray-700">Building</TableHead>
+                  <TableHead className="p-3 text-left font-medium text-gray-700">Region</TableHead>
+                  <TableHead className="p-3 text-left font-medium text-gray-700">Apartment(s)</TableHead>
+                  <TableHead className="p-3 text-left font-medium text-gray-700">Client</TableHead>
+                  <TableHead className="p-3 text-left font-medium text-gray-700">Date Issued</TableHead>
+                  <TableHead className="p-3 text-left font-medium text-gray-700">Due Date</TableHead>
+                  <TableHead className="p-3 text-left font-medium text-gray-700">Total Amount</TableHead>
+                  <TableHead className="p-3 text-left font-medium text-gray-700">Status</TableHead>
+                  <TableHead className="p-3 text-left font-medium text-gray-700">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredInvoices.map((invoice) => (
                   <TableRow
                     key={invoice.id}
-                    className="border-b border-gray-200 hover:bg-gray-50 transition"
+                    className="border-b hover:bg-gray-50 transition-colors"
                   >
-                    <TableCell className="p-3 font-semibold text-gray-700">
+                    <TableCell className="p-3 font-semibold text-gray-800">
                       {invoice.invoice_id}
                     </TableCell>
-                    <TableCell className="p-3">
-                      {invoice.building_name}
-                    </TableCell>
+                    <TableCell className="p-3">{invoice.building_name}</TableCell>
                     <TableCell className="p-3">{invoice.region_name}</TableCell>
                     <TableCell className="p-3">
                       {invoice.apartment_name?.join(", ") || "N/A"}
                     </TableCell>
-                    <TableCell className="p-3">
-                      {invoice.client_name ?? "N/A"}
-                    </TableCell>
+                    <TableCell className="p-3">{invoice.client_name ?? "N/A"}</TableCell>
                     <TableCell className="p-3">
                       {new Date(invoice.date_issued).toLocaleDateString()}
                     </TableCell>
@@ -231,7 +250,7 @@ const InvoicesList = () => {
                     </TableCell>
                     <TableCell className="p-3">
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        className={`px-2.5 py-1 rounded-full text-xs font-medium ${
                           invoice.status.toLowerCase() === "paid"
                             ? "bg-green-100 text-green-700"
                             : "bg-yellow-100 text-yellow-700"
@@ -240,112 +259,109 @@ const InvoicesList = () => {
                         {invoice.status}
                       </span>
                     </TableCell>
-                    <TableCell className="p-3 flex items-center gap-3">
-                      <select
-                        value={invoice.status.toLowerCase()}
-                        onChange={(e) =>
-                          handleStatusChange(invoice.id, e.target.value)
-                        }
-                        className="border border-gray-300 rounded-md px-2 py-1 text-sm text-gray-600 cursor-pointer"
-                      >
-                        <option value="paid">Paid</option>
-                        <option value="unpaid">Unpaid</option>
-                      </select>
-                      {/* Download Button */}
-                      <PDFDownloadLink
-                        document={<InvoicePDF invoice={invoice} />}
-                        fileName={`invoice-${invoice.invoice_id}.pdf`}
-                      >
-                        {({ loading }) => (
-                          <div
-                            className={`p-2 bg-gray-100 rounded-lg ${
-                              loading ? "cursor-wait" : "cursor-pointer"
-                            }`}
-                          >
-                            {loading ? (
-                              <p className="text-xs text-gray-500">
-                                Loading...
-                              </p>
-                            ) : (
-                              <Download className="w-5 h-5" />
-                            )}
-                          </div>
-                        )}
-                      </PDFDownloadLink>
+                    <TableCell className="p-3">
+                      <div className="flex items-center gap-2">
+                        {/* Status Select */}
+                        <select
+                          value={invoice.status.toLowerCase()}
+                          onChange={(e) =>
+                            handleStatusChange(invoice.id, e.target.value)
+                          }
+                          className="text-sm border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                        >
+                          <option value="paid">Paid</option>
+                          <option value="unpaid">Unpaid</option>
+                        </select>
 
-                      {/* Delete Alert Dialog */}
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="text-red-600 hover:bg-red-50 hover:text-red-700"
+                        {/* PDF Download - Fixed Size */}
+                        <div className="inline-flex items-center justify-center w-9 h-9">
+                          <PDFDownloadLink
+                            document={<InvoicePDF invoice={invoice} />}
+                            fileName={`invoice-${invoice.invoice_id}.pdf`}
                           >
-                            <Trash className="w-4 h-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Invoice</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to delete invoice{" "}
-                              <span className="font-semibold">
-                                {invoice.invoice_id}
-                              </span>
-                              ? This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDelete(invoice)}
+                            {({ loading }) =>
+                              loading ? (
+                                <Loader2 className="w-5 h-5 animate-spin text-gray-500" />
+                              ) : (
+                                <Download className="w-5 h-5 text-gray-600 hover:text-gray-900 cursor-pointer" />
+                              )
+                            }
+                          </PDFDownloadLink>
+                        </div>
+
+                        {/* Delete Dialog */}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="text-red-600 hover:bg-red-50 hover:text-red-700"
                             >
-                              <Button variant="destructive">Delete</Button>
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                              <Trash className="w-4 h-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Invoice</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete invoice{" "}
+                                <span className="font-semibold">
+                                  {invoice.invoice_id}
+                                </span>
+                                ? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDelete(invoice)}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              No invoices found
+            </div>
+          )}
+        </div>
 
-            {/* Pagination Controls - Only show when not searching */}
-            {!shouldSearch && (
-              <div className="flex justify-between items-center mt-4 px-2">
-                <Button
-                  onClick={() => prevPage && setPage((p) => Math.max(p - 1, 1))}
-                  disabled={!prevPage || isFetching}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition ${
-                    prevPage && !isFetching
-                      ? "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
-                >
-                  Previous
-                </Button>
+        {/* Pagination - Only when not searching */}
+        {!shouldSearch && (
+          <div className="flex justify-between items-center px-4 py-3 bg-gray-50 border-t">
+            <Button
+              onClick={handlePrev}
+              disabled={!prevPage || isFetching}
+              variant="outline"
+              size="sm"
+              className="disabled:opacity-50"
+            >
+              Previous
+            </Button>
 
-                <span className="text-sm text-gray-600">
-                  Page {page} of {Math.ceil(totalCount / 10)}
-                </span>
+            <span className="text-sm text-gray-600 font-medium">
+              Page {page} of {Math.ceil(totalCount / 10)}
+            </span>
 
-                <Button
-                  onClick={() => nextPage && setPage((p) => p + 1)}
-                  disabled={!nextPage || isFetching}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition ${
-                    nextPage && !isFetching
-                      ? "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
-                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
-                >
-                  Next
-                </Button>
-              </div>
-            )}
-          </>
-        ) : (
-          <p className="text-center text-gray-500 mt-6">No invoices found</p>
+            <Button
+              onClick={handleNext}
+              disabled={!nextPage || isFetching}
+              variant="outline"
+              size="sm"
+              className="disabled:opacity-50"
+            >
+              Next
+            </Button>
+          </div>
         )}
       </div>
     </>
