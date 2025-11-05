@@ -1,203 +1,222 @@
-import { useState, useCallback } from 'react';
-import { MessageCircle, Send } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/Components/ui/badge';
-import { Card } from '@/Components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/Components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/Components/ui/dialog';
-import { useGetEmployeeTasksQuery } from '@/redux/features/employee/EmployeeTask.api';
+import { useEffect, useRef, useState } from "react";
+import { MessageCircle, X } from "lucide-react";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow
+} from "@/components/ui/table";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  useGetChatHistoryQuery,
+  useLazyGetChatMessagesQuery,
+} from "@/redux/features/employee/chat/getchathistory.api";
+import type { RootState } from "@/redux/store";
+import { useSelector } from "react-redux";
 
-// Define interfaces for type safety
-interface Message {
+interface ChatMessage {
+  id: number;
+  sender: string;
   text: string;
-  sender: 'user' | 'bot';
-}
-
-interface Service {
-  id: string;
-  name: string;
-  status: string;
-  region_name: string;
-  building_name: string;
-  building_located_at: string;
-  apartment_number?: string[] | null; // Allow undefined or null
-  client_email?: string[] | null; // Allow undefined or null
-  created_at: string;
-}
-
-interface EmployeeTasksResponse {
-  results: Service[];
+  timestamp: Date;
 }
 
 const ServiceTable = () => {
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputMessage, setInputMessage] = useState('');
-  const { data: employeeTasks, error, isLoading } = useGetEmployeeTasksQuery(undefined);
+  const { user } = useSelector((state: RootState) => state.auth);
+  const { data: ChatHistory } = useGetChatHistoryQuery();
+  const [fetch_chat_messages] = useLazyGetChatMessagesQuery();
 
-  const getStatusBadge = useCallback((status: string) => {
-    const variants: Record<string, string> = {
-      completed: 'default',
-      pending: 'secondary',
-      cancelled: 'destructive',
+  const ws = useRef<WebSocket | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  const [selectedService, setSelectedService] = useState<any>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [newMessage, setNewMessage] = useState("");
+
+  const scrollToBottom = () => {
+    setTimeout(() => {
+      if (scrollRef.current) {
+        scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      }
+    }, 100);
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const getServiceName = (u: any) => {
+    if (u.subscription) return u.subscription.name;
+    if (u.special_service) return u.special_service.name;
+    return "No Service";
+  };
+
+  const openChat = async (u: any) => {
+    ws.current?.close();
+
+    ws.current = new WebSocket(
+      `wss://api.checkall.org/ws/chat/one-to-one/${u.email}/?token=${localStorage
+        .getItem("access")
+        ?.replace(/"/g, "")}`
+    );
+
+    ws.current.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (!data.message || data.sender_email === user?.email) return;
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          text: data.message,
+          sender: data.sender_email,
+          timestamp: new Date(),
+        },
+      ]);
     };
-    return <Badge variant={variants[status] || 'outline'}>{status}</Badge>;
-  }, []);
 
-  const handleSendMessage = () => {
-    if (inputMessage.trim()) {
-      setMessages([...messages, { text: inputMessage, sender: 'user' }]);
-      setInputMessage('');
-      setTimeout(() => {
-        setMessages((prev) => [
-          ...prev,
-          {
-            text: 'Thank you for your message. How can I help you with this service?',
-            sender: 'bot',
-          },
-        ]);
-      }, 1000);
+    setSelectedService(u);
+    setMessages([]);
+
+    const res = await fetch_chat_messages(u.email);
+    if (res.data?.messages?.length) {
+      const mapped = res.data.messages.map((m: any) => ({
+        id: m.id,
+        sender: m.sender,
+        timestamp: new Date(m.timestamp),
+        text: m.content,
+      }));
+
+      setMessages(mapped);
     }
   };
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center text-red-500">
-            Error loading services: {(error as any).message || 'An error occurred'}
-          </div>
-        </div>
-      </div>
+  const closeChat = () => {
+    ws.current?.close();
+    setSelectedService(null);
+    setMessages([]);
+  };
+
+  const sendMessage = () => {
+    if (!newMessage.trim()) return;
+
+    const msg = {
+      id: Date.now(),
+      sender: user?.email ?? "",
+      text: newMessage,
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, msg]);
+
+    ws.current?.send(
+      JSON.stringify({
+        action: "send_message",
+        message: newMessage,
+      })
     );
-  }
+
+    setNewMessage("");
+  };
 
   return (
-    <div>
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Assigned tasks</h1>
-          <p className="text-gray-500 mt-1">Manage and view your service records</p>
-        </div>
+    <div className="w-full px-6 py-8 space-y-6">
+      <h1 className="text-3xl font-bold">Communication</h1>
 
-        <Card>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Service Name</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Region</TableHead>
-                <TableHead>Building</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Apartment</TableHead>
-                <TableHead>Client Email</TableHead>
-                <TableHead>Assigned</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center">
-                    Loading...
+      <Card className="p-4">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Service</TableHead>
+              <TableHead>Region</TableHead>
+              <TableHead>Building</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Chat</TableHead>
+            </TableRow>
+          </TableHeader>
+
+          <TableBody>
+            {ChatHistory?.users
+              ?.filter((u: any) => u.subscription || u.special_service)
+              .map((u: any) => (
+                <TableRow key={u.email}>
+                  <TableCell>{u.subscription?.name || u.special_service?.name}</TableCell>
+                  <TableCell>{u.subscription?.region || u.special_service?.region || "-"}</TableCell>
+                  <TableCell>{u.subscription?.building || u.special_service?.building || "-"}</TableCell>
+                  <TableCell>{u.email}</TableCell>
+
+                  <TableCell>
+                    <Button variant="outline" size="sm" className="flex items-center gap-2"
+                      onClick={() => openChat(u)}>
+                      <MessageCircle size={16} /> Chat
+                    </Button>
                   </TableCell>
                 </TableRow>
-              ) : !employeeTasks?.results?.length ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center">
-                    No services found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                (employeeTasks as EmployeeTasksResponse).results.map((service) => (
-                  <TableRow key={service.id}>
-                    <TableCell className="font-medium">{service.name}</TableCell>
-                    <TableCell>{getStatusBadge(service.status)}</TableCell>
-                    <TableCell>{service.region_name}</TableCell>
-                    <TableCell>{service.building_name}</TableCell>
-                    <TableCell className="text-sm">{service.building_location}</TableCell>
-                    {/* <TableCell>
-                      {Array.isArray(service.apartment_number) && service.apartment_number.length > 0 ? (
-                        service.apartment_number.map((apt, index) => (
-                          <Badge key={index} variant="secondary" className="mr-1 mb-1">
-                            {apt}
-                          </Badge>
-                        ))
-                      ) : (
-                        <Badge variant="secondary">N/A</Badge>
-                      )}
-                    </TableCell> */}
-                    <TableCell className="text-sm">
-                      {Array.isArray(service.client_email) && service.client_email.length > 0
-                        ? service.client_email[0]
-                        : 'N/A'}
-                    </TableCell>
-                    <TableCell className="text-sm">{service.created_at}</TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </Card>
+              ))}
+          </TableBody>
+        </Table>
+      </Card>
 
-        <Button
-          onClick={() => setIsChatOpen(true)}
-          size="icon"
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg"
-          aria-label="Open chat support"
-        >
-          <MessageCircle className="h-6 w-6" />
-        </Button>
-      </div>
+      {/* Chat Modal */}
+      {selectedService && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center p-4">
+          <div className="bg-white w-full max-w-3xl h-[85vh] rounded-2xl shadow-2xl flex flex-col">
 
-      <Dialog open={isChatOpen} onOpenChange={setIsChatOpen}>
-        <DialogContent className="sm:max-w-[425px] h-[600px] flex flex-col p-0">
-          <DialogHeader className="px-6 py-4 border-b">
-            <DialogTitle>Chat Support</DialogTitle>
-          </DialogHeader>
-
-          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-            {messages.length === 0 ? (
-              <div className="text-center text-gray-500 mt-8">
-                Start a conversation about your service
+            {/* Header */}
+            <div className="flex justify-between items-center px-6 py-4 bg-blue-600 text-white">
+              <div>
+                <h2 className="font-semibold text-lg">{getServiceName(selectedService)}</h2>
+                <p className="text-xs opacity-80">Client: {selectedService.email}</p>
               </div>
-            ) : (
-              messages.map((msg, idx) => (
+              <button
+                onClick={closeChat}
+                className="p-2 rounded-full bg-blue-700 hover:bg-blue-800 transition"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Messages */}
+            <div
+              ref={scrollRef}
+              className="flex-1 p-4 overflow-y-auto bg-gray-50 space-y-3 scroll-smooth"
+            >
+              {messages.map((msg) => (
                 <div
-                  key={idx}
-                  className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                  key={msg.id}
+                  className={`flex ${msg.sender === user?.email ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-[75%] p-3 rounded-lg ${
-                      msg.sender === 'user'
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-foreground'
+                    className={`px-4 py-2 rounded-xl max-w-[75%] text-sm shadow-sm ${
+                      msg.sender === user?.email
+                        ? "bg-blue-600 text-white"
+                        : "bg-white border text-gray-800"
                     }`}
                   >
                     {msg.text}
+                    <div className="text-[10px] opacity-50 mt-0.5">
+                      {msg.timestamp.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </div>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
+              ))}
+            </div>
 
-          <div className="px-6 py-4 border-t">
-            <div className="flex gap-2">
-              <Input
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="Type a message..."
-                className="flex-1"
-                aria-label="Type your message"
+            {/* Input */}
+            <div className="p-4 border-t bg-white flex gap-2">
+              <input
+                className="flex-1 border px-4 py-2 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                placeholder="Write a message..."
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
               />
-              <Button onClick={handleSendMessage} size="icon" aria-label="Send message">
-                <Send className="h-4 w-4" />
-              </Button>
+              <Button onClick={sendMessage}>Send</Button>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
     </div>
   );
 };

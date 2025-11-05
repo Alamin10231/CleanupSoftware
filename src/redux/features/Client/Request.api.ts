@@ -15,6 +15,7 @@ export const requestApi = baseApi.injectEndpoints({
         method: "POST",
         body,
       }),
+      invalidatesTags: ["ClientSubscriptions"]
     }),
 
     updateClientRequest: builder.mutation<any, { id: number; body: any }>({

@@ -19,7 +19,8 @@ interface ChatMessage {
 type ConnectionStatus = "connecting" | "connected" | "disconnected" | "error";
 
 // Constants
-const WS_BASE_URL = "ws://10.10.13.61:8015";
+// const WS_BASE_URL = "ws://10.10.13.61:8015";
+const WS_BASE_URL = "wss://api.checkall.org";
 const RECONNECT_INTERVAL = 3000;
 const MAX_RECONNECT_ATTEMPTS = 5;
 

@@ -343,7 +343,7 @@ export default function ExpenseAdmin() {
         <Table>
           <TableHeader className="bg-gray-50">
             <TableRow>
-              <TableHead className="w-[60px]">ID</TableHead>
+              {/* <TableHead className="w-[60px]">ID</TableHead> */}
               <TableHead>Date</TableHead>
               <TableHead>Vendor</TableHead>
               <TableHead>Category</TableHead>
@@ -358,7 +358,7 @@ export default function ExpenseAdmin() {
             {expenses.length > 0 ? (
               expenses.map((expense) => (
                 <TableRow key={expense.id}>
-                  <TableCell className="font-medium">{expense.id}</TableCell>
+                  {/* <TableCell className="font-medium">{expense.id}</TableCell> */}
                   <TableCell>{expense.expense_date}</TableCell>
                   <TableCell>{expense.vendor_name}</TableCell>
                   <TableCell>
