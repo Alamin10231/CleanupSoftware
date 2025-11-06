@@ -34,6 +34,7 @@ const ActionButton = () => {
     email: "",
     prime_phone: "",
     role: "",
+    user_type: "employee",
     department: "",
     nationalId: "",
     idExpiry: "",
@@ -47,7 +48,7 @@ const ActionButton = () => {
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => ({ ...prev, [field]: "" })); // clear error when typing
+    setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   const handleSave = async () => {
@@ -62,6 +63,7 @@ const ActionButton = () => {
           "prime_phone",
           "department",
           "role",
+          "user_type",
           "nationalId",
           "idExpiry",
           "baseSalary",
@@ -85,15 +87,16 @@ const ActionButton = () => {
 
     setErrors(newErrors);
 
-   if(Object.keys(newErrors).length > 0) {
-      console.log(newErrors)
+    if (Object.keys(newErrors).length > 0) {
+      console.log(newErrors);
       return;
-   }
-    console.log("submitting");
+    }
+
     const payload = {
       name: formData.name,
       email: formData.email,
       prime_phone: formData.prime_phone,
+      user_type: formData.user_type,
       employee_profile: {
         department: formData.department,
         role: formData.role,
@@ -112,19 +115,18 @@ const ActionButton = () => {
     try {
       await addEmployee(payload).unwrap();
       toast.success("Employee added successfully!");
-      setOpen(false); // Close dialog on success
-    } catch (error) {
-      // console.error("Error adding employee:", error.data.email[0]);
-      if(error?.data?.email[0])
-         toast.error("Email already exists!");
-      else
-         toast.error("Failed to add employee!");
+      setOpen(false);
+    } catch (error: any) {
+      if (error?.data?.email?.[0]) toast.error("Email already exists!");
+      else toast.error("Failed to add employee!");
     }
+
     setFormData({
       name: "",
       email: "",
       prime_phone: "",
       role: "",
+      user_type: "employee",
       department: "",
       nationalId: "",
       idExpiry: "",
@@ -132,14 +134,13 @@ const ActionButton = () => {
       salaryDay: "27",
       contractEnd: "",
       group: "",
-    })
+    });
   };
 
   return (
     <div>
       <div className="flex gap-4">
         {/* <BulkSalaryPayment /> */}
-
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button>
@@ -210,7 +211,7 @@ const ActionButton = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-4 mb-4">
                   <div className="space-y-1">
                     <Label htmlFor="department">Department</Label>
                     <Select
@@ -219,8 +220,8 @@ const ActionButton = () => {
                         handleInputChange("department", value)
                       }
                     >
-                      <SelectTrigger id="role">
-                        <SelectValue placeholder="Select role" />
+                      <SelectTrigger id="department">
+                        <SelectValue placeholder="Select department" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="cleaner">Cleaning</SelectItem>
@@ -229,10 +230,11 @@ const ActionButton = () => {
                         <SelectItem value="maintenance">Maintenance</SelectItem>
                       </SelectContent>
                     </Select>
-                    {errors.role && (
-                      <p className="text-xs text-red-500">{errors.role}</p>
+                    {errors.department && (
+                      <p className="text-xs text-red-500">{errors.department}</p>
                     )}
                   </div>
+
                   <div className="space-y-1">
                     <Label htmlFor="role">Role</Label>
                     <Select
@@ -256,6 +258,29 @@ const ActionButton = () => {
                     )}
                   </div>
 
+                  <div className="space-y-1">
+                    <Label htmlFor="user_type">User Type</Label>
+                    <Select
+                      value={formData.user_type}
+                      onValueChange={(value) =>
+                        handleInputChange("user_type", value)
+                      }
+                    >
+                      <SelectTrigger id="user_type">
+                        <SelectValue placeholder="Select user type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="employee">Employee</SelectItem>
+                        <SelectItem value="supervisor">Supervisor</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.user_type && (
+                      <p className="text-xs text-red-500">{errors.user_type}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-1">
                     <Label htmlFor="nationalId">National ID</Label>
                     <Input
