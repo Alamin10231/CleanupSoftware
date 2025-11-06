@@ -156,6 +156,7 @@ const AddSubscriptionForm = () => {
               </Label>
               <div className="relative">
                 <Input
+                required
                   type="text"
                   value={selectedUser || ""}
                   onChange={(e) => {
@@ -446,6 +447,7 @@ const AddSubscriptionForm = () => {
                 Start Date *
               </Label>
               <Input
+              required
                 id="start_date"
                 type="date"
                 value={formData.start_date}
@@ -501,7 +503,7 @@ const AddSubscriptionForm = () => {
               Search Employees
             </Label>
             <div className="relative">
-              <Input
+              <Input required
                 type="text"
                 value={employeeSearch}
                 onChange={(e) => {
