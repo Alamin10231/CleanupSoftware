@@ -1,4 +1,4 @@
-import { FaPause, FaPlay, FaRedoAlt } from "react-icons/fa";
+import { FaPause, FaPlay } from "react-icons/fa";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import autoTable from "jspdf-autotable";
@@ -16,6 +16,7 @@ import { BiPackage } from "react-icons/bi";
 import { LuCalendarDays } from "react-icons/lu";
 import { useUpdateSubscriptionMutation } from "@/redux/features/admin/subscription/subscription.api";
 
+/* ---------- Types ---------- */
 type SubscriptionStatus =
   | "Active"
   | "Pending"
@@ -50,18 +51,23 @@ type Props = {
   onPageChange: (newPage: number) => void;
 };
 
+/* ---------- Helper Functions ---------- */
 const formatDateForBackend = (dateStr: string) => {
-  const [day, month, year] = dateStr.split("-");
-  return `${year}-${month}-${day}`;
+  // Convert "DD-MMM-YYYY" or similar to "YYYY-MM-DD"
+  if (!dateStr) return new Date().toISOString().slice(0, 10);
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return new Date().toISOString().slice(0, 10);
+  return date.toISOString().split("T")[0]; // ✅ YYYY-MM-DD
 };
 
 const formatDateForDisplay = (dateStr: string) => {
-  const parts = dateStr.split("-");
-  if (parts.length === 3) {
-    const [day, month, year] = parts;
-    return `${month}/${day}/${year}`;
-  }
-  return dateStr;
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return "-";
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 };
 
 const getStatusClasses = (status: SubscriptionStatus) => {
@@ -82,6 +88,7 @@ const getStatusClasses = (status: SubscriptionStatus) => {
   }
 };
 
+/* ---------- Component ---------- */
 export default function SubscriptionsTable({
   data,
   page,
@@ -92,37 +99,36 @@ export default function SubscriptionsTable({
   const rows = data?.results || [];
   const user = useSelector((state: any) => state.auth.user);
 
-  // ✅ Update handler
+  /* ---------- Update Handler ---------- */
   const handleStatusChange = async (sub: Subscription, newStatus: string) => {
-    const formattedNewStatus = newStatus
-      .replace(/_/g, " ")
-      .replace(/\b\w/g, (l) => l.toUpperCase());
-
-    let nextPaymentDateForBackend = formatDateForBackend(sub.nextPayment);
-    if (newStatus === "paused" || newStatus === "expired") {
-      nextPaymentDateForBackend = new Date().toISOString().slice(0, 10);
-    }
-
     try {
+      const formattedDate = new Date().toISOString().split("T")[0]; // ✅ YYYY-MM-DD
+
       await updateSubscription({
         id: sub.id,
         status: newStatus.toLowerCase(),
-        current_period_end: nextPaymentDateForBackend,
+        current_period_end: formattedDate,
         employee: [user?.id].filter(Boolean),
       }).unwrap();
 
-      toast.success(
-        `Subscription for **${sub.name}** updated to **${formattedNewStatus}**`
-      );
-    } catch (error) {
+      toast.success(`Subscription for ${sub.name} updated to ${newStatus}`);
+    } catch (error: any) {
       console.error("Failed to update subscription:", error);
-      toast.error("Failed to update subscription");
+      const message =
+        error?.data?.current_period_end?.[0] ||
+        error?.data?.detail ||
+        "Failed to update subscription";
+      toast.error(message);
     }
   };
 
-  // ✅ PDF download
+  /* ---------- PDF Download ---------- */
   const handleDownload = (sub: Subscription) => {
-    const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+    const doc = new jsPDF({
+      orientation: "portrait",
+      unit: "pt",
+      format: "a4",
+    });
 
     doc.setFontSize(28);
     doc.setTextColor("#1f2937");
@@ -136,37 +142,37 @@ export default function SubscriptionsTable({
     doc.setFont("helvetica", "bold");
     doc.text("Billed To:", 40, y);
     doc.setFont("helvetica", "normal");
-    doc.text(`${sub.name} (${sub.email})`, 100, y);
+    doc.text(`${sub.name} (${sub.email})`, 120, y);
     y += lineSpacing;
 
     doc.setFont("helvetica", "bold");
     doc.text("Subscription ID:", 40, y);
     doc.setFont("helvetica", "normal");
-    doc.text(`${sub.id}`, 140, y);
+    doc.text(`${sub.id}`, 150, y);
     y += lineSpacing;
 
     doc.setFont("helvetica", "bold");
     doc.text("Status:", 40, y);
     doc.setFont("helvetica", "normal");
-    doc.text(`${sub.status}`, 140, y);
+    doc.text(`${sub.status}`, 150, y);
     y += lineSpacing;
 
     doc.setFont("helvetica", "bold");
     doc.text("Location:", 40, y);
     doc.setFont("helvetica", "normal");
-    doc.text(`${sub.location}`, 140, y);
+    doc.text(`${sub.location}`, 150, y);
     y += lineSpacing;
 
     doc.setFont("helvetica", "bold");
     doc.text("Start Date:", 40, y);
     doc.setFont("helvetica", "normal");
-    doc.text(`${formatDateForDisplay(sub.startDate)}`, 140, y);
+    doc.text(`${formatDateForDisplay(sub.startDate)}`, 150, y);
     y += lineSpacing;
 
     doc.setFont("helvetica", "bold");
     doc.text("Next Payment:", 40, y);
     doc.setFont("helvetica", "normal");
-    doc.text(`${formatDateForDisplay(sub.nextPayment)}`, 140, y);
+    doc.text(`${formatDateForDisplay(sub.nextPayment)}`, 150, y);
     y += lineSpacing;
 
     autoTable(doc, {
@@ -193,14 +199,19 @@ export default function SubscriptionsTable({
       },
     });
 
-    doc.save(`invoice_subscription_${sub.id}_${sub.name.replace(/\s/g, "_")}.pdf`);
+    doc.save(
+      `invoice_subscription_${sub.id}_${sub.name.replace(/\s/g, "_")}.pdf`
+    );
     toast.info(`Downloading invoice for ${sub.name}...`);
   };
 
+  /* ---------- Pagination ---------- */
   const totalCount = data?.count || rows.length;
   const startIdx = (page - 1) * pageSize + 1;
   const endIdx = Math.min(startIdx + rows.length - 1, totalCount);
+  const totalPages = Math.ceil(totalCount / pageSize);
 
+  /* ---------- Render ---------- */
   return (
     <div className="rounded-xl shadow-2xl border border-gray-100 overflow-hidden bg-white/90 backdrop-blur-sm">
       <table className="min-w-full divide-y divide-gray-200 text-sm">
@@ -223,6 +234,7 @@ export default function SubscriptionsTable({
                 idx % 2 === 0 ? "bg-white" : "bg-gray-50"
               } hover:bg-blue-50/50`}
             >
+              {/* Client */}
               <td className="px-6 py-4">
                 <div className="flex flex-col">
                   <div className="text-base font-bold text-gray-900 leading-tight">
@@ -234,6 +246,7 @@ export default function SubscriptionsTable({
                 </div>
               </td>
 
+              {/* Status */}
               <td className="px-6 py-4 text-center">
                 <span
                   className={`inline-block px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider min-w-[110px] ${getStatusClasses(
@@ -244,6 +257,7 @@ export default function SubscriptionsTable({
                 </span>
               </td>
 
+              {/* Plan */}
               <td className="px-6 py-4 space-y-1">
                 <div className="flex items-center text-gray-700">
                   <BiPackage className="w-4 h-4 text-blue-500 mr-2" />
@@ -255,6 +269,7 @@ export default function SubscriptionsTable({
                 </div>
               </td>
 
+              {/* Dates */}
               <td className="px-6 py-4 space-y-1">
                 <div className="flex items-center text-gray-700">
                   <LuCalendarDays className="w-4 h-4 text-green-500 mr-2" />
@@ -265,33 +280,53 @@ export default function SubscriptionsTable({
                 <div className="flex items-center text-gray-500">
                   <LuCalendarDays className="w-4 h-4 text-red-500 mr-2" />
                   <span className="font-medium text-xs">
-                    Next: {formatDateForDisplay(sub.nextPayment)}
+                    Next: {formatDateForDisplay(sub?.nextPayment)}
                   </span>
                 </div>
               </td>
 
+              {/* Actions */}
               <td className="px-6 py-4 text-center">
                 {sub.status === "Active" ? (
                   <button
-                    className="px-4 py-2 text-xs font-semibold rounded-lg bg-yellow-500 text-white shadow-md hover:bg-yellow-600 transition-colors flex items-center justify-center gap-1 mx-auto"
-                    title="Pause subscription"
+                    className="px-4 py-2 text-xs font-semibold rounded-lg bg-yellow-500 text-white shadow-md hover:bg-yellow-600 flex items-center justify-center gap-1 mx-auto"
                     onClick={() => handleStatusChange(sub, "Paused")}
                   >
                     <FaPause className="w-3 h-3" /> Pause
                   </button>
                 ) : sub.status === "Paused" ? (
                   <button
-                    className="px-4 py-2 text-xs font-semibold rounded-lg bg-blue-600 text-white shadow-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-1 mx-auto"
-                    title="Resume subscription"
+                    className="px-4 py-2 text-xs font-semibold rounded-lg bg-blue-600 text-white shadow-md hover:bg-blue-700 flex items-center justify-center gap-1 mx-auto"
                     onClick={() => handleStatusChange(sub, "Active")}
                   >
                     <FaPlay className="w-3 h-3" /> Resume
                   </button>
+                ) : sub.status === "Past_due" ? (
+                  <div className="flex flex-col items-center space-y-2">
+                    <Select
+                      onValueChange={async (newValue) => {
+                        if (newValue === "Active") {
+                          await handleStatusChange(sub, "Active");
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="w-[140px] text-xs font-semibold border-gray-300 bg-white hover:bg-gray-50 shadow-sm">
+                        <SelectValue placeholder="Change Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Active">Set Active</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <span className="text-[10px] text-gray-400 italic">
+                      Past due — requires action
+                    </span>
+                  </div>
                 ) : (
                   <span className="text-gray-400 text-xs italic">-</span>
                 )}
               </td>
 
+              {/* Invoice */}
               <td className="px-6 py-4 text-center">
                 {sub.invoice ? (
                   <button
@@ -302,7 +337,9 @@ export default function SubscriptionsTable({
                     <MdOutlineFileDownload className="w-6 h-6 mx-auto" />
                   </button>
                 ) : (
-                  <span className="text-gray-400 text-base font-semibold">-</span>
+                  <span className="text-gray-400 text-base font-semibold">
+                    -
+                  </span>
                 )}
               </td>
             </tr>
@@ -314,29 +351,35 @@ export default function SubscriptionsTable({
       <div className="flex flex-col sm:flex-row justify-between items-center px-6 py-4 border-t border-gray-200 bg-gray-50/70">
         <span className="text-sm text-gray-600 mb-2 sm:mb-0 font-medium">
           Showing{" "}
-          <span className="font-bold text-gray-800">{rows.length ? startIdx : 0}</span>{" "}
+          <span className="font-bold text-gray-800">
+            {rows.length ? startIdx : 0}
+          </span>{" "}
           to{" "}
-          <span className="font-bold text-gray-800">{rows.length ? endIdx : 0}</span>{" "}
-          of <span className="font-bold text-gray-800">{totalCount}</span> results
+          <span className="font-bold text-gray-800">
+            {rows.length ? endIdx : 0}
+          </span>{" "}
+          of <span className="font-bold text-gray-800">{totalCount}</span>{" "}
+          results
         </span>
-       <div className="flex space-x-3">
-  <button
-    className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-    disabled={page <= 1}
-    onClick={() => onPageChange(page - 1)}
-  >
-    &larr; Previous
-  </button>
-
-  <button
-    className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-    disabled={page >= Math.ceil((data?.count ?? 0) / pageSize)}
-    onClick={() => onPageChange(page + 1)}
-  >
-    Next &rarr;
-  </button>
-</div>
-
+        <div className="flex items-center space-x-3">
+          <button
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            disabled={page <= 1}
+            onClick={() => onPageChange(page - 1)}
+          >
+            &larr; Previous
+          </button>
+          <span className="text-sm text-gray-700">
+            Page {page} of {totalPages || 1}
+          </span>
+          <button
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+            disabled={page >= totalPages}
+            onClick={() => onPageChange(page + 1)}
+          >
+            Next &rarr;
+          </button>
+        </div>
       </div>
     </div>
   );
