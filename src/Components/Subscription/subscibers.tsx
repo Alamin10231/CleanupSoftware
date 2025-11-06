@@ -17,7 +17,7 @@ type TableRow = {
   countdown: string;
   nextPayment: string;
   invoice: boolean;
- 
+  results: any[];
 };
 
 /* ---------- Helpers ---------- */
@@ -60,7 +60,9 @@ function apiToRow(item: any): TableRow {
 
   // const price = typeof plan?.amount === "number" ? `$${plan.amount}/month` : "";
   const amount = typeof plan?.amount === "number" ? plan.amount : 0;
-const pkg = plan?.name ? `${plan.name} Package $${amount.toFixed(2)}/month` : "-";
+  const pkg = plan?.name
+    ? `${plan.name} Package $${amount.toFixed(2)}/month`
+    : "-";
 
   const nextPaymentRaw = item?.next_payment_date ?? item?.current_period_end;
 
@@ -208,7 +210,7 @@ export default function SubscriptionsDashboard() {
       {/* Table */}
       <div className="overflow-x-auto ">
         <SubscriptionsTable
-          rows={filterrows}
+          data={{ results: filterrows, count: pageData?.count || 0 }}
           page={page}
           pageSize={pageSize}
           onPageChange={setPage}

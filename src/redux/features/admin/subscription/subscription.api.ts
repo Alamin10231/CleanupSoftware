@@ -18,22 +18,23 @@ export const subscriptionApi = baseApi.injectEndpoints({
 
     // 2️⃣ Paginated subscription list
     getSubscriptionPage: builder.query<
-      SubsPage,
-      { page?: number; page_size?: number; status?: string; search?: string }
-    >({
-      query: ({ page = 1, page_size = 10, status, search }) => {
-        const params: Record<string, string> = {
-          page: String(page),
-          page_size: String(page_size),
-        };
-        if (status && status !== "All status") params.status = status;
-        if (search) params.search = search;
+  SubsPage,
+  { page?: number; page_size?: number; status?: string; search?: string }
+>({
+  query: ({ page = 1, page_size = 10, status, search }) => {
+    const params: Record<string, string> = {
+      page: String(page),
+      page_size: String(page_size),
+    };
+    if (status && status !== "All status") params.status = status;
+    if (search) params.search = search;
 
-        const qs = new URLSearchParams(params).toString();
-        return `/plan/subscription/?${qs}`;
-      },
-      providesTags: ["Subscription"],
-    }),
+    const qs = new URLSearchParams(params).toString();
+    return `/plan/subscription/?${qs}`;
+  },
+  providesTags: ["Subscription"],
+}),
+
 
     // 3️⃣ New plans collection
     getCollectionNewPlans: builder.query<any, void>({
