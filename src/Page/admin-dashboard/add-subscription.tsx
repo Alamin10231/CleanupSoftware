@@ -118,6 +118,7 @@ const AddSubscriptionForm = () => {
 
     try {
       await addSubscription(payload);
+      
       toast.success("Subscription created successfully");
       handleCancel();
     } catch (error) {
