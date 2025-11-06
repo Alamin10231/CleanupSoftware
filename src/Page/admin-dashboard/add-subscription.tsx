@@ -116,15 +116,15 @@ const AddSubscriptionForm = () => {
       employee: formData.employee,
     };
 
-    try {
-      await addSubscription(payload);
-      
-      toast.success("Subscription created successfully");
-      handleCancel();
-    } catch (error) {
-      console.error("Subscription creation failed:", error);
-      toast.error("Subscription creation failed");
-    }
+   try {
+  await addSubscription(payload).unwrap(); // <- important
+  toast.success("Subscription created successfully");
+  handleCancel();
+} catch (error: any) {
+  console.error("Subscription creation failed:", error);
+  toast.error(error?.data?.message || "Subscription creation failed");
+}
+
   };
 
   const removeEmployee = (employeeId: number) => {
