@@ -17,6 +17,7 @@ type TableRow = {
   countdown: string;
   nextPayment: string;
   invoice: boolean;
+ 
 };
 
 /* ---------- Helpers ---------- */
@@ -57,8 +58,9 @@ function apiToRow(item: any): TableRow {
     .trim()
     .replace(/^, /, "");
 
-  const price = typeof plan?.amount === "number" ? `$${plan.amount}/month` : "";
-  const pkg = plan?.name ? `${plan.name} Package ${price}` : "-";
+  // const price = typeof plan?.amount === "number" ? `$${plan.amount}/month` : "";
+  const amount = typeof plan?.amount === "number" ? plan.amount : 0;
+const pkg = plan?.name ? `${plan.name} Package $${amount.toFixed(2)}/month` : "-";
 
   const nextPaymentRaw = item?.next_payment_date ?? item?.current_period_end;
 
@@ -80,21 +82,17 @@ function apiToRow(item: any): TableRow {
 export default function SubscriptionsDashboard() {
   const [statusFilter, setStatusFilter] = useState("All status");
   const [page, setPage] = useState(1);
-  const pageSize = 5;
+  const pageSize = 10;
 
   const { data: kpis, isLoading: kpisLoading } =
     useGetCalculationSubscriptionsQuery();
 
-  const {
-    data: pageData,
-    isFetching: subsLoading,
-    isError: subsError,
-  } = useGetSubscriptionPageQuery({
-    page,
-    page_size: pageSize,
-    status: statusFilter,
-    
-  });
+  const { data: pageData, isFetching: subsLoading } =
+    useGetSubscriptionPageQuery({
+      page,
+      page_size: pageSize,
+      status: statusFilter,
+    });
 
   const rows: TableRow[] = useMemo(
     () => (pageData?.results ?? []).map(apiToRow),
@@ -127,10 +125,11 @@ export default function SubscriptionsDashboard() {
           .includes(searchItem.toLocaleLowerCase()) ||
         row.package.toLocaleLowerCase().includes(searchItem.toLocaleLowerCase())
     );
-  },[rows, searchItem]);
+  }, [rows, searchItem]);
 
   return (
     <div className="p-4 md:p-6 space-y-6 md:space-y-8">
+      <h1 className="text-xl md:text-2xl font-semibold">All Subscribers</h1>
       {/* KPI cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
         {kpisLoading
@@ -176,9 +175,18 @@ export default function SubscriptionsDashboard() {
 
       {/* Table header & filters */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-        <h1 className="text-xl md:text-2xl font-semibold">All Subscribers</h1>
-
         <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className=" rounded-md">
+            <input
+              type="text"
+              value={searchItem}
+              onChange={(e) => setSearchItem(e.target.value)}
+              name="search"
+              placeholder="search"
+              id=""
+              className="border border-gray-300 rounded-md px-4 py-2 text-sm w-full sm:w-auto"
+            />
+          </div>
           <select
             value={statusFilter}
             onChange={(e) => {
@@ -194,28 +202,12 @@ export default function SubscriptionsDashboard() {
             <option value="inactive">Inactive</option>
             <option value="canceled">Canceled</option>
           </select>
-        <div className=" rounded-md">
-          <input type="text" 
-          value={searchItem}
-          onChange={(e)=>setSearchItem(e.target.value)}
-          name="search" placeholder="search" id="" 
-           className="border border-gray-300 rounded-md px-4 py-2 text-sm w-full sm:w-auto"
-          />
-        </div>
         </div>
       </div>
-
-      {/* Error message
-      {subsError && (
-        <div className="p-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded mb-3">
-          Failed to load subscriptions.
-        </div>
-      )} */}
 
       {/* Table */}
       <div className="overflow-x-auto ">
         <SubscriptionsTable
-     
           rows={filterrows}
           page={page}
           pageSize={pageSize}

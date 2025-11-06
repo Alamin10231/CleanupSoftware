@@ -24,36 +24,51 @@ export const subscriptionApi = baseApi.injectEndpoints({
       },
       providesTags: ["Subscription"],
     }),
-    
+
     getCollectionNewPlans: builder.query<any, void>({
       query: () => "/plan/subscription/",
       providesTags: ["Subscription"],
     }),
 
-    getAdminStatus: builder.query<any, { status?: string; page?: number; search?: string }>({
+    getAdminStatus: builder.query<
+      any,
+      { status?: string; page?: number; search?: string }
+    >({
       query: ({ status = "", page = 1, search = "" }) =>
-        `/plan/subscription/?page=${page}&status=${encodeURIComponent(status)}&search=${encodeURIComponent(search)}`,
+        `/plan/subscription/?page=${page}&status=${encodeURIComponent(
+          status
+        )}&search=${encodeURIComponent(search)}`,
       providesTags: ["Subscription"],
     }),
 
-    getCollectionStatus: builder.query<any, { status?: string; page?: number; search?: string }>(
-      {
-        query: ({ status = "", page = 1, search = "" }) =>
-          `plan/subscription/?page=${page}&status=${encodeURIComponent(
-            status
-          )}&search=${encodeURIComponent(search)}`,
-        providesTags: ["Subscription"],
-      }
-    ),
-    
+    getCollectionStatus: builder.query<
+      any,
+      { status?: string; page?: number; search?: string }
+    >({
+      query: ({ status = "", page = 1, search = "" }) =>
+        `plan/subscription/?page=${page}&status=${encodeURIComponent(
+          status
+        )}&search=${encodeURIComponent(search)}`,
+      providesTags: ["Subscription"],
+    }),
+
     addSubscription: builder.mutation({
       query: (body) => ({
-         url: 'plan/subscriptions-create/',
-         method: 'POST',
-         body
+        url: "plan/subscriptions-create/",
+        method: "POST",
+        body,
       }),
-      invalidatesTags: ["Subscription"]
-    })
+      invalidatesTags: ["Subscription"],
+    }),
+
+    updateSubscription: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `plan/subscriptions-create/${id}/`,
+        method: "PUT",
+        body,
+      }),
+      invalidatesTags: ["Subscription"],
+    }),
   }),
 });
 
@@ -63,5 +78,6 @@ export const {
   useGetCollectionNewPlansQuery,
   useGetAdminStatusQuery,
   useGetCollectionStatusQuery,
-  useAddSubscriptionMutation
+  useAddSubscriptionMutation,
+  useUpdateSubscriptionMutation,
 } = subscriptionApi;

@@ -408,8 +408,8 @@ const AddSubscriptionForm = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="active">Active</SelectItem>
-                  {/* <SelectItem value="paused">Paused</SelectItem>
-                  <SelectItem value="cancelled">stopped</SelectItem> */}
+                  <SelectItem value="paused">Paused</SelectItem>
+                  {/* <SelectItem value="cancelled">stopped</SelectItem> */}
                 </SelectContent>
               </Select>
             </div>
