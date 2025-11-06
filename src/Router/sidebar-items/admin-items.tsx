@@ -18,6 +18,7 @@ import {
   FilePenLine,
   FileCheck2,
   Building,
+  LocateFixed,
 } from "lucide-react"; // Import necessary icons
 import RegionsHierarchy from "@/Page/admin-dashboard/region/region-dummy";
 const ReceiveRequest = lazy(
@@ -60,6 +61,8 @@ const FormSubmitted = lazy(
 );
 const MapRegionOverview = lazy(() => import("@/Page/admin-dashboard/Map"));
 
+const RegionEmployeeCode = lazy(()=>import("@/Page/admin-dashboard/RegionEmployeeCode") )
+
 export const adminSidebarItems: ISidebarItems[] = [
   {
     title: "Dashboard",
@@ -85,12 +88,20 @@ export const adminSidebarItems: ISidebarItems[] = [
         isActive: false,
         icon: Building, // Added icon
       },
+      
       {
         title: "Region",
         url: "/admin/region-dummy",
         component: RegionsHierarchy,
         isActive: false,
         icon: MapPin, // Added icon
+      },
+      {
+        title: "Client Code",
+        url: "/admin/client-code",
+        component: RegionEmployeeCode,
+        isActive: false,
+        icon: LocateFixed , // Added icon
       },
       {
         title: "Employees",
