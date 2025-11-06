@@ -105,7 +105,11 @@ const Requests: React.FC = () => {
                       <td className="py-2 px-4">{req.form_name}</td>
                       <td className="py-2 px-4">{req.form_type}</td>
                       <td className="py-2 px-4">{req.description}</td>
-                      <td className="py-2 px-4">{req.client_set_date}</td>
+                     <td className="p-3">
+                  {req.set_time
+                    ? new Date(req.set_time).toLocaleDateString("en-GB") // "DD/MM/YYYY"
+                    : "-"}
+                </td>
                       <td className="py-2 px-4">{req.time_range}</td>
                       <td className="py-2 px-4">
                         {req.special_service
@@ -143,7 +147,7 @@ const Requests: React.FC = () => {
                       <b>Type:</b> {req.form_type}
                     </p>
                     <p>
-                      <b>Date:</b> {req.client_set_date}
+                      <b>Date:</b> {req.set_time}
                     </p>
                     <p>
                       <b>Time:</b> {req.time_range}
