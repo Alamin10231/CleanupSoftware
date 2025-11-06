@@ -49,7 +49,8 @@ const EmployeeReceiveRequest: React.FC = () => {
     Array.from(new Set(data?.results?.map((item: any) => item.time_range))) ||
     [];
   const allFormTypes =
-    Array.from(new Set(data?.results?.map((item: any) => item.form_type))) || [];
+    Array.from(new Set(data?.results?.map((item: any) => item.form_type))) ||
+    [];
 
   const handleUpdateClick = async (id: number) => {
     if (!isAdmin) return alert("Only admin can update!");
@@ -71,7 +72,8 @@ const EmployeeReceiveRequest: React.FC = () => {
 
   const handleDeleteClick = async (id: number) => {
     if (!isAdmin) return alert("Only admin can delete!");
-    if (!window.confirm("Are you sure you want to delete this request?")) return;
+    if (!window.confirm("Are you sure you want to delete this request?"))
+      return;
 
     try {
       await deleteClientRequest(id).unwrap();
@@ -101,7 +103,9 @@ const EmployeeReceiveRequest: React.FC = () => {
           <thead className="bg-gray-100">
             <tr>
               <th className="p-3 text-left">ID</th>
-              {data?.results?.some((item: any) => item.form_type === "subscription") ? (
+              {data?.results?.some(
+                (item: any) => item.form_type === "subscription"
+              ) ? (
                 <>
                   <th className="p-3 text-left">Service Building Name</th>
                   <th className="p-3 text-left">Service Apartment Number</th>
@@ -109,7 +113,9 @@ const EmployeeReceiveRequest: React.FC = () => {
               ) : (
                 <>
                   <th className="p-3 text-left">Subscription Building Name</th>
-                  <th className="p-3 text-left">Subscription Apartment Number</th>
+                  <th className="p-3 text-left">
+                    Subscription Apartment Number
+                  </th>
                 </>
               )}
               <th className="p-3 text-left">Time Range</th>
@@ -131,17 +137,27 @@ const EmployeeReceiveRequest: React.FC = () => {
                 {item.subscription && item.form_type === "subscription" ? (
                   <>
                     <td className="p-3">{item.service_building_name || "-"}</td>
-                    <td className="p-3">{item.service_apartment_number || "-"}</td>
+                    <td className="p-3">
+                      {item.service_apartment_number || "-"}
+                    </td>
                   </>
                 ) : (
                   <>
-                    <td className="p-3">{item.subscription_building_name || "-"}</td>
-                    <td className="p-3">{item.subscription_apartment_number || "-"}</td>
+                    <td className="p-3">
+                      {item.subscription_building_name || "-"}
+                    </td>
+                    <td className="p-3">
+                      {item.subscription_apartment_number || "-"}
+                    </td>
                   </>
                 )}
 
                 <td className="p-3">{item.time_range || "-"}</td>
-                <td className="p-3">{item.client_set_date || "-"}</td>
+                <td className="p-3">
+                  {item.set_time
+                    ? new Date(item.set_time).toLocaleDateString("en-GB") // "DD/MM/YYYY"
+                    : "-"}
+                </td>
                 <td className="p-3">{item.form_type}</td>
                 <td className="p-3">{item.description.slice(0, 15)}</td>
 
@@ -168,7 +184,9 @@ const EmployeeReceiveRequest: React.FC = () => {
 
                         {/* Description */}
                         <div className="my-2">
-                          <Label htmlFor={`description-${item.id}`}>Description</Label>
+                          <Label htmlFor={`description-${item.id}`}>
+                            Description
+                          </Label>
                           <Input
                             id={`description-${item.id}`}
                             value={editDescription}
@@ -178,7 +196,9 @@ const EmployeeReceiveRequest: React.FC = () => {
 
                         {/* Form Type */}
                         <div className="my-2">
-                          <Label htmlFor={`form_type-${item.id}`}>Form Type</Label>
+                          <Label htmlFor={`form_type-${item.id}`}>
+                            Form Type
+                          </Label>
                           <Select
                             value={editFormType}
                             onValueChange={setEditFormType}
