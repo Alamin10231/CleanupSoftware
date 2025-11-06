@@ -315,6 +315,7 @@ export default function SubscriptionsTable({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Active">Set Active</SelectItem>
+                        <SelectItem value="Ended">Set End Date</SelectItem>
                       </SelectContent>
                     </Select>
                     <span className="text-[10px] text-gray-400 italic">

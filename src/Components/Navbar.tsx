@@ -83,7 +83,7 @@ const Navbar = () => {
     }
 
     return (
-      <div className={`${sizeClasses[size]} flex items-center justify-center rounded-md flex-shrink-0 ${
+      <div className={`${sizeClasses[size]}bg-black  flex items-center justify-center rounded-md flex-shrink-0 ${
         isAdmin ? "bg-blue-100" : "bg-gray-200"
       }`}>
         {isAdmin ? (
@@ -121,12 +121,7 @@ const Navbar = () => {
 
             {/* Right Section */}
             <div className="flex items-center gap-2 sm:gap-3">
-              {/* Notifications - Desktop only for admin */}
-              {isAdmin && (
-                <div className="hidden lg:block">
-                  <Notifications />
-                </div>
-              )}
+            
 
               {/* Profile Section */}
               <div className="relative flex items-center gap-2" ref={profileWrapRef}>
