@@ -33,8 +33,7 @@ const AddSubscriptionForm = () => {
     building: number | null;
     apartment: number | null;
     region: number | null;
-    status: "active" ;
-    // | "inactive" | "paused" | "cancelled" | "past_due";
+    status: "active" | "inactive" | "paused" | "cancelled" | "past_due";
     start_date: string;
     payment: "prepaid" | "postpaid";
     employee: number[];
@@ -156,7 +155,7 @@ const AddSubscriptionForm = () => {
               </Label>
               <div className="relative">
                 <Input
-                required
+                  required
                   type="text"
                   value={selectedUser || ""}
                   onChange={(e) => {
@@ -408,7 +407,8 @@ const AddSubscriptionForm = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="paused">Paused</SelectItem>
+                  {/* <SelectItem value="paused">Paused</SelectItem> */}
+                  {/* <SelectItem value="paused_due">Paused due</SelectItem> */}
                   {/* <SelectItem value="cancelled">stopped</SelectItem> */}
                 </SelectContent>
               </Select>
@@ -447,7 +447,7 @@ const AddSubscriptionForm = () => {
                 Start Date *
               </Label>
               <Input
-              required
+                required
                 id="start_date"
                 type="date"
                 value={formData.start_date}
@@ -503,7 +503,8 @@ const AddSubscriptionForm = () => {
               Search Employees
             </Label>
             <div className="relative">
-              <Input required
+              <Input
+                required
                 type="text"
                 value={employeeSearch}
                 onChange={(e) => {
