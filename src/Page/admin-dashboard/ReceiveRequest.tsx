@@ -143,7 +143,12 @@ const ReceiveRequest: React.FC = () => {
                 )} */}
 
                 <td className="p-3">{item.time_range || "-"}</td>
-                <td className="p-3">{item.client_set_date || "-"}</td>
+                <td className="p-3">
+                  {item.set_time
+                    ? new Date(item.set_time).toLocaleDateString("en-GB") // "DD/MM/YYYY"
+                    : "-"}
+                </td>
+
                 <td className="p-3">{item.form_type}</td>
                 <td className="p-3">{item.description.slice(0, 15)}</td>
 
