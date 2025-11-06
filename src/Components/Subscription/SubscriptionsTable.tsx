@@ -2,6 +2,8 @@ import { FaPause, FaPlay } from "react-icons/fa";
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import autoTable from "jspdf-autotable";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { MdOutlineFileDownload, MdLocationPin } from "react-icons/md";
 import {
   Select,
@@ -15,6 +17,7 @@ import { useSelector } from "react-redux";
 import { BiPackage } from "react-icons/bi";
 import { LuCalendarDays } from "react-icons/lu";
 import { useUpdateSubscriptionMutation } from "@/redux/features/admin/subscription/subscription.api";
+import { useState } from "react";
 
 /* ---------- Types ---------- */
 type SubscriptionStatus =
@@ -51,15 +54,7 @@ type Props = {
   onPageChange: (newPage: number) => void;
 };
 
-/* ---------- Helper Functions ---------- */
-const formatDateForBackend = (dateStr: string) => {
-  // Convert "DD-MMM-YYYY" or similar to "YYYY-MM-DD"
-  if (!dateStr) return new Date().toISOString().slice(0, 10);
-  const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return new Date().toISOString().slice(0, 10);
-  return date.toISOString().split("T")[0]; // ✅ YYYY-MM-DD
-};
-
+/* ---------- Helpers ---------- */
 const formatDateForDisplay = (dateStr: string) => {
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return "-";
@@ -99,43 +94,55 @@ export default function SubscriptionsTable({
   const rows = data?.results || [];
   const user = useSelector((state: any) => state.auth.user);
 
-  /* ---------- Update Handler ---------- */
+  const [showCalendarFor, setShowCalendarFor] = useState<number | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+  /* ---------- Handlers ---------- */
   const handleStatusChange = async (sub: Subscription, newStatus: string) => {
     try {
-      const formattedDate = new Date().toISOString().split("T")[0]; // ✅ YYYY-MM-DD
-
       await updateSubscription({
         id: sub.id,
         status: newStatus.toLowerCase(),
-        current_period_end: formattedDate,
         employee: [user?.id].filter(Boolean),
       }).unwrap();
 
       toast.success(`Subscription for ${sub.name} updated to ${newStatus}`);
     } catch (error: any) {
-      console.error("Failed to update subscription:", error);
+      console.error(error);
       const message =
-        error?.data?.current_period_end?.[0] ||
-        error?.data?.detail ||
-        "Failed to update subscription";
+        error?.data?.detail || "Failed to update subscription";
       toast.error(message);
     }
   };
 
-  /* ---------- PDF Download ---------- */
+  const handleSetEndDate = async (sub: Subscription, date: Date) => {
+    try {
+      const formattedDate = date.toISOString().split("T")[0]; // YYYY-MM-DD
+      await updateSubscription({
+        id: sub.id,
+        status: sub.status.toLowerCase(), // keep current status
+        current_period_end: formattedDate,
+        employee: [user?.id].filter(Boolean),
+      }).unwrap();
+
+      toast.success(`End date set for ${sub.name}`);
+    } catch (error: any) {
+      console.error(error);
+      const message =
+        error?.data?.current_period_end?.[0] ||
+        error?.data?.detail ||
+        "Failed to set end date";
+      toast.error(message);
+    }
+  };
+
   const handleDownload = (sub: Subscription) => {
-    const doc = new jsPDF({
-      orientation: "portrait",
-      unit: "pt",
-      format: "a4",
-    });
+    const doc = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
 
     doc.setFontSize(28);
-    doc.setTextColor("#1f2937");
     doc.text("Subscription Invoice", 40, 50);
 
     doc.setFontSize(12);
-    doc.setTextColor("#374151");
     let y = 80;
     const lineSpacing = 18;
 
@@ -178,30 +185,13 @@ export default function SubscriptionsTable({
     autoTable(doc, {
       startY: y + 20,
       theme: "striped",
-      headStyles: {
-        fillColor: "#10b981",
-        textColor: "#ffffff",
-        fontStyle: "bold",
-        halign: "center",
-      },
+      headStyles: { fillColor: "#10b981", textColor: "#fff", fontStyle: "bold", halign: "center" },
       head: [["Description", "Package Name", "Amount"]],
-      body: [
-        [
-          "Monthly/Annual Subscription Fee",
-          sub.package,
-          "Refer to your billing portal",
-        ],
-      ],
-      columnStyles: {
-        0: { cellWidth: 200 },
-        1: { cellWidth: 150 },
-        2: { halign: "right", cellWidth: 150 },
-      },
+      body: [["Monthly/Annual Subscription Fee", sub.package, "Refer to your billing portal"]],
+      columnStyles: { 0: { cellWidth: 200 }, 1: { cellWidth: 150 }, 2: { halign: "right", cellWidth: 150 } },
     });
 
-    doc.save(
-      `invoice_subscription_${sub.id}_${sub.name.replace(/\s/g, "_")}.pdf`
-    );
+    doc.save(`invoice_subscription_${sub.id}_${sub.name.replace(/\s/g, "_")}.pdf`);
     toast.info(`Downloading invoice for ${sub.name}...`);
   };
 
@@ -228,31 +218,18 @@ export default function SubscriptionsTable({
 
         <tbody className="divide-y divide-gray-100">
           {rows.map((sub, idx) => (
-            <tr
-              key={sub.id}
-              className={`transition-all duration-300 ${
-                idx % 2 === 0 ? "bg-white" : "bg-gray-50"
-              } hover:bg-blue-50/50`}
-            >
+            <tr key={sub.id} className={`${idx % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-blue-50/50`}>
               {/* Client */}
               <td className="px-6 py-4">
                 <div className="flex flex-col">
-                  <div className="text-base font-bold text-gray-900 leading-tight">
-                    {sub.name}
-                  </div>
-                  <span className="text-xs text-gray-500 font-medium mt-0.5">
-                    {sub.email}
-                  </span>
+                  <div className="text-base font-bold text-gray-900">{sub.name}</div>
+                  <span className="text-xs text-gray-500 font-medium mt-0.5">{sub.email}</span>
                 </div>
               </td>
 
               {/* Status */}
               <td className="px-6 py-4 text-center">
-                <span
-                  className={`inline-block px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider min-w-[110px] ${getStatusClasses(
-                    sub.status
-                  )}`}
-                >
+                <span className={`inline-block px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider min-w-[110px] ${getStatusClasses(sub.status)}`}>
                   {sub.status.replace(/_/g, " ")}
                 </span>
               </td>
@@ -273,15 +250,11 @@ export default function SubscriptionsTable({
               <td className="px-6 py-4 space-y-1">
                 <div className="flex items-center text-gray-700">
                   <LuCalendarDays className="w-4 h-4 text-green-500 mr-2" />
-                  <span className="font-semibold text-xs">
-                    Start: {formatDateForDisplay(sub.startDate)}
-                  </span>
+                  <span className="font-semibold text-xs">Start: {formatDateForDisplay(sub.startDate)}</span>
                 </div>
                 <div className="flex items-center text-gray-500">
                   <LuCalendarDays className="w-4 h-4 text-red-500 mr-2" />
-                  <span className="font-medium text-xs">
-                    Next: {formatDateForDisplay(sub?.nextPayment)}
-                  </span>
+                  <span className="font-medium text-xs">Next: {formatDateForDisplay(sub?.nextPayment)}</span>
                 </div>
               </td>
 
@@ -304,10 +277,9 @@ export default function SubscriptionsTable({
                 ) : sub.status === "Past_due" ? (
                   <div className="flex flex-col items-center space-y-2">
                     <Select
-                      onValueChange={async (newValue) => {
-                        if (newValue === "Active") {
-                          await handleStatusChange(sub, "Active");
-                        }
+                      onValueChange={(newValue) => {
+                        if (newValue === "Active") handleStatusChange(sub, "Active");
+                        else if (newValue === "set_end_date") setShowCalendarFor(sub.id);
                       }}
                     >
                       <SelectTrigger className="w-[140px] text-xs font-semibold border-gray-300 bg-white hover:bg-gray-50 shadow-sm">
@@ -315,11 +287,27 @@ export default function SubscriptionsTable({
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Active">Set Active</SelectItem>
+                        <SelectItem value="set_end_date">Set End Date</SelectItem>
                       </SelectContent>
                     </Select>
-                    <span className="text-[10px] text-gray-400 italic">
-                      Past due — requires action
-                    </span>
+
+                    {/* Calendar */}
+                    {showCalendarFor === sub.id && (
+                      <div className="mt-2">
+                        <DatePicker
+                          selected={selectedDate}
+                          onChange={(date: Date) => {
+                            setSelectedDate(date);
+                            setShowCalendarFor(null);
+                            handleSetEndDate(sub, date);
+                          }}
+                          dateFormat="dd-MMM-yyyy"
+                          className="border rounded px-2 py-1"
+                        />
+                      </div>
+                    )}
+
+                    <span className="text-[10px] text-gray-400 italic">Past due — requires action</span>
                   </div>
                 ) : (
                   <span className="text-gray-400 text-xs italic">-</span>
@@ -337,9 +325,7 @@ export default function SubscriptionsTable({
                     <MdOutlineFileDownload className="w-6 h-6 mx-auto" />
                   </button>
                 ) : (
-                  <span className="text-gray-400 text-base font-semibold">
-                    -
-                  </span>
+                  <span className="text-gray-400 text-base font-semibold">-</span>
                 )}
               </td>
             </tr>
@@ -351,15 +337,9 @@ export default function SubscriptionsTable({
       <div className="flex flex-col sm:flex-row justify-between items-center px-6 py-4 border-t border-gray-200 bg-gray-50/70">
         <span className="text-sm text-gray-600 mb-2 sm:mb-0 font-medium">
           Showing{" "}
-          <span className="font-bold text-gray-800">
-            {rows.length ? startIdx : 0}
-          </span>{" "}
-          to{" "}
-          <span className="font-bold text-gray-800">
-            {rows.length ? endIdx : 0}
-          </span>{" "}
-          of <span className="font-bold text-gray-800">{totalCount}</span>{" "}
-          results
+          <span className="font-bold text-gray-800">{rows.length ? startIdx : 0}</span>{" "}
+          to <span className="font-bold text-gray-800">{rows.length ? endIdx : 0}</span> of{" "}
+          <span className="font-bold text-gray-800">{totalCount}</span> results
         </span>
         <div className="flex items-center space-x-3">
           <button
