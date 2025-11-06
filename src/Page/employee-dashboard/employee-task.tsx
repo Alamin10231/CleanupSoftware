@@ -35,14 +35,12 @@ export default function EmployeeTaskDashboard() {
 
   return (
     <div>
-      {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-5">
         <Card title="Total Tasks" number={totalTasks} iconSrc={assets.region} />
         <Card title="Active Tasks" number={totalActive} iconSrc={assets.Active} />
         <Card title="Completed Tasks" number={totalCompleted} iconSrc={assets.totalEmployee} />
       </div>
 
-      {/* Table */}
       <div className="bg-white shadow rounded-lg overflow-hidden">
         <div className="p-3 flex justify-between items-center">
           <input
@@ -84,7 +82,10 @@ export default function EmployeeTaskDashboard() {
                   <td className="p-3">{task.worker_name}</td>
                   <td className="p-3">{task.building_name}</td>
                   <td className="p-3">{task.region_name}</td>
-                  <td className="p-3">{task.apartment?.join(", ") || "N/A"}</td>
+
+                  {/* ✅ changed to aprtment_number */}
+                  <td className="p-3">{task.aprtment_number?.join(", ") || "N/A"}</td>
+
                   <td className="p-3">{task.client_email?.join(", ")}</td>
                   <td className="p-3">
                     <span
@@ -120,7 +121,6 @@ export default function EmployeeTaskDashboard() {
           </tbody>
         </table>
 
-        {/* Pagination */}
         <div className="flex justify-between items-center p-3 border-t">
           <button
             onClick={() => setPage((p) => Math.max(p - 1, 1))}
@@ -142,7 +142,6 @@ export default function EmployeeTaskDashboard() {
         </div>
       </div>
 
-      {/* Dialog for Task Details & Map */}
       <Dialog open={!!selectedTask} onOpenChange={() => setSelectedTask(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -156,7 +155,8 @@ export default function EmployeeTaskDashboard() {
                 <p><span className="font-medium">Worker:</span> {selectedTask.worker_name}</p>
                 <p><span className="font-medium">Building:</span> {selectedTask.building_name}</p>
                 <p><span className="font-medium">Region:</span> {selectedTask.region_name}</p>
-                <p><span className="font-medium">Apartment:</span> {selectedTask.apartment?.join(", ") || "N/A"}</p>
+                <p><span className="font-medium">Apartment:</span> {selectedTask.aprtment_number?.join(", ") || "N/A"}</p>
+
                 <p><span className="font-medium">Client Email:</span> {selectedTask.client_email?.join(", ")}</p>
                 <p><span className="font-medium">Status:</span> {selectedTask.status}</p>
               </div>
