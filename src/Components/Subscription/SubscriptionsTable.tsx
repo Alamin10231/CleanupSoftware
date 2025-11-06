@@ -74,7 +74,6 @@ const getStatusClasses = (status: SubscriptionStatus) => {
   }
 };
 
-
 export default function SubscriptionsTable({
   rows,
   page,
@@ -148,12 +147,12 @@ export default function SubscriptionsTable({
           <tr>
             <th className="px-6 py-3 text-left">Client</th>
             {/* 🌟 NEW STATUS COLUMN */}
-            <th className="px-6 py-3 text-center">Status</th> 
+            <th className="px-6 py-3 text-center">Status</th>
             <th className="px-6 py-3 text-left">Location</th>
             <th className="px-6 py-3 text-left">Package</th>
             <th className="px-6 py-3 text-left">Start Date</th>
             {/* Renamed Actions column for clarity */}
-            <th className="px-6 py-3 text-center">Actions</th> 
+            <th className="px-6 py-3 text-center">Actions</th>
             <th className="px-6 py-3 text-left">Next Payment</th>
             <th className="px-6 py-3 text-center">Invoice</th>
           </tr>
@@ -180,9 +179,11 @@ export default function SubscriptionsTable({
               {/* 🌟 NEW STATUS CELL */}
               <td className="px-6 py-4 text-center">
                 <span
-                    className={`inline-block px-3 py-1 rounded-full text-xs font-semibold w-full max-w-[120px] mx-auto ${getStatusClasses(sub.status)}`}
+                  className={`inline-block px-3 py-1 rounded-full text-xs font-semibold w-full max-w-[120px] mx-auto ${getStatusClasses(
+                    sub.status
+                  )}`}
                 >
-                    {sub.status}
+                  {sub.status}
                 </span>
               </td>
 
@@ -193,34 +194,32 @@ export default function SubscriptionsTable({
               <td className="px-6 py-4 text-gray-700">{sub.package}</td>
 
               {/* Start Date */}
-              <td className="px-6 py-4 text-gray-700">
-                {formatDateForDisplay(sub.startDate)}
-              </td>
+              <td className="px-6 py-4 text-gray-700">{sub.startDate}</td>
 
               {/* Actions (Moved status badge out, kept actions) */}
               <td className="px-6 py-4 text-center space-y-2">
                 {/* Actions based on Status */}
                 {sub.status === "Active" && (
-                  <button
+                  <span
                     className="px-3 py-1 text-sm font-semibold rounded-full bg-yellow-100 text-yellow-800 hover:bg-yellow-200 transition-colors flex items-center justify-center gap-1 mx-auto"
-                    onClick={() => handleStatusChange(sub, "Paused")}
+                    // onClick={() => handleStatusChange(sub, "Paused")}
                     title="Pause subscription"
                   >
                     <FaPause className="w-4 h-4" /> Pause
+                  </span>
+                )}
+
+                {sub.status === "Paused" && (
+                  <button
+                    className="px-3 py-1 text-sm font-semibold rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors flex items-center justify-center gap-1 mx-auto"
+                    // onClick={() => handleStatusChange(sub, "Active")} // Changed 'resumed' to 'Active' based on typical flow
+                    title="Resume subscription"
+                  >
+                    <FaPlay className="w-4 h-4" /> Resume
                   </button>
                 )}
-               
-{sub.status === "Paused" && (
-  <button
-    className="px-3 py-1 text-sm font-semibold rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors flex items-center justify-center gap-1 mx-auto"
-    onClick={() => handleStatusChange(sub, "Active")} // Changed 'resumed' to 'Active' based on typical flow
-    title="Resume subscription"
-  >
-    <FaPlay className="w-4 h-4" /> Resume
-  </button>
-)}
-{/* || sub.status === "" */}
-                {(sub.status === "Past_due" ) && (
+                {/* || sub.status === "" */}
+                {sub.status === "Past_due" &&
                   // <Select
                   //   onValueChange={(value) => handleStatusChange(sub, value)}
                   // >
@@ -255,18 +254,19 @@ export default function SubscriptionsTable({
                   //     )}
                   //   </SelectContent>
                   // </Select>
-                  "-"
-                )}
+                  "-"}
                 {/* Add a placeholder if no action is immediately available */}
-                {sub.status !== "Active" && sub.status !== "Paused" && sub.status !== "Past_due" && (
-                     <span className="text-gray-400 text-xs">No action needed</span>
-                )}
+                {sub.status !== "Active" &&
+                  sub.status !== "Paused" &&
+                  sub.status !== "Past_due" && (
+                    <span className="text-gray-400 text-xs">
+                      No action needed
+                    </span>
+                  )}
               </td>
 
               {/* Next Payment */}
-              <td className="px-6 py-4 text-gray-700">
-                {formatDateForDisplay(sub.nextPayment)}
-              </td>
+              <td className="px-6 py-4 text-gray-700">{sub.nextPayment}</td>
 
               {/* Invoice */}
               <td className="px-6 py-4 text-center">
