@@ -71,7 +71,8 @@ export const baseApi = createApi({
     "GetEmployeeTasks",
     "Employee",
     "ClientSubscriptions",
-    "getEmployeeInvoice"
+    "getEmployeeInvoice",
+    "EmployeConversations",
   ],
 
   endpoints: () => ({}),

@@ -368,7 +368,7 @@ const AddNewServiceForm = () => {
                   value={formData.discount || ""}
                   onChange={(e) => {
                     const value =
-                      e.target.value === "" ? null : Number(e.target.value);
+                      e.target.value === "" ? 0 : Number(e.target.value);
                     handleInputChange("discount", value);
                   }}
                 />
@@ -389,7 +389,7 @@ const AddNewServiceForm = () => {
                   value={formData.tax_rate || ""}
                   onChange={(e) => {
                     const value =
-                      e.target.value === "" ? null : Number(e.target.value);
+                      e.target.value === "" ? 0 : Number(e.target.value);
                     handleInputChange("tax_rate", value);
                   }}
                 />

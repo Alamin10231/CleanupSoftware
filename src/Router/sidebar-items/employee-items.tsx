@@ -85,13 +85,13 @@ export const employeeSidebarItems: ISidebarItems[] = [
         isActive: false,
         icon: CreditCard,
       },
-      {
-        title: "Assigned Requests",
-        url: "assigned-requests",
-        component: AssignedRequests,
-        isActive: false,
-        icon: ClipboardList,
-      },
+      // {
+      //   title: "Assigned Requests",
+      //   url: "assigned-requests",
+      //   component: AssignedRequests,
+      //   isActive: false,
+      //   icon: ClipboardList,
+      // },
       {
         title: "Settings",
         url: "setting", // Changed from /employee-setting

@@ -125,7 +125,7 @@ const SendRequest: React.FC = () => {
                 value={form.subscription}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-lg px-4 py-2"
-                required
+                // required
               >
                 <option value="">Select Subscription</option>
                 {activeSubscriptions.map((sub) => (
