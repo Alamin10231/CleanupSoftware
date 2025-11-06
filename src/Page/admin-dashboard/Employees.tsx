@@ -35,14 +35,13 @@ const Employees = () => {
   const [updateEmployeeStatus] = useUpdateEmployeeStatusMutation();
 
   const handleUpdateStatus = async (id: number, status: boolean) => {
-   try {
-      await updateEmployeeStatus({ id, employee_profile: { is_on_leave: status }});
+    try {
+      await updateEmployeeStatus({ id, employee_profile: { is_on_leave: status } });
       toast.success("Employee status updated successfully");
-   } catch (error) {
+    } catch (error) {
       toast.error("Failed to update employee status");
-    console.error(error);
-   }
-
+      console.error(error);
+    }
   };
 
   const { data: overviewData } = useEmployeeOverviewQuery();
@@ -59,7 +58,6 @@ const Employees = () => {
     skip: searchTerm.trim() === "",
   });
 
-
   const employees: Employee[] = useMemo(() => {
     const baseList = searchTerm.trim()
       ? searchResponse?.results || []
@@ -72,8 +70,7 @@ const Employees = () => {
       departmentFilter === "All Departments" ||
       emp.employee_profile?.department === departmentFilter;
     const matchesShift =
-      shiftFilter === "All Shifts" ||
-      emp.employee_profile?.shift === shiftFilter;
+      shiftFilter === "All Shifts" || emp.employee_profile?.shift === shiftFilter;
     return matchesDepartment && matchesShift;
   });
 
@@ -121,8 +118,9 @@ const Employees = () => {
     <div className="flex flex-col mt-4 min-h-screen">
       {/* Header */}
       <div className="flex-shrink-0">
-         <h1 className="text-2xl font-semibold">Employees</h1>
-         <p>Manage your employees here</p>
+        <h1 className="text-2xl font-semibold">Employees</h1>
+        <p>Manage your employees here</p>
+
         {/* Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mt-2">
           {cardData.map((card, index) => (
@@ -135,15 +133,16 @@ const Employees = () => {
             />
           ))}
         </div>
+
         <div className="flex justify-between my-6 items-center">
-         <div></div>
+          <div></div>
           <ActionButton />
         </div>
 
         <ProgressBar />
 
         {/* Search + Filters */}
-        <div className="flex flex-wrap items-center gap-4 mt-8 bg-white rounded-xl">
+        <div className="flex flex-wrap items-center gap-4 mt-8 bg-white rounded-xl p-4">
           <input
             type="text"
             placeholder="Search employees..."
@@ -200,55 +199,45 @@ const Employees = () => {
                     <th className="px-4 py-3 text-left">Email</th>
                     <th className="px-4 py-3 text-left">Phone</th>
                     <th className="px-4 py-3 text-left">Salary</th>
+                    <th className="px-4 py-3 text-left">User Type</th>
                     <th className="px-4 py-3 text-left">Status</th>
-                    <th className="px-4 py-3 text-left cursor-pointer">
-                      Actions
-                    </th>
+                    <th className="px-4 py-3 text-left cursor-pointer">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredEmployees.map((emp) => (
-                    <tr
-                      key={emp.id}
-                      className="border-t hover:bg-gray-50 transition"
-                    >
+                    <tr key={emp.id} className="border-t hover:bg-gray-50 transition">
                       <td className="p-3">
                         <img
-                          src={
-                            emp.employee_profile?.avatar ??
-                            "/default-avatar.png"
-                          }
+                          src={emp.employee_profile?.avatar ?? "/default-avatar.png"}
                           alt={emp.name}
                           className="w-12 h-12 rounded-full object-cover border border-gray-300"
                         />
                       </td>
                       <td className="px-4 py-3">{emp.name}</td>
-                      <td className="px-4 py-3">
-                        {emp.employee_profile?.role || "N/A"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {emp.employee_profile?.department || "N/A"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {emp.employee_profile?.shift || "N/A"}
-                      </td>
+                      <td className="px-4 py-3">{emp.employee_profile?.role || "N/A"}</td>
+                      <td className="px-4 py-3">{emp.employee_profile?.department || "N/A"}</td>
+                      <td className="px-4 py-3">{emp.employee_profile?.shift || "N/A"}</td>
                       <td className="px-4 py-3">{emp.email}</td>
                       <td className="px-4 py-3">{emp.prime_phone}</td>
-                      <td className="px-4 py-3">
-                        {emp.employee_profile?.base_salary || "0"} SAR
-                      </td>
+                      <td className="px-4 py-3">{emp.employee_profile?.base_salary || "0"} SAR</td>
+                      <td className="px-4 py-3">{emp.user_type || "N/A"}</td>
                       <td className="px-4 py-3">
                         <select
                           value={emp.employee_profile?.is_on_leave.toString()}
                           onChange={(e) =>
                             handleUpdateStatus(emp.id, e.target.value === "true")
                           }
-                          className={`p-2 rounded-md text-xs ${emp.employee_profile?.is_on_leave ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`}>
+                          className={`p-2 rounded-md text-xs ${
+                            emp.employee_profile?.is_on_leave
+                              ? "bg-red-100 text-red-800"
+                              : "bg-green-100 text-green-800"
+                          }`}
+                        >
                           <option value="false">Active</option>
                           <option value="true">On Leave</option>
                         </select>
                       </td>
-
                       <td className="px-4 py-3 flex gap-2">
                         <Button
                           variant={"outline"}
@@ -277,30 +266,29 @@ const Employees = () => {
             {/* Pagination */}
             {!searchTerm && (
               <div className="flex justify-between items-center mt-4 px-2">
-               <button
-  onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-  disabled={page === 1}
-  className={`px-4 py-2 rounded-md text-sm font-medium ${
-    page === 1
-      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-      : "bg-blue-500 text-white hover:bg-blue-600"
-  }`}
->
-  Previous
-</button>
+                <button
+                  onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                  disabled={page === 1}
+                  className={`px-4 py-2 rounded-md text-sm font-medium ${
+                    page === 1
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-blue-500 text-white hover:bg-blue-600"
+                  }`}
+                >
+                  Previous
+                </button>
 
-<button
-  onClick={() => setPage((prev) => prev + 1)}
-  disabled={page >= totalPages}
-  className={`px-4 py-2 rounded-md text-sm font-medium ${
-    page >= totalPages
-      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-      : "bg-blue-500 text-white hover:bg-blue-600"
-  }`}
->
-  Next
-</button>
-
+                <button
+                  onClick={() => setPage((prev) => prev + 1)}
+                  disabled={page >= totalPages}
+                  className={`px-4 py-2 rounded-md text-sm font-medium ${
+                    page >= totalPages
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-blue-500 text-white hover:bg-blue-600"
+                  }`}
+                >
+                  Next
+                </button>
               </div>
             )}
           </>
@@ -324,73 +312,64 @@ const Employees = () => {
           {selectedEmployee && (
             <div className="mt-4 space-y-2 text-sm text-gray-700">
               <div className="flex items-center justify-between">
-               <div>
-                <p>
-                  <strong>ID:</strong> {selectedEmployee.id}
-                </p>
-                <p>
-                  <strong>Name:</strong> {selectedEmployee.name}
-                </p>
-                <p>
-                  <strong>Email:</strong> {selectedEmployee.email}
-                </p>
-                <p>
-                  <strong>Phone:</strong> {selectedEmployee.prime_phone}
-                </p>
-                <p>
-                  <strong>Status:</strong>{" "}
-                  {selectedEmployee.is_active ? "Active" : "Inactive"}
-                </p>
-                <p>
-                  <strong>Date Joined:</strong>{" "}
-                  {new Date(selectedEmployee.date_joined).toLocaleDateString()}
-                </p>
+                <div>
+                  <p>
+                    <strong>ID:</strong> {selectedEmployee.id}
+                  </p>
+                  <p>
+                    <strong>Name:</strong> {selectedEmployee.name}
+                  </p>
+                  <p>
+                    <strong>Email:</strong> {selectedEmployee.email}
+                  </p>
+                  <p>
+                    <strong>Phone:</strong> {selectedEmployee.prime_phone}
+                  </p>
+                  <p>
+                    <strong>User Type:</strong> {selectedEmployee.user_type || "N/A"}
+                  </p>
+                  <p>
+                    <strong>Status:</strong>{" "}
+                    {selectedEmployee.is_active ? "Active" : "Inactive"}
+                  </p>
+                  <p>
+                    <strong>Date Joined:</strong>{" "}
+                    {new Date(selectedEmployee.date_joined).toLocaleDateString()}
+                  </p>
                 </div>
                 <img
-                  src={
-                    selectedEmployee.employee_profile?.avatar ??
-                    "/default-avatar.png"
-                  }
+                  src={selectedEmployee.employee_profile?.avatar ?? "/default-avatar.png"}
                   alt={selectedEmployee.name}
                   className="w-36 h-36 rounded-full object-cover border border-gray-300"
                 />
               </div>
               <hr className="my-2" />
               <p>
-                <strong>Department:</strong>{" "}
-                {selectedEmployee.employee_profile?.department || "N/A"}
+                <strong>Department:</strong> {selectedEmployee.employee_profile?.department || "N/A"}
               </p>
               <p>
-                <strong>Role:</strong>{" "}
-                {selectedEmployee.employee_profile?.role || "N/A"}
+                <strong>Role:</strong> {selectedEmployee.employee_profile?.role || "N/A"}
               </p>
               <p>
-                <strong>Shift:</strong>{" "}
-                {selectedEmployee.employee_profile?.shift || "N/A"}
+                <strong>Shift:</strong> {selectedEmployee.employee_profile?.shift || "N/A"}
               </p>
               <p>
-                <strong>On Leave:</strong>{" "}
-                {selectedEmployee.employee_profile?.is_on_leave ? "Yes" : "No"}
+                <strong>On Leave:</strong> {selectedEmployee.employee_profile?.is_on_leave ? "Yes" : "No"}
               </p>
               <p>
-                <strong>Location:</strong>{" "}
-                {selectedEmployee.employee_profile?.location || "N/A"}
+                <strong>Location:</strong> {selectedEmployee.employee_profile?.location || "N/A"}
               </p>
               <p>
-                <strong>National ID:</strong>{" "}
-                {selectedEmployee.employee_profile?.national_id || "N/A"}
+                <strong>National ID:</strong> {selectedEmployee.employee_profile?.national_id || "N/A"}
               </p>
               <p>
-                <strong>Contract Start:</strong>{" "}
-                {selectedEmployee.employee_profile?.contract_start || "N/A"}
+                <strong>Contract Start:</strong> {selectedEmployee.employee_profile?.contract_start || "N/A"}
               </p>
               <p>
-                <strong>Contract End:</strong>{" "}
-                {selectedEmployee.employee_profile?.contract_end || "N/A"}
+                <strong>Contract End:</strong> {selectedEmployee.employee_profile?.contract_end || "N/A"}
               </p>
               <p>
-                <strong>Base Salary:</strong>{" "}
-                {selectedEmployee.employee_profile?.base_salary || "N/A"} SAR
+                <strong>Base Salary:</strong> {selectedEmployee.employee_profile?.base_salary || "N/A"} SAR
               </p>
             </div>
           )}
