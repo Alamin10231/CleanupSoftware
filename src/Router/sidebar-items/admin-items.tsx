@@ -90,7 +90,7 @@ export const adminSidebarItems: ISidebarItems[] = [
       },
       
       {
-        title: "Region",
+        title: "Area",
         url: "/admin/region-dummy",
         component: RegionsHierarchy,
         isActive: false,
@@ -171,13 +171,14 @@ export const adminSidebarItems: ISidebarItems[] = [
         isActive: false,
         icon: CalendarPlus, // Added icon
       },
-      {
-        title: "Add Subscription",
-        url: "/admin/add-subscription",
-        component: AddSubscription,
-        isActive: false,
-        icon: PlusCircle, // Added icon
-      },
+      // {
+      //   title: "Add Subscription",
+      //   url: "/admin/add-subscription",
+      //   component: AddSubscription,
+      //   isActive: false,
+      //   icon: PlusCircle, 
+    
+      // },
     ],
   },
   {

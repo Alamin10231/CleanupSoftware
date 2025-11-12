@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/Components/ui/select";
-import { Button } from "@/Components/ui/button";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useGetregionsQuery } from "@/redux/features/admin/regions/regions.api";
 import {
@@ -20,7 +20,7 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/Components/ui/tooltip";
+} from "@/components/ui/tooltip";
 import { useGetSearchAllEmpoloyeesQuery } from "@/redux/features/admin/users/employee.api";
 import { useGetSearchClientsQuery } from "@/redux/features/admin/users/clients.api";
 import { useGetPlansQuery } from "@/redux/features/admin/plan/plan.api";
