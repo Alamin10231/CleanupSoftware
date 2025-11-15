@@ -208,7 +208,7 @@ export default function SubscriptionsDashboard() {
                 <option value="active">Active</option>
                 <option value="paused">Paused</option>
                 <option value="past_due">Past Due</option>
-                <option value="inactive">Inactive</option>
+             
                 <option value="canceled">Canceled</option>
               </select>
             </div>

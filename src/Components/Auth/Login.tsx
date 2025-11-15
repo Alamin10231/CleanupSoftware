@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import loginpicture from "../../assets/Image/loginpicture.jpg";
+// import loginpicture from "../../assets/Image/loginpicture.jpg";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useLoginMutation } from "@/redux/features/auth/authApi";
@@ -35,18 +35,33 @@ export default function Login() {
     }
   };
 
-  return (
-    <div className="min-h-screen flex">
+return (
+  <div className="min-h-screen flex items-center justify-center bg-[#664FFF]">
+    <div className="flex w-full max-w-5xl h-[520px] bg-white rounded-2xl overflow-hidden shadow-lg">
+
       {/* Left Panel */}
-      <div className="flex flex-col justify-center items-center w-full md:w-1/2 px-6 md:px-16 bg-white">
+      <div className="hidden md:flex w-1/2 bg-[#7065FF] text-white p-20 flex-col justify-center">
+        <h2 className="text-4xl lg:text-5xl font-bold">Welcome <br /> Back!</h2>
+
+     
+
+        {/* <p className="mt-12 opacity-80">Don't have an account?</p>
+
+        <button className="mt-3 px-6 py-2 border border-white rounded-lg text-white hover:bg-white hover:text-[#6A5BFF] transition font-medium text-lg">
+          Sign Up
+        </button> */}
+      </div>
+
+      {/* Right Panel */}
+      <div className="flex flex-col justify-center items-center w-full md:w-1/2 px-6 md:px-16">
         <div className="flex items-center self-end space-x-2 mb-8">
           <div className="p-6">
             <img src={logo} alt="CleanUp Pro Logo" className="mx-auto" />
           </div>
         </div>
 
-        <h1 className="text-2xl font-semibold mb-6 self-start">Login</h1>
-        <p className="text-[#313131] self-start pb-2">
+        <h1 className="text-2xl font-semibold mb-2 self-start">Login</h1>
+        <p className="text-[#313131] self-start pb-4">
           Login to access your account
         </p>
 
@@ -79,6 +94,7 @@ export default function Login() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+
             <button
               type="button"
               onClick={() => setShow(!show)}
@@ -88,18 +104,15 @@ export default function Login() {
             </button>
           </div>
 
-          {/* Error Message */}
           {error && <p className="text-red-500 text-sm">{error}</p>}
 
           {/* Remember + Forgot */}
           <div className="flex items-center justify-between text-sm">
             <label className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
+              <input type="checkbox" className="rounded border-gray-300" />
               <span>Remember me</span>
             </label>
+
             <Link
               to="/forget-password"
               className="text-blue-500 hover:underline"
@@ -122,7 +135,6 @@ export default function Login() {
           </Button>
         </form>
 
-        {/* Sign up link */}
         <p className="text-sm text-gray-600 mt-6">
           Don’t have an account?
           <span className="text-[#FF8682] hover:underline">
@@ -131,15 +143,7 @@ export default function Login() {
           </span>
         </p>
       </div>
-
-      {/* Right Panel */}
-      <div className="hidden md:block w-1/2">
-        <img
-          src={loginpicture}
-          alt="Cleaning"
-          className="w-full max-h-screen object-cover"
-        />
-      </div>
     </div>
-  );
+  </div>
+);
 }
