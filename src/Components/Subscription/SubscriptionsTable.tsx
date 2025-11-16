@@ -64,6 +64,15 @@ const formatDateForDisplay = (dateStr: string) => {
     year: "numeric",
   });
 };
+const getRemainingDays = (nextPayment: string) => {
+  if (!nextPayment) return "-";
+  const today = new Date();
+  const next = new Date(nextPayment);
+  const diff = next.getTime() - today.getTime();
+  const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+  return days > 0 ? days : 0;
+};
+
 
 const getStatusClasses = (status: SubscriptionStatus) => {
   switch (status) {
@@ -211,6 +220,7 @@ export default function SubscriptionsTable({
             <th className="px-6 py-4 text-center">Status</th>
             <th className="px-6 py-4 text-left">Plan Details</th>
             <th className="px-6 py-4 text-left">Dates</th>
+            <th className="px-6 py-4 text-left">Remaining Dates</th>
             <th className="px-6 py-4 text-center">Actions</th>
             <th className="px-6 py-4 text-center">Invoice</th>
           </tr>
@@ -257,6 +267,12 @@ export default function SubscriptionsTable({
                   <span className="font-medium text-xs">Next: {formatDateForDisplay(sub?.nextPayment)}</span>
                 </div>
               </td>
+              <div className="flex items-center text-gray-600">
+                <LuCalendarDays className="w-4 h-4 text-blue-500 mr-2" />
+                <span className="font-medium text-xs">
+                  Remaining: {getRemainingDays(sub?.nextPayment)} days
+                </span>
+              </div>
 
               {/* Actions */}
               <td className="px-6 py-4 text-center">
