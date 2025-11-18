@@ -2,6 +2,7 @@ import { useState } from "react";
 import WholeMap from "@/Components/map/WholeMap";
 import { useGetBuildingsByRegionQuery } from "@/redux/features/admin/buildings/building.api";
 import { useGetregionsQuery } from "@/redux/features/admin/regions/regions.api";
+import RegionsHierarchy from "./region/region-dummy";
 
 interface Apartment {
   id: number;
@@ -32,80 +33,110 @@ interface Building {
   apartments: Apartment[];
 }
 
-interface Region {
+interface RegionType {
   id: number;
   name: string;
 }
 
 const MapRegionOverview = () => {
   const [expandedRegions, setExpandedRegions] = useState<Set<number>>(new Set());
+  const [search, setSearch] = useState("");
 
-  const { data: regions = [], isLoading: loadingRegions, error } = useGetregionsQuery(undefined);
+  const { data: regions = [], isLoading: loadingRegions, error } =
+    useGetregionsQuery(undefined);
 
   const toggleRegion = (regionId: number) => {
     setExpandedRegions((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(regionId)) {
-        newSet.delete(regionId);
-      } else {
-        newSet.add(regionId);
-      }
+      newSet.has(regionId) ? newSet.delete(regionId) : newSet.add(regionId);
       return newSet;
     });
   };
 
+  // 🔍 Filter regions based on search text
+  const filteredRegions = regions?.results?.filter((region: RegionType) =>
+    region.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      {/* Sidebar with Regions & Buildings List */}
-      <div className="lg:col-span-1">
-        <h2 className="text-base font-semibold mb-3">Regions & Buildings</h2>
+    <>
+      <div>
+        <RegionsHierarchy />
+      </div>
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded mb-3 text-sm">
-            Failed to load regions
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Sidebar with Regions & Buildings List */}
+        <div className="lg:col-span-1">
+          <h2 className="text-base font-semibold mb-3">Regions & Buildings</h2>
+
+          {/* 🔍 Search Bar */}
+          <div className="mb-3">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search region or building..."
+              className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
           </div>
-        )}
 
-        <div className="bg-white rounded-lg border overflow-hidden">
-          <div className="max-h-[680px] overflow-y-auto">
-            {loadingRegions ? (
-              <div className="p-4 text-gray-500 text-sm">Loading regions...</div>
-            ) : regions.length === 0 ? (
-              <div className="p-4 text-gray-500 text-sm">No regions found</div>
-            ) : (
-              regions?.results.map((region: Region) => (
-                <RegionItem
-                  key={region.id}
-                  region={region}
-                  isExpanded={expandedRegions.has(region.id)}
-                  onToggle={() => toggleRegion(region.id)}
-                />
-              ))
-            )}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded mb-3 text-sm">
+              Failed to load regions
+            </div>
+          )}
+
+          <div className="bg-white rounded-lg border overflow-hidden">
+            <div className="max-h-[680px] overflow-y-auto">
+              {loadingRegions ? (
+                <div className="p-4 text-gray-500 text-sm">Loading regions...</div>
+              ) : filteredRegions.length === 0 ? (
+                <div className="p-4 text-gray-500 text-sm">No matching regions found</div>
+              ) : (
+                filteredRegions.map((region: RegionType) => (
+                  <RegionItem
+                    key={region.id}
+                    region={region}
+                    isExpanded={expandedRegions.has(region.id)}
+                    onToggle={() => toggleRegion(region.id)}
+                    search={search} // 🔍 pass search
+                  />
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Main Map Area */}
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-lg border p-4 h-[680px] relative">
+            <WholeMap />
           </div>
         </div>
       </div>
-
-      {/* Main Map Area */}
-      <div className="lg:col-span-2">
-        <div className="bg-white rounded-lg border p-4 h-[680px] relative">
-          <WholeMap />
-        </div>
-      </div>
-    </div>
+    </>
   );
 };
 
 interface RegionItemProps {
-  region: Region;
+  region: RegionType;
   isExpanded: boolean;
   onToggle: () => void;
+  search: string;
 }
 
-const RegionItem = ({ region, isExpanded, onToggle }: RegionItemProps) => {
+const RegionItem = ({ region, isExpanded, onToggle, search }: RegionItemProps) => {
   const { data: buildings = [], isLoading } = useGetBuildingsByRegionQuery(region.id, {
     skip: !isExpanded,
   });
+
+  // 🔍 Filter buildings by name
+  const filteredBuildings =
+    search.trim().length > 0
+      ? buildings.filter((b: Building) =>
+          b.name.toLowerCase().includes(search.toLowerCase())
+        )
+      : buildings;
 
   return (
     <div className="border-b last:border-b-0">
@@ -139,13 +170,13 @@ const RegionItem = ({ region, isExpanded, onToggle }: RegionItemProps) => {
             <div className="px-4 py-3 text-sm text-gray-500">
               Loading buildings...
             </div>
-          ) : buildings.length > 0 ? (
-            buildings.map((building: Building) => (
+          ) : filteredBuildings.length > 0 ? (
+            filteredBuildings.map((building: Building) => (
               <BuildingCard key={building.id} building={building} />
             ))
           ) : (
             <div className="px-4 py-3 text-sm text-gray-500">
-              No buildings in this region
+              No matching buildings
             </div>
           )}
         </div>
@@ -163,9 +194,7 @@ const BuildingCard = ({ building }: BuildingCardProps) => {
     <div className="px-4 py-3 border-t border-gray-200 hover:bg-gray-100 transition-colors">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <h3 className="font-medium text-gray-900 text-sm">
-            {building.name}
-          </h3>
+          <h3 className="font-medium text-gray-900 text-sm">{building.name}</h3>
           <p className="text-xs text-gray-600 mt-1">
             {building.location}, {building.city}
           </p>
@@ -174,7 +203,8 @@ const BuildingCard = ({ building }: BuildingCardProps) => {
               {building.type}
             </span>
             <span className="text-xs text-gray-500">
-              {building.total_apartments} apartment{building.total_apartments !== 1 ? 's' : ''}
+              {building.total_apartments} apartment
+              {building.total_apartments !== 1 ? "s" : ""}
             </span>
           </div>
         </div>

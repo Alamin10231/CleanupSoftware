@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/Components/ui/select";
-import { Button } from "@/Components/ui/button";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useGetregionsQuery } from "@/redux/features/admin/regions/regions.api";
 import {
@@ -20,11 +20,12 @@ import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/Components/ui/tooltip";
+} from "@/components/ui/tooltip";
 import { useGetSearchAllEmpoloyeesQuery } from "@/redux/features/admin/users/employee.api";
 import { useGetSearchClientsQuery } from "@/redux/features/admin/users/clients.api";
 import { useGetPlansQuery } from "@/redux/features/admin/plan/plan.api";
 import { useAddSubscriptionMutation } from "@/redux/features/admin/subscription/subscription.api";
+import DatePicker from "react-datepicker";
 
 const AddSubscriptionForm = () => {
   interface FormState {
@@ -37,6 +38,7 @@ const AddSubscriptionForm = () => {
     start_date: string;
     payment: "prepaid" | "postpaid";
     employee: number[];
+    dateFormat: "string",
   }
   const initialFormState: FormState = {
     user: null,
@@ -48,6 +50,7 @@ const AddSubscriptionForm = () => {
     start_date: "",
     payment: "prepaid",
     employee: [],
+    dateFormat: "string"
   };
 
   const [formData, setFormData] = useState(initialFormState);
@@ -118,7 +121,7 @@ const AddSubscriptionForm = () => {
 
     try {
       await addSubscription(payload);
-      
+
       toast.success("Subscription created successfully");
       handleCancel();
     } catch (error) {
@@ -151,7 +154,7 @@ const AddSubscriptionForm = () => {
           <div className="space-y-4">
             {/* User Search */}
             <div className="space-y-2">
-              <Label htmlFor="user" className="text-sm">
+              <Label htmlFor="user" className="text-sm required:">
                 Select User *
               </Label>
               <div className="relative">
@@ -447,49 +450,20 @@ const AddSubscriptionForm = () => {
               <Label htmlFor="start_date" className="text-sm">
                 Start Date *
               </Label>
-              <Input
-                required
-                id="start_date"
-                type="date"
-                value={formData.start_date}
-                onChange={(e) =>
-                  handleInputChange("start_date", e.target.value)
-                }
+
+              <DatePicker
+                selected={formData.start_date ? new Date(formData.start_date) : null}
+                onChange={(date) => {
+                  const d = new Date(date);
+                  const formatted = d.toLocaleDateString("en-GB").replace(/\//g, "-");
+                  handleInputChange("start_date", formatted);
+                }}
+                dateFormat="dd-MM-yyyy"
+                className="w-full border rounded-md p-2"
               />
             </div>
 
-            {/* Current Period End */}
-            {/* <div className="space-y-2">
-              <Label htmlFor="current_period_end" className="text-sm">
-                Current Period End *
-              </Label>
-              <Input
-                id="current_period_end"
-                type="date"
-                value={formData.current_period_end}
-                onChange={(e) =>
-                  handleInputChange("current_period_end", e.target.value)
-                }
-              />
-            </div> */}
 
-            {/* Pause Until */}
-            {/* <div className="space-y-2">
-              <Label htmlFor="pause_until" className="text-sm">
-                Pause Until (optional)
-              </Label>
-              <Input
-                id="pause_until"
-                type="date"
-                value={formData.pause_until || ""}
-                onChange={(e) =>
-                  handleInputChange(
-                    "pause_until",
-                    e.target.value || null
-                  )
-                }
-              />
-            </div> */}
           </div>
         </div>
       </div>

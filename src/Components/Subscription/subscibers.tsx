@@ -5,6 +5,8 @@ import {
   useGetCalculationSubscriptionsQuery,
   useGetSubscriptionPageQuery,
 } from "@/redux/features/admin/subscription/subscription.api";
+import { Button } from "../ui/button";
+import AddSubscriptionForm from "@/Page/admin-dashboard/add-subscription";
 
 type TableRow = {
   id: number;
@@ -58,7 +60,6 @@ function apiToRow(item: any): TableRow {
     .trim()
     .replace(/^, /, "");
 
-  // const price = typeof plan?.amount === "number" ? `$${plan.amount}/month` : "";
   const amount = typeof plan?.amount === "number" ? plan.amount : 0;
   const pkg = plan?.name
     ? `${plan.name} Package $${amount.toFixed(2)}/month`
@@ -77,6 +78,7 @@ function apiToRow(item: any): TableRow {
     countdown: countdownText(item?.remaining_days),
     nextPayment: fmtDate(nextPaymentRaw),
     invoice: (item?.payment ?? "").toLowerCase() === "prepaid",
+    results: [],
   };
 }
 
@@ -84,6 +86,8 @@ function apiToRow(item: any): TableRow {
 export default function SubscriptionsDashboard() {
   const [statusFilter, setStatusFilter] = useState("All status");
   const [page, setPage] = useState(1);
+  const [open, setOpen] = useState(false);
+  const [searchItem, setSearchItem] = useState("");
   const pageSize = 10;
 
   const { data: kpis, isLoading: kpisLoading } =
@@ -114,24 +118,20 @@ export default function SubscriptionsDashboard() {
     ),
   };
 
-  const [searchItem, setSearchItem] = useState("");
-
   const filterrows = useMemo(() => {
     if (!searchItem) return rows;
-
     return rows.filter(
       (row) =>
-        row.name.toLocaleLowerCase().includes(searchItem.toLocaleLowerCase()) ||
-        row.email
-          .toLocaleLowerCase()
-          .includes(searchItem.toLocaleLowerCase()) ||
-        row.package.toLocaleLowerCase().includes(searchItem.toLocaleLowerCase())
+        row.name.toLowerCase().includes(searchItem.toLowerCase()) ||
+        row.email.toLowerCase().includes(searchItem.toLowerCase()) ||
+        row.package.toLowerCase().includes(searchItem.toLowerCase())
     );
   }, [rows, searchItem]);
 
   return (
     <div className="p-4 md:p-6 space-y-6 md:space-y-8">
       <h1 className="text-xl md:text-2xl font-semibold">All Subscribers</h1>
+
       {/* KPI cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
         {kpisLoading
@@ -151,7 +151,7 @@ export default function SubscriptionsDashboard() {
               return (
                 <div
                   key={index}
-                  className="bg-white flex  border border-gray-300 rounded-md p-5 py-8 items-center justify-between"
+                  className="bg-white flex border border-gray-300 rounded-md p-5 py-8 items-center justify-between"
                 >
                   <div className="flex flex-col gap-1">
                     <p className="text-gray-500 text-sm md:text-base font-semibold">
@@ -175,50 +175,66 @@ export default function SubscriptionsDashboard() {
             })}
       </div>
 
-      {/* Table header & filters */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <div className=" rounded-md">
-            <input
-              type="text"
-              value={searchItem}
-              onChange={(e) => setSearchItem(e.target.value)}
-              name="search"
-              placeholder="search"
-              id=""
-              className="border border-gray-300 rounded-md px-4 py-2 text-sm w-full sm:w-auto"
+      {/* Show either the form OR the table/search UI */}
+      {open ? (
+        <div className="mt-6 border p-4 rounded-md bg-gray-50 shadow-sm">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">Add New Subscription</h2>
+            <Button onClick={() => setOpen(false)}>Close</Button>
+          </div>
+          <AddSubscriptionForm />
+        </div>
+      ) : (
+        <>
+          {/* Search + filters + button */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <input
+                type="text"
+                value={searchItem}
+                onChange={(e) => setSearchItem(e.target.value)}
+                placeholder="Search"
+                className="border border-gray-300 rounded-md px-4 py-2 text-sm w-full sm:w-auto"
+              />
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setPage(1);
+                  setStatusFilter(e.target.value);
+                }}
+                className="border border-gray-300 rounded-md px-4 py-2 text-sm text-gray-600 cursor-pointer w-full sm:w-auto"
+              >
+                <option value="">All status</option>
+                <option value="active">Active</option>
+                <option value="paused">Paused</option>
+                <option value="past_due">Past Due</option>
+                
+             
+                <option value="canceled">Canceled</option>
+              </select>
+            </div>
+
+            <div className="w-full sm:w-auto">
+              <Button onClick={() => setOpen(true)}>Add New Subscription</Button>
+            </div>
+          </div>
+
+          {/* Table */}
+          <div className="overflow-x-auto mt-4">
+            <SubscriptionsTable
+              data={{ results: filterrows, count: pageData?.count || 0 }}
+              page={page}
+              pageSize={pageSize}
+              onPageChange={setPage}
             />
           </div>
-          <select
-            value={statusFilter}
-            onChange={(e) => {
-              setPage(1);
-              setStatusFilter(e.target.value);
-            }}
-            className="border border-gray-300 rounded-md px-4 py-2 text-sm text-gray-600 cursor-pointer w-full sm:w-auto"
-          >
-            <option value="">All status</option>
-            <option value="active">Active</option>
-            <option value="paused">Paused</option>
-            <option value="past_due">Past Due</option>
-            <option value="inactive">Inactive</option>
-            <option value="canceled">Canceled</option>
-          </select>
-        </div>
-      </div>
 
-      {/* Table */}
-      <div className="overflow-x-auto ">
-        <SubscriptionsTable
-          data={{ results: filterrows, count: pageData?.count || 0 }}
-          page={page}
-          pageSize={pageSize}
-          onPageChange={setPage}
-        />
-      </div>
-
-      {subsLoading && (
-        <p className="text-sm text-gray-500 mt-2">Loading subscriptions…</p>
+          {subsLoading && (
+            <p className="text-sm text-gray-500 mt-2">
+              Loading subscriptions…
+            </p>
+          )}
+        </>
       )}
     </div>
   );
